@@ -23,13 +23,20 @@ predicates:
     expr: or(death, hospital_discharge)
 
   # Plain predicates
-  map:
+  map_mmhg:
     code: ???
-  abnormally_low_map:
-    code: ???
+  abnormally_low_map_mmhg_range:
+    code: null
     value_min: null
     value_max: 65 # mmHg
     value_max_inclusive: False
+  abnormally_low_map_mmhg:
+    expr: and(map_mmhg, abnormally_low_map_mmhg_range)
+
+  # map:
+  #   expr: or(map_mmhg, ..., map_other_unit)
+  # abnormally_low_map:
+  #   expr: or(abnormally_low_map_mmhg, ..., abnormally_low_map_other_unit)
 
 trigger: hospital_admission
 
@@ -42,7 +49,8 @@ windows:
     index_timestamp: end
     # do not allow to have shown low MAP values previously
     has:
-      abnormally_low_map: (None, 0)
+      # abnormally_low_map: (None, 0)
+      abnormally_low_map_mmhg: (None, 0)
   # do not allow hospital discharge to happen within the input + target window
   no_discharge:
     start: trigger
@@ -66,5 +74,7 @@ windows:
     start_inclusive: False
     end_inclusive: True
     has:
-      map: (1, None)
-    label: abnormally_low_map
+      # map: (1, None)
+      map_mmhg: (1, None)
+    # label: abnormally_low_map
+    label: abnormally_low_map_mmhg

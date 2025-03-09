@@ -23,13 +23,20 @@ predicates:
     expr: or(death, hospital_discharge)
 
   # Plain predicates
-  sodium:
+  sodium_meql:
     code: ???
-  abnormally_low_sodium:
-    code: ???
+  abnormally_low_sodium_meql_range:
+    code: null
     value_min: null
     value_max: 135 # mEq/L
     value_max_inclusive: False
+  abnormally_low_sodium_meql:
+    expr: and(sodium_meql, abnormally_low_sodium_meql_range)
+
+  # sodium:
+  #   expr: or(sodium_meql, ..., sodium_other_unit)
+  # abnormally_low_sodium:
+  #   expr: or(abnormally_low_sodium_meql, ..., abnormally_low_sodium_other_unit)
 
 trigger: hospital_admission
 
@@ -42,7 +49,8 @@ windows:
     index_timestamp: end
     # do not allow to have shown low sodium values previously
     has:
-      abnormally_low_sodium: (None, 0)
+      # abnormally_low_sodium: (None, 0)
+      abnormally_low_sodium_meql: (None, 0)
   # do not allow hospital discharge to happen within the input + target window
   no_discharge:
     start: trigger
@@ -66,5 +74,7 @@ windows:
     start_inclusive: False
     end_inclusive: True
     has:
-      sodium: (1, None)
-    label: abnormally_low_sodium
+      # sodium: (1, None)
+      sodium_meql: (1, None)
+    # label: abnormally_low_sodium
+    label: abnormally_low_sodium_meql
