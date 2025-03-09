@@ -1,2 +1,2 @@
-genhpf==1.0.6
+genhpf==1.0.7
 pyarrow==17.0.0
