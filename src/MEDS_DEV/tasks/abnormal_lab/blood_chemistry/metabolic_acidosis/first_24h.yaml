@@ -29,12 +29,11 @@ predicates:
     value_max_inclusive: False
   abnormally_low_bicarbonate_meql:
     expr: and(bicarbonate_meql, abnormally_low_bicarbonate_meql_range)
-  bicarbonate:
-    # add other units by `or(bicarbonate_meql, ..., bicarbonate_other_unit)`
-    expr: bicarbonate_meql
-  abnormally_low_bicarbonate:
-    # add other units by `or(abnormally_low_bicarbonate_meql, ..., abnormally_low_bicarbonate_other_unit)`
-    expr: abnormally_low_bicarbonate_meql
+
+  # bicarbonate:
+  #   expr: or(bicarbonate_meql, ..., bicarbonate_other_unit)
+  # abnormally_low_bicarbonate:
+  #   expr: or(abnormally_low_bicarbonate_meql, ..., abnormally_low_bicarbonate_other_unit)
 
 trigger: hospital_admission
 
@@ -47,7 +46,8 @@ windows:
     index_timestamp: end
     # do not allow to have shown low bicarbonate values previously
     has:
-      abnormally_low_bicarbonate: (None, 0)
+      # abnormally_low_bicarbonate: (None, 0)
+      abnormally_low_bicarbonate_meql: (None, 0)
   # do not allow hospital discharge to happen within the input + target window
   no_discharge:
     start: trigger
@@ -71,5 +71,7 @@ windows:
     start_inclusive: False
     end_inclusive: True
     has:
-      bicarbonate: (1, None)
-    label: abnormally_low_bicarbonate
+      # bicarbonate: (1, None)
+      bicarbonate_meql: (1, None)
+    # label: abnormally_low_bicarbonate
+    label: abnormally_low_bicarbonate_meql

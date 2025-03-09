@@ -29,12 +29,10 @@ predicates:
   abnormally_high_creatinine_mgdl:
     expr: and(creatinine_mgdl, abnormally_high_creatinine_mgdl_range)
 
-  creatinine:
-    # add other units by `or(creatinine_mgdl, ..., creatinine_other_unit)`
-    expr: creatinine_mgdl
-  abnormally_high_creatinine:
-    # add other units by `or(abnormally_high_creatinine_mgdl, ..., abnormally_high_creatinine_other_unit)`
-    expr: abnormally_high_creatinine_mgdl
+  # creatinine:
+  #   expr: or(creatinine_mgdl, ..., creatinine_other_unit)
+  # abnormally_high_creatinine:
+  #   expr: or(abnormally_high_creatinine_mgdl, ..., abnormally_high_creatinine_other_unit)
 
 trigger: hospital_admission
 
@@ -47,7 +45,8 @@ windows:
     index_timestamp: end
     # do not allow to have shown elevated creatinine values previously
     has:
-      abnormally_high_creatinine: (None, 0)
+      # abnormally_high_creatinine: (None, 0)
+      abnormally_high_creatinine_mgdl: (None, 0)
   # do not allow hospital discharge to happen within the input + target window
   no_discharge:
     start: trigger
@@ -71,5 +70,7 @@ windows:
     start_inclusive: False
     end_inclusive: True
     has:
-      creatinine: (1, None)
-    label: abnormally_high_creatinine
+      # creatinine: (1, None)
+      creatinine_mgdl: (1, None)
+    # label: abnormally_high_creatinine
+    label: abnormally_high_creatinine_mgdl
