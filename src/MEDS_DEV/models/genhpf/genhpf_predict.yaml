@@ -1,0 +1,43 @@
+common:
+  log_format: json
+  log_interval: 10
+  all_gather_list_size: 2048000
+  seed: 42
+
+meds:
+  output_predictions: true
+  labels_dir: ???
+  output_dir: ???
+
+dataset:
+  data_format: meds
+  data: ???
+  label: true
+  vocab_size: 28996
+  pad_token_id: 0
+  sep_token_id: 102
+  dummy_token_id: 101
+  ignore_index: -100
+
+  num_workers: 6
+  batch_size: 16
+  train_subset: ""
+  valid_subset: ""
+  test_subset: "held_out"
+
+distributed_training:
+  distributed_world_size: 1
+  find_unused_parameters: False
+
+criterion:
+  _name: binary_cross_entropy
+  task_names:
+    - meds_binary_classification
+  num_labels:
+    - 1
+
+model:
+  _name: genhpf_predictor
+
+  structure: hierarchical
+  embedding_method: text
