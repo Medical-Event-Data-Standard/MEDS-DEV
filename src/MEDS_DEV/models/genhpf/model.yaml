@@ -29,6 +29,7 @@ commands:
         "--skip-if-exists"
 
       genhpf-train \
+        "hydra.run.dir={output_dir}" \
         "dataset.data={output_dir}/data" \
         "checkpoint.save_dir={output_dir}/checkpoints" \
         "common.debug={demo}" \
@@ -37,6 +38,7 @@ commands:
 
     predict: |-
       genhpf-test \
+        "hydra.run.dir={output_dir}" \
         "dataset.data={model_initialization_dir}/data" \
         "meds.output_predictions=true" \
         "meds.labels_dir={labels_dir}" \
