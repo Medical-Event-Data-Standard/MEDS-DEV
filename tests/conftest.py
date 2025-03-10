@@ -1,5 +1,6 @@
 import contextlib
 import logging
+import shutil
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -59,6 +60,21 @@ def pytest_addoption(parser):
     add_reuse_opt("dataset")
     add_reuse_opt("task")
     add_reuse_opt("model")
+
+    parser.addoption(
+        "--do_clear_venvs",
+        action="store_true",
+        dest="clear_venvs",
+        default=True,
+        help="Clear the venvs for datasets and models after testing.",
+    )
+
+    parser.addoption(
+        "--no_do_clear_venvs",
+        action="store_false",
+        dest="clear_venvs",
+        help="Do not clear the venvs for datasets and models after testing.",
+    )
 
 
 def get_and_validate_cache_settings(request) -> tuple[Path, tuple[set[str], set[str], set[str]]]:
@@ -275,6 +291,12 @@ def demo_dataset(request, venv_cache: Path) -> NAME_AND_DIR:
                     "venv_dir": str(venv_dir.resolve()),
                 },
             )
+
+            # Dataset venvs should never be used again, so we delete it here for simplicity.
+            if request.config.getoption("clear_venvs") and venv_dir.is_dir():
+                logger.info(f"Deleting venv for {dataset_name} at {venv_dir}")
+                shutil.rmtree(venv_dir)
+
             check_fp.parent.mkdir(parents=True, exist_ok=True)
             check_fp.touch()
 
