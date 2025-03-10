@@ -559,7 +559,17 @@ def missing_labels_in_splits(labels_dir: Path, dataset_dir: Path) -> set[str]:
 def unsupervised_model(request, demo_dataset: NAME_AND_DIR, venv_cache: Path) -> NAME_AND_DIR:
     model = request.param
     dataset_name, dataset_dir = demo_dataset
-    venv_dir = venv_cache / "models" / model
+    venv_dir = venv_cache / "model"
+    model_fp = venv_dir / "model_name.txt"
+
+    if model_fp.is_file():
+        other_model_name = model_fp.read_text().strip()
+        if other_model_name != model:
+            logger.info(f"Deleting venv for {other_model_name} at {venv_dir}")
+            shutil.rmtree(venv_dir)
+    else:
+        model_fp.parent.mkdir(parents=True, exist_ok=True)
+        model_fp.write_text(model)
 
     unsupervised_commands = MODELS[model]["commands"].get("unsupervised", None)
     if (not unsupervised_commands) or (not unsupervised_commands.get("train", None)):
@@ -614,7 +624,16 @@ def supervised_model(
     dataset_name, dataset_dir = demo_dataset
     task_name, task_labels_dir = task_labels
 
-    venv_dir = venv_cache / "models" / model
+    venv_dir = venv_cache / "model"
+    model_fp = venv_dir / "model_name.txt"
+    if model_fp.is_file():
+        other_model_name = model_fp.read_text().strip()
+        if other_model_name != model:
+            logger.info(f"Deleting venv for {other_model_name} at {venv_dir}")
+            shutil.rmtree(venv_dir)
+    else:
+        model_fp.parent.mkdir(parents=True, exist_ok=True)
+        model_fp.write_text(model)
 
     missing_splits = missing_labels_in_splits(task_labels_dir, dataset_dir)
     if missing_splits:
