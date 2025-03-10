@@ -1,6 +1,8 @@
 import contextlib
+import itertools
 import logging
 import shutil
+from collections import defaultdict
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -75,6 +77,45 @@ def pytest_addoption(parser):
         dest="clear_venvs",
         help="Do not clear the venvs for datasets and models after testing.",
     )
+
+
+def pytest_collection_finish(session: pytest.Session):
+    """A hook to determine what tests will rely on model specific virtual environments for GC purposes."""
+
+    model_tests = {}
+
+    for item in session.items:
+        # All models derive from an unsupervised run, so this is sufficient.
+        derived_from_model = "unsupervised_model" in item.fixturenames
+        derived_from_evaluation = "evaluated_model" in item.fixturenames
+
+        if derived_from_evaluation or not derived_from_model:
+            continue
+
+        if hasattr(item, "callspec"):
+            fixture_params = {name: value for name, value in item.callspec.params.items()}
+        else:
+            raise ValueError(f"Item {item} does not have a callspec.")
+
+        model_name = fixture_params["unsupervised_model"]
+
+        if "supervised_model" in item.fixturenames:
+            test_setting = (fixture_params["demo_dataset"], fixture_params["task_labels"])
+        else:
+            test_setting = (fixture_params["demo_dataset"], "unsupervised")
+
+        if model_name not in model_tests:
+            model_tests[model_name] = {"settings": defaultdict(list)}
+
+        model_tests[model_name]["settings"][test_setting].append(item.name)
+
+        if len(model_tests[model_name]["settings"][test_setting]) > 1:
+            raise ValueError(f"Multiple tests for {model_name} with the same settings: {test_setting}")
+
+    for model_name in model_tests:
+        model_tests[model_name]["settings_run"] = {k: False for k in model_tests[model_name]["settings"]}
+
+    session.config.model_tests = model_tests
 
 
 def get_and_validate_cache_settings(request) -> tuple[Path, tuple[set[str], set[str], set[str]]]:
@@ -246,12 +287,42 @@ def get_opts(config, opt: str) -> list[str]:
 
 
 def pytest_generate_tests(metafunc):
-    if "demo_dataset" in metafunc.fixturenames:
-        metafunc.parametrize("demo_dataset", get_opts(metafunc.config, "dataset"), indirect=True)
+    dataset_opts = get_opts(metafunc.config, "dataset")
+    task_opts = get_opts(metafunc.config, "task")
+    model_opts = get_opts(metafunc.config, "model")
+
     if "task_labels" in metafunc.fixturenames:
-        metafunc.parametrize("task_labels", get_opts(metafunc.config, "task"), indirect=True)
+        arg_names = ["task_labels", "demo_dataset"]
+        arg_values = []
+        for dataset, task in itertools.product(dataset_opts, task_opts):
+            task_metadata = TASKS[task].get("metadata", None)
+            if (task_metadata is not None) and (dataset in task_metadata.supported_datasets):
+                arg_values.append((task, dataset))
+        metafunc.parametrize(arg_names, arg_values, indirect=True)
+    elif "demo_dataset" in metafunc.fixturenames:
+        metafunc.parametrize("demo_dataset", dataset_opts, indirect=True)
     if "unsupervised_model" in metafunc.fixturenames:
-        metafunc.parametrize("unsupervised_model", get_opts(metafunc.config, "model"), indirect=True)
+        metafunc.parametrize("unsupervised_model", model_opts, indirect=True)
+
+
+def clear_model_venv_if_needed(request, venv_dir: Path, setting: tuple[str, str, str]) -> None:
+    if not (request.config.getoption("clear_venvs") and venv_dir.is_dir()):
+        return
+
+    if not hasattr(request.config, "model_tests"):
+        raise ValueError("Model tests not found in the config object.")
+
+    model, dataset, task = setting
+
+    settings_run_for_model = request.config.model_tests[model]["settings_run"]
+    settings_run_for_model[(dataset, task)] = True
+
+    if all(settings_run_for_model.values()):
+        logger.info(f"Deleting venv for {model} at {venv_dir} as all tests have run.")
+        shutil.rmtree(venv_dir)
+    else:
+        still_to_run = ", ".join(("-".join(k) for k, v in settings_run_for_model.items() if not v))
+        logger.info(f"Saving venv for {model} at {venv_dir} as still to run: {still_to_run}.")
 
 
 @pytest.fixture(scope="session")
@@ -311,10 +382,6 @@ def task_labels(request, demo_dataset: NAME_AND_DIR) -> NAME_AND_DIR:
     _, reuse_tasks, _ = get_and_validate_reuse_settings(request)
 
     do_overwrite = not (task_name in reuse_tasks)
-
-    task_metadata = TASKS[task_name].get("metadata", None)
-    if task_metadata is None or dataset_name not in task_metadata.supported_datasets:
-        pytest.skip(f"Dataset {dataset_name} not supported for testing {task_name}.")
 
     persistent_cache_dir, (_, cache_tasks, _) = get_and_validate_cache_settings(request)
     with cache_dir(persistent_cache_dir if task_name in cache_tasks else None) as root_dir:
@@ -419,16 +486,14 @@ def missing_labels_in_splits(labels_dir: Path, dataset_dir: Path) -> set[str]:
 @pytest.fixture(scope="session")
 def unsupervised_model(request, demo_dataset: NAME_AND_DIR, venv_cache: Path) -> NAME_AND_DIR:
     model = request.param
+    dataset_name, dataset_dir = demo_dataset
+    venv_dir = venv_cache / "models" / model
 
     unsupervised_commands = MODELS[model]["commands"].get("unsupervised", None)
-    if not unsupervised_commands:
+    if (not unsupervised_commands) or (not unsupervised_commands.get("train", None)):
+        clear_model_venv_if_needed(request, venv_dir, (model, dataset_name, "unsupervised"))
         yield model, None
         return
-    if not unsupervised_commands.get("train", None):
-        yield model, None
-        return
-
-    dataset_name, dataset_dir = demo_dataset
 
     _, _, reuse_models = get_and_validate_reuse_settings(request)
 
@@ -443,8 +508,6 @@ def unsupervised_model(request, demo_dataset: NAME_AND_DIR, venv_cache: Path) ->
         already_tested = check_fp.exists() and model_dir.is_dir()
 
         if do_overwrite or not already_tested:
-            venv_dir = venv_cache / "models" / model
-
             run_command(
                 "meds-dev-model",
                 test_name=f"Model {model} should train in unsupervised mode on {dataset_name}",
@@ -462,6 +525,8 @@ def unsupervised_model(request, demo_dataset: NAME_AND_DIR, venv_cache: Path) ->
             check_fp.parent.mkdir(parents=True, exist_ok=True)
             check_fp.touch()
 
+            clear_model_venv_if_needed(request, venv_dir, (model, dataset_name, "unsupervised"))
+
         yield model, model_dir
 
 
@@ -474,12 +539,15 @@ def supervised_model(
     venv_cache: Path,
 ) -> NAME_AND_DIR:
     model, unsupervised_train_dir = unsupervised_model
-
     dataset_name, dataset_dir = demo_dataset
     task_name, task_labels_dir = task_labels
 
+    venv_dir = venv_cache / "models" / model
+
     missing_splits = missing_labels_in_splits(task_labels_dir, dataset_dir)
     if missing_splits:
+        clear_model_venv_if_needed(request, venv_dir, (model, dataset_name, task_name))
+
         pytest.skip(
             f"Labels not found for {dataset_name} and {task_name} in split(s): {', '.join(missing_splits)}. "
             f"Skipping {model} test."
@@ -511,8 +579,6 @@ def supervised_model(
         already_tested = check_fp.exists() and model_dir.is_dir()
 
         if do_overwrite or not already_tested:
-            venv_dir = venv_cache / "models" / model
-
             run_command(
                 "meds-dev-model",
                 test_name=f"Model {model} should run on {dataset_name} and {task_name}",
@@ -524,6 +590,8 @@ def supervised_model(
             )
             check_fp.parent.mkdir(parents=True, exist_ok=True)
             check_fp.touch()
+
+            clear_model_venv_if_needed(request, venv_dir, (model, dataset_name, task_name))
 
         final_out_dir = model_dir / dataset_name / task_name / "predict"
         yield model, final_out_dir
