@@ -130,16 +130,16 @@ def pytest_collection_modifyitems(session: pytest.Session, config: pytest.Config
         task_idx = task_opts.index(fixture_params["task_labels"]) if has_task else -1
 
         if is_task_extraction_test:
-            return (-1, task_idx, dataset_idx)
+            return (-1, task_idx, -1, dataset_idx)
 
         model_idx = model_opts.index(fixture_params["unsupervised_model"])
 
         if is_unsupervised_model_test:
             return (model_idx, -1, -1, dataset_idx)
         elif is_supervised_model_test:
-            return (model_idx, -1, task_idx, dataset_idx)
+            return (model_idx, task_idx, -1, dataset_idx)
         elif is_evaluation_test:
-            return (model_idx, 1, task_idx, dataset_idx)
+            return (model_idx, task_idx, 1, dataset_idx)
         else:
             raise ValueError(f"Item {item} does not fit any category.")
 
