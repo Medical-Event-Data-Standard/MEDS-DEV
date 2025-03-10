@@ -214,14 +214,29 @@ the public record to help advance the science of Health AI!
 To add a dataset, you will need to create a new directory under `src/MEDS_DEV/datasets/` with the name of the
 dataset, containing the following files:
 
-1. `README.md`: This file should contain a description of the dataset. See the templates for examples.
+1. `README.md`: This file should contain a description of the dataset. See the [templates](templates) for examples.
 2. `requirements.txt`: This file should be a valid `pip` specification for what is needed to install the ETL
     to build the environment. _The ETL must be runnable on Python 3.11_.
-3. `commands.yaml`: This file must have two shell command strings under the keys `build_full` and
-    `build_demo` that, if run in an environment with the requirements installed, with the specified
-    placeholder variables (indicated in python syntax, include `temp_dir` for intermediate files and
-    `output_dir` for where you want the final MEDS cohort to live) will produce the desired MEDS cohort.
+3. `dataset.yaml`: This file needs to have two keys: `metadata` and `commands`. Under `commands`, you must
+    have the keys `build_full` and `build_demo` that, if run in an environment with the requirements installed,
+    with the specified placeholder variables (indicated in python syntax, include `temp_dir` for intermediate
+    files and `output_dir` for where you want the final MEDS cohort to live) will produce the desired MEDS
+    cohort. The `metadata` key should contain information about the dataset. See the `MIMIC-IV` dataset for an
+    example of the allowed syntax here. Mandatory keys include `description`, `access_policy`, and the key
+    `contacts` with at least one entry. Note that the values for `access_policy` are restricted to the values
+    of the `AccessPolicy` `StrEnum` in the `MEDS_DEV.datasets` codebase, namely:
+    - `"public_with_approval"`: Data that can be used (in principle) by anyone, but requires approval to access.
+    - `"public_unrestricted"`: Data that can be used by anyone with no restrictions or gating.
+    - `"institutional"`: Data that is only available within a specific institution or department, but is in
+        principle accessible to all researchers within that group. This should not be used for data that has
+        only been approved for a single group or a single research process.
+    - `"private_single_use"`: Data that is only available to a single research group or project, and is not
+        available nor likely to ever become available outside of that limited context.
+    - `"other"`: Any other access mode that does not fit into the above categories. If you use this, you must
+        describe the access policy in more details in the `access_details` optional field in the metadata.
 4. `predicates.yaml` contains ACES syntax predicates to realize the target tasks.
+5. Optionally, you should add a `refs.bib` file with a BibTex entry users should cite when they use the
+    dataset.
 
 If all of these are defined, then you can, after installing `MEDS-DEV` via `pip install -e .`, run the command
 `meds-dev-dataset dataset=DATASET_NAME output_dir=OUTPUT_DIR` to generate the MEDS cohort for that dataset
@@ -233,25 +248,30 @@ To add a task, simply create a new task configuration file under `src/MEDS_DEV/t
 (slash-separated) task name. The task configuration file should be a valid ACES configuration file, with the
 predicates left as placeholders to-be-overwritten by dataset-specific predicates. In addition, in the same
 series of folders leading to the task configuration file, you should have `README.md` files that describe what
-those "categories" of tasks mean.
+those "categories" of tasks mean. Note you can also specify a `refs.bib` file here, like with a dataset.
 
 Once a task is defined, then you can, after installing `MEDS-DEV` via `pip install -e .`, run the command
 `meds-dev-task task=TASK_NAME dataset=DATASET_NAME output_dir=OUTPUT_DIR dataset_dir=DATASET_DIR` to generate
 the labels for task `TASK_NAME` over dataset `DATASET_NAME` stored in the directory `DATASET_DIR` in the
 output directory `OUTPUT_DIR`.
 
-For testing purposes, _e.g., to ensure your task is correctly defined and supported by the expected datasets_,
-you should also include the following information in a `metadata` block in your task config:
+You should also specify meaningful metadata about the task in the `metadata` key of the task configuration.
+This metadata should include a list of datasets that the task is applicable to, e.g.,
 
-```
+```yaml
 metadata:
-  test_datasets:
+  description: >-
+    A description of your task
+  contacts:
+    - name: Your name
+      github_username: Your GitHub username
+  supported_datasets:
     - MIMIC-IV
-    - ...
+    - '...'
 ```
 
-where the list of datasets in `metadata.test_datasets` will be used to test the task automatically by the test
-set-up (against the _demo_ version of that dataset only!)
+The datasets you highlight in the `supported_datasets` key will also be used to test this task config against
+the supported MEDS-DEV datasets.
 
 ### Adding a model
 
@@ -260,7 +280,9 @@ this subdirectory, create a `requirements.txt`, `README.md`, and `model.yaml` fi
 contains the necessary Python packages to install to run the model, similar to dataset creation, the
 `README.md` contains a description of the model, and the `model.yaml` file contains some programmatic
 information about the model, including most critically a `commands` key with a dictionary of commands needed
-to run to train the model from scratch on a MEDS dataset.
+to run to train the model from scratch on a MEDS dataset. It also must include a `metadata` key with some
+example of the metadata. See the existing models for examples. Note you can also specify a `refs.bib` file
+here, like with a dataset.
 
 A full description of these commands is coming soon, but for now, note that:
 
@@ -307,6 +329,10 @@ of a test, you can also specify the additional arguments: `--reuse_cached_datase
 `--reuse_cached_model` with the same syntax of the `--cache_*` and `--test_*` arguments. Then, the test code
 will explicitly mark the specified components within the persistent cache directory as "re-useable" and will
 not re-run the associated MEDS-DEV code pipelines in between test runs, but simply re-use the outputs.
+
+By default, even when caching is enabled, the testing code will clear the virtual environments of the various
+model and dataset runs after they are no longer needed, to reduce the overall disk footprint of the test
+suite. You can disable this by adding the argument `--no_do_clear_venvs` to the pytest command line.
 
 ## Notes
 

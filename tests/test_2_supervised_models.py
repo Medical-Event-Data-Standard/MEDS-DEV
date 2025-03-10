@@ -20,4 +20,6 @@ def test_supervised(supervised_model: NAME_AND_DIR, demo_dataset: NAME_AND_DIR, 
         error_lines.append(str(list(d.rglob("*"))))
         raise AssertionError("\n".join(error_lines))
 
-    assert len(list(final_out_dir.rglob("*.parquet"))) > 0, f"No predictions written for {setting}."
+    predict_dir = final_out_dir / "predict"
+
+    assert len(list(predict_dir.rglob("*.parquet"))) > 0, f"No predictions written for {setting}."

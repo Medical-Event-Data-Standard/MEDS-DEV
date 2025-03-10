@@ -28,7 +28,7 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-dependencies = ["meds==0.3.3", "es-aces==0.6.1", "hydra-core", "meds-evaluation==0.0.3"]
+dependencies = ["meds==0.3.3", "es-aces==0.6.1", "hydra-core", "meds-evaluation==0.0.3", "validators"]
 
 [tool.setuptools_scm]
 

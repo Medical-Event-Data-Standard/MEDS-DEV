@@ -1,3 +1,12 @@
+metadata:
+  description: >-
+    The CEHR-BERT model. See the referenced paper for full details. This version of the CEHR-BERT model uses
+    default hyperparameters. TODO(@ChaoPang): Add more details here.
+  links:
+    - https://proceedings.mlr.press/v158/pang21a.html
+  contacts:
+    - name: "Chao Pang"
+      github_username: "ChaoPang"
 commands:
   unsupervised:
     train: >-
