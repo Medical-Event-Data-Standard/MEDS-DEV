@@ -330,6 +330,10 @@ of a test, you can also specify the additional arguments: `--reuse_cached_datase
 will explicitly mark the specified components within the persistent cache directory as "re-useable" and will
 not re-run the associated MEDS-DEV code pipelines in between test runs, but simply re-use the outputs.
 
+By default, even when caching is enabled, the testing code will clear the virtual environments of the various
+model and dataset runs after they are no longer needed, to reduce the overall disk footprint of the test
+suite. You can disable this by adding the argument `--no_do_clear_venvs` to the pytest command line.
+
 ## Notes
 
 1. Some models in this repo use Hugging Face Datasets objects. These cache data to disk in a directory you
