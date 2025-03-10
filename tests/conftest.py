@@ -665,13 +665,19 @@ def supervised_model(
 
             clear_model_venv_if_needed(request, venv_dir, (model, dataset_name, task_name))
 
-        final_out_dir = model_dir / dataset_name / task_name / "predict"
+        final_out_dir = model_dir / dataset_name / task_name
         yield model, final_out_dir
 
 
 @pytest.fixture(scope="session")
-def evaluated_model(supervised_model: NAME_AND_DIR) -> Path:
+def evaluated_model(request, supervised_model: NAME_AND_DIR) -> Path:
     model, final_out_dir = supervised_model
+
+    persistent_cache_dir, (_, _, cache_models) = get_and_validate_cache_settings(request)
+
+    do_clear_model = (persistent_cache_dir is None) or (model not in cache_models)
+
+    predict_dir = final_out_dir / "predict"
 
     with TemporaryDirectory() as root_dir:
         run_command(
@@ -679,8 +685,11 @@ def evaluated_model(supervised_model: NAME_AND_DIR) -> Path:
             test_name=f"Evaluate {model}",
             hydra_kwargs={
                 "output_dir": str(root_dir),
-                "predictions_dir": str(final_out_dir),
+                "predictions_dir": str(predict_dir),
             },
         )
+
+        if do_clear_model:
+            shutil.rmtree(final_out_dir)
 
         yield Path(root_dir)
