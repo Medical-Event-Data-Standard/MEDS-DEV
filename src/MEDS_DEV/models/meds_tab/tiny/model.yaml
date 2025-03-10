@@ -1,3 +1,15 @@
+metadata:
+  description: >-
+    A tiny, low-cost XGBoost baseline using the MEDS-Tab framework. TODO(@Oufattole): Add more details here.
+  links:
+    - https://arxiv.org/abs/2411.00200
+  contacts:
+    - name: "Nassim Oufattole"
+      github_username: "Oufattole"
+    - name: "Teya Bergamaschi"
+      github_username: "teyaberg"
+    - name: "Matthew McDermott"
+      github_username: "mmcdermott"
 commands:
   unsupervised: null
   supervised:

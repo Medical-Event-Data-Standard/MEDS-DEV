@@ -1,3 +1,12 @@
+metadata:
+  description: >-
+    This is a model that simply generates proabilities randomly from a uniform distribution between 0 and 1
+    for each sample in the task. It should never be used for anything other than testing or establishing an
+    empirical chance baseline for complex metrics.
+  links: []
+  contacts:
+    - name: "Matthew McDermott"
+      github_username: "mmcdermott"
 commands:
   unsupervised: null
   supervised:

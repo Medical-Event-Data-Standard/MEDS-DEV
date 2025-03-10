@@ -1,4 +1,5 @@
 import contextlib
+import dataclasses
 import hashlib
 import logging
 import os
@@ -7,10 +8,193 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
+from urllib.parse import urlparse
 
-from omegaconf import DictConfig
+import validators
+from omegaconf import DictConfig, ListConfig
 
 logger = logging.getLogger(__name__)
+
+
+def is_valid_email(email: str) -> bool:
+    """A simple function to check if an email address is valid.
+
+    Could be replaced with a more robust solution, such as the one provided by the `email-validator` package.
+
+    Args:
+        email: Email address to validate.
+
+    Returns:
+        True if the email address is valid, False otherwise.
+
+    Examples:
+        >>> is_valid_email("foo@bar.com")
+        True
+        >>> is_valid_email("foo@bar")
+        False
+        >>> is_valid_email("foobar.com")
+        False
+    """
+    return bool(validators.email(email))
+
+
+def is_valid_url(url: str) -> bool:
+    """Check if a URL is valid.
+
+    Adds 'https://' if the URL is not valid then tries to validate the URL.
+
+    Args:
+        url: URL to validate.
+
+    Returns:
+        True if the URL is a valid url (though it need not be reachable or exist), False otherwise.
+
+    Examples:
+        >>> is_valid_url("https://www.example.com")
+        True
+        >>> is_valid_url("www.example.com")
+        True
+        >>> is_valid_url("example.com")
+        True
+        >>> is_valid_url("example")
+        False
+    """
+    if urlparse(url).scheme == "":
+        url = f"https://{url}"
+
+    return bool(validators.url(url))
+
+
+@dataclasses.dataclass
+class Contact:
+    """Type-safe representation of a contact person in task, dataset, or model metadata.
+
+    Attributes:
+        name: Name of the contact person.
+        email: Email address of the contact person. Optional.
+        github_username: GitHub username of the contact person. Optional.
+
+    Examples:
+        >>> Contact(name="John Doe")
+        Contact(name='John Doe', email=None, github_username=None)
+        >>> Contact(name="John Doe", email="foo@bar.com", github_username="johndoe")
+        Contact(name='John Doe', email='foo@bar.com', github_username='johndoe')
+        >>> Contact(name=None)
+        Traceback (most recent call last):
+            ...
+        ValueError: 'name' must be a string. Got None
+        >>> Contact(name="foo", email=3)
+        Traceback (most recent call last):
+            ...
+        ValueError: If specified, 'email' must be a string. Got 3
+        >>> Contact(name="John Doe", email="foobar")
+        Traceback (most recent call last):
+            ...
+        ValueError: If specified, 'email' must be a valid email address. Got foobar
+        >>> Contact(name="John Doe", github_username=3)
+        Traceback (most recent call last):
+            ...
+        ValueError: If specified, 'github_username' must be a string. Got 3
+    """
+
+    name: str
+    email: str | None = None
+    github_username: str | None = None
+
+    def __post_init__(self):
+        if type(self.name) is not str:
+            raise ValueError(f"'name' must be a string. Got {self.name}")
+        if self.email is not None:
+            if type(self.email) is not str:
+                raise ValueError(f"If specified, 'email' must be a string. Got {self.email}")
+            if not is_valid_email(self.email):
+                raise ValueError(f"If specified, 'email' must be a valid email address. Got {self.email}")
+        if self.github_username is not None and type(self.github_username) is not str:
+            raise ValueError(f"If specified, 'github_username' must be a string. Got {self.github_username}")
+
+
+@dataclasses.dataclass
+class Metadata:
+    """Type-safe representation of shared metadata for a task, dataset, or model.
+
+    Attributes:
+        description: Description of the task, dataset, or model.
+        contacts: List of contact persons for the task, dataset, or model. Must have at least one contact.
+        links: Optional list of links to additional resources.
+
+    Examples:
+        >>> Metadata(description="foo", contacts=[Contact(name="bar")]) # doctest: +NORMALIZE_WHITESPACE
+        Metadata(description='foo',
+                 contacts=[Contact(name='bar', email=None, github_username=None)],
+                 links=None)
+        >>> Metadata(description="foo", contacts=[{"name": "bar"}]) # doctest: +NORMALIZE_WHITESPACE
+        Metadata(description='foo',
+                 contacts=[Contact(name='bar', email=None, github_username=None)],
+                 links=None)
+        >>> Metadata(
+        ...     description="foo", contacts=[{"name": "bar"}], links=["www.example.com"]
+        ... ) # doctest: +NORMALIZE_WHITESPACE
+        Metadata(description='foo',
+                 contacts=[Contact(name='bar', email=None, github_username=None)],
+                 links=['www.example.com'])
+        >>> Metadata(description=None, contacts=[Contact(name="bar")])
+        Traceback (most recent call last):
+            ...
+        ValueError: 'description' must be a string. Got None
+        >>> Metadata(description="foo", contacts=None)
+        Traceback (most recent call last):
+            ...
+        ValueError: 'contacts' must be a list. Got None
+        >>> Metadata(description="foo", contacts=[None])
+        Traceback (most recent call last):
+            ...
+        ValueError: Contact at index 0 must be a Contact or dictionary. Got <class 'NoneType'>
+        >>> Metadata(description="foo", contacts=[{"baz": "bar"}])
+        Traceback (most recent call last):
+            ...
+        ValueError: Contact at index 0 is invalid...
+        >>> Metadata(description="foo", contacts=[{"name": "bar"}], links=3)
+        Traceback (most recent call last):
+            ...
+        ValueError: If specified, 'links' must be a list. Got 3
+        >>> Metadata(description="foo", contacts=[{"name": "bar"}], links=[3])
+        Traceback (most recent call last):
+            ...
+        ValueError: Link at index 0 must be a string. Got <class 'int'>
+        >>> Metadata(description="foo", contacts=[{"name": "bar"}], links=["3"])
+        Traceback (most recent call last):
+            ...
+        ValueError: Link at index 0 must be a valid URL. Got 3
+    """
+
+    description: str
+    contacts: list[Contact]
+    links: list[str] | None = None
+
+    def __post_init__(self):
+        if type(self.description) is not str:
+            raise ValueError(f"'description' must be a string. Got {self.description}")
+        if not isinstance(self.contacts, (list, ListConfig)):
+            raise ValueError(f"'contacts' must be a list. Got {self.contacts}")
+        if len(self.contacts) == 0:
+            raise ValueError("'contacts' must have at least one contact.")
+        for i, contact in enumerate(self.contacts):
+            if isinstance(contact, (dict, DictConfig)):
+                try:
+                    contact = Contact(**contact)
+                except Exception as e:
+                    raise ValueError(f"Contact at index {i} is invalid") from e
+                self.contacts[i] = contact
+            elif not isinstance(contact, Contact):
+                raise ValueError(f"Contact at index {i} must be a Contact or dictionary. Got {type(contact)}")
+        if self.links is not None:
+            if not isinstance(self.links, (list, ListConfig)):
+                raise ValueError(f"If specified, 'links' must be a list. Got {self.links}")
+            for i, link in enumerate(self.links):
+                if type(link) is not str:
+                    raise ValueError(f"Link at index {i} must be a string. Got {type(link)}")
+                if not is_valid_url(link):
+                    raise ValueError(f"Link at index {i} must be a valid URL. Got {link}")
 
 
 def get_venv_bin_path(venv_dir: str | Path) -> Path:
