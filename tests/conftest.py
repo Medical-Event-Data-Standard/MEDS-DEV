@@ -79,6 +79,73 @@ def pytest_addoption(parser):
     )
 
 
+def pytest_collection_modifyitems(session: pytest.Session, config: pytest.Config, items: list[pytest.Item]):
+    """Ensure that tests proceed in the right order, so that venvs and partial resources can be cleared.
+
+    Should re-order items in place. We have tests for datasets, task extraction, unsupervised model training,
+    supervised model training, and evaluation. Here, we want to ensure that all tasks for one model happen
+    before any other model is tested, as models are likely to use significant resources for virtual
+    environment creation that we want to be able to clear as soon as possible. In comparison, datasets
+    typically do not have significant package resource requirements, so we can leave them until the end.
+
+    Given that each model will be tested against all possible datasets and tasks, we can safely assume that we
+    won't have any major overhead if we run all datasets and tasks first. So, we'll sort the tests to run:
+      (a) All module doctests which are not part of the main test suite.
+      (b) All the dataset extraction tests.
+      (c) All the task extraction tests.
+      (d) For each model, dataset, and task combination (iterating in that order) run:
+        - The unsupervised model training
+        - The supervised model training
+        - The evaluation
+    """
+
+    dataset_opts = get_opts(config, "dataset")
+    task_opts = get_opts(config, "task")
+    model_opts = get_opts(config, "model")
+
+    def sort_key(item: pytest.Item) -> tuple[int, int, int, int]:
+        if hasattr(item, "callspec"):
+            fixture_params = {name: value for name, value in item.callspec.params.items()}
+        else:
+            return (-1, -1, -1, -1)
+
+        if "demo_dataset" not in fixture_params:
+            return (-1, -1, -1, -1)
+        dataset_idx = dataset_opts.index(fixture_params["demo_dataset"])
+
+        has_task = "task_labels" in item.fixturenames
+        has_model = "unsupervised_model" in item.fixturenames or "supervised_model" in item.fixturenames
+        is_supervised = "supervised_model" in item.fixturenames
+        is_evaluation = "evaluated_model" in item.fixturenames
+
+        is_dataset_extraction_test = not (has_model or has_task or is_evaluation)
+        is_task_extraction_test = has_task and not (has_model or is_evaluation)
+        is_unsupervised_model_test = has_model and not (is_supervised or is_evaluation or has_task)
+        is_supervised_model_test = is_supervised and not is_evaluation
+        is_evaluation_test = is_evaluation
+
+        if is_dataset_extraction_test:
+            return (-1, -1, -1, dataset_idx)
+
+        task_idx = task_opts.index(fixture_params["task_labels"]) if has_task else -1
+
+        if is_task_extraction_test:
+            return (-1, task_idx, dataset_idx)
+
+        model_idx = model_opts.index(fixture_params["unsupervised_model"])
+
+        if is_unsupervised_model_test:
+            return (model_idx, -1, -1, dataset_idx)
+        elif is_supervised_model_test:
+            return (model_idx, -1, task_idx, dataset_idx)
+        elif is_evaluation_test:
+            return (model_idx, 1, task_idx, dataset_idx)
+        else:
+            raise ValueError(f"Item {item} does not fit any category.")
+
+    items.sort(key=sort_key)
+
+
 def pytest_collection_finish(session: pytest.Session):
     """A hook to determine what tests will rely on model specific virtual environments for GC purposes."""
 
@@ -281,9 +348,14 @@ def get_opts(config, opt: str) -> list[str]:
     allowed = {"dataset": DATASETS, "task": TASKS, "model": MODELS}
 
     if arg:
-        return allowed[opt] if "all" in arg else arg
+        out = allowed[opt] if "all" in arg else arg
     else:
-        return allowed[opt]
+        out = allowed[opt]
+
+    if isinstance(out, dict):
+        out = list(out.keys())
+
+    return out
 
 
 def pytest_generate_tests(metafunc):
