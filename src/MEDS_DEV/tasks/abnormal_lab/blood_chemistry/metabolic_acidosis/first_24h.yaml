@@ -1,12 +1,16 @@
 metadata:
-  test_datasets:
+  description: >-
+    This task predicts whether the patient will have low _bicarbonate_ values (metabolic acidosis) within the
+    next 24 hours, given the first 24 hours of their admission to the hospital. To be included, 1) patients
+    must have at least one measurement for _bicarbonate_ within the next 24 hours after their admission to the
+    hospital, 2) patients must not have shown low _bicarbonate_ values previously, and 3) their length of stay
+    in the hospital must be at least 48 hours.
+  links: []
+  contacts:
+    - name: "Jungwoo Oh"
+      github_username: "jwoo5"
+  supported_datasets:
     - MIMIC-IV
-description: >-
-  This task predicts whether the patient will have low _bicarbonate_ values (metabolic acidosis)
-  within the next 24 hours, given the first 24 hours of their admission to the hospital. To be
-  included, 1) patients must have at least one measurement for _bicarbonate_ within the next 24
-  hours after their admission to the hospital, 2) patients must not have shown low _bicarbonate_
-  values previously, and 3) their length of stay in the hospital must be at least 48 hours.
 
 predicates:
   birth:

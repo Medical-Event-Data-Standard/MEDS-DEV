@@ -1,0 +1,52 @@
+metadata:
+  description: >-
+    The GenHPF model. See the referenced paper for full details. This version of the GenHPF model uses
+    default hyperparameters. Note that we need to preprocess MEDS dataset to match the input
+    format for the GenHPF model, `train` mode involves the preprocessing step before training the
+    model, which makes the `train` step take quite long time for the first run. The processed data
+    will be save in the `{output_dir}/data` directory, and the trained model checkpoint will be
+    saved in the `{output_dir}/checkpoints` directory. The `predict` mode will load the trained
+    checkpoint by `{output_dir}/checkpoints/checkpoint_best.pt` and output predictions for the
+    test subset (specified by `split`; e.g., `held_out`) in the
+    `{output_dir}/predictions.parquet` file, which should be compatible with the meds-evaluation
+    pipeline.
+  links:
+    - https://arxiv.org/abs/2207.09858
+  contacts:
+    - name: "Jungwoo Oh"
+      github_username: "jwoo5"
+commands:
+  unsupervised: null
+  supervised:
+    train: |-
+      genhpf-preprocess-meds \
+        "{dataset_dir}/data" \
+        "--cohort={labels_dir}" \
+        "--metadata_dir={dataset_dir}/metadata" \
+        "--output_dir={output_dir}/data" \
+        "--workers=32" \
+        "--debug={demo}" \
+        "--skip-if-exists"
+
+      genhpf-train \
+        "hydra.run.dir={output_dir}" \
+        "dataset.data={output_dir}/data" \
+        "checkpoint.save_dir={output_dir}/checkpoints" \
+        "common.debug={demo}" \
+        "--config-dir={model_dir}" \
+        "--config-name=genhpf_train"
+
+    predict: |-
+      genhpf-test \
+        "hydra.run.dir={output_dir}" \
+        "dataset.data={model_initialization_dir}/data" \
+        "meds.output_predictions=true" \
+        "meds.labels_dir={labels_dir}" \
+        "meds.output_dir={output_dir}" \
+        "checkpoint.load_checkpoint={model_initialization_dir}/checkpoints/checkpoint_best.pt" \
+        "dataset.test_subset={split}" \
+        "common.debug={demo}" \
+        "--config-dir={model_dir}" \
+        "--config-name=genhpf_predict"
+
+      mv {output_dir}/{split}.parquet {output_dir}/predictions.parquet

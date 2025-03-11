@@ -1,16 +1,19 @@
 metadata:
-  test_datasets:
-    - MIMIC-IV
   description: >-
-    This file specifies the base configuration for the prediction of in ICU mortality, leveraging only the first
-    24 hours of data after ICU admission, with a 24 hour gap between the input window and the target window.
-    Patients who die or are discharged from the ICU in the gap window are excluded. Patients who die in the same
-    hospital stay but in a subsequent ICU stay are **not** positive labels for this task.
-    Note that this task is in-**ICU** mortality, not in-**hospital** mortality or **30-day** mortality, which
-    are different tasks.
-    Note that this task is predicting the outcome for a patient's entire ICU admission, not just the first 24
-    hours or the subsequent 24 hours after the trigger event. Imminent mortality (on various time-scales) are
-    different tasks.
+    This file specifies the base configuration for the prediction of in ICU mortality, leveraging only the
+    first 24 hours of data after ICU admission, with a 24 hour gap between the input window and the target
+    window. Patients who die or are discharged from the ICU in the gap window are excluded. Patients who die
+    in the same hospital stay but in a subsequent ICU stay are **not** positive labels for this task. Note
+    that this task is in-**ICU** mortality, not in-**hospital** mortality or **30-day** mortality, which are
+    different tasks. Note that this task is predicting the outcome for a patient's entire ICU admission, not
+    just the first 24 hours or the subsequent 24 hours after the trigger event. Imminent mortality (on various
+    time-scales) are different tasks.
+  links: []
+  contacts:
+    - name: "Matthew McDermott"
+      github_username: "mmcdermott"
+  supported_datasets:
+    - MIMIC-IV
 
 predicates:
   icu_admission: ???
