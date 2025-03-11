@@ -1,12 +1,16 @@
 metadata:
-  test_datasets:
+  description: >-
+    This task predicts whether the patient will have elevated _creatinine_ values within the next 24
+    hours, given the first 24 hours of their admission to the _hospital_. To be included, 1) patients
+    must have at least one measurement for _creatinine_ within the next 24 hours after their
+    admission to the hospital, 2) patients must not have shown elevated _creatinine_ values
+    previously, and 3) their length of stay in the hospital must be at least 48 hours.
+  links: []
+  contacts:
+    - name: "Jungwoo Oh"
+      github_username: "jwoo5"
+  supported_datasets:
     - MIMIC-IV
-description: >-
-  This task predicts whether the patient will have elevated _creatinine_ values within the next 24
-  hours, given the first 24 hours of their admission to the _hospital_. To be included, 1) patients
-  must have at least one measurement for _creatinine_ within the next 24 hours after their
-  admission to the hospital, 2) patients must not have shown elevated _creatinine_ values
-  previously, and 3) their length of stay in the hospital must be at least 48 hours.
 
 predicates:
   hospital_admission: ???

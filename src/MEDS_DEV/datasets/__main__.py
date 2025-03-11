@@ -18,7 +18,7 @@ def main(cfg: DictConfig):
             f"Dataset {cfg.dataset} not currently configured! Available datasets: {DATASETS.keys()}"
         )
 
-    commands = DATASETS[cfg.dataset]["metadata"]["commands"]
+    commands = DATASETS[cfg.dataset]["commands"]
     requirements = DATASETS[cfg.dataset]["requirements"]
 
     output_dir = Path(cfg.output_dir)
