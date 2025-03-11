@@ -23,13 +23,20 @@ predicates:
     expr: or(death, hospital_discharge)
 
   # Plain predicates
-  wbc:
+  wbc_kul:
     code: ???
-  abnormally_high_wbc:
-    code: ???
+  abnormally_high_wbc_kul_range:
+    code: null
     value_min: 11 # K/uL
     value_min_inclusive: False
     value_max: null
+  abnormally_high_wbc_kul:
+    expr: and(wbc_kul, abnormally_high_wbc_kul_range)
+
+  # wbc:
+  #   expr: or(wbc_kul, ..., wbc_other_unit)
+  # abnormally_high_wbc:
+  #   expr: or(abnormally_high_wbc_kul, ..., abnormally_high_wbc_other_unit)
 
 trigger: hospital_admission
 
@@ -42,7 +49,8 @@ windows:
     index_timestamp: end
     # do not allow to have shown high WBC values previously
     has:
-      abnormally_high_wbc: (None, 0)
+      # abnormally_high_wbc: (None, 0)
+      abnormally_high_wbc_kul: (None, 0)
   # do not allow hospital discharge to happen within the input + target window
   no_discharge:
     start: trigger
@@ -66,5 +74,7 @@ windows:
     start_inclusive: False
     end_inclusive: True
     has:
-      wbc: (1, None)
-    label: abnormally_high_wbc
+      # wbc: (1, None)
+      wbc_kul: (1, None)
+    # label: abnormally_high_wbc
+    label: abnormally_high_wbc_kul
