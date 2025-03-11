@@ -16,100 +16,23 @@ predicates:
 
   creatinine_mgdl:
     code: { any: ["LAB//50912//mg/dL", "LAB//52546//mg/dL"] }
-  abnormally_high_creatinine_mgdl_range:
-    code: null
-    value_min: 1.3 # mg/dL
-    value_min_inclusive: False
-    value_max: null
-  abnormally_high_creatinine_mgdl:
-    expr: and(creatinine_mgdl, abnormally_high_creatinine_mgdl_range)
-  # creatinine:
-  #   expr: or(creatinine_mgdl, ..., creatinine_other_unit)
-  # abnormally_high_creatinine:
-  #   expr: or(abnormally_high_creatinine_mgdl, ..., abnormally_high_creatinine_other_unit)
 
   sodium_meql:
     code:
       { any: ["LAB//220645//mEq/L", "LAB//50983//mEq/L", "LAB//52623//mEq/L"] }
-  abnormally_low_sodium_meql_range:
-    code: null
-    value_min: null
-    value_max: 135 # mEq/L
-    value_max_inclusive: False
-  abnormally_low_sodium_meql:
-    expr: and(sodium_meql, abnormally_low_sodium_meql_range)
-  # sodium:
-  #   expr: or(sodium_meql, ..., sodium_other_unit)
-  # abnormally_low_sodium:
-  #   expr: or(abnormally_low_sodium_meql, ..., abnormally_low_sodium_other_unit)
 
   bicarbonate_meql:
     code: { any: ["LAB//227443//mEq/L", "LAB//50882//mEq/L"] }
-  abnormally_low_bicarbonate_meql_range:
-    code: null
-    value_min: null
-    value_max: 22 # mEq/L
-    value_max_inclusive: False
-  abnormally_low_bicarbonate_meql:
-    expr: and(bicarbonate_meql, abnormally_low_bicarbonate_meql_range)
-  # bicarbonate:
-  #   expr: or(bicarbonate_meql, ..., bicarbonate_other_unit)
-  # abnormally_low_bicarbonate:
-  #   expr: or(abnormally_low_bicarbonate_meql, ..., abnormally_low_bicarbonate_other_unit)
 
   hemoglobin_gdl:
     code: { any: ["LAB//220228//g/dl", "LAB//50811//g/dL"] }
-  abnormally_low_hemoglobin_gdl_range:
-    code: null
-    value_min: null
-    value_max: 13 # g/dL
-    value_max_inclusive: False
-  abnormally_low_hemoglobin_gdl:
-    expr: and(hemoglobin_gdl, abnormally_low_hemoglobin_gdl_range)
-  # hemoglobin:
-  #   expr: or(hemoglobin_gdl, ..., hemoglobin_other_unit)
-  # abnormally_low_hemoglobin:
-  #   expr: or(abnormally_low_hemoglobin_gdl, ..., abnormally_low_hemoglobin_other_unit)
 
   wbc_kul:
     code: { any: ["LAB//220546//K/uL", "LAB//51300//K/uL"] }
-  abnormally_high_wbc_kul_range:
-    code: null
-    value_min: 11 # K/uL
-    value_min_inclusive: False
-    value_max: null
-  abnormally_high_wbc_kul:
-    expr: and(wbc_kul, abnormally_high_wbc_kul_range)
-  # wbc:
-  #   expr: or(wbc_kul, ..., wbc_other_unit)
-  # abnormally_high_wbc:
-  #   expr: or(abnormally_high_wbc_kul, ..., abnormally_high_wbc_other_unit)
 
   platelets_kul:
     code: { any: ["LAB//227457//K/uL", "LAB//51265//K/uL"] }
-  abnormally_low_platelets_kul_range:
-    code: null
-    value_min: null
-    value_max: 150 # K/uL
-    value_max_inclusive: False
-  abnormally_low_platelets_kul:
-    expr: and(platelets_kul, abnormally_low_platelets_kul_range)
-  # platelets:
-  #   expr: or(platelets_kul, ..., platelets_other_unit)
-  # abnormally_low_platelets:
-  #   expr: or(abnormally_low_platelets_kul, ..., abnormally_low_platelets_other_unit)
 
   map_mmhg:
     code:
       { any: ["LAB//220052//mmHg", "LAB//220181//mmHg", "LAB//225312//mmHg"] }
-  abnormally_low_map_mmhg_range:
-    code: null
-    value_min: null
-    value_max: 65 # mmHg
-    value_max_inclusive: False
-  abnormally_low_map_mmhg:
-    expr: and(map_mmhg, abnormally_low_map_mmhg_range)
-  # map:
-  #   expr: or(map_mmhg, ..., map_other_unit)
-  # abnormally_low_map:
-  #   expr: or(abnormally_low_map_mmhg, ..., abnormally_low_map_other_unit)
