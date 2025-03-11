@@ -24,7 +24,7 @@ commands:
     train: |-
       mkdir -p {output_dir}
 
-      ln -s {model_initialization_dir}/data {output_dir}/prepared_data
+      ln -s {model_initialization_dir}/prepared_data {output_dir}/prepared_data
       ln -s {model_initialization_dir}/meds_reader {output_dir}/meds_reader
       ln -s {labels_dir} {output_dir}/labels
 
