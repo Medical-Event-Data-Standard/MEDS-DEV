@@ -1,0 +1,44 @@
+metadata:
+  description: >-
+    TODO
+  links:
+    - https://openreview.net/forum?id=NialiwI2V6
+  contacts:
+    - name: "Ethan Steinberg"
+      github_username: "EthanSteinberg"
+commands:
+  unsupervised:
+    train: |-
+      meds_reader_convert {dataset_dir} {output_dir}/meds_reader
+
+      python -u -m femr.omop_meds_tutorial.prepare_motor \
+        --pretraining_data {output_dir}/prepared_data \
+        --athena_path $ATHENA_DOWNLOAD_DIR \
+        --meds_reader {output_dir}/meds_reader
+
+      python -u -m femr.omop_meds_tutorial.pretrain_motor \
+        --pretraining_data {output_dir}/prepared_data \
+        --meds_reader {output_dir}/meds_reader
+
+  supervised:
+    train: |-
+      mkdir -p {output_dir}
+
+      ln -s {model_initialization_dir}/data {output_dir}/prepared_data
+      ln -s {model_initialization_dir}/meds_reader {output_dir}/meds_reader
+      ln -s {labels_dir} {output_dir}/labels
+
+      python -u -m femr.omop_meds_tutorial.generate_motor_features \
+        --cohort_dir {labels_dir} \
+        --pretraining_data {model_initialization_dir}/prepared_data \
+        --meds_reader {model_initialization_dir}/meds_reader \
+
+      ln -s {model_initialization_dir}/features {output_dir}/features
+
+      python -u -m femr.omop_meds_tutorial.finetune_motor \
+        --pretraining_data {output_dir}/prepared_data \
+        --meds_reader {output_dir}/meds_reader \
+        --cohort_label ???
+
+    predict: |-
+      ???
