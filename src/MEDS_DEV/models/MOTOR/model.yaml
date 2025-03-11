@@ -30,8 +30,8 @@ commands:
 
       python -u -m femr.omop_meds_tutorial.generate_motor_features \
         --cohort_dir {labels_dir} \
-        --pretraining_data {model_initialization_dir}/prepared_data \
-        --meds_reader {model_initialization_dir}/meds_reader \
+        --pretraining_data {output_dir}/prepared_data \
+        --meds_reader {output_dir}/meds_reader \
 
       ln -s {model_initialization_dir}/features {output_dir}/features
 
