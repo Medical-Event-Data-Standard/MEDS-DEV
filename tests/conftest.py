@@ -4,7 +4,7 @@ import logging
 import shutil
 from collections import defaultdict
 from pathlib import Path
-from tempfile import TemporaryDirectory
+from tempfile import NamedTemporaryFile, TemporaryDirectory
 
 import polars as pl
 import pytest
@@ -712,3 +712,32 @@ def evaluated_model(request, supervised_model: NAME_AND_DIR) -> Path:
             shutil.rmtree(final_out_dir)
 
         yield Path(root_dir)
+
+
+@pytest.fixture(scope="session")
+def packaged_results(
+    request,
+    evaluated_model: Path,
+    supervised_model: NAME_AND_DIR,
+    demo_dataset: NAME_AND_DIR,
+    task_labels: NAME_AND_DIR,
+) -> Path:
+    dataset, _ = demo_dataset
+    task, _ = task_labels
+    model, _ = supervised_model
+    evaluation_fp = evaluated_model / "results.json"
+    with NamedTemporaryFile(suffix=".json") as temp_file:
+        result_fp = Path(temp_file.name)
+        run_command(
+            "meds-dev-pack-result",
+            test_name="Package the results",
+            hydra_kwargs={
+                "evaluation_fp": str(evaluation_fp),
+                "dataset": dataset,
+                "task": task,
+                "model": model,
+                "result_fp": str(result_fp),
+                "do_overwrite": False,
+            },
+        )
+        yield result_fp
