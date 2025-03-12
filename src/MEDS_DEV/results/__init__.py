@@ -14,6 +14,34 @@ from ..tasks import TASKS
 logger = logging.getLogger(__name__)
 
 
+def _is_future(dt: datetime.datetime) -> bool:
+    """Checks if a datetime (either aware or naive and assumed to be UTC) is in the future.
+
+    Args:
+        dt: The datetime to check. If naive, it is assumed to be UTC and a warning will be logged.
+
+    Returns:
+        True if the datetime is in the future, False otherwise.
+
+    Examples:
+        >>> _is_future(datetime.datetime(2021, 9, 1, 12, 0, 0))
+        False
+        >>> _is_future(datetime.datetime(2021, 9, 1, 12, 0, 0, tzinfo=datetime.timezone.utc))
+        False
+        >>> _is_future(datetime.datetime.now() + datetime.timedelta(days=1))
+        True
+        >>> _is_future(datetime.datetime.today() + datetime.timedelta(days=1))
+        True
+    """
+
+    is_aware = (dt.tzinfo is not None) and (dt.tzinfo.utcoffset(dt) is not None)
+    if is_aware:
+        return dt > datetime.datetime.now(dt.tzinfo)
+    else:
+        logger.warning("Naive datetime detected. Assuming UTC.")
+        return dt > datetime.datetime.utcnow()
+
+
 @dataclasses.dataclass
 class Result:
     """The schema for a MEDS-DEV experimental result.
@@ -200,7 +228,7 @@ class Result:
             if not isinstance(getattr(self, k), str):
                 raise TypeError(f"{k} must be a string, not {type(getattr(self, k))}")
 
-        if self.timestamp > datetime.datetime.now():
+        if _is_future(self.timestamp):
             raise ValueError(f"timestamp must be in the past, not {self.timestamp}")
 
         try:
