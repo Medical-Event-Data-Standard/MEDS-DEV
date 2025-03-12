@@ -23,13 +23,20 @@ predicates:
     expr: or(death, hospital_discharge)
 
   # Plain predicates
-  hemoglobin:
+  hemoglobin_gdl:
     code: ???
-  abnormally_low_hemoglobin:
-    code: ???
+  abnormally_low_hemoglobin_gdl_range:
+    code: null
     value_min: null
     value_max: 13 # g/dL
     value_max_inclusive: False
+  abnormally_low_hemoglobin_gdl:
+    expr: and(hemoglobin_gdl, abnormally_low_hemoglobin_gdl_range)
+
+  # hemoglobin:
+  #   expr: or(hemoglobin_gdl, ..., hemoglobin_other_unit)
+  # abnormally_low_hemoglobin:
+  #   expr: or(abnormally_low_hemoglobin_gdl, ..., abnormally_low_hemoglobin_other_unit)
 
 trigger: hospital_admission
 
@@ -42,7 +49,8 @@ windows:
     index_timestamp: end
     # do not allow to have shown low hemoglobin values previously
     has:
-      abnormally_low_hemoglobin: (None, 0)
+      # abnormally_low_hemoglobin: (None, 0)
+      abnormally_low_hemoglobin_gdl: (None, 0)
   # do not allow hospital discharge to happen within the input + target window
   no_discharge:
     start: trigger
@@ -66,5 +74,7 @@ windows:
     start_inclusive: False
     end_inclusive: True
     has:
-      hemoglobin: (1, None)
-    label: abnormally_low_hemoglobin
+      # hemoglobin: (1, None)
+      hemoglobin_gdl: (1, None)
+    # label: abnormally_low_hemoglobin
+    label: abnormally_low_hemoglobin_gdl

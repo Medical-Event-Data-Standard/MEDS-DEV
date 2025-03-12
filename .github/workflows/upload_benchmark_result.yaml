@@ -1,0 +1,68 @@
+name: Process Benchmark Result Submissions
+
+on:
+  issues:
+    types:
+      - labeled
+      - opened
+
+jobs:
+  process_results:
+    if: contains(github.event.issue.labels.*.name, 'result-submission') && startsWith(github.event.issue.title, '[Result Submission]')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout results branch only
+        uses: actions/checkout@v4
+        with:
+          ref: _results
+          sparse-checkout: true
+          sparse-checkout-cone-mode: false
+          path: results
+
+      - name: Extract issue details
+        id: extract
+        run: |
+          echo "ISSUE_TITLE=${{ github.event.issue.title }}" >> $GITHUB_ENV
+          echo "ISSUE_BODY=${{ github.event.issue.body }}" >> $GITHUB_ENV
+          echo "ISSUE_TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> $GITHUB_ENV
+
+      - name: Download attached file (if exists)
+        id: download
+        run: |
+          ATTACHMENT_URL=$(jq -r '.issue.body' $GITHUB_EVENT_PATH | grep -o 'https://github.com/[^ ]*\.json' || echo "")
+          if [[ ! -z "$ATTACHMENT_URL" ]]; then
+            curl -L "$ATTACHMENT_URL" -o result.json
+            echo "RESULT_FILE=result.json" >> $GITHUB_ENV
+          fi
+
+      - name: Parse issue body for inline JSON
+        id: parse_json
+        run: |
+          if [[ -z "$RESULT_FILE" ]]; then
+            echo "$ISSUE_BODY" | awk '/```json/,/```/' | sed 's/```json//;s/```//' > result.json
+          fi
+          cat result.json
+
+      - name: Install MEDS-DEV package from PyPI
+        run: |
+          pip install meds-dev
+
+      - name: Validate result JSON
+        id: validate
+        run: |
+          meds-dev-validate-result validate_result result.json
+
+      - name: Commit result to results branch
+        if: success()
+        run: |
+          mkdir -p _results/${{ github.event.issue.number }}
+          mv result.json _results/${{ github.event.issue.number }}/result.json
+          git add _results/${{ github.event.issue.number }}/result.json
+          git commit -m "Added result from Issue #${{ github.event.issue.number }} in _results branch"
+          git push origin _results
+
+      - name: Close issue with confirmation message
+        if: success()
+        uses: peter-evans/close-issue@v2
+        with:
+          comment: "Thank you for your submission! Your result has been recorded and validated."
