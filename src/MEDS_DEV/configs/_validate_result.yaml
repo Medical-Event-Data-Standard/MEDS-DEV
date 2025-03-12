@@ -1,0 +1,20 @@
+defaults:
+  - _self_
+  - override hydra/hydra_logging: disabled
+  - override hydra/job_logging: disabled
+
+result_fp: ???
+
+hydra:
+  output_subdir: null
+  job:
+    name: "meds_dev_validate_result_${now:%Y-%m-%d_%H-%M-%S}"
+  run:
+    dir: "."
+  help:
+    app_name: "MEDS-DEV Result Validator"
+
+    template: |-
+      == ${hydra.help.app_name} ==
+      ${hydra.help.app_name} is a command line tool for validating JSON files as MEDS-DEV results. This is
+      used to ensure that only meaningful benchmarking results are automatically added to the repository.
