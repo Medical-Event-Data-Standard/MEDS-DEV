@@ -35,13 +35,20 @@ jobs:
         #- name: Validate result JSON
         #  run: meds-dev-validate-result results_fp=$GITHUB_WORKSPACE/result.json
 
-      - name: Commit result to results branch
+      - name: Commit result attributed to issue author
         if: success()
+        env:
+          ISSUE_USER_LOGIN: ${{ github.event.issue.user.login }}
+          ISSUE_USER_ID: ${{ github.event.issue.user.id }}
         run: |
           mkdir -p _results/${{ github.event.issue.number }}
           mv $GITHUB_WORKSPACE/result.json _results/${{ github.event.issue.number }}/result.json
           git add _results/${{ github.event.issue.number }}/result.json
-          git commit -m "Added result from Issue #${{ github.event.issue.number }} in _results branch"
+
+          git config user.name "${ISSUE_USER_LOGIN}"
+          git config user.email "${ISSUE_USER_ID}+${ISSUE_USER_LOGIN}@users.noreply.github.com"
+
+          git commit -m "Added result from Issue #${{ github.event.issue.number }} by @${ISSUE_USER_LOGIN}"
           git push origin _results
 
       - name: Close issue with confirmation message
