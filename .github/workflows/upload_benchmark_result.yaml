@@ -36,8 +36,8 @@ jobs:
       - name: Install MEDS-DEV package from PyPI
         run: pip install meds-dev
 
-        #- name: Validate result JSON
-        #  run: meds-dev-validate-result results_fp=$GITHUB_WORKSPACE/result.json
+      - name: Validate result JSON
+        run: meds-dev-validate-result results_fp=$GITHUB_WORKSPACE/result.json
 
       - name: Commit result attributed to issue author
         if: success()
