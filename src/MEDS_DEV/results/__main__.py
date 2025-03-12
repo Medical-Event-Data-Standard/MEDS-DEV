@@ -1,5 +1,6 @@
 import json
 import logging
+from datetime import datetime, timezone
 from pathlib import Path
 
 import hydra
@@ -19,7 +20,7 @@ def main(cfg: DictConfig):
         raise FileNotFoundError(f"File not found: {eval_fp}")
 
     eval_result = json.loads(eval_fp.read_text())
-    timestamp = eval_fp.stat().st_mtime
+    timestamp = datetime.fromtimestamp(eval_fp.stat().st_mtime, tz=timezone.utc)
 
     result = Result(
         dataset=cfg.dataset, task=cfg.task, model=cfg.model, result=eval_result, timestamp=timestamp
