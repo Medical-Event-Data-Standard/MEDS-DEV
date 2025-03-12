@@ -654,7 +654,7 @@ def packaged_result(
                 "task": task,
                 "model": model,
                 "result_fp": str(result_fp),
-                "do_overwrite": False,
+                "do_overwrite": True,
             },
         )
         yield result_fp
