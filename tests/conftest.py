@@ -715,7 +715,7 @@ def evaluated_model(request, supervised_model: NAME_AND_DIR) -> Path:
 
 
 @pytest.fixture(scope="session")
-def packaged_results(
+def packaged_result(
     request,
     evaluated_model: Path,
     supervised_model: NAME_AND_DIR,
