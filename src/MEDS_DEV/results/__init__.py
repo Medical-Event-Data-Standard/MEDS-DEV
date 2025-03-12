@@ -46,21 +46,55 @@ class Result:
         >>> result.version
         'foo'
 
-        The result can also be written to and read from a JSON file:
+        The result can also be written to and read from a JSON file; directories will be created as needed:
 
         >>> import tempfile
+        >>> with tempfile.TemporaryDirectory() as d:
+        ...     fp = Path(d) / "foo" / "result.json"
+        ...     result.to_json(fp)
+        ...     result2 = Result.from_json(fp)
+        >>> result == result2
+        True
+
+        Reading from an erroneous or nonexistent file will raise an error:
+
+        >>> with tempfile.TemporaryDirectory() as d:
+        ...     Result.from_json(Path(d) / "nonexistent.json")
+        Traceback (most recent call last):
+            ...
+        FileNotFoundError: /tmp/tmp.../nonexistent.json does not exist.
+        >>> with tempfile.TemporaryDirectory() as d:
+        ...     Result.from_json(Path(d))
+        Traceback (most recent call last):
+            ...
+        ValueError: /tmp/tmp... is not a file.
+        >>> with tempfile.NamedTemporaryFile(suffix=".json") as fp:
+        ...     fp.write(b"not JSON")
+        ...     Result.from_json(Path(fp.name))
+        Traceback (most recent call last):
+            ...
+        ValueError: Could not read result from ...
+
+        You can overwrite an existing file if and only if you set `do_overwrite=True`:
+
         >>> with tempfile.NamedTemporaryFile(suffix=".json") as fp:
         ...     result.to_json(Path(fp.name), do_overwrite=True)
         ...     result2 = Result.from_json(Path(fp.name))
         >>> result == result2
         True
-
-        Though attempting to overwrite an existing file will raise an error:
         >>> with tempfile.NamedTemporaryFile(suffix=".json") as fp:
         ...     result.to_json(Path(fp.name), do_overwrite=False)
         Traceback (most recent call last):
             ...
         FileExistsError: /tmp/tmp...json already exists. Set do_overwrite=True to overwrite.
+
+        Though attempting to overwrite a directory will always raise an error:
+
+        >>> with tempfile.TemporaryDirectory() as d:
+        ...     result.to_json(Path(d), do_overwrite=True)
+        Traceback (most recent call last):
+            ...
+        ValueError: /tmp/tmp... is not a file.
 
         If you don't specify a version, the current package version will be used:
 
@@ -210,7 +244,7 @@ class Result:
 
         try:
             fp.write_text(json.dumps(as_dict))
-        except Exception as e:
+        except Exception as e:  # pragma: no cover
             raise ValueError(f"Could not write result to {fp}") from e
 
     @classmethod
