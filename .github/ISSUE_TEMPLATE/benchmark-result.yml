@@ -4,44 +4,48 @@ labels:
   - result-submission
 title: "[Result Submission] "
 body:
-  - type: markdown
-    attributes:
-      value: "Please fill out the following information to submit a benchmark result. You can attach a result file or paste the JSON directly into the issue body."
-  - type: input
-    id: dataset
-    attributes:
-      label: "Dataset Name"
-      description: "Enter the dataset name (e.g., MIMIC-IV)"
-    validations:
-      required: true
-  - type: input
-    id: task
-    attributes:
-      label: "Task Name"
-      description: "Enter the task name (e.g., Mortality Prediction)"
-    validations:
-      required: true
-  - type: input
-    id: model
-    attributes:
-      label: "Model Name"
-      description: "Enter the model name (e.g., GPT-4-Health)"
-    validations:
-      required: true
-  - type: textarea
-    id: result
-    attributes:
-      label: "Result JSON (if not attaching a file)"
-      description: "Paste the result JSON here if you are not attaching a file."
-      render: json
-  - type: markdown
-    attributes:
-      value: "Alternatively, attach a JSON file below instead of pasting the result."
-  - type: input
-    id: timestamp
-    attributes:
-      label: "Timestamp"
-      description: "Enter the timestamp of the result (e.g., 2025-03-12T14:00:00Z)"
-      placeholder: "YYYY-MM-DDTHH:MM:SSZ"
-    validations:
-      required: true
+   - type: markdown
+     attributes:
+       value: >-
+         Please fill out the following information to submit a benchmark result. You can attach a result file
+         (produced via the `meds-dev-pack-result` command) or paste the JSON directly into the issue body. The
+         dataset, task, and model names should match, but this is neither validated nor are those entered into
+         the issue used for anything other than display purposes; only results in the attached file or JSON
+         blob are used.
+   - type: input
+     id: dataset
+     attributes:
+       label: "Dataset Name"
+       description: "Enter the dataset name (e.g., 'MIMIC-IV')"
+     validations:
+       required: true
+   - type: input
+     id: task
+     attributes:
+       label: "Task Name"
+       description: "Enter the task name (e.g., 'mortality/in_icu/first_24h')"
+     validations:
+       required: true
+   - type: input
+     id: model
+     attributes:
+       label: "Model Name"
+       description: "Enter the model name (e.g., 'meds_tab/tiny')"
+     validations:
+       required: true
+   - type: textarea
+     id: result
+     attributes:
+       label: "Result JSON (if not attaching a file)"
+       description: "Paste the result JSON here if you are not attaching a file."
+       render: json
+   - type: markdown
+     attributes:
+       value: "Alternatively, attach a JSON file below instead of pasting the result."
+   - type: textarea
+     id: description
+     attributes:
+       label: "Description"
+       description: "Enter any additional comments, if appropriate, on this result"
+     validations:
+       required: false
