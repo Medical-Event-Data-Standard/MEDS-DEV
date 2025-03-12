@@ -10,14 +10,6 @@ jobs:
     if: contains(github.event.issue.labels.*.name, 'result-submission') && startsWith(github.event.issue.title, '[Result Submission]')
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout results branch only
-        uses: actions/checkout@v4
-        with:
-          ref: _results
-          sparse-checkout: true
-          sparse-checkout-cone-mode: false
-          path: _results
-
       - name: Extract JSON from issue body
         id: extract_json
         run: |
@@ -39,6 +31,11 @@ jobs:
 
         #- name: Validate result JSON
         #  run: meds-dev-validate-result results_fp=result.json
+
+      - name: Checkout results branch only
+        uses: actions/checkout@v4
+        with:
+          ref: _results
 
       - name: Commit result to results branch
         if: success()
