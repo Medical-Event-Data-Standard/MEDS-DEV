@@ -300,7 +300,8 @@ class Result:
         return cls(**as_dict)
 
 
-CFG_YAML = files("MEDS_DEV.configs") / "_package_result.yaml"
+PACK_YAML = files("MEDS_DEV.configs") / "_package_result.yaml"
+VALIDATE_YAML = files("MEDS_DEV.configs") / "_validate_result.yaml"
 
 
-__all__ = ["Result", "CFG_YAML"]
+__all__ = ["Result", "PACK_YAML", "VALIDATE_YAML"]
