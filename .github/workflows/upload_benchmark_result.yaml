@@ -21,21 +21,23 @@ jobs:
       - name: Install jq for JSON parsing
         run: sudo apt-get install jq -y
 
-      - name: Extract JSON from issue body
-        id: extract_json
+      - name: Check for attached JSON file
+        id: check_attachment
         run: |
-          echo '${{ github.event.issue.body }}' | jq -r 'capture("```json\\n(?<json>.*?)\\n```") | .json' > result.json || echo "No JSON found in issue body"
-          if [[ ! -s result.json ]]; then
-            echo "ERROR: No valid JSON found in the issue body."
+          ATTACHMENT_URL=$(echo '${{ toJson(github.event.issue) }}' | jq -r '.issue.body' | grep -o 'https://github.com/[^ ]*\.json' || echo "")
+          if [[ -z "$ATTACHMENT_URL" ]]; then
+            echo "ERROR: No attached JSON file found in the issue. Submission must include a JSON attachment."
             exit 1
           fi
-          cat result.json
+          echo "Detected attached JSON file: $ATTACHMENT_URL"
+          curl -L "$ATTACHMENT_URL" -o result.json
+          echo "RESULT_FILE=result.json" >> $GITHUB_ENV
 
       - name: Install MEDS-DEV package from PyPI
         run: pip install meds-dev
 
       - name: Validate result JSON
-        run: python -m meds_dev.validate_result result.json
+        run: meds-dev-validate-result results_fp=result.json
 
       - name: Commit result to results branch
         if: success()
