@@ -9,11 +9,15 @@ jobs:
   process_results:
     if: contains(github.event.issue.labels.*.name, 'result-submission') && startsWith(github.event.issue.title, '[Result Submission]')
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
     steps:
       - name: Checkout results branch only
         uses: actions/checkout@v4
         with:
           ref: _results
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Extract JSON from issue body
         id: extract_json
