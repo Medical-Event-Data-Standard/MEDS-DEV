@@ -14,4 +14,7 @@ def test_packages_result(packaged_result: Path):
         raise AssertionError("Result should be packaged and decodable") from e
 
     assert result.version == MEDS_DEV_version
-    assert result.timestamp < datetime.now() and result.timestamp > datetime.now() - timedelta(hours=2)
+
+    ts = result.timestamp
+    now = datetime.now(ts.tzinfo)
+    assert ts < now and ts > now - timedelta(hours=2)
