@@ -92,13 +92,13 @@ class Result:
             ...
         FileNotFoundError: /tmp/tmp.../nonexistent.json does not exist.
         >>> with tempfile.TemporaryDirectory() as d:
-        ...     Result.from_json(Path(d))
+        ...     Result.from_json(d)
         Traceback (most recent call last):
             ...
         ValueError: /tmp/tmp... is not a file.
         >>> with tempfile.NamedTemporaryFile(suffix=".json") as fp:
         ...     fp.write(b"not JSON")
-        ...     Result.from_json(Path(fp.name))
+        ...     Result.from_json(fp.name)
         Traceback (most recent call last):
             ...
         ValueError: Could not read result from ...
@@ -255,8 +255,11 @@ class Result:
                 "Assuming this is a historical result and not validating dataset, task, and model names."
             )
 
-    def to_json(self, fp: Path, do_overwrite: bool = False):
+    def to_json(self, fp: Path | str, do_overwrite: bool = False):
         """Write the result to a JSON file."""
+
+        if isinstance(fp, str):
+            fp = Path(fp)
 
         if fp.exists():
             if not fp.is_file():
@@ -276,8 +279,11 @@ class Result:
             raise ValueError(f"Could not write result to {fp}") from e
 
     @classmethod
-    def from_json(cls, fp: Path) -> "Result":
+    def from_json(cls, fp: Path | str) -> "Result":
         """Read a result from a JSON file."""
+
+        if isinstance(fp, str):
+            fp = Path(fp)
 
         if not fp.exists():
             raise FileNotFoundError(f"{fp} does not exist.")
