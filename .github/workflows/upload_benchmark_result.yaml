@@ -4,7 +4,6 @@ on:
   issues:
     types:
       - labeled
-      - opened
 
 jobs:
   process_results:
@@ -17,40 +16,26 @@ jobs:
           ref: _results
           sparse-checkout: true
           sparse-checkout-cone-mode: false
-          path: results
+          path: _results
 
-      - name: Extract issue details
-        id: extract
-        run: |
-          echo "ISSUE_TITLE=${{ github.event.issue.title }}" >> $GITHUB_ENV
-          echo "ISSUE_BODY=${{ github.event.issue.body }}" >> $GITHUB_ENV
-          echo "ISSUE_TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> $GITHUB_ENV
+      - name: Install jq for JSON parsing
+        run: sudo apt-get install jq -y
 
-      - name: Download attached file (if exists)
-        id: download
+      - name: Extract JSON from issue body
+        id: extract_json
         run: |
-          ATTACHMENT_URL=$(jq -r '.issue.body' $GITHUB_EVENT_PATH | grep -o 'https://github.com/[^ ]*\.json' || echo "")
-          if [[ ! -z "$ATTACHMENT_URL" ]]; then
-            curl -L "$ATTACHMENT_URL" -o result.json
-            echo "RESULT_FILE=result.json" >> $GITHUB_ENV
-          fi
-
-      - name: Parse issue body for inline JSON
-        id: parse_json
-        run: |
-          if [[ -z "$RESULT_FILE" ]]; then
-            echo "$ISSUE_BODY" | awk '/```json/,/```/' | sed 's/```json//;s/```//' > result.json
+          echo '${{ github.event.issue.body }}' | jq -r 'capture("```json\\n(?<json>.*?)\\n```") | .json' > result.json || echo "No JSON found in issue body"
+          if [[ ! -s result.json ]]; then
+            echo "ERROR: No valid JSON found in the issue body."
+            exit 1
           fi
           cat result.json
 
       - name: Install MEDS-DEV package from PyPI
-        run: |
-          pip install meds-dev
+        run: pip install meds-dev
 
       - name: Validate result JSON
-        id: validate
-        run: |
-          meds-dev-validate-result validate_result result.json
+        run: python -m meds_dev.validate_result result.json
 
       - name: Commit result to results branch
         if: success()
