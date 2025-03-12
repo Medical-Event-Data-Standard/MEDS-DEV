@@ -18,19 +18,20 @@ jobs:
           sparse-checkout-cone-mode: false
           path: _results
 
-      - name: Install jq for JSON parsing
-        run: sudo apt-get install jq -y
-
-      - name: Check for attached JSON file
-        id: check_attachment
+      - name: Extract JSON from issue body
+        id: extract_json
         run: |
-          ATTACHMENT_URL=$(echo '${{ toJson(github.event.issue) }}' | jq -r '.issue.body' | grep -o 'https://github.com/[^ ]*\.json' || echo "")
-          if [[ -z "$ATTACHMENT_URL" ]]; then
-            echo "ERROR: No attached JSON file found in the issue. Submission must include a JSON attachment."
+          echo '${{ github.event.issue.body }}' > issue_body.txt
+          sed -n '/```json/,/```/p' issue_body.txt | sed '1d;$d' > result.json
+
+          if [[ ! -s result.json ]]; then
+            echo "ERROR: No valid JSON found in the issue body."
             exit 1
           fi
-          echo "Detected attached JSON file: $ATTACHMENT_URL"
-          curl -L "$ATTACHMENT_URL" -o result.json
+
+          echo "Extracted JSON:"
+          cat result.json
+
           echo "RESULT_FILE=result.json" >> $GITHUB_ENV
 
       - name: Install MEDS-DEV package from PyPI
