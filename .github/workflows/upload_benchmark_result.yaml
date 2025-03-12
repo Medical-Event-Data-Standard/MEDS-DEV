@@ -14,23 +14,21 @@ jobs:
         id: extract_json
         run: |
           echo '${{ github.event.issue.body }}' > issue_body.txt
-          sed -n '/```json/,/```/p' issue_body.txt | sed '1d;$d' > result.json
+          sed -n '/```json/,/```/p' issue_body.txt | sed '1d;$d' > $GITHUB_WORKSPACE/result.json
 
-          if [[ ! -s result.json ]]; then
+          if [[ ! -s $GITHUB_WORKSPACE/result.json ]]; then
             echo "ERROR: No valid JSON found in the issue body."
             exit 1
           fi
 
           echo "Extracted JSON:"
-          cat result.json
-
-          echo "RESULT_FILE=result.json" >> $GITHUB_ENV
+          cat $GITHUB_WORKSPACE/result.json
 
       - name: Install MEDS-DEV package from PyPI
         run: pip install meds-dev
 
         #- name: Validate result JSON
-        #  run: meds-dev-validate-result results_fp=result.json
+        #  run: meds-dev-validate-result results_fp=$GITHUB_WORKSPACE/result.json
 
       - name: Checkout results branch only
         uses: actions/checkout@v4
@@ -41,7 +39,7 @@ jobs:
         if: success()
         run: |
           mkdir -p _results/${{ github.event.issue.number }}
-          mv result.json _results/${{ github.event.issue.number }}/result.json
+          mv $GITHUB_WORKSPACE/result.json _results/${{ github.event.issue.number }}/result.json
           git add _results/${{ github.event.issue.number }}/result.json
           git commit -m "Added result from Issue #${{ github.event.issue.number }} in _results branch"
           git push origin _results
