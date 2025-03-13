@@ -1,0 +1,4 @@
+meds==0.3.3
+meds_reader==0.1.9
+xformers
+git+https://github.com/som-shahlab/femr@meds_v3
