@@ -60,7 +60,10 @@ COMMANDS_DICT_T = dict[str, dict[str, str]]
 
 
 def fmt_command(
-    commands: COMMANDS_DICT_T, dataset_type: DatasetType, run_mode: RunMode, **format_kwargs
+    commands: COMMANDS_DICT_T,
+    dataset_type: DatasetType,
+    run_mode: RunMode,
+    **format_kwargs,
 ) -> str:
     """Gets the appropriate model command for the given run mode and commands dictionary.
 
@@ -251,7 +254,10 @@ def model_commands(
                 # We don't set the split in anything but predict mode.
                 format_kwargs.pop("split", None)
 
-        yield (fmt_command(commands, dataset_type, run_mode, **format_kwargs), run_output_dir)
+        yield (
+            fmt_command(commands, dataset_type, run_mode, **format_kwargs),
+            run_output_dir,
+        )
 
         if run_mode != RunMode.PREDICT:
             format_kwargs["model_initialization_dir"] = str(run_output_dir)

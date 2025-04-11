@@ -20,6 +20,11 @@ def main(cfg: DictConfig):
 
     logger.info(f"Running MEDS-Evaluation: {cmd}")
 
-    run_in_env(cmd=cmd, output_dir=cfg.output_dir, do_overwrite=cfg.do_overwrite, run_as_script=False)
+    run_in_env(
+        cmd=cmd,
+        output_dir=cfg.output_dir,
+        do_overwrite=cfg.do_overwrite,
+        run_as_script=False,
+    )
 
     logger.info(f"Evaluation command {cmd} finished successfully.")

@@ -54,7 +54,7 @@ def dict_to_hydra_kwargs(d: dict[str, str]) -> str:
                     handled = False
                     for mod in modifier_chars:
                         if inner_kv.startswith(mod):
-                            out.append(f"{mod}{k}.{inner_kv[len(mod):]}")
+                            out.append(f"{mod}{k}.{inner_kv[len(mod) :]}")
                             handled = True
                             break
                     if not handled:

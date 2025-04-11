@@ -34,7 +34,10 @@ def test_validate_result_error():
             model="fake",
             version="fake",
             timestamp=datetime.now(),
-            result={"per_patient": {"roc_auc_score": 0.5}, "per_sample": {"roc_auc_score": 0.5}},
+            result={
+                "per_patient": {"roc_auc_score": 0.5},
+                "per_sample": {"roc_auc_score": 0.5},
+            },
         )
         fake_result.to_json(temp.name, do_overwrite=True)
         out = run(Path(temp.name))
@@ -55,7 +58,9 @@ def test_pack_result_error():
     with tempfile.TemporaryDirectory() as tempdir:
         non_existent_fp = Path(tempdir) / "non_existent.json"
         out = subprocess.run(
-            ["meds-dev-pack-result", f"evaluation_fp={non_existent_fp}"], check=False, capture_output=True
+            ["meds-dev-pack-result", f"evaluation_fp={non_existent_fp}"],
+            check=False,
+            capture_output=True,
         )
         assert out.returncode != 0, "Packaging should fail for non-existent file"
         assert f"FileNotFoundError: File not found: {str(non_existent_fp)}" in out.stderr.decode()

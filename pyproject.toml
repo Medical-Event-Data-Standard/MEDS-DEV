@@ -42,7 +42,7 @@ addopts = [
 ]
 
 [project.optional-dependencies]
-dev = ["pre-commit<4"]
+dev = ["pre-commit<4", "ruff"]
 tests = ["pytest", "pytest-cov", "meds_testing_helpers"]
 
 [project.scripts]

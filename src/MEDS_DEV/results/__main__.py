@@ -25,12 +25,20 @@ def pack_result(cfg: DictConfig):
     timestamp = datetime.fromtimestamp(eval_fp.stat().st_mtime, tz=timezone.utc)
 
     result = Result(
-        dataset=cfg.dataset, task=cfg.task, model=cfg.model, result=eval_result, timestamp=timestamp
+        dataset=cfg.dataset,
+        task=cfg.task,
+        model=cfg.model,
+        result=eval_result,
+        timestamp=timestamp,
     )
     result.to_json(cfg.result_fp, do_overwrite=cfg.get("do_overwrite", False))
 
 
-@hydra.main(version_base=None, config_path=str(VALIDATE_YAML.parent), config_name=VALIDATE_YAML.stem)
+@hydra.main(
+    version_base=None,
+    config_path=str(VALIDATE_YAML.parent),
+    config_name=VALIDATE_YAML.stem,
+)
 def validate_result(cfg: DictConfig):
     """Package the result of a MEDS-DEV experiment."""
 

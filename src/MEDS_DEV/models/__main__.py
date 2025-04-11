@@ -2,13 +2,13 @@ import logging
 import shutil
 from pathlib import Path
 
-logger = logging.getLogger(__name__)
-
 import hydra
 from omegaconf import DictConfig
 
 from ..utils import run_in_env, temp_env
 from . import CFG_YAML, MODELS, model_commands
+
+logger = logging.getLogger(__name__)
 
 
 @hydra.main(version_base=None, config_path=str(CFG_YAML.parent), config_name=CFG_YAML.stem)

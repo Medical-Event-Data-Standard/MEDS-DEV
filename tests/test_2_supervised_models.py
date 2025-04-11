@@ -1,7 +1,11 @@
 from tests.utils import NAME_AND_DIR
 
 
-def test_supervised(supervised_model: NAME_AND_DIR, demo_dataset: NAME_AND_DIR, task_labels: NAME_AND_DIR):
+def test_supervised(
+    supervised_model: NAME_AND_DIR,
+    demo_dataset: NAME_AND_DIR,
+    task_labels: NAME_AND_DIR,
+):
     model, final_out_dir = supervised_model
     dataset_name, _ = demo_dataset
     task_name, _ = task_labels

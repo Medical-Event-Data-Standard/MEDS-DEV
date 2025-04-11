@@ -2,13 +2,13 @@ import logging
 import shutil
 from pathlib import Path
 
-logger = logging.getLogger(__name__)
-
 import hydra
 from omegaconf import DictConfig
 
 from ..utils import run_in_env, temp_env
 from . import CFG_YAML, DATASETS
+
+logger = logging.getLogger(__name__)
 
 
 @hydra.main(version_base=None, config_path=str(CFG_YAML.parent), config_name=CFG_YAML.stem)
@@ -39,5 +39,11 @@ def main(cfg: DictConfig):
         build_cmd = build_cmd.format(output_dir=cfg.output_dir, temp_dir=str(build_temp_dir.resolve()))
 
         logger.info(f"Considering running build command: {build_cmd}")
-        run_in_env(build_cmd, cfg.output_dir, env=env, do_overwrite=cfg.do_overwrite, cwd=build_temp_dir)
+        run_in_env(
+            build_cmd,
+            cfg.output_dir,
+            env=env,
+            do_overwrite=cfg.do_overwrite,
+            cwd=build_temp_dir,
+        )
         logger.info(f"Build {cfg.dataset} command {build_cmd} completed successfully.")
