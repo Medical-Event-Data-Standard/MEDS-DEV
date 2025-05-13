@@ -39,7 +39,7 @@ commands:
           "input_dir={dataset_dir}/data" "output_dir={output_dir}/meds_tab" \
           "output_model_dir={output_dir}/results" "task_name=null" do_overwrite=False \
           "hydra.sweeper.n_trials=10" "hydra.sweeper.n_jobs=1" \
-          "hydra.sweeper.max_failure_rate=0.2" \
+          "hydra.sweeper.max_failure_rate=0.3" \
           "input_tabularized_cache_dir={output_dir}/meds_tab/tabularize/" \
           "input_label_cache_dir={labels_dir}" \
           "tabularization.aggs=[code/count,value/sum]" \
