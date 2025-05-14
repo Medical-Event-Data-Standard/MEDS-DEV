@@ -81,11 +81,11 @@ class DatasetMetadata(Metadata):
         if isinstance(self.access_policy, str):
             try:
                 self.access_policy = AccessPolicy[self.access_policy.upper()]
-            except KeyError:
+            except KeyError as e:
                 raise ValueError(
                     f"Invalid access policy {self.access_policy}. "
                     f"Must be one of {', '.join(repr(a.value) for a in AccessPolicy)}"
-                )
+                ) from e
 
         if not isinstance(self.access_policy, AccessPolicy):
             raise ValueError(
@@ -114,4 +114,4 @@ for path in dataset_files.rglob("*/dataset.yaml"):
         "requirements": requirements_path if requirements_path.exists() else None,
     }
 
-__all__ = ["DATASETS", "CFG_YAML"]
+__all__ = ["CFG_YAML", "DATASETS"]

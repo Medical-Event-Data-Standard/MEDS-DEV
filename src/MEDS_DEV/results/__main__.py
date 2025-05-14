@@ -1,6 +1,6 @@
 import json
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import hydra
@@ -22,7 +22,7 @@ def pack_result(cfg: DictConfig):
         raise FileNotFoundError(f"File not found: {eval_fp}")
 
     eval_result = json.loads(eval_fp.read_text())
-    timestamp = datetime.fromtimestamp(eval_fp.stat().st_mtime, tz=timezone.utc)
+    timestamp = datetime.fromtimestamp(eval_fp.stat().st_mtime, tz=UTC)
 
     result = Result(
         dataset=cfg.dataset,

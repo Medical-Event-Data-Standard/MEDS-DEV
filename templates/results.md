@@ -1,4 +1,4 @@
-# \[New result\] {task}, {dataset}, {model}
+# [New result] {task}, {dataset}, {model}
 
 *Replace the {task}, {dataset}, and {model} above with the actual names as appropriate*
 
@@ -20,7 +20,7 @@ This file should be located in `src/MEDS_DEV/results/${meds_dev_version}/${task}
 
 TODO: the `metrics` field (and most of the submitted YAML configuration) should ideally be directly based on the output of the [`meds-evaluation`](https://github.com/kamilest/meds-evaluation) package—it should be possible to submit the output file directly with minimal to no manual modification.
 
-> \[!Warning\]
+> [!WARNING]
 > TODO: In the future updates, a GitHub Action will validate the results YAML using the following criteria:
 >
 > 1. The (task × dataset × model) is new to MEDS-DEV.

@@ -228,7 +228,7 @@ def model_commands(
 
     all_modes = itertools.product(run_modes, dataset_types)
     for run_mode, dataset_type in all_modes:
-        dataset_commands = commands.get(dataset_type, None)
+        dataset_commands = commands.get(dataset_type)
         if dataset_commands is None:
             continue
 
@@ -263,4 +263,4 @@ def model_commands(
             format_kwargs["model_initialization_dir"] = str(run_output_dir)
 
 
-__all__ = ["MODELS", "CFG_YAML", "RunMode", "DatasetType", "model_commands"]
+__all__ = ["CFG_YAML", "MODELS", "DatasetType", "RunMode", "model_commands"]

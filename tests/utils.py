@@ -106,7 +106,7 @@ def run_command(
 
         command_parts.extend(
             [
-                f"--config-path={str(conf_path.parent.resolve())}",
+                f"--config-path={conf_path.parent.resolve()!s}",
                 "--config-name=config",
                 "'hydra.searchpath=[pkg://MEDS_transforms.configs]'",
             ]

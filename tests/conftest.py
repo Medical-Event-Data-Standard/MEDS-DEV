@@ -102,7 +102,7 @@ def pytest_collection_modifyitems(session: pytest.Session, config: pytest.Config
 
     def sort_key(item: pytest.Item) -> tuple[int, int, int, int]:
         if hasattr(item, "callspec"):
-            fixture_params = {name: value for name, value in item.callspec.params.items()}
+            fixture_params = dict(item.callspec.params.items())
         else:
             return (-1, -1, -1, -1)
 
@@ -307,10 +307,7 @@ def get_opts(config, opt: str) -> list[str]:
     arg = config.getoption(f"--test_{opt}")
     allowed = {"dataset": DATASETS, "task": TASKS, "model": MODELS}
 
-    if arg:
-        out = allowed[opt] if "all" in arg else arg
-    else:
-        out = allowed[opt]
+    out = (allowed[opt] if "all" in arg else arg) if arg else allowed[opt]
 
     if isinstance(out, dict):
         out = list(out.keys())

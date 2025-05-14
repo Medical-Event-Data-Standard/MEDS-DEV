@@ -80,7 +80,7 @@ MEDS-DEV has helper functions to help you easily perform all of these steps.
 
 ### Building a dataset
 
-> \[!Note\]
+> [!NOTE]
 > If your dataset is already extracted in the MEDS format, you can skip this step and assume that
 > `$DATASET_DIR` points to the directory containing your MEDS-formatted dataset.
 
@@ -94,11 +94,11 @@ meds-dev-dataset dataset=$DATASET_NAME output_dir=$DATASET_DIR
 where `DATASET_NAME` is the name of the dataset you want to build and `OUTPUT_DIR` is the directory where you
 want to store the final, MEDS-formatted dataset.
 
-> \[!NOTE\]
+> [!NOTE]
 > Note that you can also specify `demo=True` to build a demo version of this dataset (if supported) for ease
 > of testing the pipeline and your downstream code.
 
-> \[!NOTE\]
+> [!NOTE]
 > Note that here, `$DATASET_NAME` is the entire, slash-separated path from `src/MEDS_DEV/datasets/` to the
 > directory containing the dataset's `commands.yaml` and `README.md` files. This name is a unique identifier
 > for MEDS-DEV datasets so that the right task-specific predicates can be used and that it is clear what
@@ -106,12 +106,12 @@ want to store the final, MEDS-formatted dataset.
 
 ### Extracting a task
 
-> \[!Note\]
+> [!NOTE]
 > If your task labels are already extracted in the MEDS format, you can skip this step and assume that
 > `$LABELS_DIR` points to the directory containing your MEDS-formatted task labels for the specific task of
 > interest.
 
-> \[!NOTE\]
+> [!NOTE]
 > MEDS-DEV currently only supports binary classification tasks.
 
 To extract a task from a dataset, you can use the `meds-dev-task` helper:
@@ -126,7 +126,7 @@ are extracting from (this name is used to locate the right `predicates.yaml` fil
 you want to store the extracted task labels. The output will be a set of parquet files in the
 [meds](https://github.com/Medical-Event-Data-Standard/meds) label format.
 
-> \[!Warning\]
+> [!WARNING]
 > Right now, we don't have a good way to point to predicates files on disk that are used for datasets not yet
 > configured for MEDS-DEV. File a new or up-vote any existing relevant GitHub issues for this functionality if
 > it would be helpful for you! In general, we encourage that, eventually, any dataset over which MEDS-DEV
@@ -135,11 +135,11 @@ you want to store the extracted task labels. The output will be a set of parquet
 > the code you use to build the MEDS view of these data so others at your site can contribute in a
 > reproducible way).
 
-> \[!Note\]
+> [!NOTE]
 > Note that here, `$TASK_NAME` is the entire, slash-separated path from `src/MEDS_DEV/tasks/` to the
 > task configuration file. This name is a unique identifier for MEDS-DEV tasks.
 
-> \[!Note\]
+> [!NOTE]
 > Note that _it is guaranteeably true that not all tasks will be appropriate for or supported on all
 > datasets._ Some tasks are only suited for certain clinical populations, which may not exist on all datasets.
 > We're still figuring out the best way to operationalize this formally, but for now, please be cognizant of
@@ -148,7 +148,7 @@ you want to store the extracted task labels. The output will be a set of parquet
 
 ### Using a model
 
-> \[!Note\]
+> [!NOTE]
 > MEDS-DEV is not about (for now) assessing the generalizability of fully pre-trained models from site A to
 > site B. Instead, it is about assessing the generalizability of model _training recipes_ (e.g., algorithms).
 > This section reflects that by giving instructions on how you can use MEDS-DEV to train a model from scratch
@@ -177,12 +177,12 @@ Here, `$MODEL_NAME` is the name of the model you want to train within the MEDS-D
 the pre-trained model weights are passed to the fine-tuning stage via the `model_initialization_dir`
 parameter, and likewise for the fine-tuned model weights to the prediction stage.
 
-> \[!Note\]
+> [!NOTE]
 > If you're a model creator, don't worry that you'll have to conform to this API -- this is just the API for
 > model users, and internally MEDS-DEV wraps this API into whatever custom scripts and calls you need your
 > model to take to train and predict. See the section below about "Contributing" for more details!
 
-> \[!Note\]
+> [!NOTE]
 > You can also run the full suite of supported commands for a model in the right order, chaining directories
 > as needed, using the `mode=full` and `dataset_type=full` options. This will run the full sequence of
 > commands in 1-3 above, and store the intermediate results in subdirectories of the output directory.
@@ -206,7 +206,7 @@ the public record to help advance the science of Health AI!
 
 ## Contributing New Things to MEDS-DEV
 
-> \[!Note\]
+> [!NOTE]
 > See the [templates](templates) folder for templates for the README files for new tasks, datasets, or models!
 
 ### Adding a dataset
@@ -323,12 +323,12 @@ omitted or if `'all'` is specified as an option, then all allowed tests will be 
 
 Note that _caching does not imply that test code will not be re-run_ -- instead, it just ensures that output
 files are stored on disk in the specified directory. For some aspects of MEDS-DEV, this means that test-code
-will be re-run and files replaced; for others, it will be re-used. This is a feature, not a bug, as it allows
-you to inspect output files while reliably re-testing code. However, if you want to fully re-use a component
+will be re-run and files replaced; for others, it will be reused. This is a feature, not a bug, as it allows
+you to inspect output files while reliably re-testing code. However, if you want to fully reuse a component
 of a test, you can also specify the additional arguments: `--reuse_cached_dataset`, `--reuse_cached_task`, or
 `--reuse_cached_model` with the same syntax of the `--cache_*` and `--test_*` arguments. Then, the test code
-will explicitly mark the specified components within the persistent cache directory as "re-useable" and will
-not re-run the associated MEDS-DEV code pipelines in between test runs, but simply re-use the outputs.
+will explicitly mark the specified components within the persistent cache directory as "reusable" and will
+not re-run the associated MEDS-DEV code pipelines in between test runs, but simply reuse the outputs.
 
 By default, even when caching is enabled, the testing code will clear the virtual environments of the various
 model and dataset runs after they are no longer needed, to reduce the overall disk footprint of the test
