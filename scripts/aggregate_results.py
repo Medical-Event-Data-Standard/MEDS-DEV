@@ -56,6 +56,15 @@ def main():
                     "Please check the logs for more details."
                 ) from e
 
+    if new_results == 0:
+        all_jsons = list(args.input_dir.rglob("*.json"))
+        raise ValueError(
+            "Found no new results to add! Files present:\n"
+            f"{', '.join([str(fp) for fp in result_fps])}.\n"
+            "All JSON files in input dir {args.input_dir}:\n"
+            f"{', '.join([str(fp) for fp in all_jsons])}.\n"
+        )
+
     # Write to a relative path so we can copy it to a different branch
     args.output_path.parent.mkdir(exist_ok=True)
     args.output_path.write_text(json.dumps(results))
