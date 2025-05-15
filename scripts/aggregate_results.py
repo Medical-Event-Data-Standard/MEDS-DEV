@@ -43,6 +43,7 @@ def main():
                 err_lines.append(f"Parent directory '{new_dir.resolve()!s}' exists.")
                 for child in new_dir.iterdir():
                     err_lines.append(f"  contains '{child.name}'")
+                break
 
         raise FileNotFoundError("\n".join(err_lines))
     if not args.input_dir.is_dir():
