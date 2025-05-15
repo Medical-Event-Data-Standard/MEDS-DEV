@@ -48,7 +48,7 @@ def main():
             new_results += 1
         except Exception as e:
             logger.warning(f"Failed to read {result_fp}: {e}")
-                n_errors += 1
+            n_errors += 1
 
             if n_errors > args.error_threshold:
                 raise ValueError(
