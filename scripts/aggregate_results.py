@@ -31,7 +31,20 @@ def main():
     args = parser.parse_args()
 
     if not args.input_dir.exists():
-        raise FileNotFoundError(f"Input directory '{args.input_dir.resolve()!s}' does not exist.")
+        err_lines = ["Input directory '{args.input_dir.resolve()!s}' does not exist."]
+
+        directories_to_check = [args.input_dir]
+        while len(directories_to_check) < 3:
+            new_dir = directories_to_check[-1].parent
+            if not new_dir.exists():
+                err_lines.append(f"Parent directory '{new_dir.resolve()!s}' does not exist.")
+                directories_to_check.append(new_dir)
+            else:
+                err_lines.append(f"Parent directory '{new_dir.resolve()!s}' exists.")
+                for child in new_dir.iterdir():
+                    err_lines.append(f"  contains '{child.name}'")
+
+        raise FileNotFoundError("\n".join(err_lines))
     if not args.input_dir.is_dir():
         raise NotADirectoryError(f"Input directory '{args.input_dir.resolve()!s}' is not a directory.")
 
@@ -66,7 +79,7 @@ def main():
         raise ValueError(
             "Found no new results to add! Files present:\n"
             f"{', '.join([str(fp) for fp in result_fps])}.\n"
-            "All JSON files in input dir {args.input_dir}:\n"
+            f"All JSON files in input dir '{args.input_dir.resolve()!s}':\n"
             f"{', '.join([str(fp) for fp in all_jsons])}.\n"
         )
 
