@@ -51,9 +51,23 @@ def main():
 
     results = json.loads(args.output_path.read_text()).items() if args.output_path.exists() else {}
 
-    result_fps = args.input_dir.glob("*/result.json")
+    result_fps = list(args.input_dir.glob("*/result.json"))
 
-    n_errors = 0
+    no_results_err_lines = [
+        "Found no new results to add! Files present:"
+        f"{', '.join([str(fp) for fp in result_fps])}."
+    ]
+
+    if not result_fps:
+        all_jsons = list(args.input_dir.rglob("*.json"))
+        missing_files_err_lines = [
+            *no_results_err_lines,
+            f"All JSON files in input dir '{args.input_dir.resolve()!s}':"
+            f"{', '.join([str(fp) for fp in all_jsons])}."
+        ]
+        raise FileNotFoundError("\n".join(missing_files_err_lines))
+
+    parse_errors = []
     new_results = 0
     for result_fp in result_fps:
         issue_num = result_fp.parent.name
@@ -67,9 +81,9 @@ def main():
             new_results += 1
         except Exception as e:
             logger.warning(f"Failed to read {result_fp}: {e}")
-            n_errors += 1
+            parse_errors.append(e)
 
-            if n_errors > args.error_threshold:
+            if len(parse_errors) > args.error_threshold:
                 raise ValueError(
                     f"Too many errors ({n_errors}) while reading results. "
                     "Please check the logs for more details."
@@ -77,12 +91,8 @@ def main():
 
     if new_results == 0:
         all_jsons = list(args.input_dir.rglob("*.json"))
-        raise ValueError(
-            "Found no new results to add! Files present:\n"
-            f"{', '.join([str(fp) for fp in result_fps])}.\n"
-            f"All JSON files in input dir '{args.input_dir.resolve()!s}':\n"
-            f"{', '.join([str(fp) for fp in all_jsons])}.\n"
-        )
+        err_lines = [*no_results_err_lines, f"Obtained {len(parse_errors)} errors: ", *parse_errors]
+        raise ValueError("\n".join(err_lines))
 
     # Write to a relative path so we can copy it to a different branch
     args.output_path.parent.mkdir(exist_ok=True)
