@@ -49,7 +49,7 @@ def main():
     if not args.input_dir.is_dir():
         raise NotADirectoryError(f"Input directory '{args.input_dir.resolve()!s}' is not a directory.")
 
-    results = json.loads(args.output_path.read_text()).items() if args.output_path.exists() else {}
+    results = json.loads(args.output_path.read_text()) if args.output_path.exists() else {}
 
     result_fps = list(args.input_dir.rglob("result.json"))
 
@@ -81,7 +81,7 @@ def main():
             new_results += 1
         except Exception as e:
             logger.warning(f"Failed to read {result_fp}: {e}")
-            parse_errors.append(e)
+            parse_errors.append(str(e))
 
             if len(parse_errors) > args.error_threshold:
                 raise ValueError(
