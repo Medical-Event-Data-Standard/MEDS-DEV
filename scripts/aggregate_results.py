@@ -30,6 +30,11 @@ def main():
 
     args = parser.parse_args()
 
+    if not args.input_dir.exists():
+        raise FileNotFoundError(f"Input directory '{args.input_dir.resolve()!s}' does not exist.")
+    if not args.input_dir.is_dir():
+        raise NotADirectoryError(f"Input directory '{args.input_dir.resolve()!s}' is not a directory.")
+
     results = json.loads(args.output_path.read_text()).items() if args.output_path.exists() else {}
 
     result_fps = args.input_dir.glob("*/result.json")
