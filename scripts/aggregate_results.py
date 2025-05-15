@@ -51,7 +51,7 @@ def main():
 
     results = json.loads(args.output_path.read_text()).items() if args.output_path.exists() else {}
 
-    result_fps = list(args.input_dir.glob("*/result.json"))
+    result_fps = list(args.input_dir.rglob("result.json"))
 
     no_results_err_lines = [
         "Found no new results to add! Files present:"
