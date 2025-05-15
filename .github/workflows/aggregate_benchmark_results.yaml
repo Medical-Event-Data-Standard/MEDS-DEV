@@ -1,0 +1,48 @@
+name: Aggregate Benchmark Results
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [_results]
+
+permissions:
+  contents: write
+
+jobs:
+  aggregate-results:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the _results branch
+        uses: actions/checkout@v4
+        with:
+          ref: _results
+          path: results-branch
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.12
+
+      - name: Check out _web branch
+        uses: actions/checkout@v4
+        with:
+          ref: _web
+          path: web-branch
+
+      - name: Aggregate results
+        run: |
+          mkdir web-branch/results -p
+          python web-branch/scripts/aggregate_results.py \
+            --input_dir results-branch/_results \
+            --output_path web-branch/results/all_results.json
+
+      - name: Commit and push to docs branch
+        if: success()
+        run: |
+          cd web-branch
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add results/all_results.json
+          git commit -m "Update aggregated results from _results" || echo "No changes to commit"
+          git push origin _web

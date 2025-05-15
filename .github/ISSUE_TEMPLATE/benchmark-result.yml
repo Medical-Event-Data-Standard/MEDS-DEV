@@ -1,6 +1,8 @@
 name: "Benchmark Result Submission"
 description: "Submit a new benchmark result to MEDS-DEV"
-labels: ["result-submission"]
+labels:
+  - result-submission
+title: "[Result Submission] "
 body:
   - type: markdown
     attributes:
@@ -34,12 +36,9 @@ body:
   - type: textarea
     id: result
     attributes:
-      label: "Result JSON (if not attaching a file)"
-      description: "Paste the result JSON here if you are not attaching a file."
+      label: "Result JSON"
+      description: "Paste the result JSON here."
       render: json
-  - type: markdown
-    attributes:
-      value: "Alternatively, attach a JSON file below instead of pasting the result."
   - type: textarea
     id: description
     attributes:
