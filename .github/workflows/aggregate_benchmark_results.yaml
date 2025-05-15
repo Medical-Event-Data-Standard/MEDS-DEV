@@ -37,7 +37,7 @@ jobs:
           mkdir web-branch/results -p
           python web-branch/scripts/aggregate_results.py \
             --input_dir results-branch/_results \
-            --output-path web-branch/results/all_results.json
+            --output_path web-branch/results/all_results.json
 
       - name: Commit and push to docs branch
         if: success()
