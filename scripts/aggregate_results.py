@@ -60,7 +60,7 @@ def main():
     args.output_path.parent.mkdir(exist_ok=True)
     args.output_path.write_text(json.dumps(output))
 
-    logger.info(f"Wrote {len(curr_results} results ({new_results} new) to {args.output_path}")
+    logger.info(f"Wrote {len(curr_results)} results ({new_results} new) to {args.output_path}")
 
 
 if __name__ == "__main__":
