@@ -423,6 +423,15 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Collate entities from the MEDS_DEV repository.")
     parser.add_argument("--repo_dir", type=Path, help="Path to the MEDS_DEV repository.")
     parser.add_argument("--output_dir", type=Path, help="Path to the output directory.")
+    parser.add_argument(
+        "--do_overwrite", action="store_true", default=False, help="Overwrite existing output files."
+    )
+    parser.add_argument(
+        "--no_overwrite",
+        action="store_false",
+        dest="do_overwrite",
+        help="Do not overwrite existing output files.",
+    )
     args = parser.parse_args()
 
-    collate_entities(args.repo_dir, args.output_dir)
+    collate_entities(args.repo_dir, args.output_dir, args.do_overwrite)
