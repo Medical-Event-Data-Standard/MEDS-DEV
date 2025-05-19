@@ -67,10 +67,10 @@ class Node:
             ... '''
             >>> with yaml_disk(test_disk) as root_dir:
             ...     print(Node.data_from_leaf(root_dir / "leaf1"))
-            {'README.md': '# README', 'dataset.yaml': {'foo': 'bar'}, 'refs.bib': '@article{foo, bar}'}
+            {'readme': '# README', 'dataset': {'foo': 'bar'}, 'refs': '@article{foo, bar}'}
             >>> with yaml_disk(test_disk) as root_dir:
             ...     print(Node.data_from_leaf(root_dir / "leaf2"))
-            {'model.yaml': {'baz': 'qux'}, 'requirements.txt': ['numpy==1.21.0', 'pandas==1.3.0']}
+            {'model': {'baz': 'qux'}, 'requirements': ['numpy==1.21.0', 'pandas==1.3.0']}
             >>> with yaml_disk(test_disk) as root_dir:
             ...     print(Node.data_from_leaf(root_dir / "leaf3"))
             {}
@@ -104,7 +104,7 @@ class Node:
 
             allowed_names, reader = FILETYPES[sfx]
             if file.name in allowed_names:
-                data[file.name] = reader(file)
+                data[file.stem.lower()] = reader(file)
         return data
 
 
@@ -120,6 +120,7 @@ def parse_nested_tree(root: Path, base_glob: str) -> dict[str, Node]:
 
     Examples:
         >>> test_disk = '''
+        ...   README.md: "This is a general README. It shouldn't show up"
         ...   datasets:
         ...     MIMIC:
         ...       README.md: "This is a README for the category."
@@ -163,47 +164,47 @@ def parse_nested_tree(root: Path, base_glob: str) -> dict[str, Node]:
         >>> with yaml_disk(test_disk) as root_dir:
         ...     print(parse_nested_tree(root_dir, "dataset.yaml"))
         {'datasets/MIMIC/III': Node(name='datasets/MIMIC/III',
-                                    data={'README.md': 'This is a README.',
-                                          'dataset.yaml': {'foo': 'bar'},
-                                          'predicates.yaml': {'predicate': 'value'},
-                                          'refs.bib': '@article{foo, bar}',
-                                          'requirements.txt': ['numpy==1.21.0', 'pandas==1.3.0']},
+                                    data={'readme': 'This is a README.',
+                                          'dataset': {'foo': 'bar'},
+                                          'predicates': {'predicate': 'value'},
+                                          'refs': '@article{foo, bar}',
+                                          'requirements': ['numpy==1.21.0', 'pandas==1.3.0']},
                                     children=[]),
          'datasets/MIMIC': Node(name='datasets/MIMIC',
-                                data={'README.md': 'This is a README for the category.'},
+                                data={'readme': 'This is a README for the category.'},
                                 children=['datasets/MIMIC/III', 'datasets/MIMIC/IV']),
          'datasets/MIMIC/IV': Node(name='datasets/MIMIC/IV',
-                                   data={'README.md': 'This is another README.',
-                                         'dataset.yaml': {'foo': 'baz'},
-                                         'predicates.yaml': {'predicate': 'alt_value'},
-                                         'refs.bib': '@article{baz, qux}',
-                                         'requirements.txt': ['numpy==1.21.0', 'pandas==1.3.0']},
+                                   data={'readme': 'This is another README.',
+                                         'dataset': {'foo': 'baz'},
+                                         'predicates': {'predicate': 'alt_value'},
+                                         'refs': '@article{baz, qux}',
+                                         'requirements': ['numpy==1.21.0', 'pandas==1.3.0']},
                                    children=[]),
          'datasets/eICU': Node(name='datasets/eICU',
-                               data={'dataset.yaml': {'foo': 'quux'},
-                               'predicates.yaml': {'predicate': 'quuz'}},
+                               data={'dataset': {'foo': 'quux'},
+                               'predicates': {'predicate': 'quuz'}},
                                children=[])}
         >>> with yaml_disk(test_disk) as root_dir:
         ...     print(parse_nested_tree(root_dir, "task.yaml"))
         {'tasks/mortality/in_icu/first_24h': Node(name='tasks/mortality/in_icu/first_24h',
-                                                  data={'README.md': 'This is a README for the
+                                                  data={'readme': 'This is a README for the
                                                                       mortality/in_icu/first_24h task.',
-                                                        'task.yaml': {'task': 'value'}},
+                                                        'task': {'task': 'value'}},
                                                   children=[]),
          'tasks/mortality': Node(name='tasks/mortality',
-                                 data={'README.md': 'This is a README for the task.'},
+                                 data={'readme': 'This is a README for the task.'},
                                  children=['tasks/mortality/in_icu/first_24h']),
          'tasks/readmission/30d': Node(name='tasks/readmission/30d',
-                                       data={'README.md': 'This is a README for the readmission/30d task.',
-                                             'task.yaml': {'task': 'value'}},
+                                       data={'readme': 'This is a README for the readmission/30d task.',
+                                             'task': {'task': 'value'}},
                                        children=[])}
         >>> with yaml_disk(test_disk) as root_dir:
         ...     print(parse_nested_tree(root_dir, "model.yaml"))
         {'models/cehrbert': Node(name='models/cehrbert',
-                                 data={'README.md': 'This is a README for the model.',
-                                       'model.yaml': {'model': 'value'},
-                                       'refs.bib': '@article{model, paper}',
-                                       'requirements.txt': ['numpy==1.21.0']},
+                                 data={'readme': 'This is a README for the model.',
+                                       'model': {'model': 'value'},
+                                       'refs': '@article{model, paper}',
+                                       'requirements': ['numpy==1.21.0']},
                                  children=[])}
         >>> with yaml_disk(test_disk) as root_dir:
         ...     print(parse_nested_tree(root_dir, "non_existent.yaml"))
@@ -220,7 +221,7 @@ def parse_nested_tree(root: Path, base_glob: str) -> dict[str, Node]:
 
         child_name = name
         parent_path = fp.parent
-        while parent_path != root:
+        while parent_path != root and parent_path.parent != root:
             parent_path = parent_path.parent
             parent_data = Node.data_from_leaf(parent_path)
 
@@ -231,7 +232,8 @@ def parse_nested_tree(root: Path, base_glob: str) -> dict[str, Node]:
             if parent_name not in nodes:
                 nodes[parent_name] = Node(name=parent_name, data=parent_data)
 
-            nodes[parent_name].children.append(child_name)
+            if child_name not in nodes[parent_name].children:
+                nodes[parent_name].children.append(child_name)
             child_name = parent_name
 
     return nodes
@@ -321,33 +323,33 @@ def collate_entities(repo_dir: Path, output_dir: Path, do_overwrite: bool = Fals
         ------------
         Datasets:
         {'MIMIC/III': {'name': 'MIMIC/III',
-                       'data': {'README.md': 'This is a README.',
-                                'dataset.yaml': {'foo': 'bar'},
-                                'predicates.yaml': {'predicate': 'value'},
-                                'refs.bib': '@article{foo, bar}',
-                                'requirements.txt': ['numpy==1.21.0', 'pandas==1.3.0']},
-                                'children': []},
+                       'data': {'readme': 'This is a README.',
+                                'dataset': {'foo': 'bar'},
+                                'predicates': {'predicate': 'value'},
+                                'refs': '@article{foo, bar}',
+                                'requirements': ['numpy==1.21.0', 'pandas==1.3.0']},
+                       'children': []},
          'MIMIC': {'name': 'MIMIC',
-                   'data': {'README.md': 'This is a README for the category.'},
+                   'data': {'readme': 'This is a README for the category.'},
                    'children': ['MIMIC/III', 'MIMIC/IV']},
          'MIMIC/IV': {'name': 'MIMIC/IV',
-                      'data': {'README.md': 'This is another README.',
-                               'dataset.yaml': {'foo': 'baz'},
-                               'predicates.yaml': {'predicate': 'alt_value'},
-                               'refs.bib': '@article{baz, qux}',
-                               'requirements.txt': ['numpy==1.21.0', 'pandas==1.3.0']},
-                               'children': []}}
+                      'data': {'readme': 'This is another README.',
+                               'dataset': {'foo': 'baz'},
+                               'predicates': {'predicate': 'alt_value'},
+                               'refs': '@article{baz, qux}',
+                               'requirements': ['numpy==1.21.0', 'pandas==1.3.0']},
+                      'children': []}}
         Tasks:
         {'readmission/30d': {'name': 'readmission/30d',
-                             'data': {'README.md': 'This is a README for the readmission/30d task.',
-                             'task.yaml': {'task': 'value'}},
+                             'data': {'readme': 'This is a README for the readmission/30d task.',
+                             'task': {'task': 'value'}},
                              'children': []}}
         Models:
         {'cehrbert': {'name': 'cehrbert',
-                      'data': {'README.md': 'This is a README for the model.',
-                               'model.yaml': {'model': 'value'},
-                               'refs.bib': '@article{model, paper}',
-                               'requirements.txt': ['numpy==1.21.0']},
+                      'data': {'readme': 'This is a README for the model.',
+                               'model': {'model': 'value'},
+                               'refs': '@article{model, paper}',
+                               'requirements': ['numpy==1.21.0']},
                       'children': []}}
 
     Errors will be raised if the repository directory does not exist or is not a directory, or if the output
