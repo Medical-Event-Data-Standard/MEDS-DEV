@@ -35,7 +35,7 @@ def aggregate_results(input_dir: Path, output_path: Path, error_threshold: int =
         {"44": {"result": "data for 44"}, "200": {"result": "data for 200"}}
     """
     if not input_dir.exists():
-        err_lines = ["Input directory '{input_dir.resolve()!s}' does not exist."]
+        err_lines = [f"Input directory '{input_dir.resolve()!s}' does not exist."]
 
         directories_to_check = [input_dir]
         while len(directories_to_check) < 3:
