@@ -421,8 +421,8 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="Collate entities from the MEDS_DEV repository.")
-    parser.add_argument("repo_dir", type=Path, help="Path to the MEDS_DEV repository.")
-    parser.add_argument("output_dir", type=Path, help="Path to the output directory.")
+    parser.add_argument("--repo_dir", type=Path, help="Path to the MEDS_DEV repository.")
+    parser.add_argument("--output_dir", type=Path, help="Path to the output directory.")
     args = parser.parse_args()
 
     collate_entities(args.repo_dir, args.output_dir)
