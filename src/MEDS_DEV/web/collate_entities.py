@@ -1,4 +1,5 @@
-from dataclasses import dataclass, field
+import json
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
 
@@ -19,6 +20,11 @@ FILETYPES = {
     ".bib": ({"refs.bib"}, Path.read_text),
     ".txt": ({"requirements.txt"}, read_requirements),
 }
+
+SRC_REL_PATH = Path("src/MEDS_DEV/")
+DATASETS_REL_PATH = SRC_REL_PATH / "datasets"
+TASKS_REL_PATH = SRC_REL_PATH / "tasks"
+MODELS_REL_PATH = SRC_REL_PATH / "models"
 
 
 @dataclass
@@ -231,6 +237,192 @@ def parse_nested_tree(root: Path, base_glob: str) -> dict[str, Node]:
     return nodes
 
 
-def collate_datasets(root: Path):
+def collate_datasets(root: Path) -> dict[str, dict[str, Any]]:
     """Collates all dataset entries into a single dictionary."""
-    raise NotImplementedError("Collation of datasets is not implemented yet.")
+    datasets_dir = root / DATASETS_REL_PATH
+    return {k: asdict(v) for k, v in parse_nested_tree(datasets_dir, "dataset.yaml").items()}
+
+
+def collate_tasks(root: Path) -> dict[str, dict[str, Any]]:
+    """Collates all task entries into a single dictionary."""
+    tasks_dir = root / TASKS_REL_PATH
+    return {k: asdict(v) for k, v in parse_nested_tree(tasks_dir, "task.yaml").items()}
+
+
+def collate_models(root: Path) -> dict[str, dict[str, Any]]:
+    """Collates all model entries into a single dictionary."""
+    models_dir = root / MODELS_REL_PATH
+    return {k: asdict(v) for k, v in parse_nested_tree(models_dir, "model.yaml").items()}
+
+
+def collate_entities(repo_dir: Path, output_dir: Path, do_overwrite: bool = False):
+    """Collects all the information about datasets, tasks, and models in the repo and writes them to JSON.
+
+    Args:
+        repo_dir: The path to the MEDS_DEV repository.
+        output_dir: The path to the output directory where the JSON files will be saved.
+
+    Raises:
+        FileNotFoundError: If the repository directory does not exist.
+        NotADirectoryError: If the path is not a directory.
+        FileExistsError: If the output directory already exists and do_overwrite is False.
+
+    Examples:
+        >>> test_disk = '''
+        ... input_dir/src/MEDS_DEV:
+        ...   datasets:
+        ...     MIMIC:
+        ...       README.md: "This is a README for the category."
+        ...       III:
+        ...         dataset.yaml: {"foo": "bar"}
+        ...         README.md: "This is a README."
+        ...         refs.bib: "@article{foo, bar}"
+        ...         predicates.yaml: {"predicate": "value"}
+        ...         requirements.txt: |-2
+        ...           numpy==1.21.0
+        ...           pandas==1.3.0
+        ...       IV:
+        ...         dataset.yaml: {"foo": "baz"}
+        ...         README.md: "This is another README."
+        ...         refs.bib: "@article{baz, qux}"
+        ...         predicates.yaml: {"predicate": "alt_value"}
+        ...         requirements.txt: |-2
+        ...           numpy==1.21.0
+        ...           pandas==1.3.0
+        ...   tasks:
+        ...     readmission:
+        ...       30d:
+        ...         README.md: "This is a README for the readmission/30d task."
+        ...         task.yaml: {"task": "value"}
+        ...   models:
+        ...     cehrbert:
+        ...       README.md: "This is a README for the model."
+        ...       model.yaml: {"model": "value"}
+        ...       refs.bib: "@article{model, paper}"
+        ...       requirements.txt: "numpy==1.21.0"
+        ... '''
+        >>> with yaml_disk(test_disk) as root_dir:
+        ...     input_dir = root_dir / "input_dir"
+        ...     output_dir = root_dir / "output_dir"
+        ...     collate_entities(input_dir, output_dir, do_overwrite=True)
+        ...     print(f"Output contents:")
+        ...     print_directory(output_dir)
+        ...     print("------------")
+        ...     print("Datasets:")
+        ...     print(json.loads((output_dir / "datasets.json").read_text()))
+        ...     print("Tasks:")
+        ...     print(json.loads((output_dir / "tasks.json").read_text()))
+        ...     print("Models:")
+        ...     print(json.loads((output_dir / "models.json").read_text()))
+        Output contents:
+        ├── datasets.json
+        ├── models.json
+        └── tasks.json
+        ------------
+        Datasets:
+        {'MIMIC/III': {'name': 'MIMIC/III',
+                       'data': {'README.md': 'This is a README.',
+                                'dataset.yaml': {'foo': 'bar'},
+                                'predicates.yaml': {'predicate': 'value'},
+                                'refs.bib': '@article{foo, bar}',
+                                'requirements.txt': ['numpy==1.21.0', 'pandas==1.3.0']},
+                                'children': []},
+         'MIMIC': {'name': 'MIMIC',
+                   'data': {'README.md': 'This is a README for the category.'},
+                   'children': ['MIMIC/III', 'MIMIC/IV']},
+         'MIMIC/IV': {'name': 'MIMIC/IV',
+                      'data': {'README.md': 'This is another README.',
+                               'dataset.yaml': {'foo': 'baz'},
+                               'predicates.yaml': {'predicate': 'alt_value'},
+                               'refs.bib': '@article{baz, qux}',
+                               'requirements.txt': ['numpy==1.21.0', 'pandas==1.3.0']},
+                               'children': []}}
+        Tasks:
+        {'readmission/30d': {'name': 'readmission/30d',
+                             'data': {'README.md': 'This is a README for the readmission/30d task.',
+                             'task.yaml': {'task': 'value'}},
+                             'children': []}}
+        Models:
+        {'cehrbert': {'name': 'cehrbert',
+                      'data': {'README.md': 'This is a README for the model.',
+                               'model.yaml': {'model': 'value'},
+                               'refs.bib': '@article{model, paper}',
+                               'requirements.txt': ['numpy==1.21.0']},
+                      'children': []}}
+
+    Errors will be raised if the repository directory does not exist or is not a directory, or if the output
+    filepaths exist and do_overwrite is False.
+
+        >>> with yaml_disk(test_disk) as root_dir:
+        ...     collate_entities(root_dir / "input_dir_not_real", "foo")
+        Traceback (most recent call last):
+            ...
+        FileNotFoundError: Repository directory /tmp/tmp.../input_dir_not_real does not exist.
+        >>> with yaml_disk(test_disk) as root_dir:
+        ...     input_dir = root_dir / "input_dir" / "src" / "MEDS_DEV" / "models" / "cehrbert" / "README.md"
+        ...     collate_entities(input_dir, "foo")
+        Traceback (most recent call last):
+            ...
+        NotADirectoryError: Repository directory /tmp/tmp.../input_dir/src/MEDS_DEV/models/cehrbert/README.md
+            is not a directory.
+        >>> bad_outputs_disk = '''
+        ...   input_dir:
+        ...     README.md: "Repo README"
+        ...   datasets.json: {"foo": "bar"}
+        ... '''
+        >>> with yaml_disk(bad_outputs_disk) as root_dir:
+        ...     collate_entities(root_dir / "input_dir", root_dir, do_overwrite=False)
+        Traceback (most recent call last):
+            ...
+        FileExistsError: Output filepath /tmp/tmp.../datasets.json already exists.
+        >>> bad_outputs_disk = '''
+        ... input_dir:
+        ...   README.md: "Repo README"
+        ... datasets.json/:
+        ...   README.md: "Whoops this is now a directory"
+        ... '''
+        >>> with yaml_disk(bad_outputs_disk) as root_dir:
+        ...     collate_entities(root_dir / "input_dir", root_dir, do_overwrite=True)
+        Traceback (most recent call last):
+            ...
+        IsADirectoryError: Output filepath /tmp/tmp.../datasets.json is a directory.
+    """
+
+    if not repo_dir.exists():
+        raise FileNotFoundError(f"Repository directory {repo_dir!s} does not exist.")
+    if not repo_dir.is_dir():
+        raise NotADirectoryError(f"Repository directory {repo_dir!s} is not a directory.")
+
+    datasets_fp = output_dir / "datasets.json"
+    tasks_fp = output_dir / "tasks.json"
+    models_fp = output_dir / "models.json"
+
+    for fp in [datasets_fp, tasks_fp, models_fp]:
+        if fp.exists():
+            if fp.is_dir():
+                raise IsADirectoryError(f"Output filepath {fp!s} is a directory.")
+            elif do_overwrite:
+                fp.unlink()
+            else:
+                raise FileExistsError(f"Output filepath {fp!s} already exists.")
+
+        fp.parent.mkdir(parents=True, exist_ok=True)
+
+    datasets = collate_datasets(repo_dir)
+    tasks = collate_tasks(repo_dir)
+    models = collate_models(repo_dir)
+
+    datasets_fp.write_text(json.dumps(datasets))
+    tasks_fp.write_text(json.dumps(tasks))
+    models_fp.write_text(json.dumps(models))
+
+
+if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Collate entities from the MEDS_DEV repository.")
+    parser.add_argument("repo_dir", type=Path, help="Path to the MEDS_DEV repository.")
+    parser.add_argument("output_dir", type=Path, help="Path to the output directory.")
+    args = parser.parse_args()
+
+    collate_entities(args.repo_dir, args.output_dir)

@@ -48,7 +48,7 @@ doctest_optionflags = ["NORMALIZE_WHITESPACE", "ELLIPSIS"]
 
 [project.optional-dependencies]
 dev = ["pre-commit<4", "ruff"]
-tests = ["pytest", "pytest-cov", "meds_testing_helpers", "pretty-print-directory", "yaml_to_disk>=0.0.2"]
+tests = ["pytest", "pytest-cov", "meds_testing_helpers", "pretty-print-directory", "yaml_to_disk>=0.0.3"]
 
 [project.scripts]
 meds-dev-dataset = "MEDS_DEV.datasets.__main__:main"
