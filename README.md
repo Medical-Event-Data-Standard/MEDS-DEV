@@ -41,18 +41,71 @@ systems, with standardized baselining systems that can be used on any task and d
 evaluation paradigm to provide a common currency for comparison, and a commitment to open science,
 transparency, and reproducibility to help drive the field forward.
 
-To see supported MEDS-DEV tasks, datasets, and models, see the links below:
-
-1. [Tasks](src/MEDS_DEV/tasks)
-2. [Datasets](src/MEDS_DEV/datasets)
-3. [Models](src/MEDS_DEV/models)
-
 Note that this repository is _not_ a place where functional code is stored. Rather, this repository stores
 configuration files, training recipes, results, etc. for the MEDS-DEV benchmarking effort -- runnable code
 will often come from other repositories, with operationalized instructions on how to leverage that external
 code in the given entry points for those models.
 
 To see how to use and contribute to MEDS-DEV, see the sections below!
+
+## Supported Datasets, Tasks, and Models
+
+### [Supported Tasks](src/MEDS_DEV/tasks)
+
+```python
+>>> print_directory("src/MEDS_DEV/tasks", config=PrintConfig(file_extension=".yaml"))
+├── abnormal_lab
+│   ├── blood_chemistry
+│   │   ├── elevated_creatinine
+│   │   │   └── first_24h
+│   │   │       └── task.yaml
+│   │   ├── hyponatremia
+│   │   │   └── first_24h
+│   │   │       └── task.yaml
+│   │   └── metabolic_acidosis
+│   │       └── first_24h
+│   │           └── task.yaml
+│   ├── cbc
+│   │   ├── anemia
+│   │   │   └── first_24h.yaml
+│   │   ├── leukocytosis
+│   │   │   └── first_24h.yaml
+│   │   └── thrombocytopenia
+│   │       └── first_24h.yaml
+│   └── vital
+│       └── hypotension
+│           └── first_24h.yaml
+└── mortality
+    └── in_icu
+        └── first_24h
+            └── task.yaml
+
+```
+
+### [Supported Datasets](src/MEDS_DEV/datasets)
+
+```python
+>>> print_directory("src/MEDS_DEV/datasets", config=PrintConfig(file_extension="dataset.yaml"))
+└── MIMIC-IV
+    └── dataset.yaml
+
+```
+
+### [Supported Models](src/MEDS_DEV/models)
+
+```python
+>>> print_directory("src/MEDS_DEV/models", config=PrintConfig(file_extension="model.yaml"))
+├── cehrbert
+│   └── model.yaml
+├── genhpf
+│   └── model.yaml
+├── meds_tab
+│   └── tiny
+│       └── model.yaml
+└── random_predictor
+    └── model.yaml
+
+```
 
 ## Installation
 

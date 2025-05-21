@@ -72,8 +72,11 @@ CFG_YAML = files("MEDS_DEV.configs") / "_extract_task.yaml"
 ACES_CFG_YAML = files("MEDS_DEV.configs") / "_ACES_MD.yaml"
 
 TASKS = {}
-for path in task_files.glob("**/*.yaml"):
-    task = path.relative_to(task_files).with_suffix("").as_posix()
+for path in task_files.rglob("*.yaml"):
+    if path.stem == "task":
+        task = path.parent.relative_to(task_files).with_suffix("").as_posix()
+    else:
+        task = path.relative_to(task_files).with_suffix("").as_posix()
 
     cfg = OmegaConf.load(path)
     metadata = TaskMetadata(**cfg.get("metadata")) if cfg.get("metadata", None) else None
