@@ -1,7 +1,7 @@
 import json
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 import yaml
 
@@ -25,6 +25,8 @@ SRC_REL_PATH = Path("src/MEDS_DEV/")
 DATASETS_REL_PATH = SRC_REL_PATH / "datasets"
 TASKS_REL_PATH = SRC_REL_PATH / "tasks"
 MODELS_REL_PATH = SRC_REL_PATH / "models"
+
+ENTITY_KEY = "entity"
 
 
 @dataclass
@@ -239,22 +241,49 @@ def parse_nested_tree(root: Path, base_glob: str) -> dict[str, Node]:
     return nodes
 
 
+def __collate_entities(
+    root: Path, entity_type: Literal["dataset", "model", "task"]
+) -> dict[str, dict[str, Any]]:
+    match entity_type:
+        case "dataset":
+            rel_path = DATASETS_REL_PATH
+        case "model":
+            rel_path = MODELS_REL_PATH
+        case "task":
+            rel_path = TASKS_REL_PATH
+
+    base_dir = root / rel_path
+    file_glob = f"{entity_type}.yaml"
+
+    contents = {}
+    for k, v in parse_nested_tree(base_dir, file_glob).items():
+        # change the core "dataset" name to the ENTITY_KEY for consistency
+        v = asdict(v)
+        v_data = v["data"]
+        v["data"] = {"type": entity_type}
+        for kk, vv in v_data.items():
+            if kk == entity_type:
+                v["data"][ENTITY_KEY] = vv
+            else:
+                v["data"][kk] = vv
+        contents[k] = v
+
+    return contents
+
+
 def collate_datasets(root: Path) -> dict[str, dict[str, Any]]:
     """Collates all dataset entries into a single dictionary."""
-    datasets_dir = root / DATASETS_REL_PATH
-    return {k: asdict(v) for k, v in parse_nested_tree(datasets_dir, "dataset.yaml").items()}
+    return __collate_entities(root, "dataset")
 
 
 def collate_tasks(root: Path) -> dict[str, dict[str, Any]]:
     """Collates all task entries into a single dictionary."""
-    tasks_dir = root / TASKS_REL_PATH
-    return {k: asdict(v) for k, v in parse_nested_tree(tasks_dir, "task.yaml").items()}
+    return __collate_entities(root, "task")
 
 
 def collate_models(root: Path) -> dict[str, dict[str, Any]]:
     """Collates all model entries into a single dictionary."""
-    models_dir = root / MODELS_REL_PATH
-    return {k: asdict(v) for k, v in parse_nested_tree(models_dir, "model.yaml").items()}
+    return __collate_entities(root, "model")
 
 
 def collate_entities(repo_dir: Path, output_dir: Path, do_overwrite: bool = False):
@@ -323,31 +352,35 @@ def collate_entities(repo_dir: Path, output_dir: Path, do_overwrite: bool = Fals
         ------------
         Datasets:
         {'MIMIC/III': {'name': 'MIMIC/III',
-                       'data': {'readme': 'This is a README.',
-                                'dataset': {'foo': 'bar'},
+                       'data': {'type': 'dataset',
+                                'readme': 'This is a README.',
+                                'entity': {'foo': 'bar'},
                                 'predicates': {'predicate': 'value'},
                                 'refs': '@article{foo, bar}',
                                 'requirements': ['numpy==1.21.0', 'pandas==1.3.0']},
                        'children': []},
          'MIMIC': {'name': 'MIMIC',
-                   'data': {'readme': 'This is a README for the category.'},
+                   'data': {'type': 'dataset', 'readme': 'This is a README for the category.'},
                    'children': ['MIMIC/III', 'MIMIC/IV']},
          'MIMIC/IV': {'name': 'MIMIC/IV',
-                      'data': {'readme': 'This is another README.',
-                               'dataset': {'foo': 'baz'},
+                      'data': {'type': 'dataset',
+                               'readme': 'This is another README.',
+                               'entity': {'foo': 'baz'},
                                'predicates': {'predicate': 'alt_value'},
                                'refs': '@article{baz, qux}',
                                'requirements': ['numpy==1.21.0', 'pandas==1.3.0']},
                       'children': []}}
         Tasks:
         {'readmission/30d': {'name': 'readmission/30d',
-                             'data': {'readme': 'This is a README for the readmission/30d task.',
-                             'task': {'task': 'value'}},
+                             'data': {'type': 'task',
+                                      'readme': 'This is a README for the readmission/30d task.',
+                                      'entity': {'task': 'value'}},
                              'children': []}}
         Models:
         {'cehrbert': {'name': 'cehrbert',
-                      'data': {'readme': 'This is a README for the model.',
-                               'model': {'model': 'value'},
+                      'data': {'type': 'model',
+                               'readme': 'This is a README for the model.',
+                               'entity': {'model': 'value'},
                                'refs': '@article{model, paper}',
                                'requirements': ['numpy==1.21.0']},
                       'children': []}}
