@@ -19,6 +19,8 @@ metadata:
       github_username: "mmcdermott"
   supported_datasets:
     - MIMIC-IV
+    - NWICU
+    - AUMCdb
 
 predicates:
   hospital_admission:

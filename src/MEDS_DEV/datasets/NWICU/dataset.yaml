@@ -1,0 +1,19 @@
+metadata:
+  description: >-
+    A MEDS version of NWICU.
+  links:
+    - https://github.com/rvandewater/NWICU_MEDS
+    - https://physionet.org/content/nwicu-northwestern-icu/0.1.0/
+  contacts:
+    - name: "Robin P. van de Water"
+      github_username: "rvandewater"
+    - name: "Matthew McDermott"
+      github_username: "mmcdermott"
+commands:
+  build_full: >-
+    NWICU_MEDS
+    raw_input_dir="{temp_dir}/raw"
+    pre_MEDS_dir="{temp_dir}/pre_MEDS"
+    MEDS_cohort_dir="{output_dir}"
+    log_dir="{output_dir}/.pipeline_logs"
+
