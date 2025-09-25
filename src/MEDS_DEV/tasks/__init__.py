@@ -55,7 +55,7 @@ class TaskMetadata(Metadata):
 
         if self.supported_datasets is None:
             return
-        if not isinstance(self.supported_datasets, (list, ListConfig)):
+        if not isinstance(self.supported_datasets, list | ListConfig):
             raise ValueError(f"supported_datasets must be a list. Got {type(self.supported_datasets)}")
         for i, dataset in enumerate(self.supported_datasets):
             if not isinstance(dataset, str):
@@ -76,14 +76,11 @@ for path in task_files.glob("**/*.yaml"):
     task = path.relative_to(task_files).with_suffix("").as_posix()
 
     cfg = OmegaConf.load(path)
-    if cfg.get("metadata", None):
-        metadata = TaskMetadata(**cfg.get("metadata"))
-    else:
-        metadata = None
+    metadata = TaskMetadata(**cfg.get("metadata")) if cfg.get("metadata", None) else None
 
     TASKS[task] = {
         "criteria_fp": path,
         "metadata": metadata,
     }
 
-__all__ = ["TASKS", "CFG_YAML", "ACES_CFG_YAML"]
+__all__ = ["ACES_CFG_YAML", "CFG_YAML", "TASKS"]

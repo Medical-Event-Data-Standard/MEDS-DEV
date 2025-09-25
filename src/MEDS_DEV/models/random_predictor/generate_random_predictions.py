@@ -160,8 +160,7 @@ def main(cfg: DictConfig) -> None:
     splits_file = dataset_dir / meds.subject_splits_filepath
     if not splits_file.is_file():
         raise FileNotFoundError(
-            f"Could not find splits file {splits_file.relative_to(dataset_dir)} for dataset "
-            f"{dataset_dir}."
+            f"Could not find splits file {splits_file.relative_to(dataset_dir)} for dataset {dataset_dir}."
         )
 
     splits = pl.read_parquet(splits_file, use_pyarrow=True)
