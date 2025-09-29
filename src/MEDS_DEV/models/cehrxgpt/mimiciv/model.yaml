@@ -15,6 +15,28 @@ commands:
       mkdir -p "{output_dir}/cehrgpt_pretrained/dataset_prepared"
       meds_reader_convert "{dataset_dir}" "{output_dir}/cehrgpt_pretrained/meds_reader" --num_threads 8
 
+      echo "Attempting to install flash-attn (optional)..."
+      pip install flash-attn || echo "Warning: flash-attn installation failed. Continuing without it."
+
+      # Set model configuration based on demo mode
+      if [ "{demo}" = "True" ] || [ "{demo}" = "true" ]; then
+          export HIDDEN_SIZE=256
+          export NUM_LAYERS=4
+          export MAX_POS_EMB=128
+          export MAX_TOKENS=512
+          export NUM_EPOCHS=5
+          export DATALOADER_WORKERS=2
+          export PREFETCH_FACTOR=2
+      else
+          export HIDDEN_SIZE=768
+          export NUM_LAYERS=14
+          export MAX_POS_EMB=8192
+          export MAX_TOKENS=16384
+          export NUM_EPOCHS=50
+          export DATALOADER_WORKERS=8
+          export PREFETCH_FACTOR=8
+      fi
+
       export CUDA_VISIBLE_DEVICES="0"; python -u -m cehrgpt.runners.hf_cehrgpt_pretrain_runner \
       --model_name_or_path "{output_dir}/cehrgpt_pretrained" \
       --tokenizer_name_or_path "{output_dir}/cehrgpt_pretrained" \
@@ -23,12 +45,16 @@ commands:
       --tokenized_dataset_name "full_tokenized_dataset" \
       --dataset_prepared_path {output_dir}/cehrgpt_pretrained/dataset_prepared \
       --do_train true --seed 42  \
-      --dataloader_num_workers 8 --dataloader_prefetch_factor 8 \
-      --hidden_size 768 --num_hidden_layers 14 --max_position_embeddings 8192 \
+      --dataloader_num_workers $DATALOADER_WORKERS \
+      --dataloader_prefetch_factor $PREFETCH_FACTOR \
+      --hidden_size $HIDDEN_SIZE \
+      --num_hidden_layers $NUM_LAYERS \
+      --max_position_embeddings $MAX_POS_EMB \
       --evaluation_strategy epoch --save_strategy epoch \
-      --sample_packing --max_tokens_per_batch 16384 \
+      --sample_packing --max_tokens_per_batch $MAX_TOKENS \
       --warmup_ratio 0.01 --weight_decay 0.01 \
-      --num_train_epochs 50 --learning_rate 0.0001 \
+      --num_train_epochs $NUM_EPOCHS \
+      --learning_rate 0.0001 \
       --use_early_stopping --early_stopping_threshold 0.001 \
       --load_best_model_at_end \
       --is_data_in_meds --inpatient_att_function_type day \
