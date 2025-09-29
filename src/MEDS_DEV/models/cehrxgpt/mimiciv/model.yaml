@@ -30,6 +30,7 @@ commands:
       --warmup_ratio 0.01 --weight_decay 0.01 \
       --num_train_epochs 50 --learning_rate 0.0001 \
       --use_early_stopping --early_stopping_threshold 0.001 \
+      --load_best_model_at_end \
       --is_data_in_meds --inpatient_att_function_type day \
       --att_function_type day --include_inpatient_hour_token \
       --include_auxiliary_token --include_demographic_prompt \
