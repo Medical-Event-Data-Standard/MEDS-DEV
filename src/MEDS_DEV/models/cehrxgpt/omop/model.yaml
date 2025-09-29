@@ -34,7 +34,8 @@ commands:
       --att_function_type day --include_inpatient_hour_token \
       --include_auxiliary_token --include_demographic_prompt \
       --disconnect_problem_list_events \
-      --meds_to_cehrbert_conversion_type MedsToCehrbertOMOP
+      --meds_to_cehrbert_conversion_type MedsToCehrbertOMOP \
+      --report_to "none"
 
   supervised:
     train: |-

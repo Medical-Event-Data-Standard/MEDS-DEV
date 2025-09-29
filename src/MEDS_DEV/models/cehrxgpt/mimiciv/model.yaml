@@ -33,7 +33,8 @@ commands:
       --is_data_in_meds --inpatient_att_function_type day \
       --att_function_type day --include_inpatient_hour_token \
       --include_auxiliary_token --include_demographic_prompt \
-      --meds_to_cehrbert_conversion_type MedsToBertMimic4
+      --meds_to_cehrbert_conversion_type MedsToBertMimic4 \
+      --report_to "none"
 
   supervised:
     train: |-
