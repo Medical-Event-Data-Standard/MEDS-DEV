@@ -1,0 +1,2 @@
+meds_reader==0.1.9
+cehrgpt==0.1.6.post3
