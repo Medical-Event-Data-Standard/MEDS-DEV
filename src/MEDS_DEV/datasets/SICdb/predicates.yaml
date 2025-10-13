@@ -1,8 +1,8 @@
 predicates:
   hospital_admission:
-    code: { regex: "^ADMISSION//.*" }
+    code: { regex: "^ADMISSION*" }
   hospital_discharge:
-    code: { regex: "^DISCHARGE//.*" }
+    code: { regex: "^DISCHARGE*" }
 
   # ED_registration:
   #   code: { regex: "^ED_REGISTRATION//.*" }
@@ -10,11 +10,11 @@ predicates:
   #   code: { regex: "^ED_OUT//.*" }
 
   icu_admission:
-    code: { regex: "^ADMISSION//.*" }
+    code: { regex: "^ADMISSION*" }
   icu_discharge:
-    code: { regex: "^DISCHARGE//.*" }
-  # creatinine_mgdl:
-  #   code: { any: ["LAB//100002//mg/dL", "LAB//100189//mg/dL"] }
+    code: { regex: "^DISCHARGE*" }
+  creatinine_mgdl:
+    code: { any: ["LAB//LOINC//12189-7"] }
 
   # sodium_meql:
   #   code: { any: ["LAB//100010//mEq/L"] }
