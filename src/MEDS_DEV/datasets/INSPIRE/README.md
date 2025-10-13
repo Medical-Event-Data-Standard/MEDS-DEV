@@ -1,0 +1,5 @@
+# INSPIRE a publicly available research dataset for perioperative medicine
+
+We present the INSPIRE dataset, a publicly available research dataset in perioperative medicine, which includes approximately 130,000 cases (50% of all surgical cases) who underwent anesthesia for surgery at an academic institution in South Korea between 2011 and 2020. This comprehensive dataset includes patient characteristics such as age, sex, American Society of Anesthesiologists physical status classification, diagnosis, surgical procedure code, department, and type of anesthesia. It also includes vital signs in the operating theatre, general wards, and intensive care units (ICUs), laboratory results from six months before admission to six months after discharge, and medication during hospitalization. Complications include total hospital and ICU length of stay and in-hospital death. We hope this dataset will inspire collaborative research and development in perioperative medicine and serve as a reproducible external validation dataset to improve surgical outcomes.
+
+source: https://physionet.org/content/inspire/1.3/
