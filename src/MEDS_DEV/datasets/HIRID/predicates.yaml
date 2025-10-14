@@ -4,35 +4,42 @@ predicates:
   hospital_discharge:
     code: { regex: "^HOSPITAL_DISCHARGE*" }
 
-  # ED_registration:
-  #   code: { regex: "^ED_REGISTRATION//.*" }
-  # ED_discharge:
-  #   code: { regex: "^ED_OUT//.*" }
-
   icu_admission:
-    code: { regex: "^HOSPITAL_ADMISSION//.*" }
+    code: { regex: "^HOSPITAL_ADMISSION.*" }
   icu_discharge:
-    code: { regex: "^HOSPITAL_DISCHARGE//.*" }
-  # creatinine_mgdl:
-  #   code: { any: ["LAB//LOINC//12189-7"] }
+    code: { regex: "^HOSPITAL_DISCHARGE.*" }
 
-  # sodium_meql:
-  #   code: { any: ["LAB//100010//mEq/L"] }
+  creatinine_mgdl:
+    code: { any: ["OBSERVATION//Creatinine [Moles/volume] in Blood"] }
+  # Todo: convert units from umol/L to mg/dL
+  sodium_meql:
+    code: { any: ["OBSERVATION//Sodium [Moles/volume] in Blood"] }
 
-  # bicarbonate_meql:
-  #   code: { any: ["LAB//227443//mEq/L", "LAB//50882//mEq/L"] }
+  bicarbonate_meql:
+    code: { any: ["OBSERVATION//Bicarbonate [Moles/volume] in Arterial blood"] }
 
-  # hemoglobin_gdl:
-  #   code: { any: ["LAB//100007//g/dl"] }
+  hemoglobin_gdl:
+    code: { any: ["OBSERVATION//Hemoglobin [Mass/volume] in Arterial blood"] }
 
-  # wbc_kul:
-  #   code: { any: ["LAB//100083///hpf", "LAB//100083//#/hpf"] }
+  wbc_kul:
+    code:
+      {
+        any:
+          [
+            "OBSERVATION//Leukocytes [#/volume] in Blood",
+            "OBSERVATION//Band form neutrophils/100 leukocytes in Blood",
+          ],
+      }
 
-  # platelets_kul:
-  #   code:
-  #     {
-  #       any: ["LAB//100014//K/UL", "LAB//100014//10ˆ3/µL", "LAB//100014//K/µL"],
-  #     }
+  platelets_kul:
+    code: { any: ["OBSERVATION//Platelets [#/volume] in Blood"] }
 
-  # map_mmhg:
-  #   code: { any: ["LAB//320050//mmHg", "LAB//320051//mmHg"] }
+  map_mmhg:
+    code:
+      {
+        any:
+          [
+            "OBSERVATION//Non-invasive mean arterial pressure",
+            "OBSERVATION//Invasive mean arterial pressure",
+          ],
+      }
