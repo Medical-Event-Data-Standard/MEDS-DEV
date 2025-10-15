@@ -21,8 +21,9 @@ predicates:
     code:
       { any: ["LAB//220645//mEq/L", "LAB//50983//mEq/L", "LAB//52623//mEq/L"] }
 
+  # Todo: convert units from mmol/L to mEq/L
   bicarbonate_meql:
-    code: { any: ["LAB//227443//mEq/L", "LAB//50882//mEq/L"] }
+    code: { any: ["LAB//bicarbonate//mmol/L"] }
 
   hemoglobin_gdl:
     code: { any: ["LAB//220228//g/dl", "LAB//50811//g/dL"] }
