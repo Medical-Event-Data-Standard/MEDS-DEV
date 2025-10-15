@@ -1,0 +1,11 @@
+metadata:
+  description: >-
+    EHRShot dataset from Stanford Medicine.
+  links:
+    - https://som-shahlab.github.io/ehrshot-website/docs/
+  contacts:
+    - name: "Robin P. van de Water"
+      github_username: "rvandewater"
+commands:
+  build_full: echo "MEDS extraction is pre-done for this dataset"
+  build_demo: echo "Demo not available for this dataset"

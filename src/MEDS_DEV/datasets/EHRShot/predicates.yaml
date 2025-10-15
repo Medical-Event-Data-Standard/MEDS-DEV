@@ -1,0 +1,345 @@
+predicates:
+  # Visit and administrative concepts
+  hospital_admission:
+    code: "Visit/IP"
+
+  outpatient_visit:
+    code: "Visit/OP"
+
+  death:
+    code: "Condition Type/OMOP4822053"
+  hospital_discharge:
+    code: "Visit/DP"
+  # ICU visit details - care sites with ICU designation
+  icu_admission:
+    code:
+      any:
+        - "CARE_SITE/7928450"
+        - "CARE_SITE/7930385"
+        - "CARE_SITE/7930600"
+        - "CARE_SITE/7928852"
+        - "CARE_SITE/7928619"
+        - "CARE_SITE/7929727"
+        - "CARE_SITE/7928675"
+        - "CARE_SITE/7930225"
+        - "CARE_SITE/7928759"
+        - "CARE_SITE/7928227"
+        - "CARE_SITE/7928810"
+        - "CARE_SITE/7929179"
+        - "CARE_SITE/7928650"
+        - "CARE_SITE/7929351"
+        - "CARE_SITE/7928457"
+        - "CARE_SITE/7928195"
+        - "CARE_SITE/7930681"
+        - "CARE_SITE/7930670"
+        - "CARE_SITE/7930176"
+        - "CARE_SITE/7931420"
+        - "CARE_SITE/7929149"
+        - "CARE_SITE/7930857"
+        - "CARE_SITE/7931186"
+        - "CARE_SITE/7930934"
+        - "CARE_SITE/7930924"
+  ED_admission:
+    code:
+      {
+        any:
+          [
+            "CARE_SITE/7928450",
+            "CARE_SITE/7930385",
+            "CARE_SITE/7930600",
+            "CARE_SITE/7928852",
+            "CARE_SITE/7928619",
+            "CARE_SITE/7929727",
+            "CARE_SITE/7928675",
+            "CARE_SITE/7930225",
+            "CARE_SITE/7928759",
+            "CARE_SITE/7928227",
+            "CARE_SITE/7928810",
+            "CARE_SITE/7929179",
+            "CARE_SITE/7928650",
+            "CARE_SITE/7929351",
+            "CARE_SITE/7928457",
+            "CARE_SITE/7928195",
+            "CARE_SITE/7930681",
+            "CARE_SITE/7930670",
+            "CARE_SITE/7930176",
+            "CARE_SITE/7931420",
+            "CARE_SITE/7929149",
+            "CARE_SITE/7930857",
+            "CARE_SITE/7931186",
+            "CARE_SITE/7930934",
+            "CARE_SITE/7930924",
+          ],
+      }
+
+  # Disease diagnosis concepts
+  pancreatic_cancer:
+    code: "SNOMED/372003004"
+
+  celiac_disease:
+    code: "SNOMED/396331005"
+
+  systemic_lupus_erythematosus:
+    code: "SNOMED/55464009"
+
+  acute_myocardial_infarction:
+    code: "SNOMED/57054005"
+
+  chronic_thromboembolic_pulmonary_hypertension:
+    code: "SNOMED/233947005"
+
+  essential_hypertension:
+    code: "SNOMED/59621000"
+
+  hyperlipidemia:
+    code: "SNOMED/55822004"
+
+  # Glucose measurements for hypoglycemia
+  glucose_1:
+    code: "SNOMED/33747003"
+
+  glucose_2:
+    code: "LOINC/LP416145-3"
+
+  glucose_3:
+    code: "LOINC/14749-6"
+
+  # Hypoglycemia severity levels (mmol/L thresholds)
+  abnormally_low_glucose_1:
+    code: "SNOMED/33747003"
+    value_min: null
+    value_max: 70.2 # mg/dL
+    value_max_inclusive: True
+
+  abnormally_low_glucose_2:
+    code: "LOINC/LP416145-3"
+    value_min: null
+    value_max: 70.2 # mg/dL (= 3.9 mmol/L)
+    value_max_inclusive: True
+
+  abnormally_low_glucose_3:
+    code: "LOINC/14749-6"
+    value_min: null
+    value_max: 70.2 # mg/dL
+    value_max_inclusive: True
+
+  glucose:
+    expr: or(glucose_1, glucose_2, glucose_3)
+
+  abnormally_low_glucose:
+    expr: or(abnormally_low_glucose_1, abnormally_low_glucose_2, abnormally_low_glucose_3)
+
+  # Sodium measurements for hyponatremia
+  sodium_1:
+    code: "LOINC/LG11363-5"
+
+  sodium_2:
+    code: "LOINC/2951-2"
+
+  sodium_3:
+    code: "LOINC/2947-0"
+  sodium:
+    expr: or(sodium_1, sodium_2, sodium_3)
+
+  abnormally_low_sodium_1:
+    code: LOINC/LG11363-5
+    value_min: null
+    value_max: 135 # mEq/L
+    value_max_inclusive: False
+  abnormally_low_sodium_2:
+    code: LOINC/2951-2
+    value_min: null
+    value_max: 135 # mEq/L
+    value_max_inclusive: False
+  abnormally_low_sodium_3:
+    code: LOINC/2947-0
+    value_min: null
+    value_max: 135 # mEq/L
+    value_max_inclusive: False
+  abnormally_low_sodium:
+    expr: or(abnormally_low_sodium_1, abnormally_low_sodium_2, abnormally_low_sodium_3)
+
+  # Anemia task predicates
+  # Hemoglobin measurements for anemia
+
+  hemoglobin:
+    code: "LOINC/718-7"
+    # code: "LOINC/LP392452-1"
+
+  abnormally_low_hemoglobin:
+    code: "LOINC/718-7"
+    value_min: null
+    value_max: 13 # mg/dL
+    value_max_inclusive: False
+
+  # Potassium measurements for hyperkalemia
+  potassium_1:
+    code: "LOINC/LG7931-1"
+
+  potassium_2:
+    code: "LOINC/LP386618-5"
+
+  potassium_3:
+    code: "LOINC/LG10990-6"
+
+  potassium_4:
+    code: "LOINC/6298-4"
+
+  potassium_5:
+    code: "LOINC/2823-3"
+
+  potassium:
+    expr: or(potassium_1, potassium_2, potassium_3, potassium_4, potassium_5)
+
+  abnormally_high_potassium_1:
+    code: "LOINC/LG7931-1"
+    value_min: 5.0 # mEq/L
+    value_min_inclusive: True
+    value_max: null
+  abnormally_high_potassium_2:
+    code: "LOINC/LP386618-5"
+    value_min: 5.0 # mEq/L
+    value_min_inclusive: True
+    value_max: null
+  abnormally_high_potassium_3:
+    code: "LOINC/LG10990-6"
+    value_min: 5.0 # mEq/L
+    value_min_inclusive: True
+    value_max: null
+  abnormally_high_potassium_4:
+    code: "LOINC/6298-4"
+    value_min: 5.0 # mEq/L
+    value_min_inclusive: True
+    value_max: null
+  abnormally_high_potassium_5:
+    code: "LOINC/2823-3"
+    value_min: 5.0 # mEq/L
+    value_min_inclusive: True
+    value_max: null
+
+  abnormally_high_potassium:
+    expr: or(abnormally_high_potassium_1, abnormally_high_potassium_2, abnormally_high_potassium_3, abnormally_high_potassium_4, abnormally_high_potassium_5)
+
+  # Platelet measurements for thrombocytopenia
+  platelets_1:
+    code: "LOINC/LP393218-5"
+
+  platelets_2:
+    code: "LOINC/LG32892-8"
+
+  platelets_3:
+    code: "LOINC/777-3"
+
+  # Thrombocytopenia severity levels (10^9/L thresholds)
+  abnormally_low_platelets_1:
+    code: "LOINC/LP393218-5"
+    value_min: null
+    value_max: 150 # 10^9/L
+    value_max_inclusive: False
+
+  abnormally_low_platelets_2:
+    code: "LOINC/LG32892-8"
+    value_min: null
+    value_max: 150 # 10^9/L
+    value_max_inclusive: False
+
+  abnormally_low_platelets_3:
+    code: "LOINC/777-3"
+    value_min: null
+    value_max: 150 # 10^9/L
+    value_max_inclusive: False
+
+  platelets:
+    expr: or(platelets_1, platelets_2, platelets_3)
+  abnormally_low_platelets_kul:
+    expr: or(abnormally_low_platelets_1, abnormally_low_platelets_2, abnormally_low_platelets_3)
+  # Idiopathic thrombocytopenic purpura (disorder)
+  itp:
+    code: SNOMED/32273002
+  # Autoimmune thrombocytopenic purpura (disorder)
+  aitp:
+    code: SNOMED/128091003
+  diagnosed_thrombocytopenia:
+    expr: or(itp, aitp)
+
+  # acute_kidney_injury predicates
+  aki_1:
+    code: SNOMED/14669001
+  aki_2:
+    code: SNOMED/298015003
+  aki_3:
+    code: SNOMED/35455006
+  acute_kidney_injury:
+    expr: or(aki_1, aki_2, aki_3)
+
+  # Metabolic Acidosis task predicates
+  bicarbonate_1:
+    code: LOINC/2021-4
+  bicarbonate_2:
+    code: LOINC/1959-6
+  abnormally_low_bicarbonate_1:
+    code: LOINC/2021-4
+    value_min: null
+    value_max: 22 # mEq/L
+    value_max_inclusive: False
+  abnormally_low_bicarbonate_2:
+    code: LOINC/1959-6
+    value_min: null
+    value_max: 22 # mEq/L
+    value_max_inclusive: False
+  bicarbonate:
+    expr: or(bicarbonate_1, bicarbonate_2)
+  abnormally_low_bicarbonate:
+    expr: or(abnormally_low_bicarbonate_1, abnormally_low_bicarbonate_2)
+  metabolic_acidosis:
+    code: SNOMED/420270002 # ketoacidosis
+  # metabolic_acidosis:
+  #   expr: ketoacidosis_1
+
+  # Leukocytosis
+  wbc_1:
+    code: LOINC/6690-2
+  wbc_2:
+    code: LOINC/736-9
+  wbc_3:
+    code: LOINC/736-9
+  # wbc_2:
+  #   code: LAB//51300//K/uL
+  abnormally_high_wbc_1:
+    code: LOINC/6690-2
+    value_min: 11 # K/uL
+    value_min_inclusive: False
+    value_max: null
+
+  abnormally_high_wbc_2:
+    code: LOINC/736-9
+    value_min: 11 # K/uL
+    value_min_inclusive: False
+    value_max: null
+
+  abnormally_high_wbc_3:
+    code: LOINC/736-9
+    value_min: 11 # K/uL
+    value_min_inclusive: False
+    value_max: null
+  wbc:
+    expr: or(wbc_1, wbc_2, wbc_3)
+  abnormally_high_wbc:
+    expr: or(abnormally_high_wbc_1, abnormally_high_wbc_2, abnormally_high_wbc_3)
+
+  # Hypertension
+  systolic_bp:
+    code: LOINC/8480-6
+  diastolic_bp:
+    code: LOINC/8462-4
+  abnormally_high_systolic_bp:
+    code: LOINC/8480-6
+    value_min: 130
+  abnormally_high_diastolic_bp:
+    code: LOINC/8462-4
+    value_min: 80
+  # abnormally_high_avg_bp:
+  #   code: LOINC/8478-0
+  #   value_min: 90
+  abnormally_high_bp:
+    expr: or(abnormally_high_systolic_bp, abnormally_high_diastolic_bp)
