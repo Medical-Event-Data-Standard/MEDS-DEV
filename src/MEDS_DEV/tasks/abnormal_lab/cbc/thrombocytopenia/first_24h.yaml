@@ -23,20 +23,13 @@ predicates:
     expr: or(death, hospital_discharge)
 
   # Plain predicates
-  platelets_kul:
+  platelets:
     code: ???
-  abnormally_low_platelets_kul_range:
-    code: null
+  abnormally_low_platelets:
+    code: ???
     value_min: null
     value_max: 150 # K/uL
     value_max_inclusive: False
-  abnormally_low_platelets_kul:
-    expr: and(platelets_kul, abnormally_low_platelets_kul_range)
-
-  # platelets:
-  #   expr: or(platelets_kul, ..., platelets_other_unit)
-  # abnormally_low_platelets:
-  #   expr: or(abnormally_low_platelets_kul, ..., abnormally_low_platelets_other_unit)
 
 trigger: hospital_admission
 
@@ -49,8 +42,7 @@ windows:
     index_timestamp: end
     # do not allow to have shown low platelets values previously
     has:
-      # abnormally_low_platelets: (None, 0)
-      abnormally_low_platelets_kul_range: (None, 0)
+      abnormally_low_platelets: (None, 0)
   # do not allow hospital discharge to happen within the input + target window
   no_discharge:
     start: trigger
@@ -74,7 +66,5 @@ windows:
     start_inclusive: False
     end_inclusive: True
     has:
-      # platelets: (1, None)
-      platelets_kul: (1, None)
-    # label: abnormally_low_platelets
-    label: abnormally_low_platelets_kul
+      platelets: (1, None)
+    label: abnormally_low_platelets
