@@ -17,13 +17,7 @@ Taken from [PhysioNet](https://physionet.org/content/eicu-crd/2.0/):
 
 ## Supported Tasks
 
-eICU includes several classification tasks organized into categories such as:[1]
-
-**Operational Outcomes:**
-
-- `tasks/mortality/long_length_of_stay.yaml`
-- `tasks/readmission/30_day_readmission.yaml`
-- `tasks/transfer/icu_transfer.yaml`
+- `tasks/mortality/in_icu/first_24h.yaml`
 
 ## MEDS-transformation
 
