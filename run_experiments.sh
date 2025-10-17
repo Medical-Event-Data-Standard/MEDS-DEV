@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define the datasets and tasks
-datasets=(
+export datasets=(
     "AUMCdb"
     "eICU"
     "EHRShot"
@@ -12,7 +12,7 @@ datasets=(
     "SICdb"
 )
 
-tasks=(
+export tasks=(
     "abnormal_lab/vital/hypotension/first_24h"
     "abnormal_lab/blood_chemistry/metabolic_acidosis/first_24h"
     "abnormal_lab/blood_chemistry/hyponatremia/first_24h"
@@ -23,9 +23,11 @@ tasks=(
     "mortality/in_icu/first_24h"
     "readmission/general_hospital/30d"
 )
-
+export tasks=(
+    "mortality/in_icu/first_24h"
+)
 # Base directory for datasets
-base_dir="/Users/robin/Documents/datasets/meds"
+export base_dir="/sc/home/robin.vandewater/datasets/meds"
 
 # Loop through datasets and tasks
 for dataset in "${datasets[@]}"; do
