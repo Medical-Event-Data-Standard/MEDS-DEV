@@ -10,6 +10,7 @@ metadata:
       github_username: "prockenschaub"
     - name: "Robin P. van de Water"
       github_username: "rvandewater"
+demo: False
 commands:
   build_full: >-
     MEDS_extract-AUMCdb
