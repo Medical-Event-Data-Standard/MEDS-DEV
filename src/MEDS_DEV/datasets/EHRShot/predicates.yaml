@@ -39,6 +39,11 @@ predicates:
         - "CARE_SITE/7931186"
         - "CARE_SITE/7930934"
         - "CARE_SITE/7930924"
+  icu_discharge:
+    code:
+      any:
+        - "Visit/DP"
+
   ED_admission:
     code:
       {
