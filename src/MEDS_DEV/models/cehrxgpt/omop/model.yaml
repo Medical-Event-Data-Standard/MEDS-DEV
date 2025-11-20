@@ -1,0 +1,92 @@
+metadata:
+  description: >-
+    CEHR-XGPT: A Scalable Multi-Task Foundation Model for Electronic Health Records.
+  links:
+    - https://arxiv.org/abs/2509.03643
+  contacts:
+    - name: "Chao Pang"
+      github_username: "ChaoPang"
+    - name: "Jiheum Park"
+      github_username: "jp4147"
+commands:
+  unsupervised:
+    train: |-
+      mkdir -p "{output_dir}/cehrgpt_pretrained/meds_reader"
+      mkdir -p "{output_dir}/cehrgpt_pretrained/dataset_prepared"
+      meds_reader_convert "{dataset_dir}" "{output_dir}/cehrgpt_pretrained/meds_reader" --num_threads 8
+
+      echo "Attempting to install flash-attn (optional)..."
+      pip install flash-attn || echo "Warning: flash-attn installation failed. Continuing without it."
+
+      # Set model configuration based on demo mode
+      if [ "{demo}" = "True" ] || [ "{demo}" = "true" ]; then
+          export HIDDEN_SIZE=256
+          export NUM_LAYERS=4
+          export MAX_POS_EMB=128
+          export MAX_TOKENS=512
+          export NUM_EPOCHS=5
+          export DATALOADER_WORKERS=2
+          export PREFETCH_FACTOR=2
+      else
+          export HIDDEN_SIZE=768
+          export NUM_LAYERS=14
+          export MAX_POS_EMB=8192
+          export MAX_TOKENS=16384
+          export NUM_EPOCHS=50
+          export DATALOADER_WORKERS=8
+          export PREFETCH_FACTOR=8
+      fi
+
+      export CUDA_VISIBLE_DEVICES="0"; python -u -m cehrgpt.runners.hf_cehrgpt_pretrain_runner \
+      --model_name_or_path "{output_dir}/cehrgpt_pretrained" \
+      --tokenizer_name_or_path "{output_dir}/cehrgpt_pretrained" \
+      --output_dir "{output_dir}/cehrgpt_pretrained" \
+      --data_folder "{output_dir}/cehrgpt_pretrained/meds_reader" \
+      --tokenized_dataset_name "full_tokenized_dataset" \
+      --dataset_prepared_path {output_dir}/cehrgpt_pretrained/dataset_prepared \
+      --do_train true --seed 42  \
+      --dataloader_num_workers $DATALOADER_WORKERS \
+      --dataloader_prefetch_factor $PREFETCH_FACTOR \
+      --hidden_size $HIDDEN_SIZE \
+      --num_hidden_layers $NUM_LAYERS \
+      --max_position_embeddings $MAX_POS_EMB \
+      --evaluation_strategy epoch --save_strategy epoch \
+      --sample_packing --max_tokens_per_batch $MAX_TOKENS \
+      --warmup_ratio 0.01 --weight_decay 0.01 \
+      --num_train_epochs $NUM_EPOCHS \
+      --learning_rate 0.0001 \
+      --use_early_stopping --early_stopping_threshold 0.001 \
+      --load_best_model_at_end \
+      --is_data_in_meds --inpatient_att_function_type day \
+      --att_function_type day --include_inpatient_hour_token \
+      --include_auxiliary_token --include_demographic_prompt \
+      --meds_to_cehrbert_conversion_type MedsToCehrbertOMOP \
+      --report_to "none"
+
+  supervised:
+    train: |-
+      mkdir -p "{output_dir}"
+      export CUDA_VISIBLE_DEVICES="0"; python -u -m cehrgpt.tools.linear_prob.compute_cehrgpt_features \
+      --model_name_or_path {model_initialization_dir} \
+      --tokenizer_name_or_path {model_initialization_dir} \
+      --tokenized_full_dataset_path "{model_initialization_dir}/dataset_prepared/full_tokenized_dataset" \
+      --dataset_prepared_path {model_initialization_dir}/cehrgpt_pretrained/dataset_prepared \
+      --data_folder {model_initialization_dir}/cehrgpt_pretrained/meds_reader \
+      --cohort_folder {labels_dir} \
+      --output_dir {output_dir} \
+      --seed 42 \
+      --dataloader_num_workers 8 --dataloader_prefetch_factor 8 \
+      --sample_packing --max_tokens_per_batch 16384 \
+      --is_data_in_meds --inpatient_att_function_type day \
+      --att_function_type day --include_inpatient_hour_token \
+      --include_auxiliary_token --include_demographic_prompt \
+      --disconnect_problem_list_events \
+      --meds_to_cehrbert_conversion_type MedsToCehrbertOMOP
+
+    predict: |-
+      mkdir -p "{output_dir}"
+      python -u -m cehrgpt.tools.linear_prob.train_with_cehrgpt_features \
+        --features_data_dir {model_initialization_dir} \
+        --output_dir {output_dir}
+
+      cp {output_dir}/logistic/test_predictions/predictions.parquet {output_dir}/predictions.parquet
