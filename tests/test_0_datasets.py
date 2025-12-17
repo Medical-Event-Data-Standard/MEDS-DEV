@@ -17,7 +17,10 @@ def test_non_dataset_breaks():
         run_command(
             "meds-dev-dataset",
             test_name="Non-dataset should error",
-            hydra_kwargs={"dataset": non_dataset, "output_dir": str(output_dir.resolve())},
+            hydra_kwargs={
+                "dataset": non_dataset,
+                "output_dir": str(output_dir.resolve()),
+            },
             should_error=True,
             want_err_msg=f"Dataset {non_dataset} not currently configured",
         )

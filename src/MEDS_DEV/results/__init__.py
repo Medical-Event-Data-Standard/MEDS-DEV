@@ -39,7 +39,7 @@ def _is_future(dt: datetime.datetime) -> bool:
         return dt > datetime.datetime.now(dt.tzinfo)
     else:
         logger.warning("Naive datetime detected. Assuming UTC.")
-        return dt > datetime.datetime.utcnow()
+        return dt > datetime.datetime.utcnow()  # noqa: DTZ003
 
 
 @dataclasses.dataclass
@@ -304,4 +304,4 @@ PACK_YAML = files("MEDS_DEV.configs") / "_package_result.yaml"
 VALIDATE_YAML = files("MEDS_DEV.configs") / "_validate_result.yaml"
 
 
-__all__ = ["Result", "PACK_YAML", "VALIDATE_YAML"]
+__all__ = ["PACK_YAML", "VALIDATE_YAML", "Result"]

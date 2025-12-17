@@ -1,4 +1,4 @@
-# \[New dataset\] \*\*Add your dataset name here\*\*
+# [New dataset] \*\*Add your dataset name here\*\*
 
 This is a template for supporting a new dataset in MEDS-DEV. Please edit the information on the template as appropriate, and commit this information in a `README.md` file in a directory named after your dataset in `src/MEDS_DEV/datasets` (e.g. `src/MEDS_DEV/datasets/MIMIC-IV/README.md`).
 

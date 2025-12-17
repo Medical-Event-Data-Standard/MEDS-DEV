@@ -42,9 +42,15 @@ def main(cfg: DictConfig):
             f"predicates_path={dataset_predicates_path}",
             f"output_filepath={cfg.output_dir}" + r"/\$\{data._prefix\}.parquet",
             f"log_dir={cfg.output_dir}/.logs",
+            "hydra/launcher=joblib",
         ]
     )
 
     logger.info(f"Running ACES: {cmd}")
-    run_in_env(cmd=cmd, output_dir=cfg.output_dir, do_overwrite=cfg.do_overwrite, run_as_script=False)
+    run_in_env(
+        cmd=cmd,
+        output_dir=cfg.output_dir,
+        do_overwrite=cfg.do_overwrite,
+        run_as_script=False,
+    )
     logger.info(f"Extract {cfg.task} for {cfg.dataset} command {cmd} finished successfully.")

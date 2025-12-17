@@ -174,12 +174,12 @@ class Metadata:
     def __post_init__(self):
         if type(self.description) is not str:
             raise ValueError(f"'description' must be a string. Got {self.description}")
-        if not isinstance(self.contacts, (list, ListConfig)):
+        if not isinstance(self.contacts, list | ListConfig):
             raise ValueError(f"'contacts' must be a list. Got {self.contacts}")
         if len(self.contacts) == 0:
             raise ValueError("'contacts' must have at least one contact.")
         for i, contact in enumerate(self.contacts):
-            if isinstance(contact, (dict, DictConfig)):
+            if isinstance(contact, dict | DictConfig):
                 try:
                     contact = Contact(**contact)
                 except Exception as e:
@@ -188,7 +188,7 @@ class Metadata:
             elif not isinstance(contact, Contact):
                 raise ValueError(f"Contact at index {i} must be a Contact or dictionary. Got {type(contact)}")
         if self.links is not None:
-            if not isinstance(self.links, (list, ListConfig)):
+            if not isinstance(self.links, list | ListConfig):
                 raise ValueError(f"If specified, 'links' must be a list. Got {self.links}")
             for i, link in enumerate(self.links):
                 if type(link) is not str:
@@ -318,7 +318,7 @@ def temp_env(cfg: DictConfig, requirements: str | Path | None) -> tuple[Path, di
                 check_fp.touch()
 
             env["VIRTUAL_ENV"] = str(venv_dir.resolve())
-            env["PATH"] = f"{str(venv_bin_path.resolve())}{os.pathsep}{env['PATH']}"
+            env["PATH"] = f"{venv_bin_path.resolve()!s}{os.pathsep}{env['PATH']}"
 
         yield build_temp_dir, env
 
