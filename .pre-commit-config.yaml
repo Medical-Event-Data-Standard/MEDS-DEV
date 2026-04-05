@@ -64,7 +64,7 @@ repos:
           - mdformat-tables
           - mdformat_frontmatter
           - mdformat-black
-          #- mdformat-config  # disabled: taplo dependency fails to build from source
+          - mdformat-config
           - mdformat-shfmt
           - mdformat-mkdocs
           - mdformat-toc
