@@ -61,7 +61,7 @@ def test_non_task_breaks(demo_dataset: NAME_AND_DIR):
 
 @pytest.mark.integration
 def test_tasks_configured(demo_dataset: NAME_AND_DIR, task_labels: NAME_AND_DIR):
-    dataset_name, dataset_dir = demo_dataset
+    dataset_name, _dataset_dir = demo_dataset
     task_name, task_labels_dir = task_labels
 
     files = list(task_labels_dir.glob("**/*.parquet"))
