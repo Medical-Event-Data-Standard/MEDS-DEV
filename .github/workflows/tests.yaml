@@ -87,8 +87,7 @@ jobs:
 
           # Check for full-ci label on PRs
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            LABELS='${{ toJson(github.event.pull_request.labels.*.name) }}'
-            if echo "$LABELS" | grep -q '"full-ci"'; then
+            if [[ "${{ contains(github.event.pull_request.labels.*.name, 'full-ci') }}" == "true" ]]; then
               echo "run_full=true" >> "$GITHUB_OUTPUT"
               echo "docs_only=false" >> "$GITHUB_OUTPUT"
               echo "changed_datasets=[]" >> "$GITHUB_OUTPUT"
@@ -260,7 +259,15 @@ jobs:
   ci-summary:
     runs-on: ubuntu-latest
     if: always()
-    needs: [determine-scope, fast-checks, dataset-lane, task-lane, model-lane, full-integration]
+    needs:
+      [
+        determine-scope,
+        fast-checks,
+        dataset-lane,
+        task-lane,
+        model-lane,
+        full-integration,
+      ]
     steps:
       - name: Write summary
         run: |
@@ -278,33 +285,24 @@ jobs:
 
       - name: Check required jobs
         run: |
-          # Fail if fast-checks failed
+          FAILED=""
           if [[ "${{ needs.fast-checks.result }}" == "failure" ]]; then
-            echo "fast-checks failed"
-            exit 1
+            FAILED="$FAILED fast-checks"
           fi
-
-          # Fail if any lane that ran has failed
-          for lane in dataset-lane task-lane model-lane full-integration; do
-            RESULT="${{ needs[format('{0}', lane)].result }}"
-            # We can't use dynamic expressions, so check each explicitly
-          done
-
           if [[ "${{ needs.dataset-lane.result }}" == "failure" ]]; then
-            echo "dataset-lane failed"
-            exit 1
+            FAILED="$FAILED dataset-lane"
           fi
           if [[ "${{ needs.task-lane.result }}" == "failure" ]]; then
-            echo "task-lane failed"
-            exit 1
+            FAILED="$FAILED task-lane"
           fi
           if [[ "${{ needs.model-lane.result }}" == "failure" ]]; then
-            echo "model-lane failed"
-            exit 1
+            FAILED="$FAILED model-lane"
           fi
           if [[ "${{ needs.full-integration.result }}" == "failure" ]]; then
-            echo "full-integration failed"
+            FAILED="$FAILED full-integration"
+          fi
+          if [[ -n "$FAILED" ]]; then
+            echo "Failed jobs:$FAILED"
             exit 1
           fi
-
           echo "All required jobs passed or were skipped."

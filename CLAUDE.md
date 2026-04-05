@@ -9,6 +9,7 @@ Models, datasets, and evaluation tools live in external packages; MEDS-DEV wraps
 entry points that create virtual environments, run commands, and collect outputs.
 
 The core abstractions are:
+
 - **Datasets** (`src/MEDS_DEV/datasets/`): Each has a `dataset.yaml` (ETL commands),
   `predicates.yaml` (ACES predicates), and `requirements.txt`.
 - **Tasks** (`src/MEDS_DEV/tasks/`): ACES task configuration YAML files defining cohort
@@ -63,6 +64,7 @@ pytest -v -s -x --doctest-modules \
 ```
 
 **Key test options:**
+
 - `--persistent_cache_dir=DIR` — persist built datasets/models across runs (DIR must exist)
 - `--cache_dataset=NAME|all` — cache dataset builds in persistent dir
 - `--cache_task=NAME|all` — cache task extractions
@@ -80,8 +82,8 @@ cleaned up between models.
 CI uses a tiered, change-aware strategy (see `.github/workflows/tests.yaml`):
 
 1. **Fast checks** — always run (lint + doctests + unit/registry tests)
-2. **Affected integration lanes** — run only for changed datasets, tasks, or models
-3. **Full integration** — runs on push to `main`, weekly schedule, `full-ci` PR label, or
+1. **Affected integration lanes** — run only for changed datasets, tasks, or models
+1. **Full integration** — runs on push to `main`, weekly schedule, `full-ci` PR label, or
    when shared/core files change
 
 To force a full CI run on a PR, add the `full-ci` label.
@@ -98,6 +100,7 @@ pre-commit run --all-files
 ### Entry Points (CLI commands)
 
 Defined in `pyproject.toml` under `[project.scripts]`:
+
 - `meds-dev-dataset` → `MEDS_DEV.datasets.__main__:main`
 - `meds-dev-task` → `MEDS_DEV.tasks.__main__:main`
 - `meds-dev-model` → `MEDS_DEV.models.__main__:main`
@@ -112,6 +115,7 @@ YAML files prefixed with `_`. Arguments are passed as Hydra overrides (dot-list 
 
 Models and datasets run in isolated venvs to avoid dependency conflicts. The venv lifecycle is
 managed by `src/MEDS_DEV/utils.py`:
+
 - `install_venv(venv_dir, requirements)` — creates venv + pip installs requirements
 - `temp_env(cfg, requirements)` — context manager that sets up venv + PATH
 - `run_in_env(cmd, output_dir, env)` — runs a shell command in the venv, writes a `.done`
@@ -120,6 +124,7 @@ managed by `src/MEDS_DEV/utils.py`:
 ### Registry Dictionaries
 
 On import, `MEDS_DEV.__init__` populates three module-level dicts by scanning package resources:
+
 - `DATASETS` — keyed by slash-separated path from `datasets/` dir (e.g., `"MIMIC-IV"`)
 - `TASKS` — keyed by slash-separated path from `tasks/` dir (e.g., `"mortality/in_icu/first_24h"`)
 - `MODELS` — keyed by slash-separated path from `models/` dir (e.g., `"meds_tab/tiny"`)
@@ -146,6 +151,7 @@ models is filtered by compatibility.
 ## Conventions
 
 ### Code Style
+
 - Python 3.11+ features are expected (match statements, type unions with `|`, etc.)
 - Type hints on all function signatures
 - Google-style docstrings with `>>>` doctests for all public functions
@@ -155,44 +161,48 @@ models is filtered by compatibility.
 - Use `OmegaConf` for YAML config loading, `DictConfig` for typed config access
 
 ### Adding a New Dataset
+
 1. Create `src/MEDS_DEV/datasets/<name>/` with: `dataset.yaml`, `predicates.yaml`,
    `requirements.txt`, `README.md`
-2. `dataset.yaml` must have `metadata` (with `description`, `contacts`, `access_policy`) and
+1. `dataset.yaml` must have `metadata` (with `description`, `contacts`, `access_policy`) and
    `commands` (with `build_full` and `build_demo` using `{temp_dir}` and `{output_dir}` placeholders)
-3. `predicates.yaml` contains ACES-syntax predicates for task extraction
-4. Access policy must be one of: `public_with_approval`, `public_unrestricted`, `institutional`,
+1. `predicates.yaml` contains ACES-syntax predicates for task extraction
+1. Access policy must be one of: `public_with_approval`, `public_unrestricted`, `institutional`,
    `private_single_use`, `other`
 
 ### Adding a New Task
+
 1. Create a YAML file under `src/MEDS_DEV/tasks/<category>/<subcategory>/<name>.yaml`
-2. Must be a valid ACES configuration file with predicates left as `???` placeholders
-3. Include `metadata.supported_datasets` listing compatible dataset names
-4. Add README.md files in parent directories describing the task category
+1. Must be a valid ACES configuration file with predicates left as `???` placeholders
+1. Include `metadata.supported_datasets` listing compatible dataset names
+1. Add README.md files in parent directories describing the task category
 
 ### Adding a New Model
+
 1. Create `src/MEDS_DEV/models/<name>/` with: `model.yaml`, `requirements.txt`, `README.md`
-2. `model.yaml` must have `metadata` and `commands` with nested `unsupervised`/`supervised` →
+1. `model.yaml` must have `metadata` and `commands` with nested `unsupervised`/`supervised` →
    `train`/`predict` structure
-3. Commands use template variables: `{dataset_dir}`, `{labels_dir}`, `{output_dir}`,
+1. Commands use template variables: `{dataset_dir}`, `{labels_dir}`, `{output_dir}`,
    `{model_dir}`, `{model_initialization_dir}`, `{split}`, `{demo}`
-4. Predictions must output parquet files compatible with `meds-evaluation`
+1. Predictions must output parquet files compatible with `meds-evaluation`
 
 ### YAML Config Conventions
+
 - Task configs: predicates that vary per-dataset use `???` (Hydra missing marker)
 - Dataset predicates: use `code: { regex: "^PATTERN//.*" }` syntax
 - Model commands: use `|-` for multi-line shell scripts, `>-` for single commands
 
 ## Key Dependencies
 
-| Package | Purpose |
-|---------|---------|
-| `meds==0.3.3` | MEDS data schema and split constants |
-| `es-aces==0.6.1` | ACES task extraction engine |
-| `hydra-core` | CLI configuration management |
-| `meds-evaluation==0.0.3` | Prediction evaluation (AUROC, etc.) |
-| `validators` | Email/URL validation for metadata |
-| `polars` | DataFrame operations in tests |
-| `omegaconf` | YAML config loading (comes with hydra) |
+| Package                  | Purpose                                |
+| ------------------------ | -------------------------------------- |
+| `meds==0.3.3`            | MEDS data schema and split constants   |
+| `es-aces==0.6.1`         | ACES task extraction engine            |
+| `hydra-core`             | CLI configuration management           |
+| `meds-evaluation==0.0.3` | Prediction evaluation (AUROC, etc.)    |
+| `validators`             | Email/URL validation for metadata      |
+| `polars`                 | DataFrame operations in tests          |
+| `omegaconf`              | YAML config loading (comes with hydra) |
 
 ## Common Pitfalls
 

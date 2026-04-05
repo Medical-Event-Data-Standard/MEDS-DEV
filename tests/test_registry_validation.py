@@ -1,7 +1,7 @@
 """Fast registry and configuration validation tests.
 
-These tests verify that all datasets, tasks, and models load correctly and have valid metadata,
-without building any datasets, creating venvs, or running any heavy integration steps.
+These tests verify that all datasets, tasks, and models load correctly and have valid metadata, without
+building any datasets, creating venvs, or running any heavy integration steps.
 """
 
 from MEDS_DEV import DATASETS, MODELS, TASKS
