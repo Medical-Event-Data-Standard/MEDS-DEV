@@ -8,8 +8,10 @@ from tests.utils import NAME_AND_DIR, run_command
 
 
 def test_non_task_non_dataset_breaks():
-    """Test that a non-existent dataset errors for a representative task. One invocation is sufficient since
-    the error path is identical regardless of which task is specified."""
+    """Test that a non-existent dataset errors for a representative task.
+
+    One invocation is sufficient since the error path is identical regardless of which task is specified.
+    """
     non_dataset = "_not_supported"
     while non_dataset in DATASETS:
         non_dataset = f"_{non_dataset}"
