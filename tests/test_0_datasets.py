@@ -1,6 +1,7 @@
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
+import pytest
 from meds_testing_helpers.dataset import MEDSDataset
 
 from MEDS_DEV import DATASETS
@@ -26,6 +27,7 @@ def test_non_dataset_breaks():
         )
 
 
+@pytest.mark.integration
 def test_datasets_configured(demo_dataset: NAME_AND_DIR):
     dataset_name, demo_dataset_dir = demo_dataset
 
