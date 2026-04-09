@@ -261,9 +261,36 @@ def tempdir_ctx(cfg: DictConfig) -> Path:
         yield temp_dir
 
 
-def install_venv(venv_dir: Path, requirements: str | Path) -> Path:
+def install_venv(venv_dir: Path, requirements: str | Path, python: str | None = None) -> Path:
+    """Create a virtual environment and install requirements using uv.
+
+    Args:
+        venv_dir: Path where the virtual environment will be created.
+        requirements: Path to a requirements.txt file.
+        python: Python version or path for the venv (e.g. "3.11", "/usr/bin/python3.11").
+            Defaults to the current interpreter.
+
+    >>> import tempfile, os
+    >>> with tempfile.TemporaryDirectory() as d:
+    ...     req = os.path.join(d, "requirements.txt")
+    ...     _ = open(req, "w").write("")
+    ...     venv = os.path.join(d, "venv")
+    ...     bp = install_venv(Path(venv), req)
+    ...     (bp / "python").exists()
+    True
+    """
     logger.info(f"Installing requirements from {requirements} into virtual environment.")
-    subprocess.run([sys.executable, "-m", "venv", str(venv_dir)], check=True)
+
+    uv_path = shutil.which("uv")
+    if not uv_path:
+        raise RuntimeError("uv is required but not found on PATH. Install it with: pip install uv")
+
+    venv_cmd: list[str] = [uv_path, "venv", str(venv_dir)]
+    if python:
+        venv_cmd.extend(["--python", python])
+    else:
+        venv_cmd.extend(["--python", sys.executable])
+    subprocess.run(venv_cmd, check=True)
 
     venv_bin_path = get_venv_bin_path(venv_dir)
     venv_python = venv_bin_path / "python"
@@ -271,7 +298,7 @@ def install_venv(venv_dir: Path, requirements: str | Path) -> Path:
         raise RuntimeError(f"Virtual environment python {venv_python} does not exist!")
 
     subprocess.run(
-        [str(venv_python), "-m", "pip", "install", "-r", str(requirements)],
+        [uv_path, "pip", "install", "-r", str(requirements), "--python", str(venv_python)],
         check=True,
     )
 
