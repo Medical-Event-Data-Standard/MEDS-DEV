@@ -1,6 +1,7 @@
-cehrbert==1.3.5
+cehrbert==1.4.9
 meds_reader==0.1.9
 meds-evaluation==0.0.2
 pyyaml
 hydra-core
 polars
+tf-keras

@@ -195,13 +195,13 @@ def get_and_validate_cache_settings(
         >>> get_and_validate_cache_settings(MockRequest(None, ["d1", "d2", "all"], [], ["m1"]))
         Traceback (most recent call last):
             ...
-        _pytest.config.exceptions.UsageError: Persistent cache directory must be set if any cache options are!
+        pytest.UsageError: Persistent cache directory must be set if any cache options are!
         >>> with TemporaryDirectory() as temp_dir:
         ...     cache_dir = Path(temp_dir) / "cache_dir"
         ...     get_and_validate_cache_settings(MockRequest(cache_dir, [], [], []))
         Traceback (most recent call last):
             ...
-        _pytest.config.exceptions.UsageError: Persistent cache directory must be an existent directory!
+        pytest.UsageError: Persistent cache directory must be an existent directory!
     """
     persistent_cache_dir = request.config.getoption("--persistent_cache_dir")
     cache_datasets = request.config.getoption("--cache_dataset")
