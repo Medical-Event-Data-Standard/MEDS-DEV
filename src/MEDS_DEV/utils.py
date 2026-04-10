@@ -285,7 +285,7 @@ def install_venv(venv_dir: Path, requirements: str | Path, python: str | None = 
     if not uv_path:
         raise RuntimeError("uv is required but not found on PATH. Install it with: pip install uv")
 
-    venv_cmd: list[str] = [uv_path, "venv", str(venv_dir)]
+    venv_cmd: list[str] = [uv_path, "venv", "--clear", str(venv_dir)]
     if python:
         venv_cmd.extend(["--python", python])
     else:

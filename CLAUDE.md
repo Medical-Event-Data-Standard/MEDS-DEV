@@ -42,9 +42,9 @@ pytest -v -s -x
 # Full suite with persistent caching (much faster on repeat runs)
 mkdir -p /tmp/meds_dev_cache
 pytest -v -s -x \
-  --persistent_cache_dir=/tmp/meds_dev_cache \
-  --cache_dataset=all --cache_task=all --cache_model=all \
-  --reuse_cached_dataset=all
+	--persistent_cache_dir=/tmp/meds_dev_cache \
+	--cache_dataset=all --cache_task=all --cache_model=all \
+	--reuse_cached_dataset=all
 
 # Test a single model only
 pytest -v -s -x --test_model=random_predictor
