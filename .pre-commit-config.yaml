@@ -58,16 +58,17 @@ repos:
       - id: mdformat
         args: ["--number"]
         additional_dependencies:
-          - mdformat-ruff
-          - mdformat-gfm
-          - mdformat-gfm-alerts
-          - mdformat-tables
-          - mdformat_frontmatter
-          - mdformat-black
-          #- mdformat-config  # disabled: taplo has no aarch64 wheel; causes CI/local divergence
-          - mdformat-shfmt
-          - mdformat-mkdocs
-          - mdformat-toc
+          - mdformat-ruff==0.1.3
+          - mdformat-gfm==1.0.0
+          - mdformat-gfm-alerts==2.0.0
+          - mdformat-tables==1.0.0
+          - mdformat-frontmatter==2.0.10
+          - mdformat-black==0.1.1
+          - mdformat-config==0.2.1
+          - mdformat-shfmt==0.2.0
+          - mdformat-mkdocs==5.1.4
+          - mdformat-toc==0.5.0
+          - shfmt-py==3.12.0.2
 
   # word spelling linter
   - repo: https://github.com/codespell-project/codespell

@@ -58,9 +58,15 @@ pytest -v -s -x -m integration --test_model=random_predictor
 # Full suite with persistent caching (much faster on repeat local runs)
 mkdir -p /tmp/meds_dev_cache
 pytest -v -s -x --doctest-modules \
-    --persistent_cache_dir=/tmp/meds_dev_cache \
-    --cache_dataset=all --cache_task=all --cache_model=all \
-    --reuse_cached_dataset=all
+	--persistent_cache_dir=/tmp/meds_dev_cache \
+	--cache_dataset=all --cache_task=all --cache_model=all \
+	--reuse_cached_dataset=all
+
+# Test a single model only
+pytest -v -s -x --test_model=random_predictor
+
+# Test a single task only
+pytest -v -s -x --test_task=mortality/in_icu/first_24h
 ```
 
 **Key test options:**
