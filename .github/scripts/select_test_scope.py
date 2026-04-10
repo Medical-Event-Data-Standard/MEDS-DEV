@@ -34,6 +34,11 @@ DOCS_ONLY_PATTERNS = [
     r"^refs\.bib$",
     r"^LICENSE$",
     r"^\.gitignore$",
+    r"^CONTRIBUTORS\.md$",
+    r"^CLAUDE\.md$",
+    r"^\.pre-commit-config\.yaml$",
+    r"^src/MEDS_DEV/.+/README\.md$",
+    r"^src/MEDS_DEV/.+/refs\.bib$",
 ]
 
 # Patterns for shared/core files that should trigger a full run.
