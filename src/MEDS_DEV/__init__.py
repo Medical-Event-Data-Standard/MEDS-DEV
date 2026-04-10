@@ -1,10 +1,10 @@
 from importlib.metadata import PackageNotFoundError, version
 
-from .datasets import DATASETS  # noqa: F401
-from .models import MODELS  # noqa: F401
-from .tasks import TASKS  # noqa: F401
+from .datasets import DATASETS
+from .models import MODELS
+from .tasks import TASKS
 
-__all__ = ["DATASETS", "TASKS", "MODELS"]
+__all__ = ["DATASETS", "MODELS", "TASKS"]
 
 __package_name__ = "MEDS_DEV"
 try:

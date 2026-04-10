@@ -84,6 +84,6 @@ def test_task_consistent_when_using_manual_predicates(demo_dataset: NAME_AND_DIR
             relative_file = file.relative_to(alt_task_labels_dir)
             original_file = task_labels_dir / relative_file
             assert original_file.exists(), f"File {relative_file} not found in original task labels dir"
-            assert (
-                file.read_bytes() == original_file.read_bytes()
-            ), f"File {relative_file} differs from original"
+            assert file.read_bytes() == original_file.read_bytes(), (
+                f"File {relative_file} differs from original"
+            )

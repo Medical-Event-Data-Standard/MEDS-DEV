@@ -30,7 +30,12 @@ def pytest_addoption(parser):
             "Cache the {opt} with the given name. Use 'all' to cache all {opt}s. Add specific {opt}s "
             "by repeating the option, e.g., --cache_{opt}={opt}1 --cache_{opt}={opt}2."
         )
-        parser.addoption(f"--cache_{opt}", action="append", type=str, help=cache_str_template.format(opt=opt))
+        parser.addoption(
+            f"--cache_{opt}",
+            action="append",
+            type=str,
+            help=cache_str_template.format(opt=opt),
+        )
 
     add_cache_opt("dataset")
     add_cache_opt("task")
@@ -42,7 +47,12 @@ def pytest_addoption(parser):
             "by repeating the option, e.g., --test_{opt}={opt}1 --test_{opt}={opt}2. Default is to run all. "
             "If any are added, then only those will be run, but if none are added, then all will be run."
         )
-        parser.addoption(f"--test_{opt}", action="append", type=str, help=test_str_template.format(opt=opt))
+        parser.addoption(
+            f"--test_{opt}",
+            action="append",
+            type=str,
+            help=test_str_template.format(opt=opt),
+        )
 
     add_test_opt("dataset")
     add_test_opt("task")
@@ -50,12 +60,15 @@ def pytest_addoption(parser):
 
     def add_reuse_opt(opt: str):
         reuse_str_template = (
-            "If cached and tested, ensure that the following {opt} can be re-used across tests. Use 'all' to "
+            "If cached and tested, ensure that the following {opt} can be reused across tests. Use 'all' to "
             "reuse all {opt}s. Add specific {opt}s by repeating the arg, e.g., --reuse_cached_{opt}={opt}1 "
             "--reuse_cached_{opt}={opt}2. Arguments for {opt}s that are not tested & cached will be ignored."
         )
         parser.addoption(
-            f"--reuse_cached_{opt}", action="append", type=str, help=reuse_str_template.format(opt=opt)
+            f"--reuse_cached_{opt}",
+            action="append",
+            type=str,
+            help=reuse_str_template.format(opt=opt),
         )
 
     add_reuse_opt("dataset")
@@ -89,7 +102,7 @@ def pytest_collection_modifyitems(session: pytest.Session, config: pytest.Config
 
     def sort_key(item: pytest.Item) -> tuple[int, int, int, int]:
         if hasattr(item, "callspec"):
-            fixture_params = {name: value for name, value in item.callspec.params.items()}
+            fixture_params = dict(item.callspec.params.items())
         else:
             return (-1, -1, -1, -1)
 
@@ -130,7 +143,9 @@ def pytest_collection_modifyitems(session: pytest.Session, config: pytest.Config
     items.sort(key=sort_key)
 
 
-def get_and_validate_cache_settings(request) -> tuple[Path, tuple[set[str], set[str], set[str]]]:
+def get_and_validate_cache_settings(
+    request,
+) -> tuple[Path, tuple[set[str], set[str], set[str]]]:
     """A helper to get the cache settings from the pytest parser options and return the appropriate options.
 
     Args:
@@ -180,13 +195,13 @@ def get_and_validate_cache_settings(request) -> tuple[Path, tuple[set[str], set[
         >>> get_and_validate_cache_settings(MockRequest(None, ["d1", "d2", "all"], [], ["m1"]))
         Traceback (most recent call last):
             ...
-        _pytest.config.exceptions.UsageError: Persistent cache directory must be set if any cache options are!
+        pytest.UsageError: Persistent cache directory must be set if any cache options are!
         >>> with TemporaryDirectory() as temp_dir:
         ...     cache_dir = Path(temp_dir) / "cache_dir"
         ...     get_and_validate_cache_settings(MockRequest(cache_dir, [], [], []))
         Traceback (most recent call last):
             ...
-        _pytest.config.exceptions.UsageError: Persistent cache directory must be an existent directory!
+        pytest.UsageError: Persistent cache directory must be an existent directory!
     """
     persistent_cache_dir = request.config.getoption("--persistent_cache_dir")
     cache_datasets = request.config.getoption("--cache_dataset")
@@ -292,10 +307,7 @@ def get_opts(config, opt: str) -> list[str]:
     arg = config.getoption(f"--test_{opt}")
     allowed = {"dataset": DATASETS, "task": TASKS, "model": MODELS}
 
-    if arg:
-        out = allowed[opt] if "all" in arg else arg
-    else:
-        out = allowed[opt]
+    out = (allowed[opt] if "all" in arg else arg) if arg else allowed[opt]
 
     if isinstance(out, dict):
         out = list(out.keys())
@@ -334,7 +346,7 @@ def demo_dataset(request, venv_cache: Path) -> NAME_AND_DIR:
     persistent_cache_dir, (cache_datasets, _, _) = get_and_validate_cache_settings(request)
     reuse_datasets, _, _ = get_and_validate_reuse_settings(request)
 
-    do_overwrite = not (dataset_name in reuse_datasets)
+    do_overwrite = dataset_name not in reuse_datasets
 
     with cache_dir(persistent_cache_dir if dataset_name in cache_datasets else None) as root_dir:
         root_dir = Path(root_dir)
@@ -377,7 +389,7 @@ def task_labels(request, demo_dataset: NAME_AND_DIR) -> NAME_AND_DIR:
 
     _, reuse_tasks, _ = get_and_validate_reuse_settings(request)
 
-    do_overwrite = not (task_name in reuse_tasks)
+    do_overwrite = task_name not in reuse_tasks
 
     persistent_cache_dir, (_, cache_tasks, _) = get_and_validate_cache_settings(request)
     with cache_dir(persistent_cache_dir if task_name in cache_tasks else None) as root_dir:
@@ -502,7 +514,7 @@ def unsupervised_model(request, demo_dataset: NAME_AND_DIR, venv_cache: Path) ->
 
     _, _, reuse_models = get_and_validate_reuse_settings(request)
 
-    do_overwrite = not (model in reuse_models)
+    do_overwrite = model not in reuse_models
 
     persistent_cache_dir, (_, _, cache_models) = get_and_validate_cache_settings(request)
 
@@ -565,7 +577,7 @@ def supervised_model(
 
     _, _, reuse_models = get_and_validate_reuse_settings(request)
 
-    do_overwrite = not (model in reuse_models)
+    do_overwrite = model not in reuse_models
 
     persistent_cache_dir, (_, _, cache_models) = get_and_validate_cache_settings(request)
 

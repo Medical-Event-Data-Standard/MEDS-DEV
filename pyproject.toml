@@ -28,7 +28,10 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-dependencies = ["meds==0.3.3", "es-aces==0.6.1", "hydra-core", "meds-evaluation==0.0.3", "validators"]
+dependencies = ["meds==0.3.3", "es-aces==0.6.1", "hydra-core", "meds-evaluation==0.0.3", "validators", "uv"]
+
+[dependency-groups]
+dev = ["pre-commit<4", "ruff", "pytest", "pytest-cov", "meds_testing_helpers"]
 
 [tool.setuptools_scm]
 
@@ -41,10 +44,6 @@ addopts = [
   "--doctest-modules",
 ]
 
-[project.optional-dependencies]
-dev = ["pre-commit<4"]
-tests = ["pytest", "pytest-cov", "meds_testing_helpers"]
-
 [project.scripts]
 meds-dev-dataset = "MEDS_DEV.datasets.__main__:main"
 meds-dev-task = "MEDS_DEV.tasks.__main__:main"
@@ -56,3 +55,30 @@ meds-dev-validate-result = "MEDS_DEV.results.__main__:validate_result"
 [project.urls]
 Homepage = "https://github.com/Medical-Event-Data-Standard/MEDS-DEV"
 Issues = "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/issues"
+
+[tool.ruff]
+target-version = "py311"
+line-length = 110
+extend-exclude = ["docs/index.md"]
+
+# Enable linters
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle
+    "F",   # pyflakes
+    "I",   # isort
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "DTZ", # flake8-datetimez
+    "RUF", # Ruff-specific rules
+    "SIM", # flake8-simplify
+    "TCH", # flake8-type-checking
+    "N",   # pep8-naming
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]  # Unused imports in __init__ files
+
+[tool.ruff.lint.pep8-naming]
+extend-ignore-names = ["*MEDS*"]  # Ignore MEDS in variable names
