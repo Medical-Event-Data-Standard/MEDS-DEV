@@ -88,7 +88,8 @@ def test_all_models_requirements_exist_if_declared():
 
 
 def test_task_dataset_coverage():
-    """At least one task should reference each demo-buildable dataset, ensuring the matrix is non-empty."""
+    """At least one task should reference at least one dataset, ensuring the integration test matrix is non-
+    empty."""
     datasets_with_tasks = set()
     for task in TASKS.values():
         metadata = task.get("metadata")

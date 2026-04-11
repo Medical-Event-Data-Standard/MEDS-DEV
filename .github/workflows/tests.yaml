@@ -5,19 +5,19 @@ on:
     branches: [main]
   pull_request:
     branches: [main, "release/*", "dev"]
+    types: [opened, synchronize, reopened, labeled]
   schedule:
     # Weekly full regression on Sundays at 03:00 UTC
     - cron: "0 3 * * 0"
   workflow_dispatch:
     inputs:
       scope:
-        description: "Test scope: fast, affected, or full"
+        description: "Test scope: fast or full"
         required: false
-        default: "affected"
+        default: "full"
         type: choice
         options:
           - fast
-          - affected
           - full
 
 jobs:
@@ -41,18 +41,10 @@ jobs:
       - name: Determine test scope
         id: scope
         run: |
-          # Manual dispatch overrides
+          # Manual dispatch overrides (only fast or full — no affected, since there's no PR diff context)
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             SCOPE="${{ github.event.inputs.scope }}"
-            if [[ "$SCOPE" == "full" ]]; then
-              echo "run_full=true" >> "$GITHUB_OUTPUT"
-              echo "docs_only=false" >> "$GITHUB_OUTPUT"
-              echo "changed_datasets=[]" >> "$GITHUB_OUTPUT"
-              echo "changed_tasks=[]" >> "$GITHUB_OUTPUT"
-              echo "changed_models=[]" >> "$GITHUB_OUTPUT"
-              echo "reason=manual dispatch: full" >> "$GITHUB_OUTPUT"
-              exit 0
-            elif [[ "$SCOPE" == "fast" ]]; then
+            if [[ "$SCOPE" == "fast" ]]; then
               echo "run_full=false" >> "$GITHUB_OUTPUT"
               echo "docs_only=true" >> "$GITHUB_OUTPUT"
               echo "changed_datasets=[]" >> "$GITHUB_OUTPUT"
@@ -60,8 +52,15 @@ jobs:
               echo "changed_models=[]" >> "$GITHUB_OUTPUT"
               echo "reason=manual dispatch: fast only" >> "$GITHUB_OUTPUT"
               exit 0
+            else
+              echo "run_full=true" >> "$GITHUB_OUTPUT"
+              echo "docs_only=false" >> "$GITHUB_OUTPUT"
+              echo "changed_datasets=[]" >> "$GITHUB_OUTPUT"
+              echo "changed_tasks=[]" >> "$GITHUB_OUTPUT"
+              echo "changed_models=[]" >> "$GITHUB_OUTPUT"
+              echo "reason=manual dispatch: full" >> "$GITHUB_OUTPUT"
+              exit 0
             fi
-            # "affected" falls through to normal detection
           fi
 
           # Push to main or schedule → always full
