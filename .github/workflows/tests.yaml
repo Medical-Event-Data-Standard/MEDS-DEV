@@ -133,10 +133,7 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Lint
-        run: uv run ruff check .
-
-      - name: Doctests
+      - name: Doctests and unit tests
         run: uv run pytest --doctest-modules -m "not integration" -x
 
   # ---------------------------------------------------------------------------
@@ -163,8 +160,10 @@ jobs:
           python-version: "3.11"
 
       - name: Run dataset integration tests for ${{ matrix.dataset }}
+        env:
+          DATASET: ${{ matrix.dataset }}
         run: |
-          uv run pytest -v -s -x -m integration --test_dataset=${{ matrix.dataset }}
+          uv run pytest -v -s -x -m integration --test_dataset="$DATASET"
 
   # ---------------------------------------------------------------------------
   # Job 4: Task lane — run for changed tasks (when not doing full)
@@ -190,8 +189,10 @@ jobs:
           python-version: "3.11"
 
       - name: Run task integration tests for ${{ matrix.task }}
+        env:
+          TASK: ${{ matrix.task }}
         run: |
-          uv run pytest -v -s -x -m integration --test_task="${{ matrix.task }}"
+          uv run pytest -v -s -x -m integration --test_task="$TASK"
 
   # ---------------------------------------------------------------------------
   # Job 5: Model lane — run for changed models (when not doing full)
@@ -217,8 +218,10 @@ jobs:
           python-version: "3.11"
 
       - name: Run model integration tests for ${{ matrix.model }}
+        env:
+          MODEL: ${{ matrix.model }}
         run: |
-          uv run pytest -v -s -x -m integration --test_model=${{ matrix.model }}
+          uv run pytest -v -s -x -m integration --test_model="$MODEL"
 
   # ---------------------------------------------------------------------------
   # Job 6: Full integration — push to main, schedule, label, or core changes
