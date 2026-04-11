@@ -100,6 +100,19 @@ def pytest_collection_modifyitems(session: pytest.Session, config: pytest.Config
     task_opts = get_opts(config, "task")
     model_opts = get_opts(config, "model")
 
+    def _safe_index(opts: list[str], value) -> int:
+        """Return the index of value in opts, or len(opts) for unresolved (NOTSET) params.
+
+        Pytest 9.x stores ``NotSetType.token`` in ``callspec.params`` for indirect parameters
+        that are part of an empty parametrize set.  These items carry a skip mark and will never
+        actually run, but they still pass through ``pytest_collection_modifyitems`` and must be
+        sortable.  Pushing them to the end keeps the ordering stable.
+        """
+        try:
+            return opts.index(value)
+        except ValueError:
+            return len(opts)
+
     def sort_key(item: pytest.Item) -> tuple[int, int, int, int]:
         if hasattr(item, "callspec"):
             fixture_params = dict(item.callspec.params.items())
@@ -108,7 +121,7 @@ def pytest_collection_modifyitems(session: pytest.Session, config: pytest.Config
 
         if "demo_dataset" not in fixture_params:
             return (-1, -1, -1, -1)
-        dataset_idx = dataset_opts.index(fixture_params["demo_dataset"])
+        dataset_idx = _safe_index(dataset_opts, fixture_params["demo_dataset"])
 
         has_task = "task_labels" in item.fixturenames
         has_model = "unsupervised_model" in item.fixturenames or "supervised_model" in item.fixturenames
@@ -124,12 +137,12 @@ def pytest_collection_modifyitems(session: pytest.Session, config: pytest.Config
         if is_dataset_extraction_test:
             return (-1, -1, -1, dataset_idx)
 
-        task_idx = task_opts.index(fixture_params["task_labels"]) if has_task else -1
+        task_idx = _safe_index(task_opts, fixture_params["task_labels"]) if has_task else -1
 
         if is_task_extraction_test:
             return (-1, task_idx, -1, dataset_idx)
 
-        model_idx = model_opts.index(fixture_params["unsupervised_model"])
+        model_idx = _safe_index(model_opts, fixture_params["unsupervised_model"])
 
         if is_unsupervised_model_test:
             return (model_idx, -1, -1, dataset_idx)

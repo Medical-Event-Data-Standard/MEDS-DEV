@@ -41,7 +41,9 @@ omit = ["*/models/cehrbert/*"]
 [tool.pytest.ini_options]
 addopts = [
   "--color=yes",
-  "--doctest-modules",
+]
+markers = [
+  "integration: end-to-end tests that build datasets, run tasks, create model envs, or run evaluations",
 ]
 
 [project.scripts]
