@@ -254,9 +254,9 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
 
   # ---------------------------------------------------------------------------
-  # Job 7: Summary — report what ran
+  # Job 7: Summary — report what ran (named run_tests_ubuntu for branch ruleset compatibility)
   # ---------------------------------------------------------------------------
-  ci-summary:
+  run_tests_ubuntu:
     runs-on: ubuntu-latest
     if: always()
     needs:
