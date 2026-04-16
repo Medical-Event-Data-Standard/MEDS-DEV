@@ -241,7 +241,7 @@ jobs:
 
       - name: Run full test suite
         run: |
-          uv run pytest -v --doctest-modules --cov=src --junitxml=junit.xml -s -x
+          uv run pytest -v --doctest-modules --cov=src --cov-report=xml --junitxml=junit.xml -s -x
 
       - name: Upload coverage to Codecov
         if: always()
