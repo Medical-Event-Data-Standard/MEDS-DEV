@@ -241,19 +241,22 @@ jobs:
 
       - name: Run full test suite
         run: |
-          uv run pytest -v --doctest-modules --cov=src --junitxml=junit.xml -s -x
+          uv run pytest -v --doctest-modules --cov=src --cov-report=xml --junitxml=junit.xml -s -x
 
       - name: Upload coverage to Codecov
         if: always()
-        uses: codecov/codecov-action@v4.0.1
+        uses: codecov/codecov-action@v6.0.0
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage.xml
 
       - name: Upload test results to Codecov
         if: ${{ !cancelled() }}
-        uses: codecov/test-results-action@v1
+        uses: codecov/codecov-action@v6.0.0
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+          report_type: test_results
+          files: ./junit.xml
 
   # ---------------------------------------------------------------------------
   # Job 7: Summary — report what ran (named run_tests_ubuntu for branch ruleset compatibility)
