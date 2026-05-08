@@ -41,12 +41,14 @@ jobs:
       - name: Determine test scope
         id: scope
         run: |
-          # Manual dispatch overrides (only fast or full — no affected, since there's no PR diff context)
+          # Manual dispatch overrides (only fast or full — no affected, since there's no PR diff context).
+          # Lanes skip naturally when the changed_* outputs are all empty, so we don't conflate
+          # "manual fast scope override" with "actual docs-only diff" by flipping docs_only.
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             SCOPE="${{ github.event.inputs.scope }}"
             if [[ "$SCOPE" == "fast" ]]; then
               echo "run_full=false" >> "$GITHUB_OUTPUT"
-              echo "docs_only=true" >> "$GITHUB_OUTPUT"
+              echo "docs_only=false" >> "$GITHUB_OUTPUT"
               echo "changed_datasets=[]" >> "$GITHUB_OUTPUT"
               echo "changed_tasks=[]" >> "$GITHUB_OUTPUT"
               echo "changed_models=[]" >> "$GITHUB_OUTPUT"

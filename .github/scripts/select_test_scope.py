@@ -113,9 +113,7 @@ def classify_changes(changed_files: list[str]) -> dict:
         # Check task-scoped — resolve to logical task name (slash-separated, no .yaml)
         m = TASK_PATTERN.match(filepath)
         if m:
-            task_name = m.group(1)
-            # Strip leading path component that is the tasks package itself
-            changed_tasks.add(task_name)
+            changed_tasks.add(m.group(1))
             continue
 
         # Check model-scoped
