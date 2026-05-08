@@ -2,6 +2,7 @@ import dataclasses
 import datetime
 import json
 import logging
+import math
 from importlib.resources import files
 from pathlib import Path
 from typing import Any
@@ -12,6 +13,37 @@ from ..models import MODELS
 from ..tasks import TASKS
 
 logger = logging.getLogger(__name__)
+
+
+def _sanitize_nan_inf(obj: Any) -> Any:
+    """Recursively replace ``NaN``, ``+inf``, and ``-inf`` floats with ``None``.
+
+    ``NaN`` is not valid JSON (RFC 8259). ``meds-evaluation`` and other upstream tools sometimes
+    emit metrics with ``NaN`` for degenerate edge cases (e.g., AUROC when all labels share a class).
+    Replacing with ``None`` keeps the JSON valid while preserving the "metric is undefined" signal.
+    String values containing the literal word "NaN" are left alone — only float values are touched.
+
+    Examples:
+        >>> _sanitize_nan_inf({"a": float("nan"), "b": [1.0, float("inf"), -float("inf")]})
+        {'a': None, 'b': [1.0, None, None]}
+        >>> _sanitize_nan_inf(0.5)
+        0.5
+        >>> _sanitize_nan_inf({"x": "NaN"})
+        {'x': 'NaN'}
+        >>> _sanitize_nan_inf({"nested": {"deep": {"v": float("nan")}}})
+        {'nested': {'deep': {'v': None}}}
+        >>> _sanitize_nan_inf([float("nan"), {"a": float("inf")}])
+        [None, {'a': None}]
+    """
+    if isinstance(obj, float):
+        if math.isnan(obj) or math.isinf(obj):
+            return None
+        return obj
+    if isinstance(obj, dict):
+        return {k: _sanitize_nan_inf(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [_sanitize_nan_inf(v) for v in obj]
+    return obj
 
 
 def _is_future(dt: datetime.datetime) -> bool:
@@ -209,6 +241,38 @@ class Result:
         Traceback (most recent call last):
             ...
         ValueError: Result must be JSON serializable! Got ...
+
+        ``NaN`` and infinite floats in metrics are not valid JSON. ``Result`` silently rewrites
+        them to ``None`` so the on-disk JSON is always parseable by strict consumers (#239):
+
+        >>> nan_result = Result(
+        ...     dataset="d", task="t", model="m", timestamp=now,
+        ...     result={"auc": float("nan"), "acc": 0.5, "x": float("inf")}, version="v",
+        ... )
+        >>> nan_result.result
+        {'auc': None, 'acc': 0.5, 'x': None}
+        >>> with tempfile.NamedTemporaryFile(suffix=".json") as fp:
+        ...     nan_result.to_json(Path(fp.name), do_overwrite=True)
+        ...     # The on-disk JSON is strict (no bare NaN tokens):
+        ...     "NaN" in Path(fp.name).read_text()
+        ...     "null" in Path(fp.name).read_text()
+        False
+        True
+
+        Legacy result files containing bare ``NaN`` tokens (which historical pre-#239 ``to_json``
+        could emit) are still readable; the sanitizer rewrites them on load:
+
+        >>> legacy = (
+        ...     '{"dataset": "d", "task": "t", "model": "m", '
+        ...     '"timestamp": "2021-09-01T12:00:00", '
+        ...     '"result": {"auc": NaN}, "version": "v"}'
+        ... )
+        >>> with tempfile.NamedTemporaryFile(suffix=".json", mode="w", delete=False) as fp:
+        ...     _ = fp.write(legacy)
+        ...     legacy_fp = Path(fp.name)
+        >>> Result.from_json(legacy_fp).result
+        {'auc': None}
+        >>> legacy_fp.unlink()
     """
 
     dataset: str
@@ -231,8 +295,12 @@ class Result:
         if _is_future(self.timestamp):
             raise ValueError(f"timestamp must be in the past, not {self.timestamp}")
 
+        # Replace NaN/Inf with None *before* the serializability check so the in-memory result
+        # always round-trips through strict JSON. ``allow_nan=False`` then guarantees we never
+        # emit non-standard JSON, even if a future caller reaches in and reintroduces a NaN.
+        self.result = _sanitize_nan_inf(self.result)
         try:
-            json.dumps(self.result)
+            json.dumps(self.result, allow_nan=False)
         except Exception as e:
             raise ValueError(f"Result must be JSON serializable! Got {self.result}") from e
 
@@ -274,7 +342,7 @@ class Result:
         as_dict["timestamp"] = self.timestamp.isoformat()
 
         try:
-            fp.write_text(json.dumps(as_dict))
+            fp.write_text(json.dumps(as_dict, allow_nan=False))
         except Exception as e:  # pragma: no cover
             raise ValueError(f"Could not write result to {fp}") from e
 
