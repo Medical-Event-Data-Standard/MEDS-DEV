@@ -171,7 +171,7 @@ def _walk_ancestors(leaf: Path, root: Path) -> Iterator[Path]:
     parent = leaf.parent
     while parent != root:
         yield parent
-        if parent == parent.parent:  # filesystem root reached
+        if parent == parent.parent:  # pragma: no cover  # filesystem root reached
             return
         parent = parent.parent
 
@@ -401,5 +401,5 @@ def main() -> None:
     collate_entities(args.repo_dir, args.output_dir, args.do_overwrite)
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     main()

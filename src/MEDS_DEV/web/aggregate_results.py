@@ -147,5 +147,5 @@ def main() -> None:
     aggregate_results(args.input_dir, args.output_path, args.error_threshold)
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     main()
