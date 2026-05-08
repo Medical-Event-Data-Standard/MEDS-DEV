@@ -14,7 +14,7 @@ import pytest
 
 from MEDS_DEV.web.aggregate_results import aggregate_results
 from MEDS_DEV.web.aggregate_results import main as aggregate_main
-from MEDS_DEV.web.collate_entities import collate_entities
+from MEDS_DEV.web.collate_entities import _walk_ancestors, collate_entities
 from MEDS_DEV.web.collate_entities import main as collate_main
 
 # ---------------------------------------------------------------------------
@@ -76,6 +76,26 @@ def test_collate_entities_rejects_directory_in_output_slot(tmp_path: Path) -> No
 
     with pytest.raises(IsADirectoryError, match="is a directory"):
         collate_entities(repo, out, do_overwrite=True)
+
+
+# ---------------------------------------------------------------------------
+# _walk_ancestors: filesystem-root defensive return
+# ---------------------------------------------------------------------------
+
+
+def test_walk_ancestors_terminates_when_leaf_is_not_under_root() -> None:
+    """If ``leaf`` isn't actually under ``root``, the walk must stop at the filesystem root rather than loop
+    forever.
+
+    Triggers the ``parent == parent.parent`` guard.
+    """
+    leaf = Path("/some/leaf/path")
+    bogus_root = Path("/totally/different/tree")
+    ancestors = list(_walk_ancestors(leaf, bogus_root))
+    # The yielded sequence ends at "/" once the guard fires.
+    assert ancestors[-1] == Path("/")
+    # And nothing under bogus_root is in the result.
+    assert not any(bogus_root in a.parents or a == bogus_root for a in ancestors)
 
 
 # ---------------------------------------------------------------------------

@@ -171,7 +171,9 @@ def _walk_ancestors(leaf: Path, root: Path) -> Iterator[Path]:
     parent = leaf.parent
     while parent != root:
         yield parent
-        if parent == parent.parent:  # pragma: no cover  # filesystem root reached
+        if parent == parent.parent:
+            # Filesystem root reached without ever finding ``root``. This means the caller passed a
+            # leaf that isn't under ``root`` — yield what we've found and stop instead of looping.
             return
         parent = parent.parent
 
@@ -399,7 +401,3 @@ def main() -> None:
     )
     args = parser.parse_args()
     collate_entities(args.repo_dir, args.output_dir, args.do_overwrite)
-
-
-if __name__ == "__main__":  # pragma: no cover
-    main()
