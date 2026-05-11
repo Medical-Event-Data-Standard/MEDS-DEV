@@ -1,12 +1,14 @@
+import argparse
 import json
 import logging
+import sys
 from datetime import UTC, datetime
 from pathlib import Path
 
 import hydra
 from omegaconf import DictConfig
 
-from . import PACK_YAML, VALIDATE_YAML, Result
+from . import PACK_YAML, VALIDATE_YAML, Result, extract_result_dict_from_issue_body
 
 logger = logging.getLogger(__name__)
 
@@ -56,3 +58,44 @@ def validate_result(cfg: DictConfig):
         Result.from_json(result_fp)
     except Exception as e:
         raise ValueError("Result should be packaged and decodable") from e
+
+
+def validate_result_from_issue() -> None:
+    """Extract a fenced ``\\`\\`\\`json`` block from a GitHub issue body, validate, and write to disk.
+
+    Used by ``upload_benchmark_result.yaml`` to collapse the previous extract-with-sed +
+    validate-from-file flow into a single Python invocation. Reads the issue body from stdin (or
+    from ``--issue_body_fp``), constructs a :class:`Result` (which validates via
+    ``Result.__post_init__``), and writes the canonical JSON via :meth:`Result.to_json` (which
+    sanitizes ``NaN`` / ``Inf`` to ``null``).
+    """
+    parser = argparse.ArgumentParser(
+        description=(
+            "Extract a ```json``` block from a GitHub issue body, validate it as a MEDS-DEV "
+            "result, and write the validated JSON to a file."
+        ),
+    )
+    parser.add_argument(
+        "--issue_body_fp",
+        type=Path,
+        default=None,
+        help="Path to a file containing the issue body text. If omitted, reads from stdin.",
+    )
+    parser.add_argument(
+        "--result_fp",
+        type=Path,
+        required=True,
+        help="Path to write the validated result JSON to.",
+    )
+    parser.add_argument(
+        "--do_overwrite",
+        action="store_true",
+        help="Overwrite the output file if it already exists.",
+    )
+    args = parser.parse_args()
+
+    body = args.issue_body_fp.read_text() if args.issue_body_fp else sys.stdin.read()
+    result_dict = extract_result_dict_from_issue_body(body)
+    result = Result.from_dict(result_dict)  # validates via __post_init__
+    result.to_json(args.result_fp, do_overwrite=args.do_overwrite)
+    logger.info(f"Wrote validated result to {args.result_fp}")

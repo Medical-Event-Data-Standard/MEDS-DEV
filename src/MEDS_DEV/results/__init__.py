@@ -3,6 +3,7 @@ import datetime
 import json
 import logging
 import math
+import re
 from importlib.resources import files
 from pathlib import Path
 from typing import Any
@@ -347,6 +348,38 @@ class Result:
             raise ValueError(f"Could not write result to {fp}") from e
 
     @classmethod
+    def from_dict(cls, as_dict: dict[str, Any]) -> "Result":
+        """Build a :class:`Result` from a plain dict, handling timestamp deserialization.
+
+        Use this when you already have the dict in hand (e.g., from parsing an issue body); see
+        :func:`extract_result_dict_from_issue_body`). For reading from a file, use :meth:`from_json`.
+
+        Examples:
+            Timestamps may be ISO-formatted strings; they get converted to ``datetime`` objects:
+
+            >>> Result.from_dict({
+            ...     "dataset": "MIMIC-IV", "task": "mortality/in_icu/first_24h",
+            ...     "model": "random_predictor", "timestamp": "2021-09-01T12:00:00",
+            ...     "result": {"acc": 0.5}, "version": "v",
+            ... }).timestamp
+            datetime.datetime(2021, 9, 1, 12, 0)
+
+            Already-aware ``datetime`` objects pass through:
+
+            >>> ts = datetime.datetime(2021, 9, 1, 12, 0, 0)
+            >>> Result.from_dict({
+            ...     "dataset": "d", "task": "t", "model": "m", "timestamp": ts,
+            ...     "result": {}, "version": "v",
+            ... }).timestamp is ts
+            True
+        """
+        as_dict = dict(as_dict)
+        ts = as_dict.get("timestamp")
+        if isinstance(ts, str):
+            as_dict["timestamp"] = datetime.datetime.fromisoformat(ts)
+        return cls(**as_dict)
+
+    @classmethod
     def from_json(cls, fp: Path | str) -> "Result":
         """Read a result from a JSON file."""
 
@@ -363,13 +396,83 @@ class Result:
         except Exception as e:
             raise ValueError(f"Could not read result from {fp}") from e
 
-        as_dict["timestamp"] = datetime.datetime.fromisoformat(as_dict["timestamp"])
+        return cls.from_dict(as_dict)
 
-        return cls(**as_dict)
+
+JSON_BLOCK_RE = re.compile(r"```json\s*\n(.*?)\n```", re.DOTALL)
+
+
+def extract_result_dict_from_issue_body(body: str) -> dict[str, Any]:
+    '''Extract the first fenced ```json ... ``` block from a GitHub issue body.
+
+    The benchmark-result submission template asks contributors to paste a JSON blob inside a fenced
+    code block. This helper returns the parsed dict so a caller (typically the upload workflow,
+    via :func:`MEDS_DEV.results.__main__.validate_result_from_issue`) can hand it to
+    :meth:`Result.from_dict` for validation.
+
+    Raises:
+        ValueError: If no fenced ```json``` block is found, or if the block isn't valid JSON.
+
+    Examples:
+        Happy path — the helper plucks out the dict regardless of surrounding prose:
+
+        >>> body = """Hi, here's my result:
+        ...
+        ... ```json
+        ... {"dataset": "MIMIC-IV", "result": {"acc": 0.5}}
+        ... ```
+        ...
+        ... Thanks!"""
+        >>> extract_result_dict_from_issue_body(body)
+        {'dataset': 'MIMIC-IV', 'result': {'acc': 0.5}}
+
+        Multi-line JSON inside the block works:
+
+        >>> body = """
+        ... ```json
+        ... {
+        ...   "dataset": "MIMIC-IV",
+        ...   "result": {"acc": 0.5}
+        ... }
+        ... ```
+        ... """
+        >>> extract_result_dict_from_issue_body(body)
+        {'dataset': 'MIMIC-IV', 'result': {'acc': 0.5}}
+
+        Missing block:
+
+        >>> extract_result_dict_from_issue_body("no fenced block here")
+        Traceback (most recent call last):
+            ...
+        ValueError: No ```json``` fenced block found in issue body.
+
+        Malformed JSON inside the block:
+
+        >>> extract_result_dict_from_issue_body("""
+        ... ```json
+        ... {not valid json
+        ... ```
+        ... """)
+        Traceback (most recent call last):
+            ...
+        ValueError: Issue body's ```json``` block is not valid JSON: ...
+    '''
+    match = JSON_BLOCK_RE.search(body)
+    if match is None:
+        raise ValueError("No ```json``` fenced block found in issue body.")
+    try:
+        return json.loads(match.group(1))
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Issue body's ```json``` block is not valid JSON: {e}") from e
 
 
 PACK_YAML = files("MEDS_DEV.configs") / "_package_result.yaml"
 VALIDATE_YAML = files("MEDS_DEV.configs") / "_validate_result.yaml"
 
 
-__all__ = ["PACK_YAML", "VALIDATE_YAML", "Result"]
+__all__ = [
+    "PACK_YAML",
+    "VALIDATE_YAML",
+    "Result",
+    "extract_result_dict_from_issue_body",
+]

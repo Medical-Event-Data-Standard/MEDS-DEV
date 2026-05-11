@@ -19,29 +19,19 @@ jobs:
           ref: _results
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract JSON from issue body
-        id: extract_json
-        env:
-          ISSUE_BODY: ${{ github.event.issue.body }}
-        run: |
-          # Route through env var to avoid shell injection from arbitrary issue body content.
-          printf '%s' "$ISSUE_BODY" > issue_body.txt
-          # shellcheck disable=SC2016  # single-quotes are intentional — the sed patterns are literal.
-          sed -n '/```json/,/```/p' issue_body.txt | sed '1d;$d' > "$GITHUB_WORKSPACE/result.json"
-
-          if [[ ! -s "$GITHUB_WORKSPACE/result.json" ]]; then
-            echo "ERROR: No valid JSON found in the issue body."
-            exit 1
-          fi
-
-          echo "Extracted JSON:"
-          cat "$GITHUB_WORKSPACE/result.json"
-
       - name: Install MEDS-DEV package from PyPI
         run: pip install meds-dev
 
-      - name: Validate result JSON
-        run: meds-dev-validate-result result_fp="$GITHUB_WORKSPACE/result.json"
+      - name: Extract and validate result from issue body
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+        run: |
+          # Single Python invocation: parses the ```json``` block out of the issue body,
+          # constructs a Result (which validates via Result.__post_init__), and writes the
+          # canonical (NaN-sanitized) JSON to disk.
+          printf '%s' "$ISSUE_BODY" | meds-dev-validate-result-from-issue \
+            --result_fp "$GITHUB_WORKSPACE/result.json" \
+            --do_overwrite
 
       - name: Commit result attributed to issue author
         if: success()
