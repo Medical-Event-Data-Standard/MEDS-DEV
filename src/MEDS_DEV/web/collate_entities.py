@@ -63,18 +63,21 @@ def _read_file(path: Path) -> Any:
     """Read a single file from a leaf directory, dispatching by extension.
 
     Examples:
-        >>> tree = {
-        ...     "predicates.yaml": {"foo": "bar"},
-        ...     "requirements.txt": "numpy==1.21.0\\npandas==2.0.0\\n",
-        ...     "README.md": "# Title\\n",
-        ... }
+        >>> tree = '''
+        ... predicates.yaml: {foo: bar}
+        ... requirements.txt: |
+        ...   numpy==1.21.0
+        ...   pandas==2.0.0
+        ... README.md: |
+        ...   # Title
+        ... '''
         >>> with yaml_disk(tree) as d:
-        ...     _read_file(d / "predicates.yaml")
-        ...     _read_file(d / "requirements.txt")
-        ...     _read_file(d / "README.md")
-        {'foo': 'bar'}
-        ['numpy==1.21.0', 'pandas==2.0.0']
-        '# Title\\n'
+        ...     print("predicates:  ", _read_file(d / "predicates.yaml"))
+        ...     print("requirements:", _read_file(d / "requirements.txt"))
+        ...     print("readme:      ", repr(_read_file(d / "README.md")))
+        predicates:   {'foo': 'bar'}
+        requirements: ['numpy==1.21.0', 'pandas==2.0.0']
+        readme:       '# Title\\n'
     """
     if path.suffix == ".yaml":
         # ``???`` placeholders (Hydra missing values) are valid in MEDS-DEV task configs and must
@@ -158,6 +161,13 @@ def _walk_ancestors(leaf: Path, root: Path) -> Iterator[Path]:
         >>> with yaml_disk({"a/b/c/": {".gitkeep": ""}}) as root:
         ...     [str(p.relative_to(root)) for p in _walk_ancestors(root / "a" / "b" / "c", root)]
         ['a/b', 'a']
+
+        Defensive: if ``leaf`` isn't actually under ``root``, the walk stops at the filesystem
+        root rather than looping forever:
+
+        >>> ancestors = list(_walk_ancestors(Path("/x/y/z"), Path("/totally/different")))
+        >>> ancestors[-1]
+        PosixPath('/')
     """
     parent = leaf.parent
     while parent != root:
@@ -324,10 +334,13 @@ def collate_entities(repo_dir: Path, output_dir: Path, do_overwrite: bool = Fals
         ... '''
         >>> with yaml_disk(tree) as d:
         ...     collate_entities(d / "repo", d / "out", do_overwrite=True)
-        ...     sorted(p.name for p in (d / "out").iterdir())
-        ['datasets.json', 'models.json', 'tasks.json']
+        ...     print_directory(d / "out")
+        ├── datasets.json
+        ├── models.json
+        └── tasks.json
 
-    Existing output files without ``do_overwrite=True`` are an error, as is a missing repo:
+    Existing output files without ``do_overwrite=True`` are an error, and so are a non-directory
+    repo or a directory at one of the output paths:
 
         >>> stale = {"repo/.gitkeep": "", "out/datasets.json": "stale"}
         >>> with yaml_disk(stale) as d:
@@ -339,6 +352,22 @@ def collate_entities(repo_dir: Path, output_dir: Path, do_overwrite: bool = Fals
         Traceback (most recent call last):
             ...
         FileNotFoundError: Repository directory /nonexistent_path_xyz does not exist.
+        >>> with yaml_disk({"a.txt": "scalar"}) as d:
+        ...     collate_entities(d / "a.txt", d / "out", do_overwrite=True)
+        Traceback (most recent call last):
+            ...
+        NotADirectoryError: Repository path ... is not a directory.
+        >>> tree = '''
+        ... repo/src/MEDS_DEV/datasets/MIMIC-IV/dataset.yaml: {metadata: {description: foo}}
+        ... out/:
+        ...   datasets.json/:
+        ...     .gitkeep: ""
+        ... '''
+        >>> with yaml_disk(tree) as d:
+        ...     collate_entities(d / "repo", d / "out", do_overwrite=True)
+        Traceback (most recent call last):
+            ...
+        IsADirectoryError: Output path ... is a directory; refusing to write.
     """
     if not repo_dir.exists():
         raise FileNotFoundError(f"Repository directory {repo_dir!s} does not exist.")
