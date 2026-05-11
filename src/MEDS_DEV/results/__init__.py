@@ -3,7 +3,6 @@ import datetime
 import json
 import logging
 import math
-import re
 from importlib.resources import files
 from pathlib import Path
 from typing import Any
@@ -351,8 +350,9 @@ class Result:
     def from_dict(cls, as_dict: dict[str, Any]) -> "Result":
         """Build a :class:`Result` from a plain dict, handling timestamp deserialization.
 
-        Use this when you already have the dict in hand (e.g., from parsing an issue body); see
-        :func:`extract_result_dict_from_issue_body`). For reading from a file, use :meth:`from_json`.
+        Use this when you already have the dict in hand (e.g., from parsing an issue body — see
+        :func:`MEDS_DEV.web.process_submission.extract_result_dict_from_issue_body`). For reading
+        from a file, use :meth:`from_json`.
 
         Examples:
             Timestamps may be ISO-formatted strings; they get converted to ``datetime`` objects:
@@ -399,80 +399,8 @@ class Result:
         return cls.from_dict(as_dict)
 
 
-JSON_BLOCK_RE = re.compile(r"```json\s*\n(.*?)\n```", re.DOTALL)
-
-
-def extract_result_dict_from_issue_body(body: str) -> dict[str, Any]:
-    '''Extract the first fenced ```json ... ``` block from a GitHub issue body.
-
-    The benchmark-result submission template asks contributors to paste a JSON blob inside a fenced
-    code block. This helper returns the parsed dict so a caller (typically the upload workflow,
-    via :func:`MEDS_DEV.results.__main__.validate_result_from_issue`) can hand it to
-    :meth:`Result.from_dict` for validation.
-
-    Raises:
-        ValueError: If no fenced ```json``` block is found, or if the block isn't valid JSON.
-
-    Examples:
-        Happy path — the helper plucks out the dict regardless of surrounding prose:
-
-        >>> body = """Hi, here's my result:
-        ...
-        ... ```json
-        ... {"dataset": "MIMIC-IV", "result": {"acc": 0.5}}
-        ... ```
-        ...
-        ... Thanks!"""
-        >>> extract_result_dict_from_issue_body(body)
-        {'dataset': 'MIMIC-IV', 'result': {'acc': 0.5}}
-
-        Multi-line JSON inside the block works:
-
-        >>> body = """
-        ... ```json
-        ... {
-        ...   "dataset": "MIMIC-IV",
-        ...   "result": {"acc": 0.5}
-        ... }
-        ... ```
-        ... """
-        >>> extract_result_dict_from_issue_body(body)
-        {'dataset': 'MIMIC-IV', 'result': {'acc': 0.5}}
-
-        Missing block:
-
-        >>> extract_result_dict_from_issue_body("no fenced block here")
-        Traceback (most recent call last):
-            ...
-        ValueError: No ```json``` fenced block found in issue body.
-
-        Malformed JSON inside the block:
-
-        >>> extract_result_dict_from_issue_body("""
-        ... ```json
-        ... {not valid json
-        ... ```
-        ... """)
-        Traceback (most recent call last):
-            ...
-        ValueError: Issue body's ```json``` block is not valid JSON: ...
-    '''
-    match = JSON_BLOCK_RE.search(body)
-    if match is None:
-        raise ValueError("No ```json``` fenced block found in issue body.")
-    try:
-        return json.loads(match.group(1))
-    except json.JSONDecodeError as e:
-        raise ValueError(f"Issue body's ```json``` block is not valid JSON: {e}") from e
-
-
 PACK_YAML = files("MEDS_DEV.configs") / "_package_result.yaml"
 VALIDATE_YAML = files("MEDS_DEV.configs") / "_validate_result.yaml"
 
 
-__all__ = [
-    "PACK_YAML",
-    "VALIDATE_YAML",
-    "Result",
-    "extract_result_dict_from_issue_body",
-]
+__all__ = ["PACK_YAML", "VALIDATE_YAML", "Result"]
