@@ -1,11 +1,13 @@
 name: Aggregate Benchmark Results
 
-# Manual fallback for re-aggregating _results into _web. Per-submission
-# aggregation is now handled inline by upload_benchmark_result.yaml (#238),
-# so this workflow is intended only for ad-hoc reruns (e.g., recovering from
-# a missed submission).
+# Single source of truth for _results -> _web aggregation. Reusable:
+#  - workflow_call: invoked by upload_benchmark_result.yaml after a new
+#    submission lands on _results (#238)
+#  - workflow_dispatch: manual fallback (e.g., to repair _web after a
+#    failed automatic run, or to backfill before this workflow existed).
 on:
   workflow_dispatch:
+  workflow_call:
 
 permissions:
   contents: write
@@ -52,6 +54,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "No changes to all_results.json; skipping commit."
           else
-            git commit -m "Update aggregated results from _results (manual run)"
+            git commit -m "Update aggregated results from _results"
             git push origin _web
           fi

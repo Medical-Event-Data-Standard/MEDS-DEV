@@ -6,33 +6,33 @@ on:
       - labeled
 
 # Serialize submissions so two near-simultaneous label events don't race on
-# pushes to the _results / _web branches (#236).
+# pushes to the _results branch (#236).
 concurrency:
   group: upload-benchmark-results
   cancel-in-progress: false
 
 jobs:
-  process_results:
+  # ----------------------------------------------------------------------
+  # Job 1: validate the submission and commit it to the _results branch.
+  # ----------------------------------------------------------------------
+  process_submission:
     if: contains(github.event.issue.labels.*.name, 'result-submission') && startsWith(github.event.issue.title, '[Result Submission]')
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      issues: write
     steps:
       - name: Checkout _results branch
         uses: actions/checkout@v4
         with:
           ref: _results
-          path: results-branch
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Extract JSON from issue body
         env:
           ISSUE_BODY: ${{ github.event.issue.body }}
         run: |
-          # Write the raw issue body to a file via env var (avoids shell
-          # injection from arbitrary issue body content) then strip down to
-          # the fenced ```json ... ``` block.
+          # Route the issue body through an env var to avoid shell injection
+          # from arbitrary user content, then strip down to the ```json``` block.
           printf '%s' "$ISSUE_BODY" > issue_body.txt
           sed -n '/```json/,/```/p' issue_body.txt | sed '1d;$d' > "$GITHUB_WORKSPACE/result.json"
 
@@ -60,7 +60,6 @@ jobs:
           ISSUE_USER_LOGIN: ${{ github.event.issue.user.login }}
           ISSUE_USER_ID: ${{ github.event.issue.user.id }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
-        working-directory: results-branch
         run: |
           mkdir -p "_results/${ISSUE_NUMBER}"
           mv "$GITHUB_WORKSPACE/result.json" "_results/${ISSUE_NUMBER}/result.json"
@@ -72,46 +71,31 @@ jobs:
           git commit -m "Added result from Issue #${ISSUE_NUMBER} by @${ISSUE_USER_LOGIN}"
           git push origin _results
 
-      # ------------------------------------------------------------------
-      # Aggregation step — runs in the same workflow as the submission to
-      # work around GitHub's "GITHUB_TOKEN-pushed commits don't trigger
-      # downstream workflows" rule (#238). The standalone Aggregate Benchmark
-      # Results workflow is preserved for manual workflow_dispatch use.
-      # ------------------------------------------------------------------
-      - name: Checkout _web branch
-        uses: actions/checkout@v4
-        with:
-          ref: _web
-          path: web-branch
-          token: ${{ secrets.GITHUB_TOKEN }}
+  # ----------------------------------------------------------------------
+  # Job 2: invoke the canonical aggregation workflow.
+  #
+  # GITHUB_TOKEN pushes don't fire downstream workflows (anti-recursion
+  # safeguard, see #238), so we can't rely on `on: push: branches:
+  # [_results]` to chain the aggregator. Calling it via workflow_call is
+  # the explicit equivalent: one source of truth for _results -> _web,
+  # invocable both here and via manual workflow_dispatch.
+  # ----------------------------------------------------------------------
+  aggregate:
+    needs: process_submission
+    uses: ./.github/workflows/aggregate_benchmark_results.yaml
+    permissions:
+      contents: write
 
-      - name: Aggregate _results into _web/results/all_results.json
-        env:
-          ISSUE_NUMBER: ${{ github.event.issue.number }}
-        run: |
-          mkdir -p web-branch/results
-          meds-dev-aggregate-results \
-            --input_dir results-branch/_results \
-            --output_path web-branch/results/all_results.json
-
-      - name: Commit aggregated results to _web branch
-        working-directory: web-branch
-        run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git add results/all_results.json
-          # No-op commits are fine: keep the workflow green if the aggregator
-          # decided nothing changed (e.g., a re-run on an already-aggregated
-          # issue).
-          if git diff --cached --quiet; then
-            echo "No changes to all_results.json; skipping commit."
-          else
-            git commit -m "Update aggregated results from _results"
-            git push origin _web
-          fi
-
+  # ----------------------------------------------------------------------
+  # Job 3: close the submission issue once aggregation has shipped.
+  # ----------------------------------------------------------------------
+  close_issue:
+    needs: aggregate
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
       - name: Close issue with confirmation message
-        if: success()
         uses: peter-evans/close-issue@v3.0.2
         with:
-          comment: "Thank you for your submission! Your result has been recorded, validated, and aggregated."
+          comment: "Thank you for your submission! Your result has been recorded, aggregated, and is now visible on the leaderboard."
