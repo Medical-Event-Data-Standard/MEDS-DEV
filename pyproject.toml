@@ -31,9 +31,20 @@ classifiers = [
 dependencies = ["meds==0.3.3", "es-aces==0.6.1", "hydra-core", "meds-evaluation==0.0.3", "validators", "uv"]
 
 [dependency-groups]
-dev = ["pre-commit<4", "ruff", "pytest", "pytest-cov", "meds_testing_helpers"]
+dev = [
+  "pre-commit<4",
+  "ruff",
+  "pytest",
+  "pytest-cov",
+  "meds_testing_helpers",
+  "yaml-to-disk",
+  "pretty-print-directory",
+]
 
 [tool.setuptools_scm]
+
+[tool.coverage.run]
+patch = ["subprocess"]
 
 [tool.coverage.report]
 omit = ["*/models/cehrbert/*"]
@@ -42,6 +53,7 @@ omit = ["*/models/cehrbert/*"]
 addopts = [
   "--color=yes",
 ]
+doctest_optionflags = "ELLIPSIS NORMALIZE_WHITESPACE"
 markers = [
   "integration: end-to-end tests that build datasets, run tasks, create model envs, or run evaluations",
 ]
@@ -53,6 +65,8 @@ meds-dev-model = "MEDS_DEV.models.__main__:main"
 meds-dev-evaluation = "MEDS_DEV.evaluation.__main__:main"
 meds-dev-pack-result = "MEDS_DEV.results.__main__:pack_result"
 meds-dev-validate-result = "MEDS_DEV.results.__main__:validate_result"
+meds-dev-collate-entities = "MEDS_DEV.web.collate_entities:main"
+meds-dev-aggregate-results = "MEDS_DEV.web.aggregate_results:main"
 
 [project.urls]
 Homepage = "https://github.com/Medical-Event-Data-Standard/MEDS-DEV"
