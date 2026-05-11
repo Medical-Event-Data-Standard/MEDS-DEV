@@ -50,6 +50,41 @@ def test_aggregate_results_aborts_when_error_threshold_exceeded() -> None:
             aggregate_results(d, d / "all_results.json", error_threshold=2)
 
 
+def test_aggregate_results_skip_logs_when_content_matches(caplog) -> None:
+    """When an existing aggregated entry matches the on-disk result.json, log info-level skip (no warning, no
+    work)."""
+    with yaml_disk({"1": {"result.json": {"result": "v1"}}}) as d:
+        out = d / "all_results.json"
+        _ = aggregate_results(d, out)  # writes v1
+        with caplog.at_level("INFO"):
+            agg = aggregate_results(d, out)  # second call: same data on disk
+    assert agg["1"] == {"result": "v1"}
+    skip_logs = [r for r in caplog.records if "already aggregated" in r.message]
+    assert skip_logs, "expected an info-level skip log"
+    assert not any("Content mismatch" in r.message for r in caplog.records)
+
+
+def test_aggregate_results_warns_on_content_mismatch(caplog) -> None:
+    """When an existing aggregated entry differs from the on-disk result.json, log a loud warning and keep the
+    existing entry (do not silently overwrite)."""
+    with yaml_disk({"1": {"result.json": {"result": "v1"}}}) as d:
+        out = d / "all_results.json"
+        # First aggregation: writes v1 to the output.
+        _ = aggregate_results(d, out)
+        # Mutate the on-disk result.json so it no longer matches the aggregated entry.
+        (d / "1" / "result.json").write_text('{"result": "v2"}')
+
+        with caplog.at_level("WARNING"):
+            agg = aggregate_results(d, out)
+
+    # Existing aggregated entry is kept; on-disk drift does not propagate.
+    assert agg["1"] == {"result": "v1"}
+    # ...but a clear warning is emitted naming the affected issue.
+    mismatch_warnings = [r for r in caplog.records if "Content mismatch" in r.message]
+    assert mismatch_warnings, "expected a content-mismatch warning"
+    assert "issue 1" in mismatch_warnings[0].message
+
+
 # ---------------------------------------------------------------------------
 # collate_entities: directory-type errors
 # ---------------------------------------------------------------------------

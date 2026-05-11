@@ -7,9 +7,12 @@ keyed by issue number.
 Default behavior is append-only: existing keys in the output file are preserved as-is, and new keys
 from the input directory are added. Each ``result.json`` represents one canonical experimental
 result, so once a submission has been aggregated, re-running the aggregator should not silently
-mutate that entry. Use ``do_overwrite=True`` (CLI: ``--do_overwrite``) when you need to rebuild from
-scratch — e.g., after a corrupted past run, or when a ``result.json`` has been intentionally edited
-in place and the new content should propagate.
+mutate that entry.
+
+If a result.json's on-disk content has drifted from the aggregated entry (e.g., past corrupted run,
+manual edit), the aggregator logs a loud warning but keeps the existing entry — silent drift is
+worse than a noisy diagnostic. Pass ``do_overwrite=True`` (CLI: ``--do_overwrite``) to ignore the
+existing aggregate and rebuild from scratch.
 """
 
 import argparse
@@ -62,7 +65,10 @@ def aggregate_results(
 
         New keys are added on subsequent runs, but pre-existing keys are not refreshed. This is
         deliberate — each ``result.json`` is the canonical record for one experiment, and
-        re-aggregation should not silently mutate already-canonical entries:
+        re-aggregation should not silently mutate already-canonical entries. If the on-disk
+        ``result.json`` content has drifted from the aggregated entry, a loud warning is emitted
+        (see ``test_aggregate_results_warns_on_content_mismatch`` in ``tests/test_web.py``) but the
+        existing entry is kept:
 
         >>> with yaml_disk({"1": {"result.json": {"result": "v1"}}}) as d:
         ...     out = d / "all_results.json"
@@ -120,12 +126,8 @@ def aggregate_results(
     new_results = 0
     for result_fp in result_fps:
         issue_num = result_fp.parent.name
-        if issue_num in results:
-            logger.info(f"Skipping {issue_num} (already aggregated)")
-            continue
         try:
-            results[issue_num] = json.loads(result_fp.read_text())
-            new_results += 1
+            new_content = json.loads(result_fp.read_text())
         except (json.JSONDecodeError, OSError) as e:
             err = f"{result_fp}: {e}"
             logger.warning(f"Failed to read {err}")
@@ -134,6 +136,21 @@ def aggregate_results(
                 raise ValueError(
                     f"Too many parse errors ({len(parse_errors)} > {error_threshold}); aborting."
                 ) from e
+            continue
+
+        if issue_num in results:
+            if results[issue_num] != new_content:
+                logger.warning(
+                    f"Content mismatch for issue {issue_num}: aggregated entry in {output_path} "
+                    f"does not match on-disk {result_fp}. Keeping the existing aggregated entry; "
+                    f"pass do_overwrite=True to rebuild from scratch."
+                )
+            else:
+                logger.info(f"Skipping {issue_num} (already aggregated)")
+            continue
+
+        results[issue_num] = new_content
+        new_results += 1
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(json.dumps(results, indent=2, sort_keys=True))

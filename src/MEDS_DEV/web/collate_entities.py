@@ -198,16 +198,15 @@ def _collate_dir_leaves(root: Path, entity_type: Literal["dataset", "model"]) ->
     """Collate a tree where each leaf is a directory containing ``<entity_type>.yaml`` (datasets, models).
 
     Examples:
-        >>> tree = {
-        ...     "MIMIC-IV/": {
-        ...         "dataset.yaml": {"metadata": {"description": "foo"}},
-        ...         "README.md": "MIMIC text",
-        ...     },
-        ...     "MIMIC/": {
-        ...         "README.md": "MIMIC family",
-        ...         "III/": {"dataset.yaml": {"metadata": {"description": "bar"}}},
-        ...     },
-        ... }
+        >>> tree = '''
+        ... MIMIC-IV/:
+        ...   dataset.yaml: {metadata: {description: foo}}
+        ...   README.md: MIMIC text
+        ... MIMIC/:
+        ...   README.md: MIMIC family
+        ...   III/:
+        ...     dataset.yaml: {metadata: {description: bar}}
+        ... '''
         >>> with yaml_disk(tree) as root:
         ...     nodes = _collate_dir_leaves(root, "dataset")
         ...     sorted(nodes.keys())
@@ -242,15 +241,13 @@ def _collate_task_files(root: Path) -> dict[str, Node]:
     leaf's ``entity`` block. Category nodes come from ancestor directories that have a ``README.md``.
 
     Examples:
-        >>> tree = {
-        ...     "mortality/": {
-        ...         "README.md": "Mortality tasks",
-        ...         "in_icu/": {
-        ...             "README.md": "ICU mortality",
-        ...             "first_24h.yaml": {"predicates": {"a": "b"}},
-        ...         },
-        ...     },
-        ... }
+        >>> tree = '''
+        ... mortality/:
+        ...   README.md: Mortality tasks
+        ...   in_icu/:
+        ...     README.md: ICU mortality
+        ...     first_24h.yaml: {predicates: {a: b}}
+        ... '''
         >>> with yaml_disk(tree) as root:
         ...     nodes = _collate_task_files(root)
         ...     sorted(nodes.keys())
@@ -310,13 +307,21 @@ def collate_entities(repo_dir: Path, output_dir: Path, do_overwrite: bool = Fals
         FileExistsError: If an output target exists and ``do_overwrite`` is ``False``.
 
     Examples:
-        >>> tree = {
-        ...     "repo/src/MEDS_DEV/": {
-        ...         "datasets/MIMIC-IV/dataset.yaml": {"metadata": {"description": "foo"}},
-        ...         "tasks/mortality/in_icu/first_24h.yaml": {"predicates": {"x": "y"}},
-        ...         "models/random_predictor/model.yaml": {"metadata": {"description": "rp"}},
-        ...     },
-        ... }
+        >>> tree = '''
+        ... repo/:
+        ...   src/:
+        ...     MEDS_DEV/:
+        ...       datasets/:
+        ...         MIMIC-IV/:
+        ...           dataset.yaml: {metadata: {description: foo}}
+        ...       tasks/:
+        ...         mortality/:
+        ...           in_icu/:
+        ...             first_24h.yaml: {predicates: {x: y}}
+        ...       models/:
+        ...         random_predictor/:
+        ...           model.yaml: {metadata: {description: rp}}
+        ... '''
         >>> with yaml_disk(tree) as d:
         ...     collate_entities(d / "repo", d / "out", do_overwrite=True)
         ...     sorted(p.name for p in (d / "out").iterdir())
