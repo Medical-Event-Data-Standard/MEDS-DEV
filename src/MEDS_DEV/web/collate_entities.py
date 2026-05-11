@@ -63,21 +63,17 @@ def _read_file(path: Path) -> Any:
     """Read a single file from a leaf directory, dispatching by extension.
 
     Examples:
-        >>> import tempfile
-        >>> with tempfile.TemporaryDirectory() as d:
-        ...     p = Path(d) / "predicates.yaml"
-        ...     _ = p.write_text("foo: bar\\n")
-        ...     _read_file(p)
+        >>> tree = {
+        ...     "predicates.yaml": {"foo": "bar"},
+        ...     "requirements.txt": "numpy==1.21.0\\npandas==2.0.0\\n",
+        ...     "README.md": "# Title\\n",
+        ... }
+        >>> with yaml_disk(tree) as d:
+        ...     _read_file(d / "predicates.yaml")
+        ...     _read_file(d / "requirements.txt")
+        ...     _read_file(d / "README.md")
         {'foo': 'bar'}
-        >>> with tempfile.TemporaryDirectory() as d:
-        ...     p = Path(d) / "requirements.txt"
-        ...     _ = p.write_text("numpy==1.21.0\\npandas==2.0.0\\n")
-        ...     _read_file(p)
         ['numpy==1.21.0', 'pandas==2.0.0']
-        >>> with tempfile.TemporaryDirectory() as d:
-        ...     p = Path(d) / "README.md"
-        ...     _ = p.write_text("# Title\\n")
-        ...     _read_file(p)
         '# Title\\n'
     """
     if path.suffix == ".yaml":
@@ -97,14 +93,15 @@ def _read_leaf_dir(leaf_dir: Path, entity_type: EntityType) -> dict[str, Any]:
     ``LEAF_FILES`` go under their mapped keys.
 
     Examples:
-        >>> import tempfile
-        >>> with tempfile.TemporaryDirectory() as d:
-        ...     leaf = Path(d) / "MIMIC-IV"
-        ...     leaf.mkdir()
-        ...     _ = (leaf / "dataset.yaml").write_text("metadata:\\n  description: foo\\n")
-        ...     _ = (leaf / "README.md").write_text("# MIMIC")
-        ...     _ = (leaf / "requirements.txt").write_text("meds==0.3.3\\n")
-        ...     data = _read_leaf_dir(leaf, "dataset")
+        >>> tree = {
+        ...     "MIMIC-IV/": {
+        ...         "dataset.yaml": {"metadata": {"description": "foo"}},
+        ...         "README.md": "# MIMIC",
+        ...         "requirements.txt": "meds==0.3.3\\n",
+        ...     }
+        ... }
+        >>> with yaml_disk(tree) as d:
+        ...     data = _read_leaf_dir(d / "MIMIC-IV", "dataset")
         ...     sorted(data.keys())
         ['entity', 'readme', 'requirements', 'type']
         >>> data["type"]
@@ -137,17 +134,14 @@ def _read_category_dir(category_dir: Path, entity_type: EntityType) -> dict[str,
     of their own — that's reserved for leaves.
 
     Examples:
-        >>> import tempfile
-        >>> with tempfile.TemporaryDirectory() as d:
-        ...     cat = Path(d) / "abnormal_lab"
-        ...     cat.mkdir()
-        ...     _ = (cat / "README.md").write_text("Lab tasks")
-        ...     _read_category_dir(cat, "task")
+        >>> tree = {
+        ...     "abnormal_lab/": {"README.md": "Lab tasks"},
+        ...     "empty/": {".gitkeep": ""},
+        ... }
+        >>> with yaml_disk(tree) as d:
+        ...     _read_category_dir(d / "abnormal_lab", "task")
+        ...     _read_category_dir(d / "empty", "task")
         {'type': 'task', 'readme': 'Lab tasks'}
-        >>> with tempfile.TemporaryDirectory() as d:
-        ...     cat = Path(d) / "empty"
-        ...     cat.mkdir()
-        ...     _read_category_dir(cat, "task")
         {'type': 'task'}
     """
     data: dict[str, Any] = {"type": entity_type}
@@ -161,11 +155,8 @@ def _walk_ancestors(leaf: Path, root: Path) -> Iterator[Path]:
     """Yield each ancestor directory of ``leaf`` up to (not including) ``root``.
 
     Examples:
-        >>> import tempfile
-        >>> with tempfile.TemporaryDirectory() as d:
-        ...     root = Path(d)
-        ...     leaf = root / "a" / "b" / "c"
-        ...     [str(p.relative_to(root)) for p in _walk_ancestors(leaf, root)]
+        >>> with yaml_disk({"a/b/c/": {".gitkeep": ""}}) as root:
+        ...     [str(p.relative_to(root)) for p in _walk_ancestors(root / "a" / "b" / "c", root)]
         ['a/b', 'a']
     """
     parent = leaf.parent
@@ -207,19 +198,17 @@ def _collate_dir_leaves(root: Path, entity_type: Literal["dataset", "model"]) ->
     """Collate a tree where each leaf is a directory containing ``<entity_type>.yaml`` (datasets, models).
 
     Examples:
-        >>> import tempfile
-        >>> with tempfile.TemporaryDirectory() as d:
-        ...     root = Path(d)
-        ...     # MIMIC-IV (leaf only — no parent category README)
-        ...     mimic = root / "MIMIC-IV"
-        ...     mimic.mkdir()
-        ...     _ = (mimic / "dataset.yaml").write_text("metadata:\\n  description: foo\\n")
-        ...     _ = (mimic / "README.md").write_text("MIMIC text")
-        ...     # nested MIMIC/III with parent category README
-        ...     leaf = root / "MIMIC" / "III"
-        ...     leaf.mkdir(parents=True)
-        ...     _ = (leaf / "dataset.yaml").write_text("metadata: {description: bar}")
-        ...     _ = (root / "MIMIC" / "README.md").write_text("MIMIC family")
+        >>> tree = {
+        ...     "MIMIC-IV/": {
+        ...         "dataset.yaml": {"metadata": {"description": "foo"}},
+        ...         "README.md": "MIMIC text",
+        ...     },
+        ...     "MIMIC/": {
+        ...         "README.md": "MIMIC family",
+        ...         "III/": {"dataset.yaml": {"metadata": {"description": "bar"}}},
+        ...     },
+        ... }
+        >>> with yaml_disk(tree) as root:
         ...     nodes = _collate_dir_leaves(root, "dataset")
         ...     sorted(nodes.keys())
         ['MIMIC', 'MIMIC-IV', 'MIMIC/III']
@@ -253,16 +242,16 @@ def _collate_task_files(root: Path) -> dict[str, Node]:
     leaf's ``entity`` block. Category nodes come from ancestor directories that have a ``README.md``.
 
     Examples:
-        >>> import tempfile
-        >>> with tempfile.TemporaryDirectory() as d:
-        ...     root = Path(d)
-        ...     # mortality/in_icu/first_24h.yaml
-        ...     leaf = root / "mortality" / "in_icu"
-        ...     leaf.mkdir(parents=True)
-        ...     _ = (leaf / "first_24h.yaml").write_text("predicates: {a: b}")
-        ...     # category READMEs
-        ...     _ = (root / "mortality" / "README.md").write_text("Mortality tasks")
-        ...     _ = (root / "mortality" / "in_icu" / "README.md").write_text("ICU mortality")
+        >>> tree = {
+        ...     "mortality/": {
+        ...         "README.md": "Mortality tasks",
+        ...         "in_icu/": {
+        ...             "README.md": "ICU mortality",
+        ...             "first_24h.yaml": {"predicates": {"a": "b"}},
+        ...         },
+        ...     },
+        ... }
+        >>> with yaml_disk(tree) as root:
         ...     nodes = _collate_task_files(root)
         ...     sorted(nodes.keys())
         ['mortality', 'mortality/in_icu', 'mortality/in_icu/first_24h']
@@ -321,30 +310,23 @@ def collate_entities(repo_dir: Path, output_dir: Path, do_overwrite: bool = Fals
         FileExistsError: If an output target exists and ``do_overwrite`` is ``False``.
 
     Examples:
-        >>> import json, tempfile
-        >>> with tempfile.TemporaryDirectory() as d:
-        ...     repo = Path(d) / "repo"
-        ...     # Minimal source tree
-        ...     leaf = repo / "src" / "MEDS_DEV" / "datasets" / "MIMIC-IV"
-        ...     leaf.mkdir(parents=True)
-        ...     _ = (leaf / "dataset.yaml").write_text("metadata:\\n  description: foo")
-        ...     task_dir = repo / "src" / "MEDS_DEV" / "tasks" / "mortality" / "in_icu"
-        ...     task_dir.mkdir(parents=True)
-        ...     _ = (task_dir / "first_24h.yaml").write_text("predicates: {x: y}")
-        ...     model_dir = repo / "src" / "MEDS_DEV" / "models" / "random_predictor"
-        ...     model_dir.mkdir(parents=True)
-        ...     _ = (model_dir / "model.yaml").write_text("metadata:\\n  description: rp")
-        ...     out = Path(d) / "out"
-        ...     collate_entities(repo, out, do_overwrite=True)
-        ...     sorted(p.name for p in out.iterdir())
+        >>> tree = {
+        ...     "repo/src/MEDS_DEV/": {
+        ...         "datasets/MIMIC-IV/dataset.yaml": {"metadata": {"description": "foo"}},
+        ...         "tasks/mortality/in_icu/first_24h.yaml": {"predicates": {"x": "y"}},
+        ...         "models/random_predictor/model.yaml": {"metadata": {"description": "rp"}},
+        ...     },
+        ... }
+        >>> with yaml_disk(tree) as d:
+        ...     collate_entities(d / "repo", d / "out", do_overwrite=True)
+        ...     sorted(p.name for p in (d / "out").iterdir())
         ['datasets.json', 'models.json', 'tasks.json']
-        >>> with tempfile.TemporaryDirectory() as d:
-        ...     repo = Path(d) / "repo"
-        ...     repo.mkdir()
-        ...     out = Path(d) / "out"
-        ...     out.mkdir()
-        ...     _ = (out / "datasets.json").write_text("stale")
-        ...     collate_entities(repo, out, do_overwrite=False)
+
+    Existing output files without ``do_overwrite=True`` are an error, as is a missing repo:
+
+        >>> stale = {"repo/.gitkeep": "", "out/datasets.json": "stale"}
+        >>> with yaml_disk(stale) as d:
+        ...     collate_entities(d / "repo", d / "out", do_overwrite=False)
         Traceback (most recent call last):
             ...
         FileExistsError: Output path ... already exists. Pass do_overwrite=True to replace.

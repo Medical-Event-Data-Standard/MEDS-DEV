@@ -1,52 +1,53 @@
 """Coverage for ``MEDS_DEV.web`` paths that aren't exercised by the in-module doctests.
 
-The doctests in the web module cover the happy paths and the most common error paths. This file
-fills in the rest: parse-error / error-threshold paths in ``aggregate_results``, the directory-type
-errors in ``collate_entities``, and the ``main`` CLI entry points (which are tedious to exercise
-from doctests but trivial to call with a monkeypatched ``sys.argv``).
+The doctests cover the happy paths and most of the error paths via :func:`yaml_to_disk.yaml_disk`.
+This file fills in the rest: parse-error / error-threshold paths in ``aggregate_results``, the
+directory-type errors in ``collate_entities``, and end-to-end CLI invocations via subprocess (so we
+exercise the actual installed entry points, not just the Python ``main`` function).
 """
 
 import json
-import sys
+import subprocess
 from pathlib import Path
 
 import pytest
+from yaml_to_disk import yaml_disk
 
 from MEDS_DEV.web.aggregate_results import aggregate_results
-from MEDS_DEV.web.aggregate_results import main as aggregate_main
 from MEDS_DEV.web.collate_entities import _walk_ancestors, collate_entities
-from MEDS_DEV.web.collate_entities import main as collate_main
 
 # ---------------------------------------------------------------------------
 # aggregate_results: error paths
 # ---------------------------------------------------------------------------
 
 
-def test_aggregate_results_logs_and_skips_unparseable_blob(tmp_path: Path, caplog) -> None:
+def test_aggregate_results_logs_and_skips_unparseable_blob(caplog) -> None:
     """A single malformed result.json is logged but doesn't abort aggregation."""
-    (tmp_path / "1").mkdir()
-    (tmp_path / "1" / "result.json").write_text('{"valid": "json"}')
-    (tmp_path / "2").mkdir()
-    (tmp_path / "2" / "result.json").write_text("{not valid json")
-
-    out = tmp_path / "all_results.json"
-    with caplog.at_level("WARNING"):
-        agg = aggregate_results(tmp_path, out)
+    # yaml_disk's JSONFile validates+serializes dicts before writing, so it can't write a malformed
+    # blob directly. Set up the directory structure with yaml_disk, then overwrite the malformed
+    # entry as raw text.
+    tree = {
+        "1": {"result.json": {"valid": "json"}},
+        "2": {"result.json": {"placeholder": True}},
+    }
+    with yaml_disk(tree) as d:
+        (d / "2" / "result.json").write_text("{not valid json")
+        with caplog.at_level("WARNING"):
+            agg = aggregate_results(d, d / "all_results.json")
 
     assert "1" in agg, "valid blob should be aggregated"
     assert "2" not in agg, "malformed blob should be skipped"
     assert any("Failed to read" in r.message for r in caplog.records)
 
 
-def test_aggregate_results_aborts_when_error_threshold_exceeded(tmp_path: Path) -> None:
+def test_aggregate_results_aborts_when_error_threshold_exceeded() -> None:
     """If parse errors exceed ``error_threshold``, aggregation raises."""
-    for i in range(5):
-        (tmp_path / str(i)).mkdir()
-        (tmp_path / str(i) / "result.json").write_text("{not valid json")
-
-    out = tmp_path / "all_results.json"
-    with pytest.raises(ValueError, match="Too many parse errors"):
-        aggregate_results(tmp_path, out, error_threshold=2)
+    tree = {str(i): {"result.json": {"placeholder": True}} for i in range(5)}
+    with yaml_disk(tree) as d:
+        for i in range(5):
+            (d / str(i) / "result.json").write_text("{not valid json")
+        with pytest.raises(ValueError, match="Too many parse errors"):
+            aggregate_results(d, d / "all_results.json", error_threshold=2)
 
 
 # ---------------------------------------------------------------------------
@@ -54,28 +55,24 @@ def test_aggregate_results_aborts_when_error_threshold_exceeded(tmp_path: Path) 
 # ---------------------------------------------------------------------------
 
 
-def test_collate_entities_rejects_non_directory_repo(tmp_path: Path) -> None:
+def test_collate_entities_rejects_non_directory_repo() -> None:
     """Passing a file path as ``repo_dir`` raises ``NotADirectoryError``."""
-    file_as_repo = tmp_path / "not_a_dir"
-    file_as_repo.write_text("just a file")
-    with pytest.raises(NotADirectoryError, match="not a directory"):
-        collate_entities(file_as_repo, tmp_path / "out", do_overwrite=True)
+    with (
+        yaml_disk({"not_a_dir.txt": "just a file"}) as d,
+        pytest.raises(NotADirectoryError, match="not a directory"),
+    ):
+        collate_entities(d / "not_a_dir.txt", d / "out", do_overwrite=True)
 
 
-def test_collate_entities_rejects_directory_in_output_slot(tmp_path: Path) -> None:
+def test_collate_entities_rejects_directory_in_output_slot() -> None:
     """If a target output path exists as a directory, raise even with do_overwrite=True."""
-    repo = tmp_path / "repo"
-    (repo / "src" / "MEDS_DEV" / "datasets" / "MIMIC-IV").mkdir(parents=True)
-    (repo / "src" / "MEDS_DEV" / "datasets" / "MIMIC-IV" / "dataset.yaml").write_text(
-        "metadata:\n  description: foo\n"
-    )
-
-    out = tmp_path / "out"
-    out.mkdir()
-    (out / "datasets.json").mkdir()  # collide with the file the collator wants to write
-
-    with pytest.raises(IsADirectoryError, match="is a directory"):
-        collate_entities(repo, out, do_overwrite=True)
+    tree = {
+        "repo/src/MEDS_DEV/datasets/MIMIC-IV/dataset.yaml": {"metadata": {"description": "foo"}},
+        # An existing directory at the spot the collator wants to write datasets.json.
+        "out/datasets.json/": {".gitkeep": ""},
+    }
+    with yaml_disk(tree) as d, pytest.raises(IsADirectoryError, match="is a directory"):
+        collate_entities(d / "repo", d / "out", do_overwrite=True)
 
 
 # ---------------------------------------------------------------------------
@@ -89,71 +86,65 @@ def test_walk_ancestors_terminates_when_leaf_is_not_under_root() -> None:
 
     Triggers the ``parent == parent.parent`` guard.
     """
-    leaf = Path("/some/leaf/path")
-    bogus_root = Path("/totally/different/tree")
-    ancestors = list(_walk_ancestors(leaf, bogus_root))
+    ancestors = list(_walk_ancestors(Path("/some/leaf/path"), Path("/totally/different/tree")))
     # The yielded sequence ends at "/" once the guard fires.
     assert ancestors[-1] == Path("/")
-    # And nothing under bogus_root is in the result.
+    # And nothing under the bogus root is in the result.
+    bogus_root = Path("/totally/different/tree")
     assert not any(bogus_root in a.parents or a == bogus_root for a in ancestors)
 
 
 # ---------------------------------------------------------------------------
-# CLI entry points
+# CLI entry points (invoked as actual subprocesses against the installed package)
 # ---------------------------------------------------------------------------
 
 
-def test_collate_main_cli(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+def test_collate_entities_cli() -> None:
     """``meds-dev-collate-entities`` writes the three manifests to the output directory."""
-    repo = tmp_path / "repo"
-    (repo / "src" / "MEDS_DEV" / "datasets" / "MIMIC-IV").mkdir(parents=True)
-    (repo / "src" / "MEDS_DEV" / "datasets" / "MIMIC-IV" / "dataset.yaml").write_text(
-        "metadata:\n  description: foo\n"
-    )
-    (repo / "src" / "MEDS_DEV" / "tasks" / "mortality").mkdir(parents=True)
-    (repo / "src" / "MEDS_DEV" / "tasks" / "mortality" / "first_24h.yaml").write_text("predicates: {a: b}\n")
-    (repo / "src" / "MEDS_DEV" / "models" / "rp").mkdir(parents=True)
-    (repo / "src" / "MEDS_DEV" / "models" / "rp" / "model.yaml").write_text("metadata:\n  description: rp\n")
-
-    out = tmp_path / "out"
-    monkeypatch.setattr(
-        sys,
-        "argv",
-        [
-            "meds-dev-collate-entities",
-            "--repo_dir",
-            str(repo),
-            "--output_dir",
-            str(out),
-            "--do_overwrite",
-        ],
-    )
-    collate_main()
-
-    assert {p.name for p in out.iterdir()} == {"datasets.json", "tasks.json", "models.json"}
-    datasets = json.loads((out / "datasets.json").read_text())
-    assert "MIMIC-IV" in datasets
+    tree = {
+        "repo/src/MEDS_DEV/": {
+            "datasets/MIMIC-IV/dataset.yaml": {"metadata": {"description": "foo"}},
+            "tasks/mortality/first_24h.yaml": {"predicates": {"a": "b"}},
+            "models/rp/model.yaml": {"metadata": {"description": "rp"}},
+        }
+    }
+    with yaml_disk(tree) as d:
+        out = d / "out"
+        result = subprocess.run(
+            [
+                "meds-dev-collate-entities",
+                "--repo_dir",
+                str(d / "repo"),
+                "--output_dir",
+                str(out),
+                "--do_overwrite",
+            ],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        assert result.returncode == 0
+        assert {p.name for p in out.iterdir()} == {"datasets.json", "tasks.json", "models.json"}
+        datasets = json.loads((out / "datasets.json").read_text())
+        assert "MIMIC-IV" in datasets
 
 
-def test_aggregate_main_cli(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+def test_aggregate_results_cli() -> None:
     """``meds-dev-aggregate-results`` writes a populated all_results.json."""
-    in_dir = tmp_path / "_results"
-    in_dir.mkdir()
-    (in_dir / "42").mkdir()
-    (in_dir / "42" / "result.json").write_text('{"value": "from-cli"}')
-
-    out = tmp_path / "all_results.json"
-    monkeypatch.setattr(
-        sys,
-        "argv",
-        [
-            "meds-dev-aggregate-results",
-            "--input_dir",
-            str(in_dir),
-            "--output_path",
-            str(out),
-        ],
-    )
-    aggregate_main()
-
-    assert json.loads(out.read_text()) == {"42": {"value": "from-cli"}}
+    tree = {"_results/42/result.json": {"value": "from-cli"}}
+    with yaml_disk(tree) as d:
+        out = d / "all_results.json"
+        result = subprocess.run(
+            [
+                "meds-dev-aggregate-results",
+                "--input_dir",
+                str(d / "_results"),
+                "--output_path",
+                str(out),
+            ],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        assert result.returncode == 0
+        assert json.loads(out.read_text()) == {"42": {"value": "from-cli"}}
