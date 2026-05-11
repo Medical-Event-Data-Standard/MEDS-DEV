@@ -4,8 +4,12 @@ Each benchmark submission lives at ``_results/<issue_number>/result.json`` on th
 branch. The MEDS-DEV website consumes a single aggregated file at ``_web/results/all_results.json``,
 keyed by issue number.
 
-This module produces that aggregate. If the output file already exists, existing entries are preserved
-and only new issue numbers are added — making the script idempotent and append-only.
+Default behavior is append-only: existing keys in the output file are preserved as-is, and new keys
+from the input directory are added. Each ``result.json`` represents one canonical experimental
+result, so once a submission has been aggregated, re-running the aggregator should not silently
+mutate that entry. Use ``do_overwrite=True`` (CLI: ``--do_overwrite``) when you need to rebuild from
+scratch — e.g., after a corrupted past run, or when a ``result.json`` has been intentionally edited
+in place and the new content should propagate.
 """
 
 import argparse
@@ -17,15 +21,22 @@ from typing import Any
 logger = logging.getLogger(__name__)
 
 
-def aggregate_results(input_dir: Path, output_path: Path, error_threshold: int = 10) -> dict[str, Any]:
+def aggregate_results(
+    input_dir: Path,
+    output_path: Path,
+    error_threshold: int = 10,
+    do_overwrite: bool = False,
+) -> dict[str, Any]:
     """Aggregate ``result.json`` files under ``input_dir`` into ``output_path``.
 
     Args:
         input_dir: Directory whose subdirectories each contain a ``result.json``. The subdirectory
             name (typically a GitHub issue number) becomes the aggregate key.
-        output_path: Path to write the aggregated JSON to. If the file already exists, its existing
-            entries are preserved and only new keys are added.
+        output_path: Path to write the aggregated JSON to.
         error_threshold: Maximum number of per-file parse failures tolerated before aborting.
+        do_overwrite: If ``False`` (default) and ``output_path`` already exists, its existing
+            entries are preserved as-is; only keys not present are added. If ``True``, the existing
+            output is ignored and the aggregate is rebuilt from scratch.
 
     Returns:
         The full aggregated dict that was written.
@@ -36,6 +47,8 @@ def aggregate_results(input_dir: Path, output_path: Path, error_threshold: int =
         ValueError: If parse failures exceed ``error_threshold``.
 
     Examples:
+        The happy path — every result.json under input gets a corresponding key in the output:
+
         >>> tree = {
         ...     "44": {"result.json": {"result": "data 44"}},
         ...     "200": {"result.json": {"result": "data 200"}},
@@ -47,15 +60,30 @@ def aggregate_results(input_dir: Path, output_path: Path, error_threshold: int =
         >>> agg["44"]
         {'result': 'data 44'}
 
-    A second call with the same input is a no-op (existing keys preserved, no new keys to add). Even
-    if the on-disk source changes after the first run, the previously-aggregated entry sticks:
+        New keys are added on subsequent runs, but pre-existing keys are not refreshed. This is
+        deliberate — each ``result.json`` is the canonical record for one experiment, and
+        re-aggregation should not silently mutate already-canonical entries:
+
+        >>> with yaml_disk({"1": {"result.json": {"result": "v1"}}}) as d:
+        ...     out = d / "all_results.json"
+        ...     _ = aggregate_results(d, out)
+        ...     # Mutate the source AND add a new issue:
+        ...     _ = (d / "1" / "result.json").write_text('{"result": "v2"}')
+        ...     _ = (d / "2").mkdir()
+        ...     _ = (d / "2" / "result.json").write_text('{"result": "new"}')
+        ...     agg = aggregate_results(d, out)
+        ...     agg["1"], agg["2"]
+        ({'result': 'v1'}, {'result': 'new'})
+
+        When the on-disk source HAS legitimately changed (corrupted past run, manual edit to a
+        result.json that should propagate), pass ``do_overwrite=True`` to rebuild from scratch:
 
         >>> with yaml_disk({"1": {"result.json": {"result": "v1"}}}) as d:
         ...     out = d / "all_results.json"
         ...     _ = aggregate_results(d, out)
         ...     _ = (d / "1" / "result.json").write_text('{"result": "v2"}')
-        ...     aggregate_results(d, out)["1"]
-        {'result': 'v1'}
+        ...     aggregate_results(d, out, do_overwrite=True)["1"]
+        {'result': 'v2'}
 
     Errors:
 
@@ -79,7 +107,10 @@ def aggregate_results(input_dir: Path, output_path: Path, error_threshold: int =
     if not input_dir.is_dir():
         raise NotADirectoryError(f"Input path {input_dir.resolve()!s} is not a directory.")
 
-    results: dict[str, Any] = json.loads(output_path.read_text()) if output_path.exists() else {}
+    if do_overwrite or not output_path.exists():
+        results: dict[str, Any] = {}
+    else:
+        results = json.loads(output_path.read_text())
 
     result_fps = sorted(input_dir.rglob("result.json"))
     if not result_fps:
@@ -90,14 +121,14 @@ def aggregate_results(input_dir: Path, output_path: Path, error_threshold: int =
     for result_fp in result_fps:
         issue_num = result_fp.parent.name
         if issue_num in results:
-            logger.info("Skipping %s (already aggregated)", issue_num)
+            logger.info(f"Skipping {issue_num} (already aggregated)")
             continue
         try:
             results[issue_num] = json.loads(result_fp.read_text())
             new_results += 1
         except (json.JSONDecodeError, OSError) as e:
             err = f"{result_fp}: {e}"
-            logger.warning("Failed to read %s", err)
+            logger.warning(f"Failed to read {err}")
             parse_errors.append(err)
             if len(parse_errors) > error_threshold:
                 raise ValueError(
@@ -107,11 +138,7 @@ def aggregate_results(input_dir: Path, output_path: Path, error_threshold: int =
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(json.dumps(results, indent=2, sort_keys=True))
     logger.info(
-        "Wrote %d results (%d new, %d errors) to %s",
-        len(results),
-        new_results,
-        len(parse_errors),
-        output_path,
+        f"Wrote {len(results)} results ({new_results} new, {len(parse_errors)} errors) to {output_path}"
     )
     return results
 
@@ -136,5 +163,13 @@ def main() -> None:
         default=10,
         help="Max per-file parse failures before aborting (default: 10).",
     )
+    parser.add_argument(
+        "--do_overwrite",
+        action="store_true",
+        help=(
+            "Ignore any existing output file and rebuild the aggregate from scratch. Default is "
+            "append-only (existing keys preserved)."
+        ),
+    )
     args = parser.parse_args()
-    aggregate_results(args.input_dir, args.output_path, args.error_threshold)
+    aggregate_results(args.input_dir, args.output_path, args.error_threshold, args.do_overwrite)
