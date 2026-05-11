@@ -51,11 +51,14 @@ repos:
     hooks:
       - id: shellcheck
 
-  # GitHub Actions workflow linter (expression syntax, ref validity, shellcheck on run blocks)
+  # GitHub Actions workflow linter (expression syntax, ref validity, shellcheck on run blocks).
+  # SC2129 (group multi-line redirects with `{ ... } >> file`) is style-only and conflicts with the
+  # idiomatic GHA pattern of `echo "key=value" >> "$GITHUB_OUTPUT"`; we disable it explicitly.
   - repo: https://github.com/rhysd/actionlint
     rev: v1.7.12
     hooks:
       - id: actionlint
+        args: ["-shellcheck=shellcheck -e SC2129"]
 
   # md formatting
   - repo: https://github.com/executablebooks/mdformat

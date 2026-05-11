@@ -26,6 +26,7 @@ jobs:
         run: |
           # Route through env var to avoid shell injection from arbitrary issue body content.
           printf '%s' "$ISSUE_BODY" > issue_body.txt
+          # shellcheck disable=SC2016  # single-quotes are intentional — the sed patterns are literal.
           sed -n '/```json/,/```/p' issue_body.txt | sed '1d;$d' > "$GITHUB_WORKSPACE/result.json"
 
           if [[ ! -s "$GITHUB_WORKSPACE/result.json" ]]; then
@@ -40,22 +41,23 @@ jobs:
         run: pip install meds-dev
 
       - name: Validate result JSON
-        run: meds-dev-validate-result result_fp=$GITHUB_WORKSPACE/result.json
+        run: meds-dev-validate-result result_fp="$GITHUB_WORKSPACE/result.json"
 
       - name: Commit result attributed to issue author
         if: success()
         env:
           ISSUE_USER_LOGIN: ${{ github.event.issue.user.login }}
           ISSUE_USER_ID: ${{ github.event.issue.user.id }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
         run: |
-          mkdir -p _results/${{ github.event.issue.number }}
-          mv $GITHUB_WORKSPACE/result.json _results/${{ github.event.issue.number }}/result.json
-          git add _results/${{ github.event.issue.number }}/result.json
+          mkdir -p "_results/${ISSUE_NUMBER}"
+          mv "$GITHUB_WORKSPACE/result.json" "_results/${ISSUE_NUMBER}/result.json"
+          git add "_results/${ISSUE_NUMBER}/result.json"
 
           git config user.name "${ISSUE_USER_LOGIN}"
           git config user.email "${ISSUE_USER_ID}+${ISSUE_USER_LOGIN}@users.noreply.github.com"
 
-          git commit -m "Added result from Issue #${{ github.event.issue.number }} by @${ISSUE_USER_LOGIN}"
+          git commit -m "Added result from Issue #${ISSUE_NUMBER} by @${ISSUE_USER_LOGIN}"
           git push origin _results
 
       - name: Close issue with confirmation message
