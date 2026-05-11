@@ -5,20 +5,16 @@ extract the fenced ``\\`\\`\\`json`` block, validate it against :class:`MEDS_DEV
 write the canonical (NaN-sanitized) JSON to disk for the workflow to commit to the ``_results``
 branch.
 
-The CLI (``meds-dev-process-submission``) accepts the issue body via (in priority order):
+The CLI (``meds-dev-process-submission``) accepts the issue body via, in priority order:
 
-1. ``--issue_body_fp <path>`` — read from a file.
-2. ``$ISSUE_BODY`` environment variable (override the name with ``--issue_body_env_var``).
-3. Stdin — if neither of the above is provided.
-
-The GitHub Actions workflow uses option 2 because routing untrusted issue body content through an
-env var avoids shell-injection. Option 3 is for ad-hoc local invocation (``cat body.txt | meds-dev-
-process-submission ...``); option 1 is for tooling that already has the body on disk.
+1. ``--issue_body <text>`` — the body as a direct string argument. Use this from CI (the workflow
+    expands ``$ISSUE_BODY`` into the argument under safe quoting).
+2. ``--issue_body_fp <path>`` — read from a file.
+3. Stdin — for ad-hoc local invocation, e.g., ``cat body.txt | meds-dev-process-submission ...``.
 """
 
 import argparse
 import json
-import os
 import re
 import sys
 from pathlib import Path
@@ -106,19 +102,17 @@ def main() -> None:
             "result, and write the validated JSON to a file."
         ),
     )
-    parser.add_argument(
+    source = parser.add_mutually_exclusive_group()
+    source.add_argument(
+        "--issue_body",
+        default=None,
+        help="The issue body text, passed directly. Takes priority over --issue_body_fp / stdin.",
+    )
+    source.add_argument(
         "--issue_body_fp",
         type=Path,
         default=None,
-        help="Path to a file containing the issue body text. Takes priority over env-var / stdin.",
-    )
-    parser.add_argument(
-        "--issue_body_env_var",
-        default="ISSUE_BODY",
-        help=(
-            "Name of the environment variable to read the issue body from when --issue_body_fp is "
-            "not set. Defaults to ISSUE_BODY (the GHA convention)."
-        ),
+        help="Path to a file containing the issue body text.",
     )
     parser.add_argument(
         "--result_fp",
@@ -133,16 +127,13 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    if args.issue_body_fp is not None:
+    if args.issue_body is not None:
+        body = args.issue_body
+    elif args.issue_body_fp is not None:
         body = args.issue_body_fp.read_text()
-    elif (env_val := os.environ.get(args.issue_body_env_var)) is not None:
-        body = env_val
     elif not sys.stdin.isatty():
         body = sys.stdin.read()
     else:
-        parser.error(
-            f"No issue body provided. Pass --issue_body_fp, set ${args.issue_body_env_var}, "
-            "or pipe the body on stdin."
-        )
+        parser.error("No issue body provided. Pass --issue_body, --issue_body_fp, or pipe on stdin.")
 
     process_submission(body, args.result_fp, do_overwrite=args.do_overwrite)

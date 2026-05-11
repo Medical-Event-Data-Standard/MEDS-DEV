@@ -24,12 +24,10 @@ jobs:
 
       - name: Extract and validate result from issue body
         env:
-          # The CLI reads the body from $ISSUE_BODY by default. Routing through an env var
-          # avoids shell injection — putting ${{ github.event.issue.body }} directly into a
-          # command line would let untrusted issue content escape and execute.
           ISSUE_BODY: ${{ github.event.issue.body }}
         run: |
           meds-dev-process-submission \
+            --issue_body "$ISSUE_BODY" \
             --result_fp "$GITHUB_WORKSPACE/result.json" \
             --do_overwrite
 

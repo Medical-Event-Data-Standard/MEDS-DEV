@@ -94,3 +94,48 @@ def test_aggregate_results_cli() -> None:
             "43": {"model": "b", "score": 0.85},
             "44": {"model": "c", "score": 0.78},
         }
+
+
+def test_process_submission_cli() -> None:
+    """``meds-dev-process-submission`` extracts the ```json``` block, validates, and writes the canonical
+    (NaN-sanitized, strict) JSON."""
+    body = """Hi! Here's my result.
+
+```json
+{
+  "dataset": "MIMIC-IV",
+  "task": "mortality/in_icu/first_24h",
+  "model": "random_predictor",
+  "timestamp": "2025-01-01T00:00:00",
+  "result": {"acc": 0.85, "auc": NaN},
+  "version": "v0.1.0"
+}
+```
+
+Thanks!"""
+
+    with yaml_disk({".gitkeep": ""}) as d:
+        out = d / "result.json"
+        result = subprocess.run(
+            [
+                "meds-dev-process-submission",
+                "--issue_body",
+                body,
+                "--result_fp",
+                str(out),
+                "--do_overwrite",
+            ],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+
+        assert result.returncode == 0
+        written = json.loads(out.read_text())
+        assert written["dataset"] == "MIMIC-IV"
+        assert written["task"] == "mortality/in_icu/first_24h"
+        assert written["model"] == "random_predictor"
+        # NaN is sanitized to None on the way through Result.to_json:
+        assert written["result"] == {"acc": 0.85, "auc": None}
+        # On-disk JSON is strict (no bare NaN tokens):
+        assert "NaN" not in out.read_text()
