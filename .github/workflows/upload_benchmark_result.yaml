@@ -5,6 +5,12 @@ on:
     types:
       - labeled
 
+# Serialize submissions so two near-simultaneous label events don't race on
+# pushes to the _results branch (#236).
+concurrency:
+  group: upload-benchmark-results
+  cancel-in-progress: false
+
 jobs:
   process_results:
     if: contains(github.event.issue.labels.*.name, 'result-submission') && startsWith(github.event.issue.title, '[Result Submission]')
@@ -22,13 +28,14 @@ jobs:
       - name: Install MEDS-DEV package from PyPI
         run: pip install meds-dev
 
-      - name: Extract and validate result from issue body
+      - name: Extract result and write to _results tree
         env:
           ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
         run: |
           meds-dev-process-submission \
             --issue_body "$ISSUE_BODY" \
-            --result_fp "$GITHUB_WORKSPACE/result.json" \
+            --result_fp "_results/${ISSUE_NUMBER}/result.json" \
             --do_overwrite
 
       - name: Commit result attributed to issue author
@@ -38,8 +45,6 @@ jobs:
           ISSUE_USER_ID: ${{ github.event.issue.user.id }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
         run: |
-          mkdir -p "_results/${ISSUE_NUMBER}"
-          mv "$GITHUB_WORKSPACE/result.json" "_results/${ISSUE_NUMBER}/result.json"
           git add "_results/${ISSUE_NUMBER}/result.json"
 
           git config user.name "${ISSUE_USER_LOGIN}"
@@ -50,6 +55,6 @@ jobs:
 
       - name: Close issue with confirmation message
         if: success()
-        uses: peter-evans/close-issue@v2
+        uses: peter-evans/close-issue@v3.0.2
         with:
           comment: "Thank you for your submission! Your result has been recorded and validated."
