@@ -43,6 +43,9 @@ dev = [
 
 [tool.setuptools_scm]
 
+[tool.coverage.run]
+patch = ["subprocess"]
+
 [tool.coverage.report]
 omit = ["*/models/cehrbert/*"]
 
