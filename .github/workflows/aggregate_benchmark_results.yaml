@@ -2,8 +2,7 @@ name: Aggregate Benchmark Results
 
 on:
   workflow_dispatch:
-  push:
-    branches: [_results]
+  workflow_call:
 
 permissions:
   contents: write
