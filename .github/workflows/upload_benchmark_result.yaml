@@ -12,12 +12,11 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  process_results:
+  process_submission:
     if: contains(github.event.issue.labels.*.name, 'result-submission') && startsWith(github.event.issue.title, '[Result Submission]')
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      issues: write
     steps:
       - name: Checkout results branch only
         uses: actions/checkout@v4
@@ -53,8 +52,19 @@ jobs:
           git commit -m "Added result from Issue #${ISSUE_NUMBER} by @${ISSUE_USER_LOGIN}"
           git push origin _results
 
+  aggregate:
+    needs: process_submission
+    uses: ./.github/workflows/aggregate_benchmark_results.yaml
+    permissions:
+      contents: write
+
+  close_issue:
+    needs: aggregate
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
       - name: Close issue with confirmation message
-        if: success()
         uses: peter-evans/close-issue@v3.0.2
         with:
-          comment: "Thank you for your submission! Your result has been recorded and validated."
+          comment: "Thank you for your submission! Your result has been recorded, aggregated, and will soon be visible on the leaderboard."
