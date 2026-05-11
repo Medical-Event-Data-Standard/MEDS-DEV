@@ -21,17 +21,20 @@ jobs:
 
       - name: Extract JSON from issue body
         id: extract_json
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
         run: |
-          echo '${{ github.event.issue.body }}' > issue_body.txt
-          sed -n '/```json/,/```/p' issue_body.txt | sed '1d;$d' > $GITHUB_WORKSPACE/result.json
+          # Route through env var to avoid shell injection from arbitrary issue body content.
+          printf '%s' "$ISSUE_BODY" > issue_body.txt
+          sed -n '/```json/,/```/p' issue_body.txt | sed '1d;$d' > "$GITHUB_WORKSPACE/result.json"
 
-          if [[ ! -s $GITHUB_WORKSPACE/result.json ]]; then
+          if [[ ! -s "$GITHUB_WORKSPACE/result.json" ]]; then
             echo "ERROR: No valid JSON found in the issue body."
             exit 1
           fi
 
           echo "Extracted JSON:"
-          cat $GITHUB_WORKSPACE/result.json
+          cat "$GITHUB_WORKSPACE/result.json"
 
       - name: Install MEDS-DEV package from PyPI
         run: pip install meds-dev
