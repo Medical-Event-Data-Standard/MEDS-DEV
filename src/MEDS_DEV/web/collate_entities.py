@@ -333,13 +333,14 @@ def collate_entities(repo_dir: Path, output_dir: Path, do_overwrite: bool = Fals
         ... '''
         >>> with yaml_disk(tree) as d:
         ...     collate_entities(d / "repo", d / "out", do_overwrite=True)
+        ...     print("Directory:")
         ...     print_directory(d / "out")
-        ...     print("\\ndatasets.json:")
+        ...     print("datasets.json:")
         ...     print(json.dumps(json.loads((d / "out" / "datasets.json").read_text()), indent=2))
+        Directory:
         ├── datasets.json
         ├── models.json
         └── tasks.json
-        <BLANKLINE>
         datasets.json:
         {
           "MIMIC-IV": {
