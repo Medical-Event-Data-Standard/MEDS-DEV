@@ -347,6 +347,39 @@ class Result:
             raise ValueError(f"Could not write result to {fp}") from e
 
     @classmethod
+    def from_dict(cls, as_dict: dict[str, Any]) -> "Result":
+        """Build a :class:`Result` from a plain dict, handling timestamp deserialization.
+
+        Use this when you already have the dict in hand (e.g., from parsing an issue body — see
+        :func:`MEDS_DEV.web.process_submission.extract_result_dict_from_issue_body`). For reading
+        from a file, use :meth:`from_json`.
+
+        Examples:
+            Timestamps may be ISO-formatted strings; they get converted to ``datetime`` objects:
+
+            >>> Result.from_dict({
+            ...     "dataset": "MIMIC-IV", "task": "mortality/in_icu/first_24h",
+            ...     "model": "random_predictor", "timestamp": "2021-09-01T12:00:00",
+            ...     "result": {"acc": 0.5}, "version": "v",
+            ... }).timestamp
+            datetime.datetime(2021, 9, 1, 12, 0)
+
+            Already-aware ``datetime`` objects pass through:
+
+            >>> ts = datetime.datetime(2021, 9, 1, 12, 0, 0)
+            >>> Result.from_dict({
+            ...     "dataset": "d", "task": "t", "model": "m", "timestamp": ts,
+            ...     "result": {}, "version": "v",
+            ... }).timestamp is ts
+            True
+        """
+        as_dict = dict(as_dict)
+        ts = as_dict.get("timestamp")
+        if isinstance(ts, str):
+            as_dict["timestamp"] = datetime.datetime.fromisoformat(ts)
+        return cls(**as_dict)
+
+    @classmethod
     def from_json(cls, fp: Path | str) -> "Result":
         """Read a result from a JSON file."""
 
@@ -363,9 +396,7 @@ class Result:
         except Exception as e:
             raise ValueError(f"Could not read result from {fp}") from e
 
-        as_dict["timestamp"] = datetime.datetime.fromisoformat(as_dict["timestamp"])
-
-        return cls(**as_dict)
+        return cls.from_dict(as_dict)
 
 
 PACK_YAML = files("MEDS_DEV.configs") / "_package_result.yaml"

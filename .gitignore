@@ -357,3 +357,6 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,pycharm,visualstudiocode,windows
+
+# Claude Code local state
+.claude/
