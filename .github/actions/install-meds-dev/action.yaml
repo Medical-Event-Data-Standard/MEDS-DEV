@@ -1,0 +1,30 @@
+name: Install MEDS-DEV
+description: >-
+  Set up Python and install MEDS-DEV via pip. Defaults to the PyPI release; pass a path or pip-spec
+  to install from somewhere else (e.g., the just-checked-out source tree in a regen-entities run).
+
+inputs:
+  python-version:
+    description: Python version to set up.
+    required: false
+    default: "3.11"
+  spec:
+    description: >-
+      pip install spec — package name, path, or version-pinned name. Defaults to the released
+      MEDS-DEV from PyPI ("meds-dev"). Pass "./main-branch" or similar to install from a local
+      checkout, or "meds-dev==0.1.0" to pin a version.
+    required: false
+    default: "meds-dev"
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: Install MEDS-DEV
+      shell: bash
+      env:
+        SPEC: ${{ inputs.spec }}
+      run: pip install "$SPEC"

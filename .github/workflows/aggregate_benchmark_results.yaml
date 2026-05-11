@@ -17,6 +17,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Default checkout (main) puts .github/actions/install-meds-dev at the
+      # workspace root for the composite action below.
+      - name: Checkout main (for composite actions)
+        uses: actions/checkout@v4
+
       - name: Check out the _results branch
         uses: actions/checkout@v4
         with:
@@ -29,13 +34,8 @@ jobs:
           ref: _web
           path: web-branch
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Install MEDS-DEV from PyPI
-        run: pip install meds-dev
+      - name: Install MEDS-DEV
+        uses: ./.github/actions/install-meds-dev
 
       - name: Aggregate results
         run: |

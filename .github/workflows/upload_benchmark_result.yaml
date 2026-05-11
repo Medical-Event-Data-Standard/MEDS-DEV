@@ -21,10 +21,18 @@ jobs:
     permissions:
       contents: write
     steps:
+      # Default checkout (main) puts .github/actions/install-meds-dev at the
+      # workspace root so the composite action below can be referenced via
+      # `./.github/actions/...`. Without this, the workspace would only have
+      # the _results checkout (which doesn't carry .github/).
+      - name: Checkout main (for composite actions)
+        uses: actions/checkout@v4
+
       - name: Checkout _results branch
         uses: actions/checkout@v4
         with:
           ref: _results
+          path: results-branch
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Extract JSON from issue body
@@ -34,6 +42,7 @@ jobs:
           # Route the issue body through an env var to avoid shell injection
           # from arbitrary user content, then strip down to the ```json``` block.
           printf '%s' "$ISSUE_BODY" > issue_body.txt
+          # shellcheck disable=SC2016  # sed patterns are literal; single quotes are intentional.
           sed -n '/```json/,/```/p' issue_body.txt | sed '1d;$d' > "$GITHUB_WORKSPACE/result.json"
 
           if [[ ! -s "$GITHUB_WORKSPACE/result.json" ]]; then
@@ -44,13 +53,8 @@ jobs:
           echo "Extracted JSON:"
           cat "$GITHUB_WORKSPACE/result.json"
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Install MEDS-DEV from PyPI
-        run: pip install meds-dev
+      - name: Install MEDS-DEV
+        uses: ./.github/actions/install-meds-dev
 
       - name: Validate result JSON
         run: meds-dev-validate-result result_fp="$GITHUB_WORKSPACE/result.json"
@@ -60,6 +64,7 @@ jobs:
           ISSUE_USER_LOGIN: ${{ github.event.issue.user.login }}
           ISSUE_USER_ID: ${{ github.event.issue.user.id }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
+        working-directory: results-branch
         run: |
           mkdir -p "_results/${ISSUE_NUMBER}"
           mv "$GITHUB_WORKSPACE/result.json" "_results/${ISSUE_NUMBER}/result.json"
