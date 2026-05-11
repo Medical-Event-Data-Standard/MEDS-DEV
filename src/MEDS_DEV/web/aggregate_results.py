@@ -29,8 +29,11 @@ def aggregate_results(
     output_path: Path,
     error_threshold: int = 10,
     do_overwrite: bool = False,
-) -> dict[str, Any]:
+) -> None:
     """Aggregate ``result.json`` files under ``input_dir`` into ``output_path``.
+
+    The function is side-effecting: it writes the aggregated JSON to ``output_path`` and returns
+    nothing. Callers (including doctests below) inspect the result by reading the file back.
 
     Args:
         input_dir: Directory whose subdirectories each contain a ``result.json``. The subdirectory
@@ -40,9 +43,6 @@ def aggregate_results(
         do_overwrite: If ``False`` (default) and ``output_path`` already exists, its existing
             entries are preserved as-is; only keys not present are added. If ``True``, the existing
             output is ignored and the aggregate is rebuilt from scratch.
-
-    Returns:
-        The full aggregated dict that was written.
 
     Raises:
         FileNotFoundError: If ``input_dir`` does not exist or contains no ``result.json`` files.
@@ -57,11 +57,17 @@ def aggregate_results(
         ...     "200": {"result.json": {"result": "data 200"}},
         ... }
         >>> with yaml_disk(tree) as d:
-        ...     agg = aggregate_results(d, d / "all_results.json")
-        ...     sorted(agg.keys())
-        ['200', '44']
-        >>> agg["44"]
-        {'result': 'data 44'}
+        ...     out = d / "all_results.json"
+        ...     aggregate_results(d, out)
+        ...     print(out.read_text())
+        {
+          "200": {
+            "result": "data 200"
+          },
+          "44": {
+            "result": "data 44"
+          }
+        }
 
         New keys are added on subsequent runs, but pre-existing keys are not refreshed. This is
         deliberate — each ``result.json`` is the canonical record for one experiment, and
@@ -72,24 +78,27 @@ def aggregate_results(
 
         >>> with yaml_disk({"1": {"result.json": {"result": "v1"}}}) as d:
         ...     out = d / "all_results.json"
-        ...     _ = aggregate_results(d, out)
+        ...     aggregate_results(d, out)
+        ...     print("after first call: ", json.loads(out.read_text()))
         ...     # Mutate the source AND add a new issue:
         ...     _ = (d / "1" / "result.json").write_text('{"result": "v2"}')
         ...     _ = (d / "2").mkdir()
         ...     _ = (d / "2" / "result.json").write_text('{"result": "new"}')
-        ...     agg = aggregate_results(d, out)
-        ...     agg["1"], agg["2"]
-        ({'result': 'v1'}, {'result': 'new'})
+        ...     aggregate_results(d, out)
+        ...     print("after second call:", json.loads(out.read_text()))
+        after first call:  {'1': {'result': 'v1'}}
+        after second call: {'1': {'result': 'v1'}, '2': {'result': 'new'}}
 
         When the on-disk source HAS legitimately changed (corrupted past run, manual edit to a
         result.json that should propagate), pass ``do_overwrite=True`` to rebuild from scratch:
 
         >>> with yaml_disk({"1": {"result.json": {"result": "v1"}}}) as d:
         ...     out = d / "all_results.json"
-        ...     _ = aggregate_results(d, out)
+        ...     aggregate_results(d, out)
         ...     _ = (d / "1" / "result.json").write_text('{"result": "v2"}')
-        ...     aggregate_results(d, out, do_overwrite=True)["1"]
-        {'result': 'v2'}
+        ...     aggregate_results(d, out, do_overwrite=True)
+        ...     json.loads(out.read_text())
+        {'1': {'result': 'v2'}}
 
     Errors:
 
@@ -107,6 +116,17 @@ def aggregate_results(
         Traceback (most recent call last):
             ...
         FileNotFoundError: No result.json files found under ...
+
+        Parse failures count toward ``error_threshold``; exceed it and aggregation aborts:
+
+        >>> tree = {str(i): {"result.json": {"placeholder": True}} for i in range(5)}
+        >>> with yaml_disk(tree) as d:
+        ...     for i in range(5):
+        ...         _ = (d / str(i) / "result.json").write_text("{not valid json")
+        ...     aggregate_results(d, d / "o.json", error_threshold=2)
+        Traceback (most recent call last):
+            ...
+        ValueError: Too many parse errors (3 > 2); aborting.
     """
     if not input_dir.exists():
         raise FileNotFoundError(f"Input directory {input_dir.resolve()!s} does not exist.")
@@ -157,7 +177,6 @@ def aggregate_results(
     logger.info(
         f"Wrote {len(results)} results ({new_results} new, {len(parse_errors)} errors) to {output_path}"
     )
-    return results
 
 
 def main() -> None:
