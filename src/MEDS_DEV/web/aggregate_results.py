@@ -73,10 +73,10 @@ def aggregate_results(
         deliberate — each ``result.json`` is the canonical record for one experiment, and
         re-aggregation should not silently mutate already-canonical entries. If the on-disk
         ``result.json`` content has drifted from the aggregated entry, a loud warning is emitted
-        (see ``test_aggregate_results_warns_on_content_mismatch`` in ``tests/test_web.py``) but the
-        existing entry is kept:
+        but the existing entry is kept:
 
-        >>> with yaml_disk({"1": {"result.json": {"result": "v1"}}}) as d:
+        >>> with capture_log_to_stdout(__name__):
+        ...   with yaml_disk({"1": {"result.json": {"result": "v1"}}}) as d:
         ...     out = d / "all_results.json"
         ...     aggregate_results(d, out)
         ...     print("after first call: ", json.loads(out.read_text()))
@@ -86,8 +86,23 @@ def aggregate_results(
         ...     _ = (d / "2" / "result.json").write_text('{"result": "new"}')
         ...     aggregate_results(d, out)
         ...     print("after second call:", json.loads(out.read_text()))
+        INFO: Wrote 1 results (1 new, 0 errors) to ...
         after first call:  {'1': {'result': 'v1'}}
+        WARNING: Content mismatch for issue 1: ... Keeping the existing aggregated entry; ...
+        INFO: Wrote 2 results (1 new, 0 errors) to ...
         after second call: {'1': {'result': 'v1'}, '2': {'result': 'new'}}
+
+        Repeating the run with the source unchanged is a silent no-op apart from an info-level
+        "already aggregated" log line per matching key:
+
+        >>> with capture_log_to_stdout(__name__):
+        ...   with yaml_disk({"1": {"result.json": {"result": "v1"}}}) as d:
+        ...     out = d / "all_results.json"
+        ...     aggregate_results(d, out)
+        ...     aggregate_results(d, out)
+        INFO: Wrote 1 results (1 new, 0 errors) to ...
+        INFO: Skipping 1 (already aggregated)
+        INFO: Wrote 1 results (0 new, 0 errors) to ...
 
         When the on-disk source HAS legitimately changed (corrupted past run, manual edit to a
         result.json that should propagate), pass ``do_overwrite=True`` to rebuild from scratch:
@@ -99,6 +114,20 @@ def aggregate_results(
         ...     aggregate_results(d, out, do_overwrite=True)
         ...     json.loads(out.read_text())
         {'1': {'result': 'v2'}}
+
+        A malformed ``result.json`` is logged at WARNING level and skipped; valid blobs in the same
+        run are still aggregated:
+
+        >>> with capture_log_to_stdout(__name__):
+        ...   with yaml_disk({"1": {"result.json": {"valid": "json"}}}) as d:
+        ...     _ = (d / "2").mkdir()
+        ...     _ = (d / "2" / "result.json").write_text("{not valid json")
+        ...     out = d / "all_results.json"
+        ...     aggregate_results(d, out)
+        ...     print(json.loads(out.read_text()))
+        WARNING: Failed to read ...result.json: ...
+        INFO: Wrote 1 results (1 new, 1 errors) to ...
+        {'1': {'valid': 'json'}}
 
     Errors:
 

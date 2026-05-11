@@ -96,25 +96,24 @@ def _read_leaf_dir(leaf_dir: Path, entity_type: EntityType) -> dict[str, Any]:
     ``LEAF_FILES`` go under their mapped keys.
 
     Examples:
-        >>> tree = {
-        ...     "MIMIC-IV/": {
-        ...         "dataset.yaml": {"metadata": {"description": "foo"}},
-        ...         "README.md": "# MIMIC",
-        ...         "requirements.txt": "meds==0.3.3\\n",
-        ...     }
-        ... }
+        >>> tree = '''
+        ... MIMIC-IV/:
+        ...   dataset.yaml: {metadata: {description: foo}}
+        ...   README.md: |
+        ...     # MIMIC
+        ...   requirements.txt: |
+        ...     meds==0.3.3
+        ... '''
         >>> with yaml_disk(tree) as d:
         ...     data = _read_leaf_dir(d / "MIMIC-IV", "dataset")
-        ...     sorted(data.keys())
-        ['entity', 'readme', 'requirements', 'type']
-        >>> data["type"]
-        'dataset'
-        >>> data["entity"]
-        {'metadata': {'description': 'foo'}}
-        >>> data["readme"]
-        '# MIMIC'
-        >>> data["requirements"]
-        ['meds==0.3.3']
+        ...     print("type:        ", data["type"])
+        ...     print("entity:      ", data["entity"])
+        ...     print("readme:      ", repr(data["readme"]))
+        ...     print("requirements:", data["requirements"])
+        type:         dataset
+        entity:       {'metadata': {'description': 'foo'}}
+        readme:       '# MIMIC\\n'
+        requirements: ['meds==0.3.3']
     """
     data: dict[str, Any] = {"type": entity_type}
 
@@ -335,9 +334,27 @@ def collate_entities(repo_dir: Path, output_dir: Path, do_overwrite: bool = Fals
         >>> with yaml_disk(tree) as d:
         ...     collate_entities(d / "repo", d / "out", do_overwrite=True)
         ...     print_directory(d / "out")
+        ...     print("\\ndatasets.json:")
+        ...     print(json.dumps(json.loads((d / "out" / "datasets.json").read_text()), indent=2))
         ├── datasets.json
         ├── models.json
         └── tasks.json
+        <BLANKLINE>
+        datasets.json:
+        {
+          "MIMIC-IV": {
+            "children": [],
+            "data": {
+              "entity": {
+                "metadata": {
+                  "description": "foo"
+                }
+              },
+              "type": "dataset"
+            },
+            "name": "MIMIC-IV"
+          }
+        }
 
     Existing output files without ``do_overwrite=True`` are an error, and so are a non-directory
     repo or a directory at one of the output paths:
@@ -375,24 +392,25 @@ def collate_entities(repo_dir: Path, output_dir: Path, do_overwrite: bool = Fals
         raise NotADirectoryError(f"Repository path {repo_dir!s} is not a directory.")
 
     output_dir.mkdir(parents=True, exist_ok=True)
+    output_names = ("datasets.json", "tasks.json", "models.json")
 
-    targets: dict[str, dict[str, Any]] = {
+    # Validate output paths before doing the actual collation work so we fail fast on a stale
+    # output dir without walking the source tree first.
+    for name in output_names:
+        fp = output_dir / name
+        if not fp.exists():
+            continue
+        if fp.is_dir():
+            raise IsADirectoryError(f"Output path {fp!s} is a directory; refusing to write.")
+        if not do_overwrite:
+            raise FileExistsError(f"Output path {fp!s} already exists. Pass do_overwrite=True to replace.")
+
+    payloads = {
         "datasets.json": collate_datasets(repo_dir),
         "tasks.json": collate_tasks(repo_dir),
         "models.json": collate_models(repo_dir),
     }
-
-    for name in targets:
-        fp = output_dir / name
-        if fp.exists():
-            if fp.is_dir():
-                raise IsADirectoryError(f"Output path {fp!s} is a directory; refusing to write.")
-            if not do_overwrite:
-                raise FileExistsError(
-                    f"Output path {fp!s} already exists. Pass do_overwrite=True to replace."
-                )
-
-    for name, payload in targets.items():
+    for name, payload in payloads.items():
         (output_dir / name).write_text(json.dumps(payload, indent=2, sort_keys=True))
 
 
