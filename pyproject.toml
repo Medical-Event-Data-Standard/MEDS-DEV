@@ -31,7 +31,15 @@ classifiers = [
 dependencies = ["meds==0.3.3", "es-aces==0.6.1", "hydra-core", "meds-evaluation==0.0.3", "validators", "uv"]
 
 [dependency-groups]
-dev = ["pre-commit<4", "ruff", "pytest", "pytest-cov", "meds_testing_helpers"]
+dev = [
+  "pre-commit<4",
+  "ruff",
+  "pytest",
+  "pytest-cov",
+  "meds_testing_helpers",
+  "yaml-to-disk",
+  "pretty-print-directory",
+]
 
 [tool.setuptools_scm]
 

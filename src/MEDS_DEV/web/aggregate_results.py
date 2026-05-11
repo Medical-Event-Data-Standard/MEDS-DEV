@@ -36,31 +36,25 @@ def aggregate_results(input_dir: Path, output_path: Path, error_threshold: int =
         ValueError: If parse failures exceed ``error_threshold``.
 
     Examples:
-        >>> import json, tempfile
-        >>> with tempfile.TemporaryDirectory() as d:
-        ...     d = Path(d)
-        ...     for issue in ("44", "200"):
-        ...         (d / issue).mkdir()
-        ...         _ = (d / issue / "result.json").write_text(json.dumps({"result": f"data {issue}"}))
-        ...     out = d / "all_results.json"
-        ...     agg = aggregate_results(d, out)
+        >>> tree = {
+        ...     "44": {"result.json": {"result": "data 44"}},
+        ...     "200": {"result.json": {"result": "data 200"}},
+        ... }
+        >>> with yaml_disk(tree) as d:
+        ...     agg = aggregate_results(d, d / "all_results.json")
         ...     sorted(agg.keys())
         ['200', '44']
         >>> agg["44"]
         {'result': 'data 44'}
 
-    A second call with the same input is a no-op (existing keys preserved, no new keys to add):
+    A second call with the same input is a no-op (existing keys preserved, no new keys to add). Even
+    if the on-disk source changes after the first run, the previously-aggregated entry sticks:
 
-        >>> with tempfile.TemporaryDirectory() as d:
-        ...     d = Path(d)
-        ...     (d / "1").mkdir()
-        ...     _ = (d / "1" / "result.json").write_text('{"result": "v1"}')
+        >>> with yaml_disk({"1": {"result.json": {"result": "v1"}}}) as d:
         ...     out = d / "all_results.json"
         ...     _ = aggregate_results(d, out)
-        ...     # Now "modify" the source — aggregator should NOT re-read; it preserves existing.
         ...     _ = (d / "1" / "result.json").write_text('{"result": "v2"}')
-        ...     agg = aggregate_results(d, out)
-        ...     agg["1"]
+        ...     aggregate_results(d, out)["1"]
         {'result': 'v1'}
 
     Errors:
@@ -69,14 +63,13 @@ def aggregate_results(input_dir: Path, output_path: Path, error_threshold: int =
         Traceback (most recent call last):
             ...
         FileNotFoundError: Input directory ... does not exist.
-        >>> import tempfile
-        >>> with tempfile.NamedTemporaryFile() as f:
-        ...     aggregate_results(Path(f.name), Path("/tmp/o.json"))
+        >>> with yaml_disk({"a.txt": "scalar"}) as d:
+        ...     aggregate_results(d / "a.txt", d / "o.json")
         Traceback (most recent call last):
             ...
         NotADirectoryError: Input path ... is not a directory.
-        >>> with tempfile.TemporaryDirectory() as d:
-        ...     aggregate_results(Path(d), Path(d) / "o.json")
+        >>> with yaml_disk({"no_results.txt": "unrelated"}) as d:
+        ...     aggregate_results(d, d / "o.json")
         Traceback (most recent call last):
             ...
         FileNotFoundError: No result.json files found under ...
