@@ -204,6 +204,10 @@ If you successfully run the sequence of stages above on a new dataset not yet in
 know and we'll happily help you add your dataset's information (but no sensitive data) and these results to
 the public record to help advance the science of Health AI!
 
+For an overview of how submissions, datasets, tasks, and models flow from this repository to the
+[MEDS website](https://medical-event-data-standard.github.io) leaderboard — and how to debug or manually
+trigger the pipeline — see [`src/MEDS_DEV/web/README.md`](src/MEDS_DEV/web/README.md).
+
 ## Contributing New Things to MEDS-DEV
 
 > [!NOTE]
