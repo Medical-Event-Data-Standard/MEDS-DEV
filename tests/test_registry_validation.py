@@ -31,6 +31,10 @@ def test_all_datasets_have_commands():
     for name, dataset in DATASETS.items():
         commands = dataset.get("commands")
         assert commands is not None, f"Dataset {name} missing commands"
+        metadata = dataset.get("metadata")
+        if metadata is not None and not metadata.demo_available:
+            # Datasets that explicitly opt out of a demo recipe don't need build_demo.
+            continue
         assert "build_demo" in commands, f"Dataset {name} missing build_demo command"
 
 

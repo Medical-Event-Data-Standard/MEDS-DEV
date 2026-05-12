@@ -13,7 +13,9 @@ metadata:
     - name: "Matthew McDermott"
       github_username: "mmcdermott"
   supported_datasets:
+    - AUMCdb
     - MIMIC-IV
+    - NWICU
 
 predicates:
   icu_admission: ???

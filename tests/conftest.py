@@ -325,6 +325,9 @@ def get_opts(config, opt: str) -> list[str]:
     if isinstance(out, dict):
         out = list(out.keys())
 
+    if opt == "dataset":
+        out = [name for name in out if DATASETS[name]["metadata"].demo_available]
+
     return out
 
 

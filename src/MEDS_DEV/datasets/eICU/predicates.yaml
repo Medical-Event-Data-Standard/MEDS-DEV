@@ -1,21 +1,30 @@
 predicates:
+  hospital_admission:
+    code: { regex: "^HOSPITAL_ADMISSION//.*" }
+  hospital_discharge:
+    code: { regex: "^HOSPITAL_DISCHARGE//.*" }
+
+  ED_registration:
+    code: { regex: "^ED_REGISTRATION//.*" }
+  ED_discharge:
+    code: { regex: "^ED_OUT//.*" }
+
   icu_admission:
     code: { regex: "^ICU_ADMISSION//.*" }
   icu_discharge:
     code: { regex: "^ICU_DISCHARGE//.*" }
-  # largely based on https://github.com/AmsterdamUMC/AmsterdamUMCdb/blob/2901fdda2ff8f7ae0f16191d0b3f6d0ac60f70b6/amsterdamumcdb/sql/common/legacy/
+
   creatinine_1:
-    code: MEASURE//Kreatinine (bloed)//µmol/l
+    code: LAB//50912//mg/dL
   creatinine_2:
-    code: MEASURE//Kreatinine//µmol/l
-  # Todo: convert to mg/dL
+    code: LAB//52546//mg/dL
   abnormally_high_creatinine_1:
-    code: MEASURE//Kreatinine (bloed)//µmol/l
+    code: LAB//50912//mg/dL
     value_min: 1.3 # mg/dL
     value_min_inclusive: False
     value_max: null
   abnormally_high_creatinine_2:
-    code: MEASURE//Kreatinine//µmol/l
+    code: LAB//52546//mg/dL
     value_min: 1.3 # mg/dL
     value_min_inclusive: False
     value_max: null
@@ -24,44 +33,43 @@ predicates:
   abnormally_high_creatinine:
     expr: or(abnormally_high_creatinine_1, abnormally_high_creatinine_2)
 
-  # Todo: convert units
   sodium_1:
-    code: MEASURE//Natrium (bloed)//mmol/l
-  # sodium_2:
-  #   code: LAB//50983//mEq/L
-  # sodium_3:
-  #   code: LAB//52623//mEq/L
+    code: LAB//220645//mEq/L
+  sodium_2:
+    code: LAB//50983//mEq/L
+  sodium_3:
+    code: LAB//52623//mEq/L
   abnormally_low_sodium_1:
-    code: MEASURE//Natrium (bloed)//mmol/l
+    code: LAB//220645//mEq/L
     value_min: null
     value_max: 135 # mEq/L
     value_max_inclusive: False
-  # abnormally_low_sodium_2:
-  #   code: LAB//50983//mEq/L
-  #   value_min: null
-  #   value_max: 135 # mEq/L
-  #   value_max_inclusive: False
-  # abnormally_low_sodium_3:
-  #   code: LAB//52623//mEq/L
-  #   value_min: null
-  #   value_max: 135 # mEq/L
-  #   value_max_inclusive: False
+  abnormally_low_sodium_2:
+    code: LAB//50983//mEq/L
+    value_min: null
+    value_max: 135 # mEq/L
+    value_max_inclusive: False
+  abnormally_low_sodium_3:
+    code: LAB//52623//mEq/L
+    value_min: null
+    value_max: 135 # mEq/L
+    value_max_inclusive: False
   sodium:
     expr: or(sodium_1, sodium_2, sodium_3)
   abnormally_low_sodium:
     expr: or(abnormally_low_sodium_1, abnormally_low_sodium_2, abnormally_low_sodium_3)
 
   bicarbonate_1:
-    code: MEASURE//Act.HCO3 (bloed)//mmol/l
+    code: LAB//227443//mEq/L
   bicarbonate_2:
-    code: MEASURE//HCO3//mmol/l
+    code: LAB//50882//mEq/L
   abnormally_low_bicarbonate_1:
-    code: MEASURE//Act.HCO3 (bloed)//mmol/l
+    code: LAB//227443//mEq/L
     value_min: null
     value_max: 22 # mEq/L
     value_max_inclusive: False
   abnormally_low_bicarbonate_2:
-    code: MEASURE//HCO3//mmol/l
+    code: LAB//50882//mEq/L
     value_min: null
     value_max: 22 # mEq/L
     value_max_inclusive: False
@@ -71,23 +79,16 @@ predicates:
     expr: or(abnormally_low_bicarbonate_1, abnormally_low_bicarbonate_2)
 
   hemoglobin_1:
-    code: MEASURE//Hemoglobine//mmol/l
+    code: LAB//220228//g/dl
   hemoglobin_2:
-    code: MEASURE//Hb (bloed)//mmol/l
-  hemoglobin_3:
-    code: "MEASURE//Hb(v.Bgs) (bloed)//mmol/l"
+    code: LAB//50811//g/dL
   abnormally_low_hemoglobin_1:
-    code: MEASURE//Hemoglobine//mmol/l
+    code: LAB//220228//g/dl
     value_min: null
     value_max: 13 # g/dL
     value_max_inclusive: False
   abnormally_low_hemoglobin_2:
-    code: "MEASURE//Hb (bloed)//mmol/l"
-    value_min: null
-    value_max: 13 # g/dL
-    value_max_inclusive: False
-  abnormally_low_hemoglobin_3:
-    code: "MEASURE//Hb(v.Bgs) (bloed)//mmol/l"
+    code: LAB//50811//g/dL
     value_min: null
     value_max: 13 # g/dL
     value_max_inclusive: False
@@ -97,16 +98,16 @@ predicates:
     expr: or(abnormally_low_hemoglobin_1, abnormally_low_hemoglobin_2)
 
   wbc_1:
-    code: MEASURE//Leucocyten//10^9/l
+    code: LAB//220546//K/uL
   wbc_2:
-    code: MEASURE//Leuco's (bloed)//10^9/l
+    code: LAB//51300//K/uL
   abnormally_high_wbc_1:
-    code: MEASURE//Leucocyten//10^9/l
+    code: LAB//220546//K/uL
     value_min: 11 # K/uL
     value_min_inclusive: False
     value_max: null
   abnormally_high_wbc_2:
-    code: MEASURE//Leuco's (bloed)//10^9/l
+    code: LAB//51300//K/uL
     value_min: 11 # K/uL
     value_min_inclusive: False
     value_max: null
@@ -116,16 +117,16 @@ predicates:
     expr: or(abnormally_high_wbc_1, abnormally_high_wbc_2)
 
   platelets_1:
-    code: MEASURE//Thrombo's (bloed)//10^9/l
+    code: LAB//227457//K/uL
   platelets_2:
-    code: MEASURE//Thrombocyten//10^9/l
+    code: LAB//51265//K/uL
   abnormally_low_platelets_1:
-    code: MEASURE//Thrombo's (bloed)//10^9/l
+    code: LAB//227457//K/uL
     value_min: null
     value_max: 150 # K/uL
     value_max_inclusive: False
   abnormally_low_platelets_2:
-    code: MEASURE//Thrombocyten//10^9/l
+    code: LAB//51265//K/uL
     value_min: null
     value_max: 150 # K/uL
     value_max_inclusive: False
@@ -135,27 +136,27 @@ predicates:
     expr: or(abnormally_low_platelets_1, abnormally_low_platelets_2)
 
   map_1:
-    code: MEASURE//ABP gemiddeld//mmHg
+    code: LAB//220052//mmHg
   map_2:
-    code: MEASURE//Niet invasieve bloeddruk gemiddeld//mmHg
-  # map_3:
-  #   code: LAB//225312//mmHg
+    code: LAB//220181//mmHg
+  map_3:
+    code: LAB//225312//mmHg
   abnormally_low_map_1:
-    code: MEASURE//ABP gemiddeld//mmHg
+    code: LAB//220052//mmHg
     value_min: null
     value_max: 65 # mmHg
     value_max_inclusive: False
   abnormally_low_map_2:
-    code: MEASURE//Niet invasieve bloeddruk gemiddeld//mmHg
+    code: LAB//220181//mmHg
     value_min: null
     value_max: 65 # mmHg
     value_max_inclusive: False
-  # abnormally_low_map_3:
-  #   code: LAB//225312//mmHg
-  #   value_min: null
-  #   value_max: 65 # mmHg
-  #   value_max_inclusive: False
+  abnormally_low_map_3:
+    code: LAB//225312//mmHg
+    value_min: null
+    value_max: 65 # mmHg
+    value_max_inclusive: False
   map:
-    expr: or(map_1, map_2)
+    expr: or(map_1, map_2, map_3)
   abnormally_low_map:
-    expr: or(abnormally_low_map_1, abnormally_low_map_2)
+    expr: or(abnormally_low_map_1, abnormally_low_map_2, abnormally_low_map_3)

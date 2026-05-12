@@ -38,6 +38,9 @@ class DatasetMetadata(Metadata):
         access_policy: The level of accessibility of the dataset. Limited to the values in the AccessPolicy
             enum.
         access_details: A string describing the access policy in more detail. May be empty.
+        demo_available: Whether the dataset has a usable ``build_demo`` recipe. Datasets where the upstream
+            extractor offers no public demo set this to False; integration tests skip them and they are
+            excluded from the CI dataset matrix.
 
     Examples:
         >>> DatasetMetadata(description="foo", contacts=[{"name": "bar"}]) # doctest: +NORMALIZE_WHITESPACE
@@ -45,16 +48,18 @@ class DatasetMetadata(Metadata):
                         contacts=[Contact(name='bar', email=None, github_username=None)],
                         links=None,
                         access_policy=<AccessPolicy.PRIVATE_SINGLE_USE: 'private_single_use'>,
-                        access_details=None)
+                        access_details=None,
+                        demo_available=True)
         >>> DatasetMetadata(
         ...     description="foo", contacts=[{"name": "bar"}], access_policy="public_unrestricted",
-        ...     access_details="baz"
+        ...     access_details="baz", demo_available=False
         ... ) # doctest: +NORMALIZE_WHITESPACE
         DatasetMetadata(description='foo',
                         contacts=[Contact(name='bar', email=None, github_username=None)],
                         links=None,
                         access_policy=<AccessPolicy.PUBLIC_UNRESTRICTED: 'public_unrestricted'>,
-                        access_details='baz')
+                        access_details='baz',
+                        demo_available=False)
         >>> DatasetMetadata(
         ...     description="foo", contacts=[{"name": "bar"}], access_policy="foo"
         ... ) # doctest: +NORMALIZE_WHITESPACE
@@ -74,6 +79,7 @@ class DatasetMetadata(Metadata):
 
     access_policy: AccessPolicy = AccessPolicy.PRIVATE_SINGLE_USE
     access_details: str | None = None
+    demo_available: bool = True
 
     def __post_init__(self):
         super().__post_init__()
