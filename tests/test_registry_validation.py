@@ -31,7 +31,9 @@ def test_all_datasets_have_commands():
     for name, dataset in DATASETS.items():
         commands = dataset.get("commands")
         assert commands is not None, f"Dataset {name} missing commands"
-        assert "build_demo" in commands, f"Dataset {name} missing build_demo command"
+        # build_full is required; build_demo is optional (its absence means the dataset has no demo recipe,
+        # and the dataset will be skipped from the integration-test demo lane — see tests/conftest.py).
+        assert "build_full" in commands, f"Dataset {name} missing build_full command"
 
 
 def test_all_datasets_have_predicates():
