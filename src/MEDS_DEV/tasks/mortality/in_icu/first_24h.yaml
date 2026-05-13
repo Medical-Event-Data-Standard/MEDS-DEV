@@ -14,6 +14,7 @@ metadata:
       github_username: "mmcdermott"
   supported_datasets:
     - MIMIC-IV
+    - NWICU
 
 predicates:
   icu_admission: ???
