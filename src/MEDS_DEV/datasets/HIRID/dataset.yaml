@@ -1,0 +1,16 @@
+metadata:
+  description: >-
+    A MEDS version of HIRID.
+  links:
+    - https://github.com/rvandewater/HIRID_MEDS
+    - https://physionet.org/content/hirid/
+  contacts:
+    - name: "Robin P. van de Water"
+      github_username: "rvandewater"
+commands:
+  build_full: >-
+    MEDS_extract-HIRID
+    raw_input_dir="{temp_dir}/raw"
+    pre_MEDS_dir="{temp_dir}/pre_MEDS"
+    MEDS_cohort_dir="{output_dir}"
+    log_dir="{output_dir}/.pipeline_logs"
