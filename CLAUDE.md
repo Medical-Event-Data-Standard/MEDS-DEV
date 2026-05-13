@@ -32,16 +32,32 @@ Requires Python ≥ 3.11. Uses `setuptools-scm` for versioning (version is deriv
 
 ## Running Tests
 
+Tests are split into two tiers using pytest markers:
+
+- **Fast tests** (`-m "not integration"`): doctests, registry validation, unit tests, CLI error
+    tests. No venvs, no dataset builds. Target: under 5 minutes.
+- **Integration tests** (`-m integration`): end-to-end tests that build datasets, extract tasks,
+    create model venvs, train/predict, evaluate, and package results.
+
 ```bash
-# Fast: doctests + unit tests only (no venvs, no data builds)
+# Fast checks only (doctests + unit + registry validation)
 pytest --doctest-modules -m "not integration" -x
 
-# Full suite (builds demo datasets, creates model venvs, runs end-to-end)
-pytest -v -s -x
+# Full integration suite (builds demo datasets, creates model venvs, runs end-to-end)
+pytest -v -s -x --doctest-modules
 
-# Full suite with persistent caching (much faster on repeat runs)
+# One dataset lane (integration tests scoped to a single dataset)
+pytest -v -s -x -m integration --test_dataset=MIMIC-IV_DEMO
+
+# One task lane
+pytest -v -s -x -m integration --test_task=mortality/in_icu/first_24h
+
+# One model lane
+pytest -v -s -x -m integration --test_model=random_predictor
+
+# Full suite with persistent caching (much faster on repeat local runs)
 mkdir -p /tmp/meds_dev_cache
-pytest -v -s -x \
+pytest -v -s -x --doctest-modules \
 	--persistent_cache_dir=/tmp/meds_dev_cache \
 	--cache_dataset=all --cache_task=all --cache_model=all \
 	--reuse_cached_dataset=all
@@ -66,6 +82,17 @@ pytest -v -s -x --test_task=mortality/in_icu/first_24h
 Tests are **ordered** by `pytest_collection_modifyitems` in conftest.py to ensure datasets are
 built before tasks, and tasks before models. Tests within a model are grouped so venvs can be
 cleaned up between models.
+
+### CI Tiers
+
+CI uses a tiered, change-aware strategy (see `.github/workflows/tests.yaml`):
+
+1. **Fast checks** — always run (lint + doctests + unit/registry tests)
+2. **Affected integration lanes** — run only for changed datasets, tasks, or models
+3. **Full integration** — runs on push to `main`, weekly schedule, `full-ci` PR label, or
+    when shared/core files change
+
+To force a full CI run on a PR, add the `full-ci` label.
 
 ## Code Quality
 
@@ -186,7 +213,7 @@ models is filtered by compatibility.
 ## Common Pitfalls
 
 - **Don't run `pytest` without flags if you just want fast feedback.** The full suite builds
-    datasets and model venvs. Use `-m "not integration"` for quick iteration.
+    datasets and model venvs. Use `--doctest-modules -m "not integration"` for quick iteration.
 - **Model venvs can conflict with the host environment.** Models run in isolated venvs created
     by `utils.install_venv()`. Don't install model requirements into your dev environment.
 - **Task `supported_datasets` is validated against the `DATASETS` registry at import time.**

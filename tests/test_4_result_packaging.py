@@ -4,6 +4,8 @@ import tempfile
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
+import pytest
+
 from MEDS_DEV import __version__ as MEDS_DEV_version
 from MEDS_DEV.results import Result
 
@@ -66,6 +68,7 @@ def test_pack_result_error():
         assert f"FileNotFoundError: File not found: {non_existent_fp!s}" in out.stderr.decode()
 
 
+@pytest.mark.integration
 def test_packages_result(packaged_result: Path):
     results_fp = packaged_result
 
