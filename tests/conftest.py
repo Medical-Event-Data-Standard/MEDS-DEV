@@ -325,6 +325,11 @@ def get_opts(config, opt: str) -> list[str]:
     if isinstance(out, dict):
         out = list(out.keys())
 
+    if opt == "dataset":
+        # Drop datasets that don't declare a build_demo command — they can't be exercised by the
+        # demo-mode integration tests below.
+        out = [name for name in out if "build_demo" in (DATASETS[name].get("commands") or {})]
+
     return out
 
 

@@ -33,7 +33,15 @@ def main(cfg: DictConfig):
         logger.info(f"Output directory {output_dir} already exists and is marked as done.")
         return
 
-    build_cmd = commands["build_demo"] if cfg.demo else commands["build_full"]
+    if cfg.demo:
+        if "build_demo" not in commands:
+            raise ValueError(
+                f"Dataset {cfg.dataset} does not declare a build_demo command — `demo=True` is not "
+                f"supported for this dataset. Build the full dataset instead (drop the `demo` arg)."
+            )
+        build_cmd = commands["build_demo"]
+    else:
+        build_cmd = commands["build_full"]
 
     with temp_env(cfg, requirements) as (build_temp_dir, env):
         build_cmd = build_cmd.format(output_dir=cfg.output_dir, temp_dir=str(build_temp_dir.resolve()))
