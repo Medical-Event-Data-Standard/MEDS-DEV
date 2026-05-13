@@ -1,0 +1,35 @@
+predicates:
+  hospital_admission:
+    code: { regex: "^ADMISSION//.*" }
+  hospital_discharge:
+    code: { regex: "^HOSPITAL_DISCHARGE//.*" }
+
+  icu_admission:
+    code: { regex: "^ICU_ADMISSION//.*" }
+  icu_discharge:
+    code: { regex: "^ICU_DISCHARGE//.*" }
+
+  creatinine_mgdl:
+    code: { any: ["LAB//mg/dL//creatinine"] }
+
+  #TODO: convert units from mmol/L to mg/dL
+  sodium_meql:
+    code: { any: ["LAB//mmol/L//sodium"] }
+
+  wbc_kul:
+    code: { any: ["LAB///nL//wbc"] }
+
+  platelets_kul:
+    code: { any: ["LAB///nL//platelet"] }
+
+  map_mmhg:
+    code:
+      {
+        any:
+          [
+            "VITAL//pap_mbp//mmHg",
+            "VITAL//nibp_mbp//mmHg",
+            "VITAL//art_mbp//mmHg",
+            "WARD_VITAL//mmHg//nibp_mbp",
+          ],
+      }
