@@ -1,75 +1,66 @@
+# Made by Robin van de Water (rvandewater) largely based on https://github.com/AmsterdamUMC/AmsterdamUMCdb/blob/2901fdda2ff8f7ae0f16191d0b3f6d0ac60f70b6/amsterdamumcdb/sql/common/legacy/
 predicates:
   icu_admission:
     code: { regex: "^ICU_ADMISSION//.*" }
   icu_discharge:
     code: { regex: "^ICU_DISCHARGE//.*" }
-  # largely based on https://github.com/AmsterdamUMC/AmsterdamUMCdb/blob/2901fdda2ff8f7ae0f16191d0b3f6d0ac60f70b6/amsterdamumcdb/sql/common/legacy/
+  hospital_admission:
+    code: { regex: "^ICU_ADMISSION//.*" }
+  hospital_discharge:
+    code: { regex: "^ICU_DISCHARGE//.*" }
+
+  # Elevated creatinine task predicates
   creatinine_1:
-    code: MEASURE//Kreatinine (bloed)//µmol/l
+    code: MEASURE//Kreatinine (bloed)//�mol/l
   creatinine_2:
-    code: MEASURE//Kreatinine//µmol/l
+    code: MEASURE//Kreatinine//�mol/l
   # Todo: convert to mg/dL
-  abnormally_high_creatinine_1:
-    code: MEASURE//Kreatinine (bloed)//µmol/l
-    value_min: 1.3 # mg/dL
+  abnormally_high_creatinine_1_umol_l:
+    code: MEASURE//Kreatinine (bloed)//�mol/l
+    value_min: 115 # 1.3 mg/dL
     value_min_inclusive: False
     value_max: null
-  abnormally_high_creatinine_2:
-    code: MEASURE//Kreatinine//µmol/l
-    value_min: 1.3 # mg/dL
+  abnormally_high_creatinine_2_umol_l:
+    code: MEASURE//Kreatinine//�mol/l
+    value_min: 115 # 1.3 mg/dL
     value_min_inclusive: False
     value_max: null
   creatinine:
     expr: or(creatinine_1, creatinine_2)
-  abnormally_high_creatinine:
-    expr: or(abnormally_high_creatinine_1, abnormally_high_creatinine_2)
+  abnormally_high_creatinine_umol_L:
+    expr: or(abnormally_high_creatinine_1_umol_l, abnormally_high_creatinine_2_umol_l)
 
-  # Todo: convert units
-  sodium_1:
-    code: MEASURE//Natrium (bloed)//mmol/l
-  # sodium_2:
-  #   code: LAB//50983//mEq/L
-  # sodium_3:
-  #   code: LAB//52623//mEq/L
-  abnormally_low_sodium_1:
+  # Hyponatremia task predicates
+  sodium:
+    code: MEASURE//Natrium (bloed)//mmol/l # mmol/L = mEq/L for sodium
+
+  abnormally_low_sodium:
     code: MEASURE//Natrium (bloed)//mmol/l
     value_min: null
     value_max: 135 # mEq/L
     value_max_inclusive: False
-  # abnormally_low_sodium_2:
-  #   code: LAB//50983//mEq/L
-  #   value_min: null
-  #   value_max: 135 # mEq/L
-  #   value_max_inclusive: False
-  # abnormally_low_sodium_3:
-  #   code: LAB//52623//mEq/L
-  #   value_min: null
-  #   value_max: 135 # mEq/L
-  #   value_max_inclusive: False
-  sodium:
-    expr: or(sodium_1, sodium_2, sodium_3)
-  abnormally_low_sodium:
-    expr: or(abnormally_low_sodium_1, abnormally_low_sodium_2, abnormally_low_sodium_3)
 
-  bicarbonate_1:
-    code: MEASURE//Act.HCO3 (bloed)//mmol/l
-  bicarbonate_2:
-    code: MEASURE//HCO3//mmol/l
-  abnormally_low_bicarbonate_1:
-    code: MEASURE//Act.HCO3 (bloed)//mmol/l
-    value_min: null
-    value_max: 22 # mEq/L
-    value_max_inclusive: False
-  abnormally_low_bicarbonate_2:
-    code: MEASURE//HCO3//mmol/l
-    value_min: null
-    value_max: 22 # mEq/L
-    value_max_inclusive: False
-  bicarbonate:
-    expr: or(bicarbonate_1, bicarbonate_2)
-  abnormally_low_bicarbonate:
-    expr: or(abnormally_low_bicarbonate_1, abnormally_low_bicarbonate_2)
+  # Metabolic Acidosis task predicates (not supported yet, only negative labels)
+  # bicarbonate_1:
+  #   code: MEASURE//Act.HCO3 (bloed)//mmol/l
+  # bicarbonate_2:
+  #   code: MEASURE//HCO3//mmol/l
+  # abnormally_low_bicarbonate_1:
+  #   code: MEASURE//Act.HCO3 (bloed)//mmol/l
+  #   value_min: null
+  #   value_max: 22 # mEq/L
+  #   value_max_inclusive: False
+  # abnormally_low_bicarbonate_2:
+  #   code: MEASURE//HCO3//mmol/l
+  #   value_min: null
+  #   value_max: 22 # mEq/L
+  #   value_max_inclusive: False
+  # bicarbonate:
+  #   expr: or(bicarbonate_1, bicarbonate_2)
+  # abnormally_low_bicarbonate:
+  #   expr: or(abnormally_low_bicarbonate_1, abnormally_low_bicarbonate_2)
 
+  # Hemoglobin (mmol/L)=Hemoglobin (g/dL)×0.6206 = 13.0 g/dL × 0.6206 = 8.07 mmol/L
   hemoglobin_1:
     code: MEASURE//Hemoglobine//mmol/l
   hemoglobin_2:
@@ -79,23 +70,24 @@ predicates:
   abnormally_low_hemoglobin_1:
     code: MEASURE//Hemoglobine//mmol/l
     value_min: null
-    value_max: 13 # g/dL
+    value_max: 8 # g/dL
     value_max_inclusive: False
   abnormally_low_hemoglobin_2:
     code: "MEASURE//Hb (bloed)//mmol/l"
     value_min: null
-    value_max: 13 # g/dL
+    value_max: 8 # g/dL
     value_max_inclusive: False
   abnormally_low_hemoglobin_3:
     code: "MEASURE//Hb(v.Bgs) (bloed)//mmol/l"
     value_min: null
-    value_max: 13 # g/dL
+    value_max: 8 # g/dL
     value_max_inclusive: False
   hemoglobin:
     expr: or(hemoglobin_1, hemoglobin_2)
   abnormally_low_hemoglobin:
     expr: or(abnormally_low_hemoglobin_1, abnormally_low_hemoglobin_2)
 
+  # Leukocytosis task predicates
   wbc_1:
     code: MEASURE//Leucocyten//10^9/l
   wbc_2:
@@ -115,6 +107,7 @@ predicates:
   abnormally_high_wbc:
     expr: or(abnormally_high_wbc_1, abnormally_high_wbc_2)
 
+  # Thrombocytopenia task predicates
   platelets_1:
     code: MEASURE//Thrombo's (bloed)//10^9/l
   platelets_2:
@@ -134,6 +127,7 @@ predicates:
   abnormally_low_platelets:
     expr: or(abnormally_low_platelets_1, abnormally_low_platelets_2)
 
+  # Hypotension task predicates
   map_1:
     code: MEASURE//ABP gemiddeld//mmHg
   map_2:
@@ -150,12 +144,25 @@ predicates:
     value_min: null
     value_max: 65 # mmHg
     value_max_inclusive: False
-  # abnormally_low_map_3:
-  #   code: LAB//225312//mmHg
-  #   value_min: null
-  #   value_max: 65 # mmHg
-  #   value_max_inclusive: False
   map:
     expr: or(map_1, map_2)
   abnormally_low_map:
     expr: or(abnormally_low_map_1, abnormally_low_map_2)
+
+  # Hyperkalemia task predicates
+  potassium:
+    code: MEASURE//Kalium (bloed)//mmol/l
+  abnormally_high_potassium:
+    code: MEASURE//Kalium (bloed)//mmol/l
+    value_min: 5.0 # mmol/L
+    value_min_inclusive: True
+    value_max: null
+
+  # Hypoglycemia task predicates
+  glucose:
+    code: MEASURE//Glucose (bloed)//mmol/l
+  abnormally_low_glucose:
+    code: MEASURE//Glucose (bloed)//mmol/l
+    value_min: null
+    value_max: 70.2 # mg/dL
+    value_max_inclusive: True
