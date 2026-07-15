@@ -249,7 +249,7 @@ If a valid full-dataset predicate code is absent from the public demo, document 
 testing:
   demo:
     allowed_uncovered_predicate_codes:
-      "CODE//ABSENT_FROM_DEMO": >-
+      CODE//ABSENT_FROM_DEMO: >-
         Explain why this code is valid for the full dataset but absent from the demo.
 ```
 

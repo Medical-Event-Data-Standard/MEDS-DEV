@@ -19,7 +19,7 @@ If a valid full-dataset code is absent from the demo, add a documented exception
 testing:
   demo:
     allowed_uncovered_predicate_codes:
-      "CODE//ABSENT_FROM_DEMO": >-
+      CODE//ABSENT_FROM_DEMO: >-
         Explain why this code is valid for the full dataset but absent from the demo.
 ```
 

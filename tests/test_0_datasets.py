@@ -67,8 +67,8 @@ def test_dataset_predicate_codes_covered(demo_dataset: NAME_AND_DIR):
         .collect()
         .row(0, named=True)
     )
-    allowed_uncovered_codes = DATASETS[dataset_name]["testing"].get("demo", {}).get(
-        "allowed_uncovered_predicate_codes", {}
+    allowed_uncovered_codes = (
+        DATASETS[dataset_name]["testing"].get("demo", {}).get("allowed_uncovered_predicate_codes", {})
     )
     configured_exact_codes = {
         predicate.code for predicate in predicate_code_matchers.values() if isinstance(predicate.code, str)
@@ -83,8 +83,7 @@ def test_dataset_predicate_codes_covered(demo_dataset: NAME_AND_DIR):
         code
         for code in allowed_uncovered_codes
         if any(
-            coverage[name] and predicate.code == code
-            for name, predicate in predicate_code_matchers.items()
+            coverage[name] and predicate.code == code for name, predicate in predicate_code_matchers.items()
         )
     )
     assert not covered_allowed_codes, (
@@ -104,6 +103,5 @@ def test_dataset_predicate_codes_covered(demo_dataset: NAME_AND_DIR):
 
     assert not uncovered, (
         f"Dataset {dataset_name} demo does not cover the code matcher for "
-        f"{len(uncovered)} plain predicate(s):\n"
-        + "\n".join(f"  - {name}" for name in uncovered)
+        f"{len(uncovered)} plain predicate(s):\n" + "\n".join(f"  - {name}" for name in uncovered)
     )
