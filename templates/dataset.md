@@ -20,6 +20,10 @@ Provide the list of the existing tasks already present in MEDS-DEV that are cove
 
 For supported tasks, provide the predicate definitions in a `predicates.yaml` file in `src/MEDS_DEV/datasets/$YOUR_DATASET_NAME` (e.g. `src/MEDS_DEV/datasets/MIMIC-IV/predicates.yaml`).
 
+If the dataset has a demo and a valid full-dataset predicate code is absent from it, document the exact code
+and reason in `testing.demo.allowed_uncovered_predicate_codes` in the dataset's `dataset.yaml`. Do not exclude
+codes merely because they are rare; exceptions should describe a known limitation of the demo.
+
 ### Future tasks
 
 If there are any currently undefined tasks that your dataset would be particularly suitable for, describe them here.
@@ -62,6 +66,7 @@ Please ensure your model conforms to the MEDS-DEV API by checking the following:
 
 - [ ] I filled out the above template and committed it as a `README.md` file in a directory named after the dataset in `src/MEDS_DEV/datasets`.
 - [ ] I included the `predicates.yaml` file, defining all predictates required for the supported tasks.
+- [ ] I documented any valid predicate codes absent from the demo, including a reason for each exception.
 - [ ] I verified all resource links are permanent and accessible to the public.
 - [ ] I included example usage code and API instructions (if applicable).
 - [ ] I documented any known limitations or biases in the dataset.

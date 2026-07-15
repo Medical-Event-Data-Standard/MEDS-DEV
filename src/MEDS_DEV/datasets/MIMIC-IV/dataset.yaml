@@ -27,3 +27,10 @@ commands:
     pre_MEDS_dir="{temp_dir}/pre_MEDS"
     MEDS_output_dir="{output_dir}"
     log_dir="{output_dir}/.pipeline_logs"
+testing:
+  demo:
+    allowed_uncovered_predicate_codes:
+      "LAB//RESULT//52546//mg/dL": >-
+        Valid full-dataset creatinine code absent from the public MIMIC-IV 2.2 demo.
+      "LAB//RESULT//52623//mEq/L": >-
+        Valid full-dataset sodium code absent from the public MIMIC-IV 2.2 demo.

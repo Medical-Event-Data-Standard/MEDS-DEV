@@ -10,6 +10,22 @@ To contribute a new dataset:
 4. Specify the dataset information (including supported and custom tasks) in the template README.md file in the dataset's folder.
 5. Create a pull request with your changes
 
+## Demo predicate coverage
+
+Dataset integration tests require every plain predicate code matcher to match at least one event in the demo.
+If a valid full-dataset code is absent from the demo, add a documented exception to `dataset.yaml`:
+
+```yaml
+testing:
+  demo:
+    allowed_uncovered_predicate_codes:
+      "CODE//ABSENT_FROM_DEMO": >-
+        Explain why this code is valid for the full dataset but absent from the demo.
+```
+
+Use exceptions only for exact codes that are valid in the full dataset. Every exception requires a reason,
+must be referenced by a plain predicate, and must be removed if a future demo starts covering that code.
+
 ## Notes
 
 If you have a version of a task configuration file that is more specialized to a dataset than can be achieved

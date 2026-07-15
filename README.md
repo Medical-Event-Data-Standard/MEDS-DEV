@@ -222,7 +222,7 @@ dataset, containing the following files:
 2. `requirements.txt`: This file should be a valid `pip` specification for what is needed to install the ETL
     to build the environment. _The ETL must be runnable on Python 3.11_.
 3. `dataset.yaml`: This file needs to have two keys: `metadata` and `commands`. Under `commands`, you must
-    have the keys `build_full` and `build_demo` that, if run in an environment with the requirements installed,
+    have `build_full` and may provide `build_demo`. These commands, when run with their requirements installed,
     with the specified placeholder variables (indicated in python syntax, include `temp_dir` for intermediate
     files and `output_dir` for where you want the final MEDS cohort to live) will produce the desired MEDS
     cohort. The `metadata` key should contain information about the dataset. See the `MIMIC-IV` dataset for an
@@ -241,6 +241,20 @@ dataset, containing the following files:
 4. `predicates.yaml` contains ACES syntax predicates to realize the target tasks.
 5. Optionally, you should add a `refs.bib` file with a BibTex entry users should cite when they use the
     dataset.
+
+If a valid full-dataset predicate code is absent from the public demo, document it under the optional
+`testing.demo.allowed_uncovered_predicate_codes` mapping in `dataset.yaml`:
+
+```yaml
+testing:
+  demo:
+    allowed_uncovered_predicate_codes:
+      "CODE//ABSENT_FROM_DEMO": >-
+        Explain why this code is valid for the full dataset but absent from the demo.
+```
+
+Each exception must be an exact code used by a plain predicate and include a non-empty reason. The demo
+coverage test fails for unknown exceptions and for stale exceptions once the demo begins covering the code.
 
 If all of these are defined, then you can, after installing `MEDS-DEV` via `pip install -e .`, run the command
 `meds-dev-dataset dataset=DATASET_NAME output_dir=OUTPUT_DIR` to generate the MEDS cohort for that dataset
