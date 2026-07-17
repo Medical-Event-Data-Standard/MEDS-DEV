@@ -34,6 +34,13 @@ def _sanitize_nan_inf(obj: Any) -> Any:
         {'nested': {'deep': {'v': None}}}
         >>> _sanitize_nan_inf([float("nan"), {"a": float("inf")}])
         [None, {'a': None}]
+
+    Tuples are recursed into as well (and preserved as tuples). In practice ``self.result`` is
+    always JSON-decoded, so tuples never appear there, but this keeps the helper correct for any
+    caller that hands it a tuple:
+
+        >>> _sanitize_nan_inf((1.0, float("nan"), (float("inf"), 2.0)))
+        (1.0, None, (None, 2.0))
     """
     if isinstance(obj, float):
         if math.isnan(obj) or math.isinf(obj):
@@ -43,6 +50,8 @@ def _sanitize_nan_inf(obj: Any) -> Any:
         return {k: _sanitize_nan_inf(v) for k, v in obj.items()}
     if isinstance(obj, list):
         return [_sanitize_nan_inf(v) for v in obj]
+    if isinstance(obj, tuple):
+        return tuple(_sanitize_nan_inf(v) for v in obj)
     return obj
 
 
