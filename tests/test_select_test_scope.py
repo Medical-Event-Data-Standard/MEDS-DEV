@@ -24,96 +24,88 @@ select_test_scope = _load_module()
 classify_changes = select_test_scope.classify_changes
 
 
-# Each case: (label, changed_files, expected-subset-of-classification).
-# Only the keys present in `expected` are asserted, so cases stay focused on the decision they probe.
+# Each case contains the complete set of fields that control workflow execution. ``reason`` is
+# intentionally checked separately because it is diagnostic text, not an input to lane selection.
+def expected_scope(*, run_full=False, docs_only=False, datasets=(), tasks=(), models=()):
+    return {
+        "run_full": run_full,
+        "docs_only": docs_only,
+        "changed_datasets": list(datasets),
+        "changed_tasks": list(tasks),
+        "changed_models": list(models),
+    }
+
+
 CASES = [
     (
         "docs_only_top_level",
         ["README.md", "CONTRIBUTORS.md", "CLAUDE.md"],
-        {
-            "run_full": False,
-            "docs_only": True,
-            "changed_datasets": [],
-            "changed_tasks": [],
-            "changed_models": [],
-        },
+        expected_scope(docs_only=True),
     ),
     (
         "docs_only_nested_readme",
         ["src/MEDS_DEV/datasets/MIMIC-IV/README.md"],
-        {"run_full": False, "docs_only": True, "changed_datasets": []},
+        expected_scope(docs_only=True),
     ),
     (
         "single_dataset",
         ["src/MEDS_DEV/datasets/MIMIC-IV/dataset.yaml"],
-        {
-            "run_full": False,
-            "docs_only": False,
-            "changed_datasets": ["MIMIC-IV"],
-            "changed_tasks": [],
-            "changed_models": [],
-        },
+        expected_scope(datasets=("MIMIC-IV",)),
     ),
     (
         "single_task_keeps_relative_name",
         ["src/MEDS_DEV/tasks/mortality/in_icu/first_24h.yaml"],
-        {"run_full": False, "changed_tasks": ["mortality/in_icu/first_24h"], "changed_datasets": []},
+        expected_scope(tasks=("mortality/in_icu/first_24h",)),
     ),
     (
         "single_model",
         ["src/MEDS_DEV/models/random_predictor/model.yaml"],
-        {"run_full": False, "changed_models": ["random_predictor"], "changed_datasets": []},
+        expected_scope(models=("random_predictor",)),
     ),
     (
         "core_file_promotes_to_full",
         ["src/MEDS_DEV/utils.py"],
-        {"run_full": True, "docs_only": False},
+        expected_scope(run_full=True),
     ),
     (
         "conftest_promotes_to_full",
         ["tests/conftest.py"],
-        {"run_full": True},
+        expected_scope(run_full=True),
     ),
     (
         "workflow_change_promotes_to_full",
         [".github/workflows/tests.yaml"],
-        {"run_full": True},
+        expected_scope(run_full=True),
     ),
     (
         "dataset_test_file_promotes_to_full",
         ["tests/test_0_datasets.py"],
-        {"run_full": True},
+        expected_scope(run_full=True),
     ),
     (
         "registry_test_stays_fast",
         ["tests/test_registry_validation.py"],
-        {
-            "run_full": False,
-            "docs_only": False,
-            "changed_datasets": [],
-            "changed_tasks": [],
-            "changed_models": [],
-        },
+        expected_scope(),
     ),
     (
         "unknown_file_promotes_to_full",
         ["some_top_level_thing.py"],
-        {"run_full": True},
+        expected_scope(run_full=True),
     ),
     (
         "empty_diff_runs_full",
         [],
-        {"run_full": True, "docs_only": False},
+        expected_scope(run_full=True),
     ),
     (
         "docs_plus_code_is_not_docs_only",
         ["README.md", "src/MEDS_DEV/datasets/MIMIC-IV/dataset.yaml"],
-        {"run_full": False, "docs_only": False, "changed_datasets": ["MIMIC-IV"]},
+        expected_scope(datasets=("MIMIC-IV",)),
     ),
     (
         "core_override_wins_over_component",
         ["src/MEDS_DEV/datasets/MIMIC-IV/dataset.yaml", "src/MEDS_DEV/utils.py"],
-        {"run_full": True},
+        expected_scope(run_full=True, datasets=("MIMIC-IV",)),
     ),
     (
         "multiple_datasets_sorted_and_deduped",
@@ -122,7 +114,7 @@ CASES = [
             "src/MEDS_DEV/datasets/MIMIC-IV/predicates.yaml",
             "src/MEDS_DEV/datasets/eICU/dataset.yaml",
         ],
-        {"run_full": False, "changed_datasets": ["MIMIC-IV", "eICU"]},
+        expected_scope(datasets=("MIMIC-IV", "eICU")),
     ),
 ]
 
@@ -130,8 +122,9 @@ CASES = [
 @pytest.mark.parametrize("label,changed_files,expected", CASES, ids=[c[0] for c in CASES])
 def test_classify_changes(label, changed_files, expected):
     result = classify_changes(changed_files)
-    for key, want in expected.items():
-        assert result[key] == want, f"[{label}] key {key!r}: got {result[key]!r}, want {want!r}"
+    actual = {key: value for key, value in result.items() if key != "reason"}
+    assert actual == expected, f"[{label}] got {actual!r}, want {expected!r}"
+    assert isinstance(result["reason"], str) and result["reason"]
 
 
 def test_classify_changes_returns_all_keys():
