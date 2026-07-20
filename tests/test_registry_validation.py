@@ -43,25 +43,6 @@ def test_all_datasets_have_predicates():
         assert predicates.exists(), f"Dataset {name} predicates file does not exist: {predicates}"
 
 
-def test_dataset_demo_predicate_coverage_exceptions_valid():
-    for name, dataset in DATASETS.items():
-        testing = dataset.get("testing", {})
-        assert isinstance(testing, dict), f"Dataset {name} testing config must be a mapping"
-
-        demo = testing.get("demo", {})
-        assert isinstance(demo, dict), f"Dataset {name} testing.demo config must be a mapping"
-
-        exceptions = demo.get("allowed_uncovered_predicate_codes", {})
-        assert isinstance(exceptions, dict), (
-            f"Dataset {name} testing.demo.allowed_uncovered_predicate_codes must be a mapping"
-        )
-        for code, reason in exceptions.items():
-            assert isinstance(code, str) and code, f"Dataset {name} has an invalid uncovered code: {code!r}"
-            assert isinstance(reason, str) and reason.strip(), (
-                f"Dataset {name} uncovered demo code {code!r} must include a reason"
-            )
-
-
 def test_all_tasks_have_criteria():
     for name, task in TASKS.items():
         assert "criteria_fp" in task, f"Task {name} missing criteria_fp"

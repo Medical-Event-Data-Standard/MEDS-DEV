@@ -110,7 +110,6 @@ for path in dataset_files.rglob("*/dataset.yaml"):
     DATASETS[dataset_name] = {
         "metadata": DatasetMetadata(**spec["metadata"]),
         "commands": spec.get("commands", None),
-        "testing": spec.get("testing", {}),
         "predicates": predicates_path if predicates_path.exists() else None,
         "requirements": requirements_path if requirements_path.exists() else None,
     }

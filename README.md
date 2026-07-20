@@ -242,20 +242,6 @@ dataset, containing the following files:
 5. Optionally, you should add a `refs.bib` file with a BibTex entry users should cite when they use the
     dataset.
 
-If a valid full-dataset predicate code is absent from the public demo, document it under the optional
-`testing.demo.allowed_uncovered_predicate_codes` mapping in `dataset.yaml`:
-
-```yaml
-testing:
-  demo:
-    allowed_uncovered_predicate_codes:
-      CODE//ABSENT_FROM_DEMO: >-
-        Explain why this code is valid for the full dataset but absent from the demo.
-```
-
-Each exception must be an exact code used by a plain predicate and include a non-empty reason. The demo
-coverage test fails for unknown exceptions and for stale exceptions once the demo begins covering the code.
-
 If all of these are defined, then you can, after installing `MEDS-DEV` via `pip install -e .`, run the command
 `meds-dev-dataset dataset=DATASET_NAME output_dir=OUTPUT_DIR` to generate the MEDS cohort for that dataset
 (with `demo=True` if you want the demo version).
