@@ -1,0 +1,14 @@
+metadata:
+  description: >-
+    EHRShot dataset from Stanford Medicine.
+  links:
+    - https://som-shahlab.github.io/ehrshot-website/docs/
+  contacts:
+    - name: "Robin P. van de Water"
+      github_username: "rvandewater"
+
+commands:
+  build_full: >-
+    python "{dataset_dir}/download.py"
+    --output-dir "{output_dir}"
+    --temp-dir "{temp_dir}"

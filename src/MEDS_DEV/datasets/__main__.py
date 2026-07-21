@@ -19,6 +19,7 @@ def main(cfg: DictConfig):
         )
 
     commands = DATASETS[cfg.dataset]["commands"]
+    dataset_dir = DATASETS[cfg.dataset]["dataset_dir"]
     requirements = DATASETS[cfg.dataset]["requirements"]
 
     output_dir = Path(cfg.output_dir)
@@ -44,7 +45,11 @@ def main(cfg: DictConfig):
         build_cmd = commands["build_full"]
 
     with temp_env(cfg, requirements) as (build_temp_dir, env):
-        build_cmd = build_cmd.format(output_dir=cfg.output_dir, temp_dir=str(build_temp_dir.resolve()))
+        build_cmd = build_cmd.format(
+            dataset_dir=str(Path(dataset_dir).resolve()),
+            output_dir=cfg.output_dir,
+            temp_dir=str(build_temp_dir.resolve()),
+        )
 
         logger.info(f"Considering running build command: {build_cmd}")
         run_in_env(
