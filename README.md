@@ -94,6 +94,16 @@ meds-dev-dataset dataset=$DATASET_NAME output_dir=$DATASET_DIR
 where `DATASET_NAME` is the name of the dataset you want to build and `OUTPUT_DIR` is the directory where you
 want to store the final, MEDS-formatted dataset.
 
+If you have already downloaded the source dataset, point the builder at it to avoid downloading it again:
+
+```bash
+meds-dev-dataset dataset=$DATASET_NAME output_dir=$DATASET_DIR raw_input_dir=/path/to/downloaded/data
+```
+
+This works for recipes that use the `{raw_input_dir}` command placeholder, including MIMIC-IV. If the option
+is omitted, MEDS-DEV retains the existing behavior and uses a `raw` directory under its temporary build
+directory.
+
 > [!NOTE]
 > Note that you can also specify `demo=True` to build a demo version of this dataset (if supported) for ease
 > of testing the pipeline and your downstream code.
@@ -224,9 +234,10 @@ dataset, containing the following files:
 3. `dataset.yaml`: This file needs to have two keys: `metadata` and `commands`. Under `commands`, you must
     have the keys `build_full` and `build_demo` that, if run in an environment with the requirements installed,
     with the specified placeholder variables (indicated in python syntax, include `temp_dir` for intermediate
-    files and `output_dir` for where you want the final MEDS cohort to live) will produce the desired MEDS
-    cohort. The `metadata` key should contain information about the dataset. See the `MIMIC-IV` dataset for an
-    example of the allowed syntax here. Mandatory keys include `description`, `access_policy`, and the key
+    files, `raw_input_dir` for downloaded source data, and `output_dir` for where you want the final MEDS
+    cohort to live) will produce the desired MEDS cohort. The `metadata` key should contain information about
+    the dataset. See the `MIMIC-IV` dataset for an example of the allowed syntax here. Mandatory keys include
+    `description`, `access_policy`, and the key
     `contacts` with at least one entry. Note that the values for `access_policy` are restricted to the values
     of the `AccessPolicy` `StrEnum` in the `MEDS_DEV.datasets` codebase, namely:
     - `"public_with_approval"`: Data that can be used (in principle) by anyone, but requires approval to access.

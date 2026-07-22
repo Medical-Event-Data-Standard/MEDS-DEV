@@ -5,7 +5,28 @@ import pytest
 from meds_testing_helpers.dataset import MEDSDataset
 
 from MEDS_DEV import DATASETS
+from MEDS_DEV.datasets.__main__ import format_build_command
 from tests.utils import NAME_AND_DIR, run_command
+
+
+@pytest.mark.parametrize(
+    ("raw_input_dir", "expected_raw_input_dir"),
+    [(None, "build/raw"), ("downloaded", "downloaded")],
+)
+def test_format_build_command_raw_input_dir(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, raw_input_dir: str | None, expected_raw_input_dir: str
+):
+    monkeypatch.chdir(tmp_path)
+    build_dir = tmp_path / "build"
+
+    command = format_build_command(
+        "extract raw={raw_input_dir} tmp={temp_dir} out={output_dir}",
+        output_dir="meds",
+        temp_dir=build_dir,
+        raw_input_dir=raw_input_dir,
+    )
+
+    assert command == f"extract raw={tmp_path / expected_raw_input_dir} tmp={build_dir} out=meds"
 
 
 def test_non_dataset_breaks():
