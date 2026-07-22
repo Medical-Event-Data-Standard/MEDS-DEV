@@ -1,0 +1,10 @@
+input_dir: ${oc.env:EHRSHOT_INPUT_DIR}
+output_dir: ${oc.env:EHRSHOT_OUTPUT_DIR}
+
+description: >-
+  Create deterministic MEDS-DEV subject splits for EHRShot and reorganize the
+  flat source shards into split-specific directories.
+
+stages:
+  - reshard_to_split:
+      n_subjects_per_shard: 1000

@@ -35,6 +35,17 @@ No EHRShot predicates are included in this initial dataset integration.
 Predicate mappings and task support will be added separately after their event
 semantics have been validated.
 
+## Dataset Splits
+
+The source MEDS archive does not include `metadata/subject_splits.parquet` and
+stores its data in flat shards. During the build, MEDS-DEV uses MEDS-Transforms
+to create deterministic subject-level splits matching the MIMIC-IV convention:
+80% `train`, 10% `tuning`, and 10% `held_out`, with random seed 1. The data are
+then rewritten under `data/train/`, `data/tuning/`, and `data/held_out/`.
+
+These MEDS-DEV splits are distinct from the canonical task splits distributed
+with the original EHRSHOT benchmark.
+
 ## MEDS-transformation
 
 EHRSHOT is available in three formats: Original (compatible with benchmark repository), MEDS (Medical Event Data Standard), and OMOP (full OMOP table dumps). The MEDS version contains the same exact data as the Original dataset but in MEDS-compatible format.[1]
