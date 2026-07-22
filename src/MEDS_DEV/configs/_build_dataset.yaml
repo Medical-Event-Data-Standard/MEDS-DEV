@@ -5,6 +5,7 @@ dataset: ???
 output_dir: ???
 demo: False
 temp_dir: null # If null, will be determined automatically to a temporary directory.
+raw_input_dir: null # If null, raw source data will be downloaded under temp_dir.
 venv_dir: null
 do_overwrite: False
 
@@ -22,6 +23,6 @@ hydra:
 
       You can specify "dataset" to point to the dataset you want to build, "demo=True" to build the demo
       instead of the full dataset (good for testing), "output_dir" to say where the final, raw MEDS cohort
-      should be stored on disk, and "temp_dir" to overwrite the default temporary directory for storing
-      intermediated files. If you specify "do_overwrite=True", the output directory will be deleted prior to
-      running the command.
+      should be stored on disk, "raw_input_dir" to reuse source data that you already downloaded, and
+      "temp_dir" to overwrite the default temporary directory for storing intermediate files. If you specify
+      "do_overwrite=True", the output directory will be deleted prior to running the command.
