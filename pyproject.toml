@@ -52,6 +52,8 @@ omit = ["*/models/cehrbert/*"]
 [tool.pytest.ini_options]
 addopts = [
   "--color=yes",
+  "--strict-markers",
+  "--strict-config",
 ]
 doctest_optionflags = "ELLIPSIS NORMALIZE_WHITESPACE"
 markers = [

@@ -13,13 +13,20 @@ for contributors.
 ## Installing the Project for Development
 
 This project uses [`uv`](https://docs.astral.sh/uv/) for environment management. To set up the project for
-development, simply clone the repository, then sync the uv environment, activate it, and install the pre-commit
-environment:
+development, clone the repository, then sync the uv environment and install the pre-commit hook:
 
 ```bash
-uv sync
-source .venv/bin/activate # Not strictly necessary, but ensures if you don't use uv things still work.
-uv run pre-commit install
+uv sync                   # Creates .venv and installs the project (editable) plus the dev/test extras.
+uv run pre-commit install # Installs the Git pre-commit hook so checks run automatically on commit.
+```
+
+`uv sync` installs `MEDS-DEV` in editable mode, so source edits take effect without reinstalling.
+Prefixing commands with `uv run` (e.g. `uv run pytest`) runs them inside the project environment
+without activating it. Activating the environment is optional; if you prefer to drop the `uv run`
+prefix, activate it first:
+
+```bash
+source .venv/bin/activate # Optional — lets you run `pytest`/`pre-commit` directly, without `uv run`.
 ```
 
 ## Documentation Standards
@@ -48,10 +55,22 @@ directly via:
 uv run pre-commit run --all-files
 ```
 
-You can also run the tests (including doctests):
+You can also run the tests. The suite is split into a fast lane and a full integration lane via the
+`integration` pytest marker, and doctests are opt-in through `--doctest-modules` (they are **not**
+run by a bare `pytest` invocation).
+
+For quick feedback while developing, run the fast lane — doctests plus unit/registry tests, no
+dataset builds or model virtual environments:
 
 ```bash
-uv run pytest -v
+uv run pytest --doctest-modules -m "not integration" -x
+```
+
+To run the full suite, including the end-to-end integration tests that build datasets, create model
+environments, and run train/predict/evaluate:
+
+```bash
+uv run pytest -v -s --doctest-modules
 ```
 
 Tests and pre-commit checks are run as part of the continuous integration process, so any failures will prevent
