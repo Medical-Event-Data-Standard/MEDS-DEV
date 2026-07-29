@@ -1,0 +1,18 @@
+predicates:
+  hospital_admission:
+    code: { regex: "^HOSPITAL_ADMISSION//.*" }
+  hospital_discharge:
+    code: { regex: "^HOSPITAL_DISCHARGE//.*" }
+
+  ED_registration:
+    code: ED_REGISTRATION
+  ED_discharge:
+    code: ED_OUT
+
+  icu_admission:
+    code: { regex: "^ICU_ADMISSION//.*" }
+  icu_discharge:
+    code: { regex: "^ICU_DISCHARGE//.*" }
+
+  # NWICU's lab and vital codes contain dataset-specific item IDs. Add clinical
+  # predicates only after validating those IDs against the credentialed data.
