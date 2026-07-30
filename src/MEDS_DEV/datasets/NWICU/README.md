@@ -21,8 +21,6 @@ The ETL downloads the source files from PhysioNet. Set `DATASET_DOWNLOAD_USERNAM
 
 ## Supported Tasks
 
-No MEDS-DEV tasks have yet been validated against NWICU.
-
 ## MEDS Transformation
 
 [`NWICU-MEDS`](https://github.com/rvandewater/NWICU_MEDS) transforms the credentialed PhysioNet
@@ -33,8 +31,3 @@ does not provide a public demo dataset.[2]
 
 1. [NWICU on PhysioNet](https://physionet.org/content/nwicu-northwestern-icu/0.1.0/)
 2. [NWICU-MEDS ETL](https://github.com/rvandewater/NWICU_MEDS)
-
-## Disclaimer
-
-Refer to the data owners and the latest PhysioNet documentation when using NWICU. The dataset is intended
-for research and education, not clinical care.
