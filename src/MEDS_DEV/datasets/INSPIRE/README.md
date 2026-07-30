@@ -6,33 +6,21 @@ The INSPIRE dataset is a publicly available research dataset in perioperative me
 
 ## Access Requirements
 
-Taken from [PhysioNet](https://physionet.org/content/inspire/1.3/):
+Taken from [PhysioNet](https://physionet.org/content/inspire/1.4.2/):
 
-- **Access Policy**: Complete the credentialed data access requirements on PhysioNet[1]
-- **License (for files)**: PhysioNet Credentialed Health Data License Version 1.5.0[1]
-- **Data Use Agreement**: Agreement requires verified institutional affiliation and commitment to use data solely for lawful scientific research[1]
-- **Required training**: Valid CITI training certification in human research subject protection and HIPAA regulations[1]
-- **License Term**: 3 years from account creation date[1]
-- **Code Sharing**: Agreement to contribute code associated with publications to open research repository[1]
+- **Access Policy**: Only credentialed users who sign the data use agreement can access the files.[1]
+- **License**: Korea Credentialed Health Data License 1.0.0.[1]
+- **Data Use Agreement**: Korea Credentialed Health Data Agreement 1.0.0; the data may be used for research purposes only.[1,2]
+- **Required training**: CITI Data or Specimens Only Research.[1]
+- **Agreement term**: Five years, automatically extended unless notice is given.[2]
 
 ## Supported Tasks
 
-INSPIRE includes several classification tasks organized into categories such as:[1]
+## MEDS transformation
 
-**Operational Outcomes:**
-
-- `tasks/mortality/long_length_of_stay.yaml`
-- `tasks/readmission/30_day_readmission.yaml`
-- `tasks/transfer/icu_transfer.yaml`
-
-## MEDS-transformation
-
-The INSPIRE ETL is found at https://github.com/rvandewater/INSPIRE_MEDS.
+The [`INSPIRE_MEDS`](https://github.com/rvandewater/INSPIRE_MEDS) ETL transforms the original INSPIRE data from PhysioNet into the Medical Event Data Standard (MEDS).
 
 ## Sources
 
-1. [INSPIRE Physionet Website](https://physionet.org/content/inspire/1.3/)
-
-## Disclaimer
-
-Please refer to the data owners and the most up-to-date information when using this dataset in your research. The INSPIRE dataset has not been reviewed or approved by the Food and Drug Administration and is for non-clinical, research and education use only.[1]
+1. [INSPIRE PhysioNet Website](https://physionet.org/content/inspire/1.4.2/)
+2. [Korea Credentialed Health Data License 1.0.0](https://physionet.org/content/inspire/view-license/1.4.2/)
