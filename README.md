@@ -222,7 +222,7 @@ dataset, containing the following files:
 2. `requirements.txt`: This file should be a valid `pip` specification for what is needed to install the ETL
     to build the environment. _The ETL must be runnable on Python 3.11_.
 3. `dataset.yaml`: This file needs to have two keys: `metadata` and `commands`. Under `commands`, you must
-    have the keys `build_full` and `build_demo` that, if run in an environment with the requirements installed,
+    have `build_full` and may provide `build_demo`. These commands, when run with their requirements installed,
     with the specified placeholder variables (indicated in python syntax, include `temp_dir` for intermediate
     files and `output_dir` for where you want the final MEDS cohort to live) will produce the desired MEDS
     cohort. The `metadata` key should contain information about the dataset. See the `MIMIC-IV` dataset for an
