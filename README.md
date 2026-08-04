@@ -291,6 +291,8 @@ here, like with a dataset.
 A full description of these commands is coming soon, but for now, note that:
 
 1. Commands can use the template variables `{output_dir}`, `{dataset_dir}`, `{labels_dir}`, and `{demo}`.
+    Models that need a dataset's predicates file (e.g., for featurization) can also use the optional
+    `{predicates_path}` template variable, populated from the `predicates_path` argument to `meds-dev-model`.
 2. Commands should be added in a nested manner for running either over `unsupervised` or `supervised`
     datasets, in either `train` or `predict` modes. See the random predictors example for an example.
 
