@@ -198,6 +198,14 @@ def model_commands(
         >>> list(model_commands(cfg, commands, model_dir))
         [('FT data=data labels=labels output=output predicates=predicates.yaml', PosixPath('output'))]
 
+    If a model command needs the variable but the caller does not provide it, command formatting fails
+    immediately instead of running the model without its required predicates:
+        >>> cfg.predicates_path = None
+        >>> list(model_commands(cfg, commands, model_dir))
+        Traceback (most recent call last):
+            ...
+        KeyError: 'predicates_path'
+
     The system errors if a split is set but it is in full mode.
         >>> cfg.split = "tuning"
         >>> cfg.mode = "full"
