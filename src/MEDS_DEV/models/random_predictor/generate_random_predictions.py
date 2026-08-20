@@ -53,6 +53,19 @@ def main(cfg: DictConfig) -> None:
         ...
     ValueError: Split train does not match ...
 
+    >>> cfg = DictConfig({
+    ...     "split": "held_out",
+    ...     "dataset_dir": "data/dataset",
+    ...     "labels_dir": "data/labels",
+    ...     "predicates_path": "data/missing_predicates.yaml",
+    ...     "predictions_fp": "data/predictions.parquet",
+    ...     "seed": 42,
+    ... })
+    >>> main(cfg)
+    Traceback (most recent call last):
+        ...
+    FileNotFoundError: Could not find predicates file data/missing_predicates.yaml.
+
     >>> import tempfile, os
     >>> with tempfile.TemporaryDirectory() as tmp_dir:
     ...     cfg = DictConfig({
