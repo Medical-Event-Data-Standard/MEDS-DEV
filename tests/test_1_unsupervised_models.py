@@ -23,6 +23,7 @@ def test_non_model_breaks():
         )
 
 
+@pytest.mark.integration
 def test_unsupervised(unsupervised_model: NAME_AND_DIR, demo_dataset: NAME_AND_DIR):
     model, final_out_dir = unsupervised_model
 

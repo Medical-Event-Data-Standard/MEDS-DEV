@@ -1,0 +1,66 @@
+name: Regenerate _web Entity Manifests
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/MEDS_DEV/datasets/**"
+      - "src/MEDS_DEV/tasks/**"
+      - "src/MEDS_DEV/models/**"
+      - "src/MEDS_DEV/web/collate_entities.py"
+  workflow_dispatch:
+
+# Each run regenerates from main's latest state, so a newer run supersedes
+# any in-flight one — cancelling saves the wasted regen.
+concurrency:
+  group: regenerate-entities
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  regenerate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          path: main-branch
+
+      - name: Checkout _web branch
+        uses: actions/checkout@v4
+        with:
+          ref: _web
+          path: web-branch
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install MEDS-DEV from source
+        # Install from the just-checked-out main rather than from PyPI so the
+        # regenerated manifests reflect the merged commit, not the last release.
+        run: pip install ./main-branch
+
+      - name: Regenerate entity manifests
+        run: |
+          mkdir -p web-branch/entities
+          meds-dev-collate-entities \
+            --repo_dir main-branch \
+            --output_dir web-branch/entities \
+            --do_overwrite
+
+      - name: Commit and push to _web
+        working-directory: web-branch
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add entities/datasets.json entities/tasks.json entities/models.json
+          if git diff --cached --quiet; then
+            echo "No changes to entity manifests; skipping commit."
+          else
+            git commit -m "Regenerate entity manifests from main@${GITHUB_SHA::7}"
+            git push origin _web
+          fi

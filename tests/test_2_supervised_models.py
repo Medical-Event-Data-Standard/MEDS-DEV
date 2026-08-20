@@ -1,6 +1,9 @@
+import pytest
+
 from tests.utils import NAME_AND_DIR
 
 
+@pytest.mark.integration
 def test_supervised(
     supervised_model: NAME_AND_DIR,
     demo_dataset: NAME_AND_DIR,

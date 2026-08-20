@@ -1,0 +1,201 @@
+predicates:
+  hospital_admission:
+    code: { regex: "^HOSPITAL_ADMISSION//.*" }
+  hospital_discharge:
+    code: { regex: "^HOSPITAL_DISCHARGE//.*" }
+
+  ED_registration:
+    code: ED_REGISTRATION
+  ED_discharge:
+    code: ED_OUT
+
+  icu_admission:
+    code: { regex: "^ICU_ADMISSION//.*" }
+  icu_discharge:
+    code: { regex: "^ICU_DISCHARGE//.*" }
+
+  # Only exact codes with known, compatible units are included. Codes with a
+  # NULL unit are intentionally excluded because their numeric scale cannot be
+  # established safely. Each abnormal predicate uses a plain code string so
+  # ACES applies its numeric threshold.
+
+  creatinine_1:
+    code: LAB//100002//mg/dL
+  abnormally_high_creatinine_1:
+    code: LAB//100002//mg/dL
+    value_min: 1.3 # mg/dL
+    value_min_inclusive: False
+    value_max: null
+  creatinine:
+    expr: creatinine_1
+  abnormally_high_creatinine:
+    expr: abnormally_high_creatinine_1
+
+  sodium_1:
+    code: LAB//100010//mEq/L
+  sodium_2:
+    code: LAB//100010//mmol/L
+  sodium_3:
+    code: LAB//100010//mmoles/L
+  abnormally_low_sodium_1:
+    code: LAB//100010//mEq/L
+    value_min: null
+    value_max: 135 # mEq/L
+    value_max_inclusive: False
+  abnormally_low_sodium_2:
+    code: LAB//100010//mmol/L
+    value_min: null
+    value_max: 135 # mmol/L
+    value_max_inclusive: False
+  abnormally_low_sodium_3:
+    code: LAB//100010//mmoles/L
+    value_min: null
+    value_max: 135 # mmol/L
+    value_max_inclusive: False
+  sodium:
+    expr: or(sodium_1, sodium_2, sodium_3)
+  abnormally_low_sodium:
+    expr: or(abnormally_low_sodium_1, abnormally_low_sodium_2, abnormally_low_sodium_3)
+
+  bicarbonate_1:
+    code: LAB//100013//mEq/L
+  bicarbonate_2:
+    code: LAB//100013//mmol/L
+  bicarbonate_3:
+    code: LAB//100013//mmoles/L
+  abnormally_low_bicarbonate_1:
+    code: LAB//100013//mEq/L
+    value_min: null
+    value_max: 22 # mEq/L
+    value_max_inclusive: False
+  abnormally_low_bicarbonate_2:
+    code: LAB//100013//mmol/L
+    value_min: null
+    value_max: 22 # mmol/L
+    value_max_inclusive: False
+  abnormally_low_bicarbonate_3:
+    code: LAB//100013//mmoles/L
+    value_min: null
+    value_max: 22 # mmol/L
+    value_max_inclusive: False
+  bicarbonate:
+    expr: or(bicarbonate_1, bicarbonate_2, bicarbonate_3)
+  abnormally_low_bicarbonate:
+    expr: or(abnormally_low_bicarbonate_1, abnormally_low_bicarbonate_2, abnormally_low_bicarbonate_3)
+
+  hemoglobin_1:
+    code: LAB//100007//g/dL
+  hemoglobin_2:
+    code: LAB//100007//gm/dL
+  abnormally_low_hemoglobin_1:
+    code: LAB//100007//g/dL
+    value_min: null
+    value_max: 13 # g/dL
+    value_max_inclusive: False
+  abnormally_low_hemoglobin_2:
+    code: LAB//100007//gm/dL
+    value_min: null
+    value_max: 13 # g/dL
+    value_max_inclusive: False
+  hemoglobin:
+    expr: or(hemoglobin_1, hemoglobin_2)
+  abnormally_low_hemoglobin:
+    expr: or(abnormally_low_hemoglobin_1, abnormally_low_hemoglobin_2)
+
+  wbc_1:
+    code: LAB//100016//10ˆ3/µL
+  wbc_2:
+    code: LAB//100016//K/UL
+  wbc_3:
+    code: LAB//100016//K/µL
+  wbc_4:
+    code: LAB//100016//k/cu mm
+  wbc_5:
+    code: LAB//100016//k/mcL
+  wbc_6:
+    code: LAB//100016//x10E3/uL
+  abnormally_high_wbc_1:
+    code: LAB//100016//10ˆ3/µL
+    value_min: 11 # 10^3/uL
+    value_min_inclusive: False
+    value_max: null
+  abnormally_high_wbc_2:
+    code: LAB//100016//K/UL
+    value_min: 11 # K/uL
+    value_min_inclusive: False
+    value_max: null
+  abnormally_high_wbc_3:
+    code: LAB//100016//K/µL
+    value_min: 11 # K/uL
+    value_min_inclusive: False
+    value_max: null
+  abnormally_high_wbc_4:
+    code: LAB//100016//k/cu mm
+    value_min: 11 # K/uL
+    value_min_inclusive: False
+    value_max: null
+  abnormally_high_wbc_5:
+    code: LAB//100016//k/mcL
+    value_min: 11 # K/uL
+    value_min_inclusive: False
+    value_max: null
+  abnormally_high_wbc_6:
+    code: LAB//100016//x10E3/uL
+    value_min: 11 # 10^3/uL
+    value_min_inclusive: False
+    value_max: null
+  wbc:
+    expr: or(wbc_1, wbc_2, wbc_3, wbc_4, wbc_5, wbc_6)
+  abnormally_high_wbc:
+    expr: or(abnormally_high_wbc_1, abnormally_high_wbc_2, abnormally_high_wbc_3, abnormally_high_wbc_4, abnormally_high_wbc_5, abnormally_high_wbc_6)
+
+  platelets_1:
+    code: LAB//100014//10ˆ3/µL
+  platelets_2:
+    code: LAB//100014//K/UL
+  platelets_3:
+    code: LAB//100014//K/µL
+  platelets_4:
+    code: LAB//100014//k/cu mm
+  platelets_5:
+    code: LAB//100014//k/mcL
+  platelets_6:
+    code: LAB//100014//x10E3/uL
+  abnormally_low_platelets_1:
+    code: LAB//100014//10ˆ3/µL
+    value_min: null
+    value_max: 150 # 10^3/uL
+    value_max_inclusive: False
+  abnormally_low_platelets_2:
+    code: LAB//100014//K/UL
+    value_min: null
+    value_max: 150 # K/uL
+    value_max_inclusive: False
+  abnormally_low_platelets_3:
+    code: LAB//100014//K/µL
+    value_min: null
+    value_max: 150 # K/uL
+    value_max_inclusive: False
+  abnormally_low_platelets_4:
+    code: LAB//100014//k/cu mm
+    value_min: null
+    value_max: 150 # K/uL
+    value_max_inclusive: False
+  abnormally_low_platelets_5:
+    code: LAB//100014//k/mcL
+    value_min: null
+    value_max: 150 # K/uL
+    value_max_inclusive: False
+  abnormally_low_platelets_6:
+    code: LAB//100014//x10E3/uL
+    value_min: null
+    value_max: 150 # 10^3/uL
+    value_max_inclusive: False
+  platelets:
+    expr: or(platelets_1, platelets_2, platelets_3, platelets_4, platelets_5, platelets_6)
+  abnormally_low_platelets:
+    expr: or(abnormally_low_platelets_1, abnormally_low_platelets_2, abnormally_low_platelets_3, abnormally_low_platelets_4, abnormally_low_platelets_5, abnormally_low_platelets_6)
+
+  # NWICU does not define a mean arterial pressure item in d_items. Its
+  # available BP concepts are systolic/diastolic measurements, which are not
+  # interchangeable with the MAP predicate used by the hypotension task.

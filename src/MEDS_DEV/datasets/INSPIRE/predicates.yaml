@@ -1,0 +1,99 @@
+predicates:
+  # --- Structural codes (bare scalars in the INSPIRE MEDS ETL; match exactly) ---
+  hospital_admission:
+    code: HOSPITAL_ADMISSION
+  hospital_discharge:
+    code: HOSPITAL_DISCHARGE
+  icu_admission:
+    code: ICU_ADMISSION
+  icu_discharge:
+    code: ICU_DISCHARGE
+
+  # --- Labs / vitals ---
+  # Codes are "LAB//<item_name>//<unit>" (INSPIRE_MEDS event_configs.yaml). Predicate NAMES match
+  # the MEDS-DEV task contract (creatinine, sodium, bicarbonate, hemoglobin, wbc, platelets, map)
+  # so the shared abnormal_lab/* + mortality tasks resolve. Thresholds are copied unchanged from the
+  # MIMIC-IV baseline because the units are numerically equivalent to INSPIRE's native units:
+  #   sodium/bicarbonate  mEq/L  == mmol/L   (monovalent / HCO3-)
+  #   wbc/platelets       K/uL   == /nL      (both 10^9 / L)
+  #   creatinine mg/dL, hemoglobin g/dL, MAP mmHg — identical units.
+  # es-aces gotcha: value_min/value_max only apply when `code:` is a plain STRING (a {any:}/{regex:}
+  # code silently drops the threshold), so each abnormally_* predicate carries a single plain code;
+  # multi-code MAP is expressed as or(...) of per-code threshold predicates (mirrors MIMIC-IV).
+
+  creatinine:
+    code: LAB//creatinine//mg/dL
+  abnormally_high_creatinine:
+    code: LAB//creatinine//mg/dL
+    value_min: 1.3 # mg/dL
+    value_min_inclusive: False
+    value_max: null
+
+  sodium:
+    code: LAB//sodium//mmol/L
+  abnormally_low_sodium:
+    code: LAB//sodium//mmol/L
+    value_min: null
+    value_max: 135 # mEq/L == mmol/L
+    value_max_inclusive: False
+
+  bicarbonate:
+    code: LAB//hco3//mmol/L
+  abnormally_low_bicarbonate:
+    code: LAB//hco3//mmol/L
+    value_min: null
+    value_max: 22 # mEq/L == mmol/L
+    value_max_inclusive: False
+
+  hemoglobin:
+    code: LAB//hb//g/dL
+  abnormally_low_hemoglobin:
+    code: LAB//hb//g/dL
+    value_min: null
+    value_max: 13 # g/dL
+    value_max_inclusive: False
+
+  wbc:
+    code: LAB//wbc///nL
+  abnormally_high_wbc:
+    code: LAB//wbc///nL
+    value_min: 11 # K/uL == /nL
+    value_min_inclusive: False
+    value_max: null
+
+  platelets:
+    code: LAB//platelet///nL
+  abnormally_low_platelets:
+    code: LAB//platelet///nL
+    value_min: null
+    value_max: 150 # K/uL == /nL
+    value_max_inclusive: False
+
+  # MAP = systemic mean arterial pressure: invasive arterial (art_mbp) + non-invasive (nibp_mbp)
+  # means from the high-res VITAL and periodic WARD_VITAL streams. pap_mbp (pulmonary-artery mean)
+  # is excluded — it is not a systemic arterial MAP.
+  map_1:
+    code: VITAL//art_mbp//mmHg
+  map_2:
+    code: VITAL//nibp_mbp//mmHg
+  map_3:
+    code: WARD_VITAL//nibp_mbp//mmHg
+  map:
+    expr: or(map_1, map_2, map_3)
+  abnormally_low_map_1:
+    code: VITAL//art_mbp//mmHg
+    value_min: null
+    value_max: 65 # mmHg
+    value_max_inclusive: False
+  abnormally_low_map_2:
+    code: VITAL//nibp_mbp//mmHg
+    value_min: null
+    value_max: 65 # mmHg
+    value_max_inclusive: False
+  abnormally_low_map_3:
+    code: WARD_VITAL//nibp_mbp//mmHg
+    value_min: null
+    value_max: 65 # mmHg
+    value_max_inclusive: False
+  abnormally_low_map:
+    expr: or(abnormally_low_map_1, abnormally_low_map_2, abnormally_low_map_3)

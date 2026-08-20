@@ -1,0 +1,119 @@
+predicates:
+  hospital_admission:
+    code: { regex: "^HOSPITAL_ADMISSION//.*" }
+  hospital_discharge:
+    code: { regex: "^HOSPITAL_DISCHARGE//.*" }
+
+  # ED_registration and ED_discharge are intentionally not defined. eICU does
+  # not provide native ED boundary events equivalent to MIMIC-IV's ED events.
+  # Declare them here if MEDS-DEV adds explicit unsupported-predicate metadata.
+
+  icu_admission:
+    code: { regex: "^ICU_ADMISSION//.*" }
+  icu_discharge:
+    code: { regex: "^ICU_DISCHARGE//.*" }
+
+  creatinine_1:
+    code: LAB//creatinine//mg/dL
+  abnormally_high_creatinine_1:
+    code: LAB//creatinine//mg/dL
+    value_min: 1.3 # mg/dL
+    value_min_inclusive: False
+    value_max: null
+  creatinine:
+    expr: creatinine_1
+  abnormally_high_creatinine:
+    expr: abnormally_high_creatinine_1
+
+  sodium_1:
+    code: LAB//sodium//mmol/L
+  abnormally_low_sodium_1:
+    code: LAB//sodium//mmol/L
+    value_min: null
+    value_max: 135 # mEq/L
+    value_max_inclusive: False
+  sodium:
+    expr: sodium_1
+  abnormally_low_sodium:
+    expr: abnormally_low_sodium_1
+
+  bicarbonate_1:
+    code: LAB//bicarbonate//mmol/L
+  bicarbonate_2:
+    code: LAB//HCO3//mmol/L
+  abnormally_low_bicarbonate_1:
+    code: LAB//bicarbonate//mmol/L
+    value_min: null
+    value_max: 22 # mEq/L
+    value_max_inclusive: False
+  abnormally_low_bicarbonate_2:
+    code: LAB//HCO3//mmol/L
+    value_min: null
+    value_max: 22 # mEq/L
+    value_max_inclusive: False
+  bicarbonate:
+    expr: or(bicarbonate_1, bicarbonate_2)
+  abnormally_low_bicarbonate:
+    expr: or(abnormally_low_bicarbonate_1, abnormally_low_bicarbonate_2)
+
+  hemoglobin_1:
+    code: LAB//Hgb//g/dL
+  abnormally_low_hemoglobin_1:
+    code: LAB//Hgb//g/dL
+    value_min: null
+    value_max: 13 # g/dL
+    value_max_inclusive: False
+  hemoglobin:
+    expr: hemoglobin_1
+  abnormally_low_hemoglobin:
+    expr: abnormally_low_hemoglobin_1
+
+  wbc_1:
+    code: LAB//WBC x 1000//K/mcL
+  abnormally_high_wbc_1:
+    code: LAB//WBC x 1000//K/mcL
+    value_min: 11 # K/uL
+    value_min_inclusive: False
+    value_max: null
+  wbc:
+    expr: wbc_1
+  abnormally_high_wbc:
+    expr: abnormally_high_wbc_1
+
+  platelets_1:
+    code: LAB//platelets x 1000//K/mcL
+  abnormally_low_platelets_1:
+    code: LAB//platelets x 1000//K/mcL
+    value_min: null
+    value_max: 150 # K/uL
+    value_max_inclusive: False
+  platelets:
+    expr: platelets_1
+  abnormally_low_platelets:
+    expr: abnormally_low_platelets_1
+
+  map_1:
+    code: VITALS//APERIODIC//BP//NONINVASIVE_MEAN
+  map_2:
+    code: VITALS//PERIODIC//BP//PULM_ART_MEAN
+  map_3:
+    code: VITALS//PERIODIC//BP//SYSTEMIC_MEAN
+  abnormally_low_map_1:
+    code: VITALS//APERIODIC//BP//NONINVASIVE_MEAN
+    value_min: null
+    value_max: 65 # mmHg
+    value_max_inclusive: False
+  abnormally_low_map_2:
+    code: VITALS//PERIODIC//BP//PULM_ART_MEAN
+    value_min: null
+    value_max: 65 # mmHg
+    value_max_inclusive: False
+  abnormally_low_map_3:
+    code: VITALS//PERIODIC//BP//SYSTEMIC_MEAN
+    value_min: null
+    value_max: 65 # mmHg
+    value_max_inclusive: False
+  map:
+    expr: or(map_1, map_2, map_3)
+  abnormally_low_map:
+    expr: or(abnormally_low_map_1, abnormally_low_map_2, abnormally_low_map_3)
