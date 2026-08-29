@@ -1,0 +1,12 @@
+predicates:
+  hospital_admission:
+    code: { regex: "^ADMISSION//.*" }
+  hospital_discharge:
+    code: { regex: "^DISCHARGE//.*" }
+
+  icu_admission:
+    code: { regex: "^ADMISSION//.*" }
+  icu_discharge:
+    code: { regex: "^DISCHARGE//.*" }
+  creatinine_mgdl:
+    code: { any: ["LAB//LOINC//12189-7"] }
