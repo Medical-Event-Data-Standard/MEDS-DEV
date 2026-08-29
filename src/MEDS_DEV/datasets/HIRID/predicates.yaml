@@ -1,0 +1,45 @@
+predicates:
+  hospital_admission:
+    code: { regex: "^HOSPITAL_ADMISSION//.*" }
+  hospital_discharge:
+    code: { regex: "^HOSPITAL_DISCHARGE//.*" }
+
+  icu_admission:
+    code: { regex: "^HOSPITAL_ADMISSION.*" }
+  icu_discharge:
+    code: { regex: "^HOSPITAL_DISCHARGE.*" }
+
+  creatinine_mgdl:
+    code: { any: ["OBSERVATION//Creatinine [Moles/volume] in Blood"] }
+  # Todo: convert units from umol/L to mg/dL
+  sodium_meql:
+    code: { any: ["OBSERVATION//Sodium [Moles/volume] in Blood"] }
+
+  bicarbonate_meql:
+    code: { any: ["OBSERVATION//Bicarbonate [Moles/volume] in Arterial blood"] }
+
+  hemoglobin_gdl:
+    code: { any: ["OBSERVATION//Hemoglobin [Mass/volume] in Arterial blood"] }
+
+  wbc_kul:
+    code:
+      {
+        any:
+          [
+            "OBSERVATION//Leukocytes [#/volume] in Blood",
+            "OBSERVATION//Band form neutrophils/100 leukocytes in Blood",
+          ],
+      }
+
+  platelets_kul:
+    code: { any: ["OBSERVATION//Platelets [#/volume] in Blood"] }
+
+  map_mmhg:
+    code:
+      {
+        any:
+          [
+            "OBSERVATION//Non-invasive mean arterial pressure",
+            "OBSERVATION//Invasive mean arterial pressure",
+          ],
+      }
