@@ -1,6 +1,7 @@
 metadata:
   description: >-
     A MEDS version of HIRID.
+  access_policy: public_with_approval
   links:
     - https://github.com/rvandewater/HIRID_MEDS
     - https://physionet.org/content/hirid/
