@@ -95,8 +95,6 @@ predicates:
   map_1:
     code: VITALS//APERIODIC//BP//NONINVASIVE_MEAN
   map_2:
-    code: VITALS//PERIODIC//BP//PULM_ART_MEAN
-  map_3:
     code: VITALS//PERIODIC//BP//SYSTEMIC_MEAN
   abnormally_low_map_1:
     code: VITALS//APERIODIC//BP//NONINVASIVE_MEAN
@@ -104,16 +102,11 @@ predicates:
     value_max: 65 # mmHg
     value_max_inclusive: False
   abnormally_low_map_2:
-    code: VITALS//PERIODIC//BP//PULM_ART_MEAN
-    value_min: null
-    value_max: 65 # mmHg
-    value_max_inclusive: False
-  abnormally_low_map_3:
     code: VITALS//PERIODIC//BP//SYSTEMIC_MEAN
     value_min: null
     value_max: 65 # mmHg
     value_max_inclusive: False
   map:
-    expr: or(map_1, map_2, map_3)
+    expr: or(map_1, map_2)
   abnormally_low_map:
-    expr: or(abnormally_low_map_1, abnormally_low_map_2, abnormally_low_map_3)
+    expr: or(abnormally_low_map_1, abnormally_low_map_2)
