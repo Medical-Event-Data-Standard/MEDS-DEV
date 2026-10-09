@@ -37,7 +37,8 @@ jobs:
           mkdir -p web-branch/results
           meds-dev-aggregate-results \
             --input_dir results-branch/_results \
-            --output_path web-branch/results/all_results.json
+            --output_path web-branch/results/all_results.json \
+            --do_overwrite
 
       - name: Commit and push to _web branch
         if: success()
