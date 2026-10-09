@@ -229,7 +229,7 @@ If the change doesn't appear within a few minutes:
     and closes the issue with a confirmation comment.
 
 If the workflow fails (validation rejects the JSON, etc.), it leaves the issue open with the
-failure as a checks status. Fix the JSON in a comment or re-edit the issue body and re-trigger by
+failure as a checks status. Re-edit the issue body with the corrected JSON and re-trigger by
 removing and re-applying the `result-submission` label.
 
 ## Manual interventions
