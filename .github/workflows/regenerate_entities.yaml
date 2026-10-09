@@ -26,6 +26,7 @@ jobs:
       - name: Checkout main
         uses: actions/checkout@v4
         with:
+          ref: main
           path: main-branch
 
       - name: Checkout _web branch
