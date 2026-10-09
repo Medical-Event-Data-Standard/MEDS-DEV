@@ -10,11 +10,10 @@ on:
       - "src/MEDS_DEV/web/collate_entities.py"
   workflow_dispatch:
 
-# Each run regenerates from main's latest state, so a newer run supersedes
-# any in-flight one — cancelling saves the wasted regen.
+# Serialize every _web writer to prevent conflicting pushes.
 concurrency:
-  group: regenerate-entities
-  cancel-in-progress: true
+  group: web-writers
+  cancel-in-progress: false
 
 permissions:
   contents: write

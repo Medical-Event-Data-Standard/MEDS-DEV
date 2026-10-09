@@ -140,10 +140,9 @@ _web/
 
 The submission workflow uses a `concurrency: { group: upload-benchmark-results }` group to
 serialize back-to-back label events on a single submission stream — two near-simultaneous
-submissions wait for each other instead of racing on `_results`. The aggregator inherits this
-serialization because it's a `workflow_call`-chained job; the regen workflow uses
-`cancel-in-progress: true` since each run regenerates from main's latest state and a newer run
-fully supersedes any in-flight one.
+submissions wait for each other instead of racing on `_results`. The aggregation and entity
+regeneration workflows share a non-cancelling `web-writers` group, so their pushes to `_web`
+cannot race.
 
 ## Schema cheat sheet
 
