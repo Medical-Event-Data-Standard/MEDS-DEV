@@ -13,6 +13,7 @@ metadata:
     - name: "Matthew McDermott"
       github_username: "mmcdermott"
   supported_datasets:
+    - AUMCdb
     - MIMIC-IV
 
 predicates:
