@@ -1,6 +1,8 @@
 metadata:
   description: >-
     A MEDS version of SICdb.
+  access_policy: public_with_approval
+  access_details: Requires approved PhysioNet access and download credentials.
   links:
     - https://github.com/rvandewater/SICdb_MEDS
     - https://physionet.org/content/sicdb/
