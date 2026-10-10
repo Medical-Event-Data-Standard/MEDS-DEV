@@ -1,0 +1,22 @@
+metadata:
+  description: >-
+    A MEDS version of the Northwestern ICU (NWICU) database.
+  links:
+    - https://github.com/rvandewater/NWICU_MEDS
+    - https://physionet.org/content/nwicu-northwestern-icu/0.1.0/
+    - https://doi.org/10.13026/s84w-1829
+  contacts:
+    - name: "Robin P. van de Water"
+      github_username: "rvandewater"
+  access_policy: public_with_approval
+  access_details: >-
+    Requires a credentialed PhysioNet account, completion of the required CITI training, and acceptance
+    of the PhysioNet Credentialed Health Data Use Agreement for NWICU.
+commands:
+  build_full: >-
+    MEDS_extract-NWICU
+    root_output_dir="{output_dir}"
+    raw_input_dir="{temp_dir}/raw"
+    pre_MEDS_dir="{temp_dir}/pre_MEDS"
+    MEDS_cohort_dir="{output_dir}"
+    log_dir="{output_dir}/.pipeline_logs"

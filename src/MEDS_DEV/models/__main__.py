@@ -27,7 +27,7 @@ def main(cfg: DictConfig):
 
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    with temp_env(cfg, requirements) as (temp_dir, env):
+    with temp_env(cfg, requirements) as (_temp_dir, env):
         for cmd, out_dir in model_commands(cfg, commands, model_dir):
             logger.info(f"Considering running model command: {cmd}")
             try:

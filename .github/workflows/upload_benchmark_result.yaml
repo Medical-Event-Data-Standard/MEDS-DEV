@@ -5,13 +5,18 @@ on:
     types:
       - labeled
 
+# Serialize submissions so two near-simultaneous label events don't race on
+# pushes to the _results branch (#236).
+concurrency:
+  group: upload-benchmark-results
+  cancel-in-progress: false
+
 jobs:
-  process_results:
+  process_submission:
     if: contains(github.event.issue.labels.*.name, 'result-submission') && startsWith(github.event.issue.title, '[Result Submission]')
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      issues: write
     steps:
       - name: Checkout results branch only
         uses: actions/checkout@v4
@@ -19,44 +24,47 @@ jobs:
           ref: _results
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract JSON from issue body
-        id: extract_json
-        run: |
-          echo '${{ github.event.issue.body }}' > issue_body.txt
-          sed -n '/```json/,/```/p' issue_body.txt | sed '1d;$d' > $GITHUB_WORKSPACE/result.json
-
-          if [[ ! -s $GITHUB_WORKSPACE/result.json ]]; then
-            echo "ERROR: No valid JSON found in the issue body."
-            exit 1
-          fi
-
-          echo "Extracted JSON:"
-          cat $GITHUB_WORKSPACE/result.json
-
       - name: Install MEDS-DEV package from PyPI
         run: pip install meds-dev
 
-      - name: Validate result JSON
-        run: meds-dev-validate-result result_fp=$GITHUB_WORKSPACE/result.json
+      - name: Extract result and write to _results tree
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          meds-dev-process-submission \
+            --issue_body "$ISSUE_BODY" \
+            --result_fp "_results/${ISSUE_NUMBER}/result.json" \
+            --do_overwrite
 
       - name: Commit result attributed to issue author
         if: success()
         env:
           ISSUE_USER_LOGIN: ${{ github.event.issue.user.login }}
           ISSUE_USER_ID: ${{ github.event.issue.user.id }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
         run: |
-          mkdir -p _results/${{ github.event.issue.number }}
-          mv $GITHUB_WORKSPACE/result.json _results/${{ github.event.issue.number }}/result.json
-          git add _results/${{ github.event.issue.number }}/result.json
+          git add "_results/${ISSUE_NUMBER}/result.json"
 
           git config user.name "${ISSUE_USER_LOGIN}"
           git config user.email "${ISSUE_USER_ID}+${ISSUE_USER_LOGIN}@users.noreply.github.com"
 
-          git commit -m "Added result from Issue #${{ github.event.issue.number }} by @${ISSUE_USER_LOGIN}"
+          git commit -m "Added result from Issue #${ISSUE_NUMBER} by @${ISSUE_USER_LOGIN}"
           git push origin _results
 
+  aggregate:
+    needs: process_submission
+    uses: ./.github/workflows/aggregate_benchmark_results.yaml
+    permissions:
+      contents: write
+
+  close_issue:
+    needs: aggregate
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
       - name: Close issue with confirmation message
-        if: success()
-        uses: peter-evans/close-issue@v2
+        uses: peter-evans/close-issue@v3.0.2
         with:
-          comment: "Thank you for your submission! Your result has been recorded and validated."
+          comment: "Thank you for your submission! Your result has been recorded, aggregated, and will soon be visible on the leaderboard."

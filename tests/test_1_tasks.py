@@ -7,11 +7,17 @@ from MEDS_DEV import DATASETS, TASKS
 from tests.utils import NAME_AND_DIR, run_command
 
 
-@pytest.mark.parametrize("task", TASKS)
-def test_non_task_non_dataset_breaks(task: str):
+def test_non_task_non_dataset_breaks():
+    """Test that a non-existent dataset errors for a representative task.
+
+    One invocation is sufficient since the error path is identical regardless of which task is specified.
+    """
     non_dataset = "_not_supported"
     while non_dataset in DATASETS:
         non_dataset = f"_{non_dataset}"
+
+    # Pick any single task — the dataset-not-found error is task-independent.
+    task = next(iter(TASKS))
 
     with tempfile.TemporaryDirectory() as tmpdir:
         labels_dir = Path(tmpdir) / "task_labels"
@@ -29,6 +35,7 @@ def test_non_task_non_dataset_breaks(task: str):
         )
 
 
+@pytest.mark.integration
 def test_non_task_breaks(demo_dataset: NAME_AND_DIR):
     (dataset_name, dataset_dir) = demo_dataset
 
@@ -52,14 +59,16 @@ def test_non_task_breaks(demo_dataset: NAME_AND_DIR):
     )
 
 
+@pytest.mark.integration
 def test_tasks_configured(demo_dataset: NAME_AND_DIR, task_labels: NAME_AND_DIR):
-    dataset_name, dataset_dir = demo_dataset
+    dataset_name, _dataset_dir = demo_dataset
     task_name, task_labels_dir = task_labels
 
     files = list(task_labels_dir.glob("**/*.parquet"))
     assert files, f"No files found for task {task_name} in dataset {dataset_name}"
 
 
+@pytest.mark.integration
 def test_task_consistent_when_using_manual_predicates(demo_dataset: NAME_AND_DIR, task_labels: NAME_AND_DIR):
     dataset_name, dataset_dir = demo_dataset
     task_name, task_labels_dir = task_labels

@@ -1,7 +1,10 @@
 import json
 from pathlib import Path
 
+import pytest
 
+
+@pytest.mark.integration
 def test_evaluates(evaluated_model: Path):
     evaluation_dir = evaluated_model
 
