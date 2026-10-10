@@ -11,7 +11,8 @@ on:
   workflow_dispatch:
 
 # Each run regenerates from main's latest state, so a newer run supersedes
-# any in-flight one — cancelling saves the wasted regen.
+# any in-flight one — cancelling saves the wasted regen. Races with the
+# aggregation workflow's _web pushes are handled by rebase-and-retry below.
 concurrency:
   group: regenerate-entities
   cancel-in-progress: true
@@ -63,5 +64,17 @@ jobs:
             echo "No changes to entity manifests; skipping commit."
           else
             git commit -m "Regenerate entity manifests from main@${GITHUB_SHA::7}"
-            git push origin _web
+            # Other workflows also push to _web (results/ vs. entities/), so a push can be
+            # rejected as non-fast-forward. They touch disjoint files, so rebasing onto the
+            # latest _web is always conflict-free; retry a few times before giving up.
+            for attempt in 1 2 3 4 5; do
+              if git push origin _web; then
+                exit 0
+              fi
+              echo "Push to _web rejected (attempt ${attempt}); rebasing onto latest _web and retrying."
+              sleep $((attempt * 5))
+              git pull --rebase origin _web
+            done
+            echo "::error::Failed to push to _web after 5 attempts."
+            exit 1
           fi
