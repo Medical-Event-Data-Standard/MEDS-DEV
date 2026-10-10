@@ -5,3 +5,4 @@ pyyaml
 hydra-core
 polars
 tf-keras
+pyarrow<26 # pyarrow 26 needs NumPy>=2 but cehrbert 1.4.9 pins NumPy<2
