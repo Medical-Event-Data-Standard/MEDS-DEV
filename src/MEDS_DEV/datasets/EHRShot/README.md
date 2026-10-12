@@ -17,13 +17,8 @@ Taken from [Stanford Shah Lab website](https://shahlab.stanford.edu/doku.php?id=
 
 ## Supported Tasks
 
-EHRSHOT includes 15 classification tasks organized into three categories :[1]
+EHRSHOT includes 15 classification tasks organized into three categories as the benchmark dataset itself. However, here we use ACES-defined values to extract tasks from the dataset.
 
-**Operational Outcomes:**
-
-- `tasks/mortality/long_length_of_stay.yaml`
-- `tasks/readmission/30_day_readmission.yaml`
-- `tasks/transfer/icu_transfer.yaml`
 
 ## MEDS-transformation
 
