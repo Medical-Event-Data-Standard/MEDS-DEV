@@ -13,4 +13,4 @@ commands:
     train: null
     predict: >-
       python -m MEDS_DEV.models.random_predictor.generate_random_predictions labels_dir={labels_dir}
-      output_dir={output_dir} split={split} dataset_dir={dataset_dir}
+      output_dir={output_dir} split={split} dataset_dir={dataset_dir} predicates_path={predicates_path}

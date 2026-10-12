@@ -26,6 +26,7 @@ def main(cfg: DictConfig) -> None:
         cfg: The configuration object, controlled through Hydra command line arguments. Takes:
           - dataset_dir: The directory containing the dataset.
           - labels_dir: The directory containing the labels.
+          - predicates_path: The dataset predicates file passed through by MEDS-DEV.
           - predictions_fp: The file path to write the predictions to.
           - seed: The random seed to use for generating predictions.
           - split: The split to generate predictions for. Must be the held-out split.
@@ -51,6 +52,19 @@ def main(cfg: DictConfig) -> None:
     Traceback (most recent call last):
         ...
     ValueError: Split train does not match ...
+
+    >>> cfg = DictConfig({
+    ...     "split": "held_out",
+    ...     "dataset_dir": "data/dataset",
+    ...     "labels_dir": "data/labels",
+    ...     "predicates_path": "data/missing_predicates.yaml",
+    ...     "predictions_fp": "data/predictions.parquet",
+    ...     "seed": 42,
+    ... })
+    >>> main(cfg)
+    Traceback (most recent call last):
+        ...
+    FileNotFoundError: Could not find predicates file data/missing_predicates.yaml.
 
     >>> import tempfile, os
     >>> with tempfile.TemporaryDirectory() as tmp_dir:
@@ -150,6 +164,11 @@ def main(cfg: DictConfig) -> None:
     predictions_fp = Path(cfg.predictions_fp)
     predictions_fp.parent.mkdir(parents=True, exist_ok=True)
     seed = cfg.seed
+
+    if cfg.get("predicates_path") is not None:
+        predicates_path = Path(cfg.predicates_path)
+        if not predicates_path.is_file():
+            raise FileNotFoundError(f"Could not find predicates file {predicates_path}.")
 
     if cfg.split != meds.held_out_split:
         raise ValueError(
