@@ -73,7 +73,7 @@ predicates:
   hyponatremia_2:
     code: SNOMED//89627008//start
   hyponatremia:
-    code: or(hyponatremia_1, hyponatremia_2)
+    expr: or(hyponatremia_1, hyponatremia_2)
 
   # Metabolic Acidosis task predicates
   bicarbonate:
