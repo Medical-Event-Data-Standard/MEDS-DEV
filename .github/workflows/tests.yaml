@@ -259,12 +259,20 @@ jobs:
 
       # PhysioNet downloads are flaky (502s, dropped connections) and the ETL packages don't retry, so on
       # a cache miss build the demo datasets up front with a few attempts. Datasets that already built
-      # successfully are reused by later attempts.
+      # successfully (have a `.check` file) are reused by later attempts; partial outputs of failed
+      # builds are removed first, since `run_in_env` refuses to reuse a dir whose `cmd.sh` differs.
       - name: Build demo datasets
         if: steps.demo-cache.outputs.cache-hit != 'true'
         run: |
           mkdir -p "$MEDS_DEV_CACHE_DIR"
           for attempt in 1 2 3; do
+            for dir in "$MEDS_DEV_CACHE_DIR"/*/; do
+              name=$(basename "$dir")
+              if [[ "$name" != "venvs" && ! -f "$MEDS_DEV_CACHE_DIR/.$name.check" ]]; then
+                echo "Removing partial build of $name"
+                rm -rf "$dir" "$MEDS_DEV_CACHE_DIR/venvs/datasets/$name"
+              fi
+            done
             uv run pytest -v -s -x tests/test_0_datasets.py -k test_datasets_configured \
               --persistent_cache_dir="$MEDS_DEV_CACHE_DIR" --cache_dataset=all --reuse_cached_dataset=all \
               && exit 0
