@@ -1,8 +1,8 @@
 predicates:
   hospital_admission:
-    code: { regex: "^ADMISSION*" }
+    code: ADMISSION
   hospital_discharge:
-    code: { regex: "^DISCHARGE*" }
+    code: DISCHARGE
 
   # ED_registration:
   #   code: { regex: "^ED_REGISTRATION//.*" }
