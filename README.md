@@ -293,6 +293,9 @@ A full description of these commands is coming soon, but for now, note that:
 1. Commands can use the template variables `{output_dir}`, `{dataset_dir}`, `{labels_dir}`, and `{demo}`.
     Models that need a dataset's predicates file (e.g., for featurization) can also use the optional
     `{predicates_path}` template variable, populated from the `predicates_path` argument to `meds-dev-model`.
+    Models that predict a task from its definition rather than its labels (e.g., zero-shot models) can use
+    the optional `{task_criteria_path}` template variable: the task's ACES criteria file, from the
+    `task_criteria_path` argument or, by default, the registered criteria file of `task_name`.
 2. Commands should be added in a nested manner for running either over `unsupervised` or `supervised`
     datasets, in either `train` or `predict` modes. See the random predictors example for an example.
 

@@ -7,6 +7,7 @@ from pathlib import Path
 import meds
 from omegaconf import DictConfig, OmegaConf
 
+from ..tasks import TASKS
 from ..utils import Metadata
 
 model_files = files("MEDS_DEV.models")
@@ -206,6 +207,30 @@ def model_commands(
             ...
         KeyError: 'predicates_path'
 
+    Models that predict a task without being trained on its labels (e.g., zero-shot models) need the task
+    definition itself. The optional `task_criteria_path` template variable is the ACES criteria file of the
+    task; it pairs with `predicates_path` exactly as in `meds-dev-task`. An explicit `task_criteria_path`
+    is used as given:
+        >>> cfg.task_criteria_path = "task.yaml"
+        >>> commands["supervised"]["train"] = "ZS labels={labels_dir} task={task_criteria_path}"
+        >>> list(model_commands(cfg, commands, model_dir))
+        [('ZS labels=labels task=task.yaml', PosixPath('output'))]
+
+    Otherwise, it is the registered criteria file of `task_name`, i.e., the file `meds-dev-task` extracted the
+    labels with:
+        >>> cfg.task_criteria_path = None
+        >>> cfg.task_name = "mortality/in_icu/first_24h"
+        >>> ((command, _),) = model_commands(cfg, commands, model_dir)
+        >>> command.endswith("tasks/mortality/in_icu/first_24h.yaml")
+        True
+
+    As with `predicates_path`, a command that needs the variable fails if no task is given or registered:
+        >>> cfg.task_name = "not/a/task"
+        >>> list(model_commands(cfg, commands, model_dir))
+        Traceback (most recent call last):
+            ...
+        KeyError: 'task_criteria_path'
+
     The system errors if a split is set but it is in full mode.
         >>> cfg.split = "tuning"
         >>> cfg.mode = "full"
@@ -231,6 +256,11 @@ def model_commands(
         format_kwargs["model_initialization_dir"] = cfg.model_initialization_dir
     if cfg.get("predicates_path", None):
         format_kwargs["predicates_path"] = str(cfg.predicates_path)
+    task_criteria_path = cfg.get("task_criteria_path", None)
+    if not task_criteria_path and cfg.get("task_name", None) in TASKS:
+        task_criteria_path = TASKS[cfg.task_name]["criteria_fp"]
+    if task_criteria_path:
+        format_kwargs["task_criteria_path"] = str(task_criteria_path)
     if cfg.get("split", None):
         if do_set_split:
             raise ValueError(f"Cannot set split manually when mode is {cfg.mode}.")
