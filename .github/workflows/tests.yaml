@@ -233,6 +233,8 @@ jobs:
     needs: [determine-scope, fast-checks]
     if: needs.determine-scope.outputs.run_full == 'true'
     timeout-minutes: 120
+    env:
+      MEDS_DEV_CACHE_DIR: /tmp/meds_dev_cache
     steps:
       - uses: actions/checkout@v4
 
@@ -241,9 +243,77 @@ jobs:
         with:
           python-version: "3.11"
 
+      # Built demo datasets are cached so they are not re-downloaded from PhysioNet (flaky) or rebuilt
+      # on every run (eICU takes ~40-60 min). Only open-access demo data ever lands here; full datasets
+      # need credentials CI does not have. The key changes whenever a dataset's ETL config or pinned
+      # requirements change, forcing a fresh build. Caches saved from PRs are scoped to that PR, so
+      # they can never be restored on `main`.
+      - name: Restore demo dataset cache
+        id: demo-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            ${{ env.MEDS_DEV_CACHE_DIR }}
+            !${{ env.MEDS_DEV_CACHE_DIR }}/venvs
+          key: demo-datasets-v1-${{ runner.os }}-${{ hashFiles('src/MEDS_DEV/datasets/**/dataset.yaml', 'src/MEDS_DEV/datasets/**/requirements.txt') }}
+
+      # PhysioNet downloads are flaky (502s, dropped connections) and the ETL packages don't retry, so on
+      # a cache miss build the demo datasets up front with a few attempts. Datasets that already built
+      # successfully (have a `.check` file) are reused by later attempts; partial outputs of failed
+      # builds are removed first, since `run_in_env` refuses to reuse a dir whose `cmd.sh` differs.
+      - name: Build demo datasets
+        if: steps.demo-cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p "$MEDS_DEV_CACHE_DIR"
+          for attempt in 1 2 3; do
+            for dir in "$MEDS_DEV_CACHE_DIR"/*/; do
+              name=$(basename "$dir")
+              if [[ "$name" != "venvs" && ! -f "$MEDS_DEV_CACHE_DIR/.$name.check" ]]; then
+                echo "Removing partial build of $name"
+                rm -rf "$dir" "$MEDS_DEV_CACHE_DIR/venvs/datasets/$name"
+              fi
+            done
+            uv run pytest -v -s -x tests/test_0_datasets.py -k test_datasets_configured \
+              --persistent_cache_dir="$MEDS_DEV_CACHE_DIR" --cache_dataset=all --reuse_cached_dataset=all \
+              && exit 0
+            echo "::warning::Demo dataset build attempt $attempt failed; retrying in 60s"
+            sleep 60
+          done
+          exit 1
+
+      # --reuse_cached_dataset also stops the session-scoped `demo_dataset` fixture from rebuilding a
+      # dataset each time the test order switches between datasets.
       - name: Run full test suite
         run: |
-          uv run pytest -v --doctest-modules --cov=src --cov-report=xml --junitxml=junit.xml -s -x
+          mkdir -p "$MEDS_DEV_CACHE_DIR"
+          uv run pytest -v --doctest-modules --cov=src --cov-report=xml --junitxml=junit.xml -s -x \
+            --persistent_cache_dir="$MEDS_DEV_CACHE_DIR" --cache_dataset=all --reuse_cached_dataset=all
+
+      # Cache keys are immutable, so only save once every demo dataset has been built successfully;
+      # otherwise a partial cache would pin the missing datasets to a rebuild on every run.
+      - name: Check demo datasets are complete
+        id: demo-complete
+        if: always() && steps.demo-cache.outputs.cache-hit != 'true'
+        run: |
+          uv run python - <<'EOF' >> "$GITHUB_OUTPUT"
+          import os
+          from pathlib import Path
+          from MEDS_DEV import DATASETS
+
+          root = Path(os.environ["MEDS_DEV_CACHE_DIR"])
+          demo = [n for n, d in DATASETS.items() if "build_demo" in (d.get("commands") or {})]
+          missing = [n for n in demo if not (root / f".{n}.check").is_file()]
+          print(f"complete={'false' if missing else 'true'}")
+          EOF
+
+      - name: Save demo dataset cache
+        if: always() && steps.demo-complete.outputs.complete == 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ${{ env.MEDS_DEV_CACHE_DIR }}
+            !${{ env.MEDS_DEV_CACHE_DIR }}/venvs
+          key: ${{ steps.demo-cache.outputs.cache-primary-key }}
 
       - name: Upload coverage to Codecov
         if: always()
