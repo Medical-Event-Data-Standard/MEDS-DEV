@@ -1,238 +1,150 @@
 predicates:
+  # SICdb-MEDS emits bare `ADMISSION` (first admission and each readmission) and `DISCHARGE` codes. SICdb
+  # does not distinguish hospital from ICU stays, so the ICU predicates select the same events.
   hospital_admission:
     code: ADMISSION
   hospital_discharge:
     code: DISCHARGE
-
-  # ED_registration:
-  #   code: { regex: "^ED_REGISTRATION//.*" }
-  # ED_discharge:
-  #   code: { regex: "^ED_OUT//.*" }
-
   icu_admission:
-    code: { regex: "^ADMISSION*" }
+    code: ADMISSION
   icu_discharge:
-    code: { regex: "^DISCHARGE*" }
+    code: DISCHARGE
+
+  # NOTE: SICdb-MEDS only emits the main ICD-10 diagnosis of each case (`DIAGNOSIS//ICD10//...`), and as a
+  # static (untimed) event, so diagnosis-based predicates cannot be used within task windows and are omitted.
 
   # Elevated Creatinine task predicates
   creatinine:
     code: LAB//LOINC//2160-0//mg/dl
-  # creatinine_2:
-  #   code: LAB//LOINC//12189-7
-  # urine_creatinine:
-  #   code: LAB//LOINC//35674-1
-  abnormally_high_creatinine_mg_dL:
+  abnormally_high_creatinine:
     code: LAB//LOINC//2160-0//mg/dl
     value_min: 1.2 # mg/dL
     value_min_inclusive: False
     value_max: null
-  # abnormally_high_creatinine_2:
-  #   code: LAB//LOINC//14682-9
-  #   value_min: 1.2 # mg/dL
-  #   value_min_inclusive: False
-  #   value_max: null
-  # abnormally_high_urine_creatinine:
-  #   code: LAB//LOINC//35674-1
-  #   value_min: 370 # mg/dL
-  #   value_min_inclusive: False
-  #   value_max: null
-  # creatinine:
-  #   expr: or(creatinine_1, creatinine_2)
-  # abnormally_high_creatinine_mg_dL:
-  #   expr: or(abnormally_high_creatinine_1, abnormally_high_creatinine_2)
 
   # Hyponatremia task predicates
-  sodium_1:
-    code: LAB//LOINC//2951-2//mmol/L
-  sodium_2:
-    code: LAB//LOINC//2955-3//mmol/L
-  sodium_3:
-    code: LAB//LOINC//2955-3//mmol/L
-  # Based on assumption that mmol/L = mEq/L for sodium
-  abnormally_low_sodium_1:
-    code: LAB//LOINC//2951-2//mmol/L
-    value_min: null
-    value_max: 135 # mEq/L
-    value_max_inclusive: False
-  abnormally_low_sodium_2:
-    code: LAB//LOINC//2955-3//mmol/L
-    value_min: null
-    value_max: 135 # mEq/L
-    value_max_inclusive: False
-  abnormally_low_sodium_3:
-    code: LAB//LOINC//2956-1//mmol/L
-    value_min: null
-    value_max: 135 # mEq/L
-    value_max_inclusive: False
+  # LOINC 2955-3 (sodium in urine) is also present but is not a serum/plasma measurement.
   sodium:
-    expr: or(sodium_1, sodium_2, sodium_3)
+    code: LAB//LOINC//2951-2//mmol/L
+  # Based on assumption that mmol/L = mEq/L for sodium
   abnormally_low_sodium:
-    expr: or(abnormally_low_sodium_1, abnormally_low_sodium_2, abnormally_low_sodium_3)
-  hyponatremia_1:
-    code: SNOMED//267447008//start
-  hyponatremia_2:
-    code: SNOMED//89627008//start
-  hyponatremia:
-    expr: or(hyponatremia_1, hyponatremia_2)
+    code: LAB//LOINC//2951-2//mmol/L
+    value_min: null
+    value_max: 135 # mEq/L
+    value_max_inclusive: False
 
   # Metabolic Acidosis task predicates
-  bicarbonate:
-    code: LAB//LOINC//1961-2//mmol/L
-  abnormally_low_bicarbonate:
+  bicarbonate_1:
+    code: LAB//LOINC//1961-2//mmol/L # Bicarbonate in Serum or Plasma
+  bicarbonate_2:
+    code: LAB//LOINC//1960-4//mmol/L # Bicarbonate in Arterial blood
+  abnormally_low_bicarbonate_1:
     code: LAB//LOINC//1961-2//mmol/L
     value_min: null
     value_max: 22 # mEq/L
     value_max_inclusive: False
-
-  metabolic_acidosis_1:
-    code: SNOMED//59455009//start
-  lactic_acidosis_1:
-    code: SNOMED//91273001//start
-  ketoacidosis_1:
-    code: SNOMED//420270002//start
-  metabolic_acidosis:
-    expr: or(metabolic_acidosis_1, lactic_acidosis_1, ketoacidosis_1)
-  # ['LOINC/2030-5',
-  #  'LOINC/2617-9',
-  #  'LOINC/2614-6',
-  #  'LOINC/19227-8',
-  #  'LOINC/2616-1',
-  #  'LOINC/2715-1',
-  #  'LOINC/2615-3',
-  #  'LOINC/2714-4',
-  #  'LOINC/20563-3',
-  #  'LOINC/39533-5',
-  #  'LOINC/2031-3']
+  abnormally_low_bicarbonate_2:
+    code: LAB//LOINC//1960-4//mmol/L
+    value_min: null
+    value_max: 22 # mEq/L
+    value_max_inclusive: False
+  bicarbonate:
+    expr: or(bicarbonate_1, bicarbonate_2)
+  abnormally_low_bicarbonate:
+    expr: or(abnormally_low_bicarbonate_1, abnormally_low_bicarbonate_2)
 
   # Anemia task predicates
   hemoglobin:
-    code: "LAB//LOINC//718-7//g/dl"
-  # hemoglobin_2:
-  #   code: LAB//50811//g/dL
+    code: LAB//LOINC//718-7//g/dl
   abnormally_low_hemoglobin:
-    code: "LAB//LOINC//718-7//g/dl"
+    code: LAB//LOINC//718-7//g/dl
     value_min: null
     value_max: 13 # g/dL
     value_max_inclusive: False
 
   # Leukocytosis task predicates
-  wbc_1:
-    code: LAB//LOINC//26464-8//g/L # K/uL = g/L
-  wbc_2: # not sure about correctness here
-    code: LAB//LOINC//26511-6//%
-  abnormally_high_wbc_1:
+  # LOINC 26511-6 (neutrophils / 100 leukocytes, in %) is not a WBC count and is excluded.
+  wbc:
+    code: LAB//LOINC//26464-8//g/L # K/uL = G/L
+  abnormally_high_wbc:
     code: LAB//LOINC//26464-8//g/L
     value_min: 11 # K/uL
     value_min_inclusive: False
     value_max: null
-  abnormally_high_wbc_2:
-    code: LAB//LOINC//26511-6//%
-    value_min: 11 # K/uL
-    value_min_inclusive: False
-    value_max: null
-  wbc:
-    expr: or(wbc_1, wbc_2)
-  abnormally_high_wbc:
-    expr: or(abnormally_high_wbc_1, abnormally_high_wbc_2)
 
   # Thrombocytopenia task predicates
   platelets:
-    code: LAB//LOINC//26515-7//g/L
-
+    code: LAB//LOINC//26515-7//g/L # K/uL = G/L
   abnormally_low_platelets:
     code: LAB//LOINC//26515-7//g/L
     value_min: null
-    value_max: 150 # g/L = K/uL ?
+    value_max: 150 # K/uL
     value_max_inclusive: False
 
-  # Idiopathic thrombocytopenic purpura (disorder)
-  itp:
-    code: SNOMED//32273002//start
-  # Autoimmune thrombocytopenic purpura (disorder)
-  aitp:
-    code: SNOMED//128091003//start
-  diagnosed_thrombocytopenia:
-    expr: or(itp, aitp)
-
-  # Hypertension predicates
+  # Hypertension predicates (arterial and non-invasive measurements)
+  systolic_bp_1:
+    code: VITAL//BloodPressureArterialSystolic//mmHg
+  systolic_bp_2:
+    code: VITAL//BloodPressureNISystolic//mmHg
+  diastolic_bp_1:
+    code: VITAL//BloodPressureArterialDiastolic//mmHg
+  diastolic_bp_2:
+    code: VITAL//BloodPressureNIDiastolic//mmHg
   systolic_bp:
-    code: LOINC//8480-6
+    expr: or(systolic_bp_1, systolic_bp_2)
   diastolic_bp:
-    code: LOINC//8462-4
-  abnormally_high_systolic_bp:
-    code: LOINC//8480-6
+    expr: or(diastolic_bp_1, diastolic_bp_2)
+  abnormally_high_systolic_bp_1:
+    code: VITAL//BloodPressureArterialSystolic//mmHg
     value_min: 130
-  abnormally_high_diastolic_bp:
-    code: LOINC//8462-4
+  abnormally_high_systolic_bp_2:
+    code: VITAL//BloodPressureNISystolic//mmHg
+    value_min: 130
+  abnormally_high_diastolic_bp_1:
+    code: VITAL//BloodPressureArterialDiastolic//mmHg
+    value_min: 80
+  abnormally_high_diastolic_bp_2:
+    code: VITAL//BloodPressureNIDiastolic//mmHg
     value_min: 80
   abnormally_high_bp:
-    expr: or(abnormally_high_systolic_bp, abnormally_high_diastolic_bp)
+    expr:
+      or(abnormally_high_systolic_bp_1, abnormally_high_systolic_bp_2, abnormally_high_diastolic_bp_1,
+      abnormally_high_diastolic_bp_2)
 
-  # Acute Kidney Injury predicates
-  aki_1:
-    code: SNOMED//14669001//start
-  aki_2:
-    code: SNOMED//298015003//start
-  aki_3:
-    code: SNOMED//35455006//start
-  acute_kidney_injury:
-    expr: or(aki_1, aki_2, aki_3)
-  # aki:
-  #   code: { regex: "SNOMED//(14669001|298015003|35455006)//start" }
+  # Hypotension task predicates (arterial and non-invasive MAP)
+  map_1:
+    code: VITAL//BloodPressureArterialMAP//mmHg
+  map_2:
+    code: VITAL//BloodPressureNIMAP//mmHg
+  abnormally_low_map_1:
+    code: VITAL//BloodPressureArterialMAP//mmHg
+    value_min: null
+    value_max: 65 # mmHg
+    value_max_inclusive: False
+  abnormally_low_map_2:
+    code: VITAL//BloodPressureNIMAP//mmHg
+    value_min: null
+    value_max: 65 # mmHg
+    value_max_inclusive: False
+  map:
+    expr: or(map_1, map_2)
+  abnormally_low_map:
+    expr: or(abnormally_low_map_1, abnormally_low_map_2)
+
   # Hyperkalemia predicates
-  potassium_1:
-    code: LAB//LOINC//2823-3
-  potassium_2:
-    code: LAB//LOINC//6298-4 #Potassium [Moles/volume] in Blood
   potassium:
-    expr: or(potassium_1, potassium_2)
-
-  # Hyperkalemia task predicates
-  abnormally_high_potassium_1:
+    code: LAB//LOINC//2823-3//mmol/L
+  abnormally_high_potassium:
     code: LAB//LOINC//2823-3//mmol/L
     value_min: 5.0 # mEq/L
     value_min_inclusive: True
     value_max: null
-  abnormally_high_potassium_2:
-    code: LAB//LOINC//6298-4//mmol/L #Potassium [Moles/volumeplate] in Blood
-    value_min: 5.0 # mEq/L
-    value_min_inclusive: True
-    value_max: null
-  abnormally_high_potassium:
-    expr: or(abnormally_high_potassium_1, abnormally_high_potassium_2)
-
-  diagnosed_hypokalemia:
-    code: SNOMED//433144002//start # Hypokalemia (disorder)
-
-  diagnosed_hyperkalemia:
-    code: SNOMED//237602007//start # Hyperkalemia (disorder)
 
   # Hypoglycemia predicates
-  glucose_1:
-    code: LAB//LOINC//2345-7//mg/dl # Glucose [Mass/volume] in serum or Plasma
-  glucose_2:
-    code: LOINC//2339-0//mg/dl # Glucose [Mass/volume] in Blood
-  glucose_3:
-    code: LOINC//5792-7//mg/dl # Glucose [Mass/volume] in Urine by Test strip
-
-  abnormally_low_glucose_1:
-    code: LOINC//2345-7//mg/dl # Glucose [Mass/volume] in Blood
-    value_min: null
-    value_max: 70.2 # mg/dL
-    value_max_inclusive: False
-  abnormally_low_glucose_2:
-    code: LOINC//2339-0//mg/dl # Glucose [Mass/volume] in Blood
-    value_min: null
-    value_max: 70.2 # mg/dL
-    value_max_inclusive: False
-  abnormally_low_glucose_3:
-    code: LOINC//5792-7//mg/dl # Glucose [Mass/volume] in Urine by Test strip
-    value_min: null
-    value_max: 70.2 # mg/dL
-    value_max_inclusive: False
   glucose:
-    expr: or(glucose_1, glucose_2, glucose_3)
-
+    code: LAB//LOINC//2345-7//mg/dl # Glucose [Mass/volume] in Serum or Plasma
   abnormally_low_glucose:
-    expr: or(abnormally_low_glucose_1, abnormally_low_glucose_2, abnormally_low_glucose_3)
-# TODO: Add hypotension based on MAP. This data comes from the data float h (waveform data)
+    code: LAB//LOINC//2345-7//mg/dl
+    value_min: null
+    value_max: 70.2 # mg/dL
+    value_max_inclusive: False
