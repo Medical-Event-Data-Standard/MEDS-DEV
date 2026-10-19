@@ -181,20 +181,20 @@ predicates:
   #   code: { regex: "SNOMED//(14669001|298015003|35455006)//start" }
   # Hyperkalemia predicates
   potassium_1:
-    code: LOINC//2823-3
+    code: LAB//LOINC//2823-3
   potassium_2:
-    code: LOINC//6298-4 #Potassium [Moles/volume] in Blood
+    code: LAB//LOINC//6298-4 #Potassium [Moles/volume] in Blood
   potassium:
     expr: or(potassium_1, potassium_2)
 
   # Hyperkalemia task predicates
   abnormally_high_potassium_1:
-    code: LOINC//2823-3//mmol/L
+    code: LAB//LOINC//2823-3//mmol/L
     value_min: 5.0 # mEq/L
     value_min_inclusive: True
     value_max: null
   abnormally_high_potassium_2:
-    code: LOINC//6298-4//mmol/L #Potassium [Moles/volumeplate] in Blood
+    code: LAB//LOINC//6298-4//mmol/L #Potassium [Moles/volumeplate] in Blood
     value_min: 5.0 # mEq/L
     value_min_inclusive: True
     value_max: null
