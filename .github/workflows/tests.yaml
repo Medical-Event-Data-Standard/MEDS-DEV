@@ -257,6 +257,22 @@ jobs:
             !${{ env.MEDS_DEV_CACHE_DIR }}/venvs
           key: demo-datasets-v1-${{ runner.os }}-${{ hashFiles('src/MEDS_DEV/datasets/**/dataset.yaml', 'src/MEDS_DEV/datasets/**/requirements.txt') }}
 
+      # PhysioNet downloads are flaky (502s, dropped connections) and the ETL packages don't retry, so on
+      # a cache miss build the demo datasets up front with a few attempts. Datasets that already built
+      # successfully are reused by later attempts.
+      - name: Build demo datasets
+        if: steps.demo-cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p "$MEDS_DEV_CACHE_DIR"
+          for attempt in 1 2 3; do
+            uv run pytest -v -s -x tests/test_0_datasets.py -k test_datasets_configured \
+              --persistent_cache_dir="$MEDS_DEV_CACHE_DIR" --cache_dataset=all --reuse_cached_dataset=all \
+              && exit 0
+            echo "::warning::Demo dataset build attempt $attempt failed; retrying in 60s"
+            sleep 60
+          done
+          exit 1
+
       # --reuse_cached_dataset also stops the session-scoped `demo_dataset` fixture from rebuilding a
       # dataset each time the test order switches between datasets.
       - name: Run full test suite
