@@ -241,9 +241,15 @@ jobs:
         with:
           python-version: "3.11"
 
+      # TEMPORARY: eICU is excluded from the full suite. Its demo build takes ~40-60 min and the
+      # session-scoped `demo_dataset` fixture is torn down and rebuilt each time the test order
+      # switches datasets, so eICU gets built 2-3 times per run and the job exceeds the 120 min
+      # timeout. eICU is still exercised by `dataset-lane` whenever its files change. Remove the
+      # `--test_dataset` flag once dataset builds are cached/reused across the session.
       - name: Run full test suite
         run: |
-          uv run pytest -v --doctest-modules --cov=src --cov-report=xml --junitxml=junit.xml -s -x
+          uv run pytest -v --doctest-modules --cov=src --cov-report=xml --junitxml=junit.xml -s -x \
+            --test_dataset=MIMIC-IV
 
       - name: Upload coverage to Codecov
         if: always()
