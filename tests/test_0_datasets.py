@@ -51,6 +51,8 @@ def test_datasets_configured(demo_dataset: NAME_AND_DIR):
 @pytest.mark.integration
 def test_dataset_predicate_codes_covered(demo_dataset: NAME_AND_DIR):
     dataset_name, demo_dataset_dir = demo_dataset
+    if "MESSY-synth" in DATASETS[dataset_name]["commands"]["build_demo"]:
+        pytest.skip(f"{dataset_name} demo is MESSY_synth data; its fake codes can't match real predicates.")
     predicates_path = DATASETS[dataset_name]["predicates"]
 
     assert predicates_path is not None, f"Dataset {dataset_name} does not define a predicates file"

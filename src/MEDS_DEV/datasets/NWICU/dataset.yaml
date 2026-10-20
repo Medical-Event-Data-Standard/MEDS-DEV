@@ -17,3 +17,10 @@ commands:
     meds-extract-run spec=NWICU
     download_dest_dir="{temp_dir}/raw"
     output_dir="{output_dir}"
+  # Synthetic demo: MESSY_synth fakes raw data from the ETL's own messy.yaml, then the real ETL runs on it.
+  # shortcut: MESSY_synth pinned by git SHA (Python>=3.12, not on PyPI), pin a release once published.
+  build_demo: |-
+    uv tool run --python 3.12 --from git+https://github.com/mmcdermott/MESSY_synth@239145ed3f2d1be3e7b5e264af418340636b9a6b \
+      MESSY-synth "$(python -c 'import importlib.resources as r; print(r.files("NWICU_MEDS") / "messy.yaml")')" \
+      -o "{temp_dir}/raw" -q
+    meds-extract-run spec=NWICU do_download=false input_dir="{temp_dir}/raw" output_dir="{output_dir}"
