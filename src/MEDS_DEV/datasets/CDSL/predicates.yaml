@@ -1,0 +1,167 @@
+# Predicates for CDSL (CDSL-MEDS, MESSY spec). Reasoning: README.md.
+# Can support: mortality/in_icu/first_24h and the six abnormal_lab blood tasks. Not supported:
+# abnormal_lab/vital/hypotension (vitals have systolic/diastolic only, no MAP). Labs are already in the
+# tasks' units. No MEDS_BIRTH (age only), so the age >= 18 window cannot exclude the small share of
+# subjects younger than 18.
+
+predicates:
+  hospital_admission:
+    code: HOSPITAL_ADMISSION
+  hospital_discharge:
+    code: { regex: "^HOSPITAL_DISCHARGE//.*" }
+  icu_admission:
+    code: ICU_ADMISSION
+  icu_discharge:
+    code: ICU_DISCHARGE
+  # No MEDS_DEATH: death is only a discharge destination, so it is timed at hospital discharge. For most ICU
+  # deaths that is before the last ICU discharge (the in-ICU window still sees it); a few fall after.
+  death:
+    code: HOSPITAL_DISCHARGE//Death
+
+  # Serum and point-of-care creatinine, mg/dL.
+  creatinine_1:
+    code: "LAB//CREA -- Creatinine//mg/dL"
+  creatinine_2:
+    code: "LAB//POCCREA -- POC Creatinine//mg/dL"
+  abnormally_high_creatinine_1:
+    code: "LAB//CREA -- Creatinine//mg/dL"
+    value_min: 1.3 # mg/dL
+    value_min_inclusive: False
+    value_max: null
+  abnormally_high_creatinine_2:
+    code: "LAB//POCCREA -- POC Creatinine//mg/dL"
+    value_min: 1.3 # mg/dL
+    value_min_inclusive: False
+    value_max: null
+  creatinine:
+    expr: or(creatinine_1, creatinine_2)
+  abnormally_high_creatinine:
+    expr: or(abnormally_high_creatinine_1, abnormally_high_creatinine_2)
+
+  # Serum, blood-gas and POC sodium; mmol/L == mEq/L.
+  sodium_1:
+    code: "LAB//NA -- Sodium//mmol/L"
+  sodium_2:
+    code: "LAB//NA+P -- NA+//mmol/L"
+  sodium_3:
+    code: "LAB//NA+P -- Ions in Gases//mmol/L"
+  sodium_4:
+    code: "LAB//POCNA -- POC Sodium//mmol/L"
+  abnormally_low_sodium_1:
+    code: "LAB//NA -- Sodium//mmol/L"
+    value_max: 135 # mmol/L == mEq/L
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_sodium_2:
+    code: "LAB//NA+P -- NA+//mmol/L"
+    value_max: 135 # mmol/L == mEq/L
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_sodium_3:
+    code: "LAB//NA+P -- Ions in Gases//mmol/L"
+    value_max: 135 # mmol/L == mEq/L
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_sodium_4:
+    code: "LAB//POCNA -- POC Sodium//mmol/L"
+    value_max: 135 # mmol/L == mEq/L
+    value_max_inclusive: False
+    value_min: null
+  sodium:
+    expr: or(sodium_1, sodium_2, sodium_3, sodium_4)
+  abnormally_low_sodium:
+    expr: or(abnormally_low_sodium_1, abnormally_low_sodium_2, abnormally_low_sodium_3, abnormally_low_sodium_4)
+
+  # Only blood-gas HCO3 exists (no chemistry total CO2); mmol/L == mEq/L.
+  bicarbonate_1:
+    code: "LAB//HCO3 -- Bicarbonate//mmol/L"
+  bicarbonate_2:
+    code: "LAB//HCO3 -- Bicarbonate (Venous)//mmol/L"
+  bicarbonate_3:
+    code: "LAB//HCO3 -- Venous Blood Gas//mmol/L"
+  bicarbonate_4:
+    code: "LAB//HCO3 -- Arterial Blood Gas//mmol/L"
+  abnormally_low_bicarbonate_1:
+    code: "LAB//HCO3 -- Bicarbonate//mmol/L"
+    value_max: 22 # mmol/L == mEq/L
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_bicarbonate_2:
+    code: "LAB//HCO3 -- Bicarbonate (Venous)//mmol/L"
+    value_max: 22 # mmol/L == mEq/L
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_bicarbonate_3:
+    code: "LAB//HCO3 -- Venous Blood Gas//mmol/L"
+    value_max: 22 # mmol/L == mEq/L
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_bicarbonate_4:
+    code: "LAB//HCO3 -- Arterial Blood Gas//mmol/L"
+    value_max: 22 # mmol/L == mEq/L
+    value_max_inclusive: False
+    value_min: null
+  bicarbonate:
+    expr: or(bicarbonate_1, bicarbonate_2, bicarbonate_3, bicarbonate_4)
+  abnormally_low_bicarbonate:
+    expr: or(abnormally_low_bicarbonate_1, abnormally_low_bicarbonate_2, abnormally_low_bicarbonate_3, abnormally_low_bicarbonate_4)
+
+  # CBC hemoglobin, g/dL.
+  hemoglobin_1:
+    code: "LAB//HGB -- Hemoglobin//g/dL"
+  hemoglobin_2:
+    code: "LAB//HGB -- Hemoglobin (Blood Count)//g/dL"
+  abnormally_low_hemoglobin_1:
+    code: "LAB//HGB -- Hemoglobin//g/dL"
+    value_max: 13 # g/dL
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_hemoglobin_2:
+    code: "LAB//HGB -- Hemoglobin (Blood Count)//g/dL"
+    value_max: 13 # g/dL
+    value_max_inclusive: False
+    value_min: null
+  hemoglobin:
+    expr: or(hemoglobin_1, hemoglobin_2)
+  abnormally_low_hemoglobin:
+    expr: or(abnormally_low_hemoglobin_1, abnormally_low_hemoglobin_2)
+
+  # CBC WBC; x10e3/uL == K/uL.
+  wbc_1:
+    code: "LAB//WBC -- White Blood Cells (Leukocytes)//x10e3/µL"
+  wbc_2:
+    code: "LAB//WBC -- White Blood Cells (Blood Count)//x10e3/µL"
+  abnormally_high_wbc_1:
+    code: "LAB//WBC -- White Blood Cells (Leukocytes)//x10e3/µL"
+    value_min: 11 # K/uL
+    value_min_inclusive: False
+    value_max: null
+  abnormally_high_wbc_2:
+    code: "LAB//WBC -- White Blood Cells (Blood Count)//x10e3/µL"
+    value_min: 11 # K/uL
+    value_min_inclusive: False
+    value_max: null
+  wbc:
+    expr: or(wbc_1, wbc_2)
+  abnormally_high_wbc:
+    expr: or(abnormally_high_wbc_1, abnormally_high_wbc_2)
+
+  # CBC platelets; x10e3/uL == K/uL.
+  platelets_1:
+    code: "LAB//PLT -- Platelet Count//x10e3/µL"
+  platelets_2:
+    code: "LAB//PLT -- Platelet Count (Blood Count)//x10e3/µL"
+  abnormally_low_platelets_1:
+    code: "LAB//PLT -- Platelet Count//x10e3/µL"
+    value_max: 150 # K/uL
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_platelets_2:
+    code: "LAB//PLT -- Platelet Count (Blood Count)//x10e3/µL"
+    value_max: 150 # K/uL
+    value_max_inclusive: False
+    value_min: null
+  platelets:
+    expr: or(platelets_1, platelets_2)
+  abnormally_low_platelets:
+    expr: or(abnormally_low_platelets_1, abnormally_low_platelets_2)

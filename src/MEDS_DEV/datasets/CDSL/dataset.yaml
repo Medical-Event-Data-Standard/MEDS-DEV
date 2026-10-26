@@ -1,0 +1,21 @@
+metadata:
+  description: >-
+    A MEDS version of the COVID Data for Shared Learning (CDSL) database.
+  links:
+    - https://github.com/rvandewater/CDSL_MEDS
+    - https://physionet.org/content/covid-data-shared-learning/1.0.0/
+    - https://doi.org/10.13026/1176-6c44
+  contacts:
+    - name: "Robin P. van de Water"
+      github_username: "rvandewater"
+  access_policy: public_with_approval
+  access_details: >-
+    Contributor-review access: requires a credentialed PhysioNet account, completion of the required CITI
+    training, acceptance of the PhysioNet Contributor Review Health Data Use Agreement, and approval of
+    the request by the data contributors.
+commands:
+  # CDSL ships three Latin-1 files; MEDS_extract-CDSL stages a UTF-8 view of a local input_dir before
+  # running MEDS-Extract, so download first and then extract from the download.
+  build_full: |-
+    meds-extract-download spec=CDSL output_dir="{temp_dir}/raw"
+    MEDS_extract-CDSL spec=CDSL do_download=false input_dir="{temp_dir}/raw" output_dir="{output_dir}"
