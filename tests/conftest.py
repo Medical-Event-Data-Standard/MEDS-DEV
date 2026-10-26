@@ -155,12 +155,14 @@ def pytest_collection_modifyitems(session: pytest.Session, config: pytest.Config
 
         model_idx = _safe_index(model_opts, fixture_params["unsupervised_model"])
 
+        # Session-scoped parametrized fixtures only keep one param alive at a time, so switching datasets
+        # between a model's supervised and evaluation tests would tear down and retrain the model each time.
         if is_unsupervised_model_test:
-            return (model_idx, -1, -1, dataset_idx)
+            return (model_idx, dataset_idx, -1, 0)
         elif is_supervised_model_test:
-            return (model_idx, task_idx, -1, dataset_idx)
+            return (model_idx, dataset_idx, task_idx, 1)
         elif is_evaluation_test:
-            return (model_idx, task_idx, 1, dataset_idx)
+            return (model_idx, dataset_idx, task_idx, 2)
         else:
             raise ValueError(f"Item {item} does not fit any category.")
 
