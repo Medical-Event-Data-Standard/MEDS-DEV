@@ -1,0 +1,150 @@
+predicates:
+  # SICdb-MEDS emits bare `ADMISSION` (first admission and each readmission) and `DISCHARGE` codes. SICdb
+  # does not distinguish hospital from ICU stays, so the ICU predicates select the same events.
+  hospital_admission:
+    code: ADMISSION
+  hospital_discharge:
+    code: DISCHARGE
+  icu_admission:
+    code: ADMISSION
+  icu_discharge:
+    code: DISCHARGE
+
+  # NOTE: SICdb-MEDS only emits the main ICD-10 diagnosis of each case (`DIAGNOSIS//ICD10//...`), and as a
+  # static (untimed) event, so diagnosis-based predicates cannot be used within task windows and are omitted.
+
+  # Elevated Creatinine task predicates
+  creatinine:
+    code: LAB//LOINC//2160-0//mg/dl
+  abnormally_high_creatinine:
+    code: LAB//LOINC//2160-0//mg/dl
+    value_min: 1.2 # mg/dL
+    value_min_inclusive: False
+    value_max: null
+
+  # Hyponatremia task predicates
+  # LOINC 2955-3 (sodium in urine) is also present but is not a serum/plasma measurement.
+  sodium:
+    code: LAB//LOINC//2951-2//mmol/L
+  # Based on assumption that mmol/L = mEq/L for sodium
+  abnormally_low_sodium:
+    code: LAB//LOINC//2951-2//mmol/L
+    value_min: null
+    value_max: 135 # mEq/L
+    value_max_inclusive: False
+
+  # Metabolic Acidosis task predicates
+  bicarbonate_1:
+    code: LAB//LOINC//1961-2//mmol/L # Bicarbonate in Serum or Plasma
+  bicarbonate_2:
+    code: LAB//LOINC//1960-4//mmol/L # Bicarbonate in Arterial blood
+  abnormally_low_bicarbonate_1:
+    code: LAB//LOINC//1961-2//mmol/L
+    value_min: null
+    value_max: 22 # mEq/L
+    value_max_inclusive: False
+  abnormally_low_bicarbonate_2:
+    code: LAB//LOINC//1960-4//mmol/L
+    value_min: null
+    value_max: 22 # mEq/L
+    value_max_inclusive: False
+  bicarbonate:
+    expr: or(bicarbonate_1, bicarbonate_2)
+  abnormally_low_bicarbonate:
+    expr: or(abnormally_low_bicarbonate_1, abnormally_low_bicarbonate_2)
+
+  # Anemia task predicates
+  hemoglobin:
+    code: LAB//LOINC//718-7//g/dl
+  abnormally_low_hemoglobin:
+    code: LAB//LOINC//718-7//g/dl
+    value_min: null
+    value_max: 13 # g/dL
+    value_max_inclusive: False
+
+  # Leukocytosis task predicates
+  # LOINC 26511-6 (neutrophils / 100 leukocytes, in %) is not a WBC count and is excluded.
+  wbc:
+    code: LAB//LOINC//26464-8//g/L # K/uL = G/L
+  abnormally_high_wbc:
+    code: LAB//LOINC//26464-8//g/L
+    value_min: 11 # K/uL
+    value_min_inclusive: False
+    value_max: null
+
+  # Thrombocytopenia task predicates
+  platelets:
+    code: LAB//LOINC//26515-7//g/L # K/uL = G/L
+  abnormally_low_platelets:
+    code: LAB//LOINC//26515-7//g/L
+    value_min: null
+    value_max: 150 # K/uL
+    value_max_inclusive: False
+
+  # Hypertension predicates (arterial and non-invasive measurements)
+  systolic_bp_1:
+    code: VITAL//BloodPressureArterialSystolic//mmHg
+  systolic_bp_2:
+    code: VITAL//BloodPressureNISystolic//mmHg
+  diastolic_bp_1:
+    code: VITAL//BloodPressureArterialDiastolic//mmHg
+  diastolic_bp_2:
+    code: VITAL//BloodPressureNIDiastolic//mmHg
+  systolic_bp:
+    expr: or(systolic_bp_1, systolic_bp_2)
+  diastolic_bp:
+    expr: or(diastolic_bp_1, diastolic_bp_2)
+  abnormally_high_systolic_bp_1:
+    code: VITAL//BloodPressureArterialSystolic//mmHg
+    value_min: 130
+  abnormally_high_systolic_bp_2:
+    code: VITAL//BloodPressureNISystolic//mmHg
+    value_min: 130
+  abnormally_high_diastolic_bp_1:
+    code: VITAL//BloodPressureArterialDiastolic//mmHg
+    value_min: 80
+  abnormally_high_diastolic_bp_2:
+    code: VITAL//BloodPressureNIDiastolic//mmHg
+    value_min: 80
+  abnormally_high_bp:
+    expr:
+      or(abnormally_high_systolic_bp_1, abnormally_high_systolic_bp_2, abnormally_high_diastolic_bp_1,
+      abnormally_high_diastolic_bp_2)
+
+  # Hypotension task predicates (arterial and non-invasive MAP)
+  map_1:
+    code: VITAL//BloodPressureArterialMAP//mmHg
+  map_2:
+    code: VITAL//BloodPressureNIMAP//mmHg
+  abnormally_low_map_1:
+    code: VITAL//BloodPressureArterialMAP//mmHg
+    value_min: null
+    value_max: 65 # mmHg
+    value_max_inclusive: False
+  abnormally_low_map_2:
+    code: VITAL//BloodPressureNIMAP//mmHg
+    value_min: null
+    value_max: 65 # mmHg
+    value_max_inclusive: False
+  map:
+    expr: or(map_1, map_2)
+  abnormally_low_map:
+    expr: or(abnormally_low_map_1, abnormally_low_map_2)
+
+  # Hyperkalemia predicates
+  potassium:
+    code: LAB//LOINC//2823-3//mmol/L
+  abnormally_high_potassium:
+    code: LAB//LOINC//2823-3//mmol/L
+    value_min: 5.0 # mEq/L
+    value_min_inclusive: True
+    value_max: null
+
+  # Hypoglycemia predicates
+  glucose:
+    code: LAB//LOINC//2345-7//mg/dl # Glucose [Mass/volume] in Serum or Plasma
+  abnormally_low_glucose:
+    code: LAB//LOINC//2345-7//mg/dl
+    value_min: null
+    value_max: 70.2 # mg/dL
+    value_max_inclusive: False

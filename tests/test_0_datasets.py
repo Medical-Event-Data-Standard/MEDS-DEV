@@ -13,9 +13,47 @@ from omegaconf import OmegaConf
 
 from MEDS_DEV import DATASETS
 from MEDS_DEV.datasets import __main__ as datasets_main
+
 from tests.utils import NAME_AND_DIR, run_command
 
 MAX_UNCOVERED_PREDICATE_CODE_MATCHER_FRACTION = 0.10
+
+
+def test_dataset_build_resolves_relative_output_dir(monkeypatch, tmp_path):
+    output_dirs = []
+    commands = []
+
+    @contextmanager
+    def fake_temp_env(cfg, requirements):
+        yield tmp_path, {}
+
+    def fake_run_in_env(cmd, output_dir, **kwargs):
+        commands.append(cmd)
+        output_dirs.append(output_dir)
+
+    monkeypatch.setattr(dataset_main, "temp_env", fake_temp_env)
+    monkeypatch.setattr(dataset_main, "run_in_env", fake_run_in_env)
+    monkeypatch.setattr(
+        dataset_main,
+        "DATASETS",
+        {"test": {"commands": {"build_full": "build {output_dir}"}, "requirements": ""}},
+    )
+
+    relative_output_dir = "relative-output"
+    dataset_main.main.__wrapped__(
+        OmegaConf.create(
+            {
+                "dataset": "test",
+                "output_dir": relative_output_dir,
+                "demo": False,
+                "do_overwrite": False,
+            }
+        )
+    )
+
+    resolved_output_dir = Path(relative_output_dir).resolve()
+    assert output_dirs == [resolved_output_dir]
+    assert commands == [f"build {resolved_output_dir}"]
 
 
 def test_non_dataset_breaks():

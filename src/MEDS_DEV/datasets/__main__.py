@@ -63,7 +63,7 @@ def main(cfg: DictConfig):
     commands = DATASETS[cfg.dataset]["commands"]
     requirements = DATASETS[cfg.dataset]["requirements"]
 
-    output_dir = Path(cfg.output_dir)
+    output_dir = Path(cfg.output_dir).resolve()
     if cfg.get("do_overwrite", False) and output_dir.exists():  # pragma: no cover
         logger.info(f"Removing existing output directory: {output_dir}")
         shutil.rmtree(output_dir)
@@ -78,12 +78,12 @@ def main(cfg: DictConfig):
     build_cmd = _select_build_command(cfg.dataset, commands, cfg.demo)
 
     with temp_env(cfg, requirements) as (build_temp_dir, env):
-        build_cmd = build_cmd.format(output_dir=cfg.output_dir, temp_dir=str(build_temp_dir.resolve()))
+        build_cmd = build_cmd.format(output_dir=str(output_dir), temp_dir=str(build_temp_dir.resolve()))
 
         logger.info(f"Considering running build command: {build_cmd}")
         run_in_env(
             build_cmd,
-            cfg.output_dir,
+            output_dir,
             env=env,
             do_overwrite=cfg.do_overwrite,
             cwd=build_temp_dir,
