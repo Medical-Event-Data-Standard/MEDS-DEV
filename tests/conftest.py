@@ -25,6 +25,17 @@ def pytest_addoption(parser):
         ),
     )
 
+    parser.addoption(
+        "--download_cache_dir",
+        default=None,
+        help=(
+            "Keep each demo dataset's raw downloads in <dir>/<dataset>/raw across builds (passed to "
+            "meds-dev-dataset as temp_dir; build commands download into {temp_dir}/raw). Only the downloads "
+            "are kept: everything else in <dir>/<dataset> is removed before each build, so the ETL always "
+            "runs. ETLs skip files that are already present with a valid checksum."
+        ),
+    )
+
     def add_cache_opt(opt: str):
         cache_str_template = (
             "Cache the {opt} with the given name. Use 'all' to cache all {opt}s. Add specific {opt}s "
@@ -378,17 +389,27 @@ def demo_dataset(request, venv_cache: Path) -> NAME_AND_DIR:
         already_tested = check_fp.exists() and data_exists and metadata_exists
         if do_overwrite or not already_tested:
             venv_dir = venv_cache / "datasets" / dataset_name
+            hydra_kwargs = {
+                "dataset": dataset_name,
+                "output_dir": str(output_dir.resolve()),
+                "demo": True,
+                "venv_dir": str(venv_dir.resolve()),
+            }
 
-            run_command(
-                "meds-dev-dataset",
-                test_name=f"Build {dataset_name}",
-                hydra_kwargs={
-                    "dataset": dataset_name,
-                    "output_dir": str(output_dir.resolve()),
-                    "demo": True,
-                    "venv_dir": str(venv_dir.resolve()),
-                },
-            )
+            if download_cache_dir := request.config.getoption("--download_cache_dir"):
+                # Keep only the raw downloads, so no intermediate ETL output (e.g. pre_MEDS) is reused.
+                build_temp_dir = Path(download_cache_dir) / dataset_name
+                build_temp_dir.mkdir(parents=True, exist_ok=True)
+                for path in build_temp_dir.iterdir():
+                    if path.name == "raw":
+                        continue
+                    if path.is_dir() and not path.is_symlink():
+                        shutil.rmtree(path)
+                    else:
+                        path.unlink()
+                hydra_kwargs["temp_dir"] = str(build_temp_dir.resolve())
+
+            run_command("meds-dev-dataset", test_name=f"Build {dataset_name}", hydra_kwargs=hydra_kwargs)
 
             # Dataset venvs should never be used again, so we delete it here for simplicity.
             logger.info(f"Deleting venv for {dataset_name} at {venv_dir}")

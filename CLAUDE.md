@@ -72,6 +72,8 @@ pytest -v -s -x --test_task=mortality/in_icu/first_24h
 **Key test options:**
 
 - `--persistent_cache_dir=DIR` — persist built datasets/models across runs (DIR must exist)
+- `--download_cache_dir=DIR` — keep demo datasets' raw downloads in `DIR/<dataset>/raw` across builds;
+    the ETL still always runs (full-integration CI caches only these downloads)
 - `--cache_dataset=NAME|all` — cache dataset builds in persistent dir
 - `--cache_task=NAME|all` — cache task extractions
 - `--cache_model=NAME|all` — cache model outputs
