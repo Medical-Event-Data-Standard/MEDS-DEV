@@ -1,0 +1,468 @@
+# Predicates for ALOTT (ALOTT-MEDS, MESSY spec). Reasoning: README.md.
+# Can support: the six abnormal_lab blood tasks, with caveats. Not supported: mortality/in_icu (no death
+# anywhere in the release) and abnormal_lab/vital/hypotension (no blood pressure in the EMR flowsheet).
+# Labs carry only a result *date* and are placed at 23:59:59, so the tasks' 24 h windows act as calendar
+# days (input = admission day, target = next day). There is no birth date or age, so the age >= 18
+# window cannot exclude children. Codes are LAB//RESULT//<panel>//<component>; units are US (no unit in
+# the code; medians match mg/dL, mmol/L, g/dL, K/uL). Panels seen in < 20 subjects are not listed.
+
+predicates:
+  hospital_admission:
+    code: { regex: "^HOSPITAL_ADMISSION//.*" }
+  hospital_discharge:
+    code: { regex: "^HOSPITAL_DISCHARGE//.*" }
+  # Needed because metabolic_acidosis stops at ICU discharge. Do NOT list ALOTT for mortality/in_icu:
+  # with no death events that task still runs, but every label is False.
+  icu_admission:
+    code: ICU_ADMISSION
+  icu_discharge:
+    code: ICU_DISCHARGE
+
+  # Serum creatinine in every chemistry panel (component BKR CREATININE / CREATININE SERUM).
+  creatinine_1:
+    code: "LAB//RESULT//33387//BKR CREATININE"
+  creatinine_2:
+    code: "LAB//RESULT//33387//CREATININE SERUM"
+  creatinine_3:
+    code: "LAB//RESULT//10201908//BKR CREATININE"
+  creatinine_4:
+    code: "LAB//RESULT//10201113//BKR CREATININE"
+  creatinine_5:
+    code: "LAB//RESULT//678//BKR CREATININE"
+  creatinine_6:
+    code: "LAB//RESULT//10201908//CREATININE SERUM"
+  creatinine_7:
+    code: "LAB//RESULT//10201113//CREATININE SERUM"
+  creatinine_8:
+    code: "LAB//RESULT//678//CREATININE SERUM"
+  creatinine_9:
+    code: "LAB//RESULT//682//BKR CREATININE"
+  creatinine_10:
+    code: "LAB//RESULT//780//BKR CREATININE"
+  creatinine_11:
+    code: "LAB//RESULT//10201892//BKR CREATININE"
+  creatinine_12:
+    code: "LAB//RESULT//682//CREATININE SERUM"
+  creatinine_13:
+    code: "LAB//RESULT//780//CREATININE SERUM"
+  creatinine_14:
+    code: "LAB//RESULT//10201892//CREATININE SERUM"
+  creatinine_15:
+    code: "LAB//RESULT//10201850//BKR CREATININE"
+  abnormally_high_creatinine_1:
+    code: "LAB//RESULT//33387//BKR CREATININE"
+    value_min: 1.3 # mg/dL
+    value_min_inclusive: False
+    value_max: null
+  abnormally_high_creatinine_2:
+    code: "LAB//RESULT//33387//CREATININE SERUM"
+    value_min: 1.3 # mg/dL
+    value_min_inclusive: False
+    value_max: null
+  abnormally_high_creatinine_3:
+    code: "LAB//RESULT//10201908//BKR CREATININE"
+    value_min: 1.3 # mg/dL
+    value_min_inclusive: False
+    value_max: null
+  abnormally_high_creatinine_4:
+    code: "LAB//RESULT//10201113//BKR CREATININE"
+    value_min: 1.3 # mg/dL
+    value_min_inclusive: False
+    value_max: null
+  abnormally_high_creatinine_5:
+    code: "LAB//RESULT//678//BKR CREATININE"
+    value_min: 1.3 # mg/dL
+    value_min_inclusive: False
+    value_max: null
+  abnormally_high_creatinine_6:
+    code: "LAB//RESULT//10201908//CREATININE SERUM"
+    value_min: 1.3 # mg/dL
+    value_min_inclusive: False
+    value_max: null
+  abnormally_high_creatinine_7:
+    code: "LAB//RESULT//10201113//CREATININE SERUM"
+    value_min: 1.3 # mg/dL
+    value_min_inclusive: False
+    value_max: null
+  abnormally_high_creatinine_8:
+    code: "LAB//RESULT//678//CREATININE SERUM"
+    value_min: 1.3 # mg/dL
+    value_min_inclusive: False
+    value_max: null
+  abnormally_high_creatinine_9:
+    code: "LAB//RESULT//682//BKR CREATININE"
+    value_min: 1.3 # mg/dL
+    value_min_inclusive: False
+    value_max: null
+  abnormally_high_creatinine_10:
+    code: "LAB//RESULT//780//BKR CREATININE"
+    value_min: 1.3 # mg/dL
+    value_min_inclusive: False
+    value_max: null
+  abnormally_high_creatinine_11:
+    code: "LAB//RESULT//10201892//BKR CREATININE"
+    value_min: 1.3 # mg/dL
+    value_min_inclusive: False
+    value_max: null
+  abnormally_high_creatinine_12:
+    code: "LAB//RESULT//682//CREATININE SERUM"
+    value_min: 1.3 # mg/dL
+    value_min_inclusive: False
+    value_max: null
+  abnormally_high_creatinine_13:
+    code: "LAB//RESULT//780//CREATININE SERUM"
+    value_min: 1.3 # mg/dL
+    value_min_inclusive: False
+    value_max: null
+  abnormally_high_creatinine_14:
+    code: "LAB//RESULT//10201892//CREATININE SERUM"
+    value_min: 1.3 # mg/dL
+    value_min_inclusive: False
+    value_max: null
+  abnormally_high_creatinine_15:
+    code: "LAB//RESULT//10201850//BKR CREATININE"
+    value_min: 1.3 # mg/dL
+    value_min_inclusive: False
+    value_max: null
+  creatinine:
+    expr: or(creatinine_1, creatinine_2, creatinine_3, creatinine_4, creatinine_5, creatinine_6, creatinine_7, creatinine_8, creatinine_9, creatinine_10, creatinine_11, creatinine_12, creatinine_13, creatinine_14, creatinine_15)
+  abnormally_high_creatinine:
+    expr: or(abnormally_high_creatinine_1, abnormally_high_creatinine_2, abnormally_high_creatinine_3, abnormally_high_creatinine_4, abnormally_high_creatinine_5, abnormally_high_creatinine_6, abnormally_high_creatinine_7, abnormally_high_creatinine_8, abnormally_high_creatinine_9, abnormally_high_creatinine_10, abnormally_high_creatinine_11, abnormally_high_creatinine_12, abnormally_high_creatinine_13, abnormally_high_creatinine_14, abnormally_high_creatinine_15)
+
+  # Serum sodium in every chemistry panel (component BKR SODIUM / SODIUM).
+  sodium_1:
+    code: "LAB//RESULT//33387//BKR SODIUM"
+  sodium_2:
+    code: "LAB//RESULT//33387//SODIUM"
+  sodium_3:
+    code: "LAB//RESULT//10201908//BKR SODIUM"
+  sodium_4:
+    code: "LAB//RESULT//10201113//BKR SODIUM"
+  sodium_5:
+    code: "LAB//RESULT//678//BKR SODIUM"
+  sodium_6:
+    code: "LAB//RESULT//10201908//SODIUM"
+  sodium_7:
+    code: "LAB//RESULT//892//BKR SODIUM"
+  sodium_8:
+    code: "LAB//RESULT//10201113//SODIUM"
+  sodium_9:
+    code: "LAB//RESULT//678//SODIUM"
+  sodium_10:
+    code: "LAB//RESULT//682//BKR SODIUM"
+  sodium_11:
+    code: "LAB//RESULT//892//SODIUM"
+  sodium_12:
+    code: "LAB//RESULT//10201892//BKR SODIUM"
+  sodium_13:
+    code: "LAB//RESULT//682//SODIUM"
+  sodium_14:
+    code: "LAB//RESULT//10201892//SODIUM"
+  abnormally_low_sodium_1:
+    code: "LAB//RESULT//33387//BKR SODIUM"
+    value_max: 135 # mEq/L
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_sodium_2:
+    code: "LAB//RESULT//33387//SODIUM"
+    value_max: 135 # mEq/L
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_sodium_3:
+    code: "LAB//RESULT//10201908//BKR SODIUM"
+    value_max: 135 # mEq/L
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_sodium_4:
+    code: "LAB//RESULT//10201113//BKR SODIUM"
+    value_max: 135 # mEq/L
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_sodium_5:
+    code: "LAB//RESULT//678//BKR SODIUM"
+    value_max: 135 # mEq/L
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_sodium_6:
+    code: "LAB//RESULT//10201908//SODIUM"
+    value_max: 135 # mEq/L
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_sodium_7:
+    code: "LAB//RESULT//892//BKR SODIUM"
+    value_max: 135 # mEq/L
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_sodium_8:
+    code: "LAB//RESULT//10201113//SODIUM"
+    value_max: 135 # mEq/L
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_sodium_9:
+    code: "LAB//RESULT//678//SODIUM"
+    value_max: 135 # mEq/L
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_sodium_10:
+    code: "LAB//RESULT//682//BKR SODIUM"
+    value_max: 135 # mEq/L
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_sodium_11:
+    code: "LAB//RESULT//892//SODIUM"
+    value_max: 135 # mEq/L
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_sodium_12:
+    code: "LAB//RESULT//10201892//BKR SODIUM"
+    value_max: 135 # mEq/L
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_sodium_13:
+    code: "LAB//RESULT//682//SODIUM"
+    value_max: 135 # mEq/L
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_sodium_14:
+    code: "LAB//RESULT//10201892//SODIUM"
+    value_max: 135 # mEq/L
+    value_max_inclusive: False
+    value_min: null
+  sodium:
+    expr: or(sodium_1, sodium_2, sodium_3, sodium_4, sodium_5, sodium_6, sodium_7, sodium_8, sodium_9, sodium_10, sodium_11, sodium_12, sodium_13, sodium_14)
+  abnormally_low_sodium:
+    expr: or(abnormally_low_sodium_1, abnormally_low_sodium_2, abnormally_low_sodium_3, abnormally_low_sodium_4, abnormally_low_sodium_5, abnormally_low_sodium_6, abnormally_low_sodium_7, abnormally_low_sodium_8, abnormally_low_sodium_9, abnormally_low_sodium_10, abnormally_low_sodium_11, abnormally_low_sodium_12, abnormally_low_sodium_13, abnormally_low_sodium_14)
+
+  # Chemistry total CO2 plus blood-gas HCO3.
+  bicarbonate_1:
+    code: "LAB//RESULT//33387//CARBON DIOXIDE (CO2)"
+  bicarbonate_2:
+    code: "LAB//RESULT//10201908//CARBON DIOXIDE (CO2)"
+  bicarbonate_3:
+    code: "LAB//RESULT//10201113//CARBON DIOXIDE (CO2)"
+  bicarbonate_4:
+    code: "LAB//RESULT//678//CARBON DIOXIDE (CO2)"
+  bicarbonate_5:
+    code: "LAB//RESULT//10202804//BKR HCO3 ARTERIAL"
+  bicarbonate_6:
+    code: "LAB//RESULT//10202804//HCO3"
+  bicarbonate_7:
+    code: "LAB//RESULT//682//CARBON DIOXIDE (CO2)"
+  bicarbonate_8:
+    code: "LAB//RESULT//10261879//HCO3"
+  bicarbonate_9:
+    code: "LAB//RESULT//10201892//CARBON DIOXIDE (CO2)"
+  bicarbonate_10:
+    code: "LAB//RESULT//10201082//CARBON DIOXIDE (CO2)"
+  abnormally_low_bicarbonate_1:
+    code: "LAB//RESULT//33387//CARBON DIOXIDE (CO2)"
+    value_max: 22 # mEq/L
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_bicarbonate_2:
+    code: "LAB//RESULT//10201908//CARBON DIOXIDE (CO2)"
+    value_max: 22 # mEq/L
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_bicarbonate_3:
+    code: "LAB//RESULT//10201113//CARBON DIOXIDE (CO2)"
+    value_max: 22 # mEq/L
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_bicarbonate_4:
+    code: "LAB//RESULT//678//CARBON DIOXIDE (CO2)"
+    value_max: 22 # mEq/L
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_bicarbonate_5:
+    code: "LAB//RESULT//10202804//BKR HCO3 ARTERIAL"
+    value_max: 22 # mEq/L
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_bicarbonate_6:
+    code: "LAB//RESULT//10202804//HCO3"
+    value_max: 22 # mEq/L
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_bicarbonate_7:
+    code: "LAB//RESULT//682//CARBON DIOXIDE (CO2)"
+    value_max: 22 # mEq/L
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_bicarbonate_8:
+    code: "LAB//RESULT//10261879//HCO3"
+    value_max: 22 # mEq/L
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_bicarbonate_9:
+    code: "LAB//RESULT//10201892//CARBON DIOXIDE (CO2)"
+    value_max: 22 # mEq/L
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_bicarbonate_10:
+    code: "LAB//RESULT//10201082//CARBON DIOXIDE (CO2)"
+    value_max: 22 # mEq/L
+    value_max_inclusive: False
+    value_min: null
+  bicarbonate:
+    expr: or(bicarbonate_1, bicarbonate_2, bicarbonate_3, bicarbonate_4, bicarbonate_5, bicarbonate_6, bicarbonate_7, bicarbonate_8, bicarbonate_9, bicarbonate_10)
+  abnormally_low_bicarbonate:
+    expr: or(abnormally_low_bicarbonate_1, abnormally_low_bicarbonate_2, abnormally_low_bicarbonate_3, abnormally_low_bicarbonate_4, abnormally_low_bicarbonate_5, abnormally_low_bicarbonate_6, abnormally_low_bicarbonate_7, abnormally_low_bicarbonate_8, abnormally_low_bicarbonate_9, abnormally_low_bicarbonate_10)
+
+  # CBC and H&H hemoglobin (hemoglobinopathy work-ups left out).
+  hemoglobin_1:
+    code: "LAB//RESULT//10281581//HEMOGLOBIN"
+  hemoglobin_2:
+    code: "LAB//RESULT//10201249//HEMOGLOBIN"
+  hemoglobin_3:
+    code: "LAB//RESULT//1696//HEMOGLOBIN (HGB)"
+  hemoglobin_4:
+    code: "LAB//RESULT//10201247//HEMOGLOBIN"
+  hemoglobin_5:
+    code: "LAB//RESULT//10201249//HEMOGLOBIN (HGB)"
+  hemoglobin_6:
+    code: "LAB//RESULT//10201247//HEMOGLOBIN (HGB)"
+  hemoglobin_7:
+    code: "LAB//RESULT//1692//HEMOGLOBIN"
+  hemoglobin_8:
+    code: "LAB//RESULT//1692//HEMOGLOBIN (HGB)"
+  abnormally_low_hemoglobin_1:
+    code: "LAB//RESULT//10281581//HEMOGLOBIN"
+    value_max: 13 # g/dL
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_hemoglobin_2:
+    code: "LAB//RESULT//10201249//HEMOGLOBIN"
+    value_max: 13 # g/dL
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_hemoglobin_3:
+    code: "LAB//RESULT//1696//HEMOGLOBIN (HGB)"
+    value_max: 13 # g/dL
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_hemoglobin_4:
+    code: "LAB//RESULT//10201247//HEMOGLOBIN"
+    value_max: 13 # g/dL
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_hemoglobin_5:
+    code: "LAB//RESULT//10201249//HEMOGLOBIN (HGB)"
+    value_max: 13 # g/dL
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_hemoglobin_6:
+    code: "LAB//RESULT//10201247//HEMOGLOBIN (HGB)"
+    value_max: 13 # g/dL
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_hemoglobin_7:
+    code: "LAB//RESULT//1692//HEMOGLOBIN"
+    value_max: 13 # g/dL
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_hemoglobin_8:
+    code: "LAB//RESULT//1692//HEMOGLOBIN (HGB)"
+    value_max: 13 # g/dL
+    value_max_inclusive: False
+    value_min: null
+  hemoglobin:
+    expr: or(hemoglobin_1, hemoglobin_2, hemoglobin_3, hemoglobin_4, hemoglobin_5, hemoglobin_6, hemoglobin_7, hemoglobin_8)
+  abnormally_low_hemoglobin:
+    expr: or(abnormally_low_hemoglobin_1, abnormally_low_hemoglobin_2, abnormally_low_hemoglobin_3, abnormally_low_hemoglobin_4, abnormally_low_hemoglobin_5, abnormally_low_hemoglobin_6, abnormally_low_hemoglobin_7, abnormally_low_hemoglobin_8)
+
+  # CBC WBC count.
+  wbc_1:
+    code: "LAB//RESULT//10281581//BKR WBC COUNT"
+  wbc_2:
+    code: "LAB//RESULT//10201249//BKR WBC COUNT"
+  wbc_3:
+    code: "LAB//RESULT//1696//WBC (WHITE BLOOD COUNT)"
+  wbc_4:
+    code: "LAB//RESULT//10201249//WBC (WHITE BLOOD COUNT)"
+  abnormally_high_wbc_1:
+    code: "LAB//RESULT//10281581//BKR WBC COUNT"
+    value_min: 11 # K/uL
+    value_min_inclusive: False
+    value_max: null
+  abnormally_high_wbc_2:
+    code: "LAB//RESULT//10201249//BKR WBC COUNT"
+    value_min: 11 # K/uL
+    value_min_inclusive: False
+    value_max: null
+  abnormally_high_wbc_3:
+    code: "LAB//RESULT//1696//WBC (WHITE BLOOD COUNT)"
+    value_min: 11 # K/uL
+    value_min_inclusive: False
+    value_max: null
+  abnormally_high_wbc_4:
+    code: "LAB//RESULT//10201249//WBC (WHITE BLOOD COUNT)"
+    value_min: 11 # K/uL
+    value_min_inclusive: False
+    value_max: null
+  wbc:
+    expr: or(wbc_1, wbc_2, wbc_3, wbc_4)
+  abnormally_high_wbc:
+    expr: or(abnormally_high_wbc_1, abnormally_high_wbc_2, abnormally_high_wbc_3, abnormally_high_wbc_4)
+
+  # CBC and stand-alone platelet counts.
+  platelets_1:
+    code: "LAB//RESULT//10281581//BKR PLATELET COUNT"
+  platelets_2:
+    code: "LAB//RESULT//10201249//BKR PLATELET COUNT"
+  platelets_3:
+    code: "LAB//RESULT//1696//PLATELET COUNT"
+  platelets_4:
+    code: "LAB//RESULT//1712//BKR PLATELET COUNT"
+  platelets_5:
+    code: "LAB//RESULT//10201249//PLATELET COUNT"
+  platelets_6:
+    code: "LAB//RESULT//1712//PLATELET COUNT"
+  platelets_7:
+    code: "LAB//RESULT//10283649//BKR PLATELET COUNT"
+  platelets_8:
+    code: "LAB//RESULT//10201266//PLATELET COUNT"
+  abnormally_low_platelets_1:
+    code: "LAB//RESULT//10281581//BKR PLATELET COUNT"
+    value_max: 150 # K/uL
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_platelets_2:
+    code: "LAB//RESULT//10201249//BKR PLATELET COUNT"
+    value_max: 150 # K/uL
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_platelets_3:
+    code: "LAB//RESULT//1696//PLATELET COUNT"
+    value_max: 150 # K/uL
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_platelets_4:
+    code: "LAB//RESULT//1712//BKR PLATELET COUNT"
+    value_max: 150 # K/uL
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_platelets_5:
+    code: "LAB//RESULT//10201249//PLATELET COUNT"
+    value_max: 150 # K/uL
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_platelets_6:
+    code: "LAB//RESULT//1712//PLATELET COUNT"
+    value_max: 150 # K/uL
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_platelets_7:
+    code: "LAB//RESULT//10283649//BKR PLATELET COUNT"
+    value_max: 150 # K/uL
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_platelets_8:
+    code: "LAB//RESULT//10201266//PLATELET COUNT"
+    value_max: 150 # K/uL
+    value_max_inclusive: False
+    value_min: null
+  platelets:
+    expr: or(platelets_1, platelets_2, platelets_3, platelets_4, platelets_5, platelets_6, platelets_7, platelets_8)
+  abnormally_low_platelets:
+    expr: or(abnormally_low_platelets_1, abnormally_low_platelets_2, abnormally_low_platelets_3, abnormally_low_platelets_4, abnormally_low_platelets_5, abnormally_low_platelets_6, abnormally_low_platelets_7, abnormally_low_platelets_8)
