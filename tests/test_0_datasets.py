@@ -18,57 +18,6 @@ from tests.utils import NAME_AND_DIR, run_command
 MAX_UNCOVERED_PREDICATE_CODE_MATCHER_FRACTION = 0.10
 
 
-@contextmanager
-def codes_description_optional(dataset_dir: Path):
-    """Yields a view of `dataset_dir` whose code metadata is guaranteed to have a `description` column.
-
-    MEDS 0.4 made `description` optional in `metadata/codes.parquet` (only `code` is required), and ETLs built
-    on MEDS-Extract 0.7 (e.g., eICU-MEDS 0.1.0) omit it. MEDS-DEV still pins `meds==0.3.3`, under which
-    `MEDSDataset` requires the column, so these otherwise valid MEDS 0.4 datasets fail validation. Nothing in
-    MEDS-DEV reads code descriptions, so we treat the column as optional by validating a view (symlinks plus
-    a rewritten `codes.parquet`) with an all-null `description`; the built dataset itself is never modified.
-    Remove this once MEDS-DEV moves to `meds>=0.4`.
-    """
-    codes_fp = dataset_dir / "metadata" / "codes.parquet"
-    if not codes_fp.exists() or "description" in pl.read_parquet_schema(codes_fp):
-        yield dataset_dir
-        return
-
-    with TemporaryDirectory() as view_root:
-        view_dir = Path(view_root)
-        (view_dir / "metadata").mkdir()
-        for fp in dataset_dir.iterdir():
-            if fp.name != "metadata":
-                (view_dir / fp.name).symlink_to(fp.resolve())
-        for fp in (dataset_dir / "metadata").iterdir():
-            if fp.name != "codes.parquet":
-                (view_dir / "metadata" / fp.name).symlink_to(fp.resolve())
-        pl.read_parquet(codes_fp).with_columns(
-            pl.lit(None, dtype=pl.String).alias("description")
-        ).write_parquet(view_dir / "metadata" / "codes.parquet")
-        yield view_dir
-
-
-def test_codes_description_optional(tmp_path):
-    (tmp_path / "data").mkdir()
-    (tmp_path / "metadata").mkdir()
-    codes_fp = tmp_path / "metadata" / "codes.parquet"
-    pl.DataFrame({"code": ["A", "B"], "parent_codes": [["X"], None]}).write_parquet(codes_fp)
-
-    with codes_description_optional(tmp_path) as view_dir:
-        assert view_dir != tmp_path
-        assert (view_dir / "data").resolve() == (tmp_path / "data").resolve()
-        codes = pl.read_parquet(view_dir / "metadata" / "codes.parquet")
-        assert codes["description"].null_count() == 2
-        assert codes["code"].to_list() == ["A", "B"]
-
-    assert "description" not in pl.read_parquet_schema(codes_fp)
-
-    pl.read_parquet(codes_fp).with_columns(description=pl.lit("d")).write_parquet(codes_fp)
-    with codes_description_optional(tmp_path) as view_dir:
-        assert view_dir == tmp_path
-
-
 def test_non_dataset_breaks():
     non_dataset = "_not_supported"
     while non_dataset in DATASETS:
@@ -92,11 +41,9 @@ def test_non_dataset_breaks():
 def test_datasets_configured(demo_dataset: NAME_AND_DIR):
     dataset_name, demo_dataset_dir = demo_dataset
 
-    # Check validity (with `description` treated as optional in code metadata; see
-    # `codes_description_optional`).
+    # Check validity
     try:
-        with codes_description_optional(demo_dataset_dir) as validation_dir:
-            MEDSDataset(root_dir=validation_dir)
+        MEDSDataset(root_dir=demo_dataset_dir)
     except Exception as e:
         raise AssertionError(f"Failed to validate dataset {dataset_name} from {demo_dataset_dir}") from e
 
