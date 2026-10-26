@@ -183,7 +183,7 @@ def main(cfg: DictConfig) -> None:
         )
 
     splits = pl.read_parquet(splits_file, use_pyarrow=True)
-    subjects = set(splits.filter(pl.col("split") == cfg.split)[meds.subject_id_field])
+    subjects = set(splits.filter(pl.col("split") == cfg.split)[meds.DataSchema.subject_id_name])
 
     # Labels can live in any parquet file within the labels directory:
     labels_files = list(labels_dir.rglob("*.parquet"))
@@ -192,7 +192,9 @@ def main(cfg: DictConfig) -> None:
         return
 
     def read_split(fp: Path) -> pl.DataFrame:
-        return pl.read_parquet(fp, use_pyarrow=True).filter(pl.col(meds.subject_id_field).is_in(subjects))
+        return pl.read_parquet(fp, use_pyarrow=True).filter(
+            pl.col(meds.DataSchema.subject_id_name).is_in(subjects)
+        )
 
     try:
         labels = pl.concat([read_split(f) for f in labels_files], how="vertical_relaxed")
