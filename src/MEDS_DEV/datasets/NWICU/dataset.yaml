@@ -14,9 +14,6 @@ metadata:
     of the PhysioNet Credentialed Health Data Use Agreement for NWICU.
 commands:
   build_full: >-
-    MEDS_extract-NWICU
-    root_output_dir="{output_dir}"
-    raw_input_dir="{temp_dir}/raw"
-    pre_MEDS_dir="{temp_dir}/pre_MEDS"
-    MEDS_cohort_dir="{output_dir}"
-    log_dir="{output_dir}/.pipeline_logs"
+    meds-extract-run spec=NWICU
+    download_dest_dir="{temp_dir}/raw"
+    output_dir="{output_dir}"

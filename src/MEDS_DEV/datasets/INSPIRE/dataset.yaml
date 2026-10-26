@@ -14,8 +14,6 @@ metadata:
 
 commands:
   build_full: >-
-    MEDS_extract-INSPIRE
-    raw_input_dir="{temp_dir}/raw"
-    pre_MEDS_dir="{temp_dir}/pre_MEDS"
-    MEDS_cohort_dir="{output_dir}"
-    log_dir="{output_dir}/.pipeline_logs"
+    MEDS_extract-INSPIRE "{temp_dir}"
+    --raw-input-dir "{temp_dir}/raw"
+    --output-dir "{output_dir}"
