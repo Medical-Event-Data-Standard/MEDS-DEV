@@ -4,6 +4,7 @@ defaults:
 
 dataset_dir: ???
 labels_dir: ???
+predicates_path: null
 output_dir: ???
 predictions_fp: ${output_dir}/predictions.parquet
 split: "held_out"

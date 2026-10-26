@@ -606,6 +606,7 @@ def supervised_model(
         "dataset_dir": str(dataset_dir.resolve()),
         "labels_dir": str(task_labels_dir.resolve()),
         "dataset_name": dataset_name,
+        "predicates_path": str(DATASETS[dataset_name]["predicates"]),
         "task_name": task_name,
         "demo": True,
     }

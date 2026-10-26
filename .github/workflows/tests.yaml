@@ -291,25 +291,68 @@ jobs:
           echo "**Scope reason**: ${{ needs.determine-scope.outputs.reason }}" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Check required jobs
+        env:
+          DETERMINE_SCOPE_RESULT: ${{ needs.determine-scope.result }}
+          FAST_CHECKS_RESULT: ${{ needs.fast-checks.result }}
+          DATASET_LANE_RESULT: ${{ needs.dataset-lane.result }}
+          TASK_LANE_RESULT: ${{ needs.task-lane.result }}
+          MODEL_LANE_RESULT: ${{ needs.model-lane.result }}
+          FULL_INTEGRATION_RESULT: ${{ needs.full-integration.result }}
+          RUN_FULL: ${{ needs.determine-scope.outputs.run_full }}
+          DOCS_ONLY: ${{ needs.determine-scope.outputs.docs_only }}
+          CHANGED_DATASETS: ${{ needs.determine-scope.outputs.changed_datasets }}
+          CHANGED_TASKS: ${{ needs.determine-scope.outputs.changed_tasks }}
+          CHANGED_MODELS: ${{ needs.determine-scope.outputs.changed_models }}
         run: |
+          set -uo pipefail
           FAILED=""
-          if [[ "${{ needs.fast-checks.result }}" == "failure" ]]; then
-            FAILED="$FAILED fast-checks"
+
+          # determine-scope must SUCCEED: every downstream gate reads its outputs, so if it
+          # failed/was cancelled the lanes were skipped for the wrong reason and a green summary
+          # would be a false pass.
+          if [[ "$DETERMINE_SCOPE_RESULT" != "success" ]]; then
+            FAILED="$FAILED determine-scope(=$DETERMINE_SCOPE_RESULT)"
           fi
-          if [[ "${{ needs.dataset-lane.result }}" == "failure" ]]; then
-            FAILED="$FAILED dataset-lane"
+
+          # fast-checks always runs; require it to SUCCEED. Checking "!= failure" would let a
+          # cancelled or skipped fast-checks slip through as a pass.
+          if [[ "$FAST_CHECKS_RESULT" != "success" ]]; then
+            FAILED="$FAILED fast-checks(=$FAST_CHECKS_RESULT)"
           fi
-          if [[ "${{ needs.task-lane.result }}" == "failure" ]]; then
-            FAILED="$FAILED task-lane"
+
+          # For an integration lane, a "skipped" result is only acceptable when the scope did not
+          # select it. If the scope expected the lane to run, it must have succeeded; anything else
+          # (skipped/cancelled/failure) means the gate and the job disagreed.
+          check_lane() {
+            local name="$1" result="$2" expected="$3"
+            if [[ "$expected" == "true" ]]; then
+              if [[ "$result" != "success" ]]; then
+                FAILED="$FAILED $name(expected-run,=$result)"
+              fi
+            else
+              if [[ "$result" != "skipped" ]]; then
+                FAILED="$FAILED $name(expected-skip,=$result)"
+              fi
+            fi
+          }
+
+          # Reconstruct each lane's gating condition from the scope outputs (see the lane `if:`s).
+          full_expected="false"; ds_expected="false"; tk_expected="false"; md_expected="false"
+          if [[ "$RUN_FULL" == "true" ]]; then
+            full_expected="true"
+          elif [[ "$DOCS_ONLY" != "true" ]]; then
+            if [[ "$CHANGED_DATASETS" != "[]" ]]; then ds_expected="true"; fi
+            if [[ "$CHANGED_TASKS" != "[]" ]]; then tk_expected="true"; fi
+            if [[ "$CHANGED_MODELS" != "[]" ]]; then md_expected="true"; fi
           fi
-          if [[ "${{ needs.model-lane.result }}" == "failure" ]]; then
-            FAILED="$FAILED model-lane"
-          fi
-          if [[ "${{ needs.full-integration.result }}" == "failure" ]]; then
-            FAILED="$FAILED full-integration"
-          fi
+
+          check_lane dataset-lane "$DATASET_LANE_RESULT" "$ds_expected"
+          check_lane task-lane "$TASK_LANE_RESULT" "$tk_expected"
+          check_lane model-lane "$MODEL_LANE_RESULT" "$md_expected"
+          check_lane full-integration "$FULL_INTEGRATION_RESULT" "$full_expected"
+
           if [[ -n "$FAILED" ]]; then
-            echo "Failed jobs:$FAILED"
+            echo "Required-job check failed:$FAILED"
             exit 1
           fi
-          echo "All required jobs passed or were skipped."
+          echo "All required jobs completed as expected (scope: run_full=$RUN_FULL docs_only=$DOCS_ONLY)."

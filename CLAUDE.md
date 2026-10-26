@@ -189,7 +189,9 @@ models is filtered by compatibility.
 2. `model.yaml` must have `metadata` and `commands` with nested `unsupervised`/`supervised` →
     `train`/`predict` structure
 3. Commands use template variables: `{dataset_dir}`, `{labels_dir}`, `{output_dir}`,
-    `{model_dir}`, `{model_initialization_dir}`, `{split}`, `{demo}`
+    `{model_dir}`, `{model_initialization_dir}`, `{split}`, `{demo}`, and (optionally)
+    `{predicates_path}` for models that need a predicates file (populated from the
+    `predicates_path` argument to `meds-dev-model`)
 4. Predictions must output parquet files compatible with `meds-evaluation`
 
 ### YAML Config Conventions
