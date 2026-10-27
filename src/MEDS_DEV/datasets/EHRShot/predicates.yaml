@@ -1,16 +1,28 @@
 predicates:
   # Visit and administrative concepts
   hospital_admission:
-    code: "Visit/IP"
+    code:
+      any:
+        - "Visit/IP"
+        - "Visit/ERIP"
 
   outpatient_visit:
     code: "Visit/OP"
 
+  # This release predates `MEDS_BIRTH`/`MEDS_DEATH` and records them under these codes instead.
+  birth:
+    code: "SNOMED/3950001"
   death:
     code: "Condition Type/OMOP4822053"
-  hospital_discharge:
-    code: "Visit/DP"
-  # ICU visit details - care sites with ICU designation
+  # `hospital_discharge` and `icu_discharge` are deliberately undefined: this release has no visit-end
+  # events, so tasks that exclude early discharges can't be extracted faithfully.
+  ED_admission:
+    code:
+      any:
+        - "Visit/ER"
+        - "Visit/ERIP"
+  # ICU visit details - care sites with ICU designation. IDs use this release's own care-site numbering;
+  # not all of them occur in the release, and there are no discharge events to pair them with.
   icu_admission:
     code:
       any:
@@ -39,10 +51,6 @@ predicates:
         - "CARE_SITE/7931186"
         - "CARE_SITE/7930934"
         - "CARE_SITE/7930924"
-  icu_discharge:
-    code:
-      any:
-        - "Visit/DP"
 
   # Disease diagnosis concepts
   pancreatic_cancer:
@@ -71,10 +79,13 @@ predicates:
     code: "SNOMED/33747003"
 
   glucose_2:
-    code: "LOINC/LP416145-3"
+    code: "LOINC/2345-7"
 
   glucose_3:
     code: "LOINC/14749-6"
+
+  glucose_4:
+    code: "LOINC/2339-0"
 
   # Hypoglycemia severity levels (mg/dL thresholds)
   abnormally_low_glucose_1:
@@ -84,9 +95,9 @@ predicates:
     value_max_inclusive: True
 
   abnormally_low_glucose_2:
-    code: "LOINC/LP416145-3"
+    code: "LOINC/2345-7"
     value_min: null
-    value_max: 70.2 # mg/dL (= 3.9 mmol/L)
+    value_max: 70.2 # mg/dL
     value_max_inclusive: True
 
   abnormally_low_glucose_3:
@@ -95,15 +106,19 @@ predicates:
     value_max: 70.2 # mg/dL
     value_max_inclusive: True
 
+  abnormally_low_glucose_4:
+    code: "LOINC/2339-0"
+    value_min: null
+    value_max: 70.2 # mg/dL
+    value_max_inclusive: True
+
   glucose:
-    expr: or(glucose_1, glucose_2, glucose_3)
+    expr: or(glucose_1, glucose_2, glucose_3, glucose_4)
 
   abnormally_low_glucose:
-    expr: or(abnormally_low_glucose_1, abnormally_low_glucose_2, abnormally_low_glucose_3)
+    expr: or(abnormally_low_glucose_1, abnormally_low_glucose_2, abnormally_low_glucose_3, abnormally_low_glucose_4)
 
   # Sodium measurements for hyponatremia
-  sodium_1:
-    code: "LOINC/LG11363-5"
 
   sodium_2:
     code: "LOINC/2951-2"
@@ -111,13 +126,8 @@ predicates:
   sodium_3:
     code: "LOINC/2947-0"
   sodium:
-    expr: or(sodium_1, sodium_2, sodium_3)
+    expr: or(sodium_2, sodium_3)
 
-  abnormally_low_sodium_1:
-    code: LOINC/LG11363-5
-    value_min: null
-    value_max: 135 # mEq/L
-    value_max_inclusive: False
   abnormally_low_sodium_2:
     code: LOINC/2951-2
     value_min: null
@@ -129,7 +139,7 @@ predicates:
     value_max: 135 # mEq/L
     value_max_inclusive: False
   abnormally_low_sodium:
-    expr: or(abnormally_low_sodium_1, abnormally_low_sodium_2, abnormally_low_sodium_3)
+    expr: or(abnormally_low_sodium_2, abnormally_low_sodium_3)
 
   # Anemia task predicates
   # Hemoglobin measurements for anemia
@@ -145,14 +155,6 @@ predicates:
     value_max_inclusive: False
 
   # Potassium measurements for hyperkalemia
-  potassium_1:
-    code: "LOINC/LG7931-1"
-
-  potassium_2:
-    code: "LOINC/LP386618-5"
-
-  potassium_3:
-    code: "LOINC/LG10990-6"
 
   potassium_4:
     code: "LOINC/6298-4"
@@ -161,23 +163,8 @@ predicates:
     code: "LOINC/2823-3"
 
   potassium:
-    expr: or(potassium_1, potassium_2, potassium_3, potassium_4, potassium_5)
+    expr: or(potassium_4, potassium_5)
 
-  abnormally_high_potassium_1:
-    code: "LOINC/LG7931-1"
-    value_min: 5.0 # mEq/L
-    value_min_inclusive: True
-    value_max: null
-  abnormally_high_potassium_2:
-    code: "LOINC/LP386618-5"
-    value_min: 5.0 # mEq/L
-    value_min_inclusive: True
-    value_max: null
-  abnormally_high_potassium_3:
-    code: "LOINC/LG10990-6"
-    value_min: 5.0 # mEq/L
-    value_min_inclusive: True
-    value_max: null
   abnormally_high_potassium_4:
     code: "LOINC/6298-4"
     value_min: 5.0 # mEq/L
@@ -190,41 +177,17 @@ predicates:
     value_max: null
 
   abnormally_high_potassium:
-    expr: or(abnormally_high_potassium_1, abnormally_high_potassium_2, abnormally_high_potassium_3, abnormally_high_potassium_4, abnormally_high_potassium_5)
+    expr: or(abnormally_high_potassium_4, abnormally_high_potassium_5)
 
-  # Platelet measurements for thrombocytopenia
-  platelets_1:
-    code: "LOINC/LP393218-5"
-
-  platelets_2:
-    code: "LOINC/LG32892-8"
-
-  platelets_3:
-    code: "LOINC/777-3"
-
-  # Thrombocytopenia severity levels (10^9/L thresholds)
-  abnormally_low_platelets_1:
-    code: "LOINC/LP393218-5"
-    value_min: null
-    value_max: 150 # 10^9/L
-    value_max_inclusive: False
-
-  abnormally_low_platelets_2:
-    code: "LOINC/LG32892-8"
-    value_min: null
-    value_max: 150 # 10^9/L
-    value_max_inclusive: False
-
-  abnormally_low_platelets_3:
-    code: "LOINC/777-3"
-    value_min: null
-    value_max: 150 # 10^9/L
-    value_max_inclusive: False
-
+  # Platelet measurements for thrombocytopenia (10^9/L thresholds)
   platelets:
-    expr: or(platelets_1, platelets_2, platelets_3)
+    code: "LOINC/777-3"
   abnormally_low_platelets:
-    expr: or(abnormally_low_platelets_1, abnormally_low_platelets_2, abnormally_low_platelets_3)
+    code: "LOINC/777-3"
+    value_min: null
+    value_max: 150 # 10^9/L
+    value_max_inclusive: False
+
   # Idiopathic thrombocytopenic purpura (disorder)
   itp:
     code: SNOMED/32273002
@@ -246,11 +209,11 @@ predicates:
 
   # Metabolic Acidosis task predicates
   bicarbonate_1:
-    code: LOINC/2021-4
+    code: LOINC/2028-9 # total CO2
   bicarbonate_2:
     code: LOINC/1959-6
   abnormally_low_bicarbonate_1:
-    code: LOINC/2021-4
+    code: LOINC/2028-9
     value_min: null
     value_max: 22 # mEq/L
     value_max_inclusive: False
@@ -266,11 +229,11 @@ predicates:
   metabolic_acidosis:
     code: SNOMED/420270002 # ketoacidosis
 
-  # Leukocytosis
+  # Leukocytosis. LOINC/6690-2 is not used: its values here are on the erythrocyte scale (MIL/uL).
   wbc:
-    code: LOINC/6690-2
+    code: LOINC/20584-9
   abnormally_high_wbc:
-    code: LOINC/6690-2
+    code: LOINC/20584-9
     value_min: 11 # K/uL
     value_min_inclusive: False
     value_max: null

@@ -19,11 +19,33 @@ Taken from [Stanford Shah Lab website](https://shahlab.stanford.edu/doku.php?id=
 
 EHRSHOT includes 15 classification tasks organized into three categories as the benchmark dataset itself. However, here we use ACES-defined values to extract tasks from the dataset.
 
-No MEDS-DEV task lists EHRShot in its `supported_datasets` yet; `predicates.yaml` provides the predicates for enabling it on tasks such as the abnormal lab tasks.
+No MEDS-DEV task lists EHRShot in its `supported_datasets` yet. The current tasks exclude stays with a discharge
+shortly after admission, which this release can't express (see below), so they can't be enabled for it as is.
 
 ## MEDS-transformation
 
 EHRSHOT is available in three formats: Original (compatible with benchmark repository), MEDS (Medical Event Data Standard), and OMOP (full OMOP table dumps). The MEDS version contains the same exact data as the Original dataset but in MEDS-compatible format.[1]
+
+### Which version `predicates.yaml` targets
+
+The predicates target the **official MEDS release** (`EHRSHOT => MEDS ETL` 1.0, MEDS 0.3.3), with codes such as
+`LOINC/2951-2`, `Visit/IP`, and `CARE_SITE/<id>`. They do not match a MEDS dataset converted from the OMOP
+download with MEDS-Extract, which writes codes as `LOINC//2951-2` and conditions/visits with `//start` and
+`//end` suffixes.
+
+Notable properties of the official MEDS release:
+
+- **No discharge events.** Visits are recorded only at their start (`Visit/IP`, `Visit/ER`, `Visit/ERIP`, ...),
+    so `hospital_discharge` and `icu_discharge` are deliberately left undefined.
+- **ICU stays can't be verified.** ICU care sites use the release's own care-site IDs, which differ from the
+    OMOP `care_site` IDs, so the `icu_admission` IDs can't be checked against care-site names.
+- **Birth and death** are `SNOMED/3950001` and `Condition Type/OMOP4822053` rather than `MEDS_BIRTH` and
+    `MEDS_DEATH`; `predicates.yaml` overrides the tasks' `birth` and `death` predicates accordingly.
+- **WBC:** `LOINC/6690-2` holds erythrocyte-scale values (MIL/uL); white-cell counts are under `LOINC/20584-9`.
+- **Bicarbonate** uses total CO2 (`LOINC/2028-9`) and `LOINC/1959-6`; `LOINC/2021-4` is venous pCO2.
+
+The OMOP-derived conversion has visit-end events, `MEDS_DEATH`, and care-site names, so it could support the
+discharge- and ICU-based tasks, but it needs its own predicates and a reproducible build.
 
 ## Sources
 
