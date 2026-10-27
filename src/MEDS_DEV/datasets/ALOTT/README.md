@@ -36,11 +36,11 @@ all four local datasets (Zigong, PICdb, ALOTT, CDSL) are registered, to avoid co
 ## MEDS Transformation
 
 [`ALOTT-MEDS`](https://github.com/rvandewater/ALOTT_MEDS) (a configuration-only MEDS-Extract 0.7
-ETL, not on PyPI yet, so `requirements.txt` pins a commit) transforms the EMR tables of the PhysioNet
+ETL, pinned to its PyPI release in `requirements.txt`) transforms the EMR tables of the PhysioNet
 release into MEDS; the telemetry is out of scope. There is no public demo, so only the full-data
-pipeline is exposed. The pin is on
+pipeline is exposed. Version 0.0.1 includes
 [ALOTT_MEDS#2](https://github.com/rvandewater/ALOTT_MEDS/pull/2) (MEDS-Extract 0.7.1, aligned with
-the published 1.0.0 schema); re-pin to `main` once that is merged.[2]
+the published 1.0.0 schema).[2]
 
 ## Sources
 

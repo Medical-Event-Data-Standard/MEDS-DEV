@@ -1,1 +1,1 @@
-ALOTT-MEDS @ git+https://github.com/rvandewater/ALOTT_MEDS@1fbf6759dcf6ca8c2cd88369568c77c41a7a354d
+ALOTT-MEDS==0.0.1
