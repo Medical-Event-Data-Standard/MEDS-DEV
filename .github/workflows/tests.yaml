@@ -149,6 +149,10 @@ jobs:
       needs.determine-scope.outputs.docs_only != 'true' &&
       needs.determine-scope.outputs.changed_datasets != '[]'
     timeout-minutes: 120
+    env:
+      # Same layout as full-integration: built datasets are reused within the run, raw downloads across runs.
+      MEDS_DEV_CACHE_DIR: /tmp/meds_dev_cache
+      MEDS_DEV_DOWNLOAD_DIR: /tmp/meds_dev_downloads
     strategy:
       fail-fast: false
       matrix:
@@ -161,11 +165,21 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Cache raw demo downloads
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.MEDS_DEV_DOWNLOAD_DIR }}/*/raw
+          key: demo-downloads-v1-${{ runner.os }}-${{ hashFiles('src/MEDS_DEV/datasets/**/requirements.txt') }}
+          restore-keys: demo-downloads-v1-${{ runner.os }}-
+
       - name: Run dataset integration tests for ${{ matrix.dataset }}
         env:
           DATASET: ${{ matrix.dataset }}
         run: |
-          uv run pytest -v -s -x -m integration --test_dataset="$DATASET"
+          mkdir -p "$MEDS_DEV_CACHE_DIR"
+          uv run pytest -v -s -x -m integration --test_dataset="$DATASET" \
+            --persistent_cache_dir="$MEDS_DEV_CACHE_DIR" --cache_dataset=all --reuse_cached_dataset=all \
+            --download_cache_dir="$MEDS_DEV_DOWNLOAD_DIR"
 
   # ---------------------------------------------------------------------------
   # Job 4: Task lane — run for changed tasks (when not doing full)
@@ -178,6 +192,10 @@ jobs:
       needs.determine-scope.outputs.docs_only != 'true' &&
       needs.determine-scope.outputs.changed_tasks != '[]'
     timeout-minutes: 120
+    env:
+      # Same layout as full-integration: built datasets are reused within the run, raw downloads across runs.
+      MEDS_DEV_CACHE_DIR: /tmp/meds_dev_cache
+      MEDS_DEV_DOWNLOAD_DIR: /tmp/meds_dev_downloads
     strategy:
       fail-fast: false
       matrix:
@@ -190,11 +208,21 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Cache raw demo downloads
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.MEDS_DEV_DOWNLOAD_DIR }}/*/raw
+          key: demo-downloads-v1-${{ runner.os }}-${{ hashFiles('src/MEDS_DEV/datasets/**/requirements.txt') }}
+          restore-keys: demo-downloads-v1-${{ runner.os }}-
+
       - name: Run task integration tests for ${{ matrix.task }}
         env:
           TASK: ${{ matrix.task }}
         run: |
-          uv run pytest -v -s -x -m integration --test_task="$TASK"
+          mkdir -p "$MEDS_DEV_CACHE_DIR"
+          uv run pytest -v -s -x -m integration --test_task="$TASK" \
+            --persistent_cache_dir="$MEDS_DEV_CACHE_DIR" --cache_dataset=all --reuse_cached_dataset=all \
+            --download_cache_dir="$MEDS_DEV_DOWNLOAD_DIR"
 
   # ---------------------------------------------------------------------------
   # Job 5: Model lane — run for changed models (when not doing full)
@@ -207,6 +235,10 @@ jobs:
       needs.determine-scope.outputs.docs_only != 'true' &&
       needs.determine-scope.outputs.changed_models != '[]'
     timeout-minutes: 120
+    env:
+      # Same layout as full-integration: built datasets are reused within the run, raw downloads across runs.
+      MEDS_DEV_CACHE_DIR: /tmp/meds_dev_cache
+      MEDS_DEV_DOWNLOAD_DIR: /tmp/meds_dev_downloads
     strategy:
       fail-fast: false
       matrix:
@@ -219,11 +251,21 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Cache raw demo downloads
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.MEDS_DEV_DOWNLOAD_DIR }}/*/raw
+          key: demo-downloads-v1-${{ runner.os }}-${{ hashFiles('src/MEDS_DEV/datasets/**/requirements.txt') }}
+          restore-keys: demo-downloads-v1-${{ runner.os }}-
+
       - name: Run model integration tests for ${{ matrix.model }}
         env:
           MODEL: ${{ matrix.model }}
         run: |
-          uv run pytest -v -s -x -m integration --test_model="$MODEL"
+          mkdir -p "$MEDS_DEV_CACHE_DIR"
+          uv run pytest -v -s -x -m integration --test_model="$MODEL" \
+            --persistent_cache_dir="$MEDS_DEV_CACHE_DIR" --cache_dataset=all --reuse_cached_dataset=all \
+            --download_cache_dir="$MEDS_DEV_DOWNLOAD_DIR"
 
   # ---------------------------------------------------------------------------
   # Job 6: Full integration — push to main, schedule, label, or core changes

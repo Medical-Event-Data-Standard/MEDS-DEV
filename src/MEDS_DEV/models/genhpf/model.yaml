@@ -19,10 +19,12 @@ commands:
   unsupervised: null
   supervised:
     train: |-
+      python {model_dir}/prepare_codes_metadata.py "{dataset_dir}/metadata" "{output_dir}/metadata"
+
       genhpf-preprocess-meds \
         "{dataset_dir}/data" \
         "--cohort={labels_dir}" \
-        "--metadata_dir={dataset_dir}/metadata" \
+        "--metadata_dir={output_dir}/metadata" \
         "--output_dir={output_dir}/data" \
         "--workers=32" \
         "--debug={demo}" \
