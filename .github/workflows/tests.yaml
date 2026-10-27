@@ -233,6 +233,11 @@ jobs:
     needs: [determine-scope, fast-checks]
     if: needs.determine-scope.outputs.run_full == 'true'
     timeout-minutes: 120
+    env:
+      # Built datasets, reused within this run only (never saved to the Actions cache).
+      MEDS_DEV_CACHE_DIR: /tmp/meds_dev_cache
+      # Raw PhysioNet downloads, the only thing cached across runs.
+      MEDS_DEV_DOWNLOAD_DIR: /tmp/meds_dev_downloads
     steps:
       - uses: actions/checkout@v4
 
@@ -241,9 +246,60 @@ jobs:
         with:
           python-version: "3.11"
 
+      # Only the raw demo downloads (open-access MIMIC-IV / eICU-CRD demo files) are cached across runs; the
+      # ETL always runs on them, so every run still tests the transformation. The ETLs skip files that are
+      # already present with a valid PhysioNet checksum, so a changed upstream file is re-downloaded. The
+      # key follows the ETL pins; restore-keys reuses an older entry so only new files are fetched.
+      # Caches saved from PRs are scoped to that PR, so they can never be restored on `main`.
+      - name: Restore raw demo downloads
+        id: download-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ env.MEDS_DEV_DOWNLOAD_DIR }}/*/raw
+          key: demo-downloads-v1-${{ runner.os }}-${{ hashFiles('src/MEDS_DEV/datasets/**/requirements.txt') }}
+          restore-keys: demo-downloads-v1-${{ runner.os }}-
+
+      # PhysioNet is flaky (502s, dropped connections) and the ETLs don't retry, so build the demo datasets
+      # up front with one retry. Built datasets go to the per-run cache (`<cache>/<name>/` plus a
+      # `<cache>/.<name>.check` marker, see tests/conftest.py) and are reused by the retry and the suite. A
+      # failed build's partial output (and its venv) is removed first, because `run_in_env` refuses to
+      # reuse a directory whose `cmd.sh` differs.
+      - name: Build demo datasets
+        id: demo-build
+        run: |
+          mkdir -p "$MEDS_DEV_CACHE_DIR"
+          for attempt in 1 2; do
+            for dir in "$MEDS_DEV_CACHE_DIR"/*/; do
+              name=$(basename "$dir")
+              if [[ "$name" != "venvs" && ! -f "$MEDS_DEV_CACHE_DIR/.$name.check" ]]; then
+                echo "Removing partial build of $name"
+                rm -rf "$dir" "$MEDS_DEV_CACHE_DIR/venvs/datasets/$name"
+              fi
+            done
+            uv run pytest -v -s -x tests/test_0_datasets.py -k test_datasets_configured \
+              --persistent_cache_dir="$MEDS_DEV_CACHE_DIR" --cache_dataset=all --reuse_cached_dataset=all \
+              --download_cache_dir="$MEDS_DEV_DOWNLOAD_DIR" \
+              && exit 0
+            echo "::warning::Demo dataset build attempt $attempt failed; retrying in 60s"
+            sleep 60
+          done
+          exit 1
+
+      # Saved right after a successful build (so every demo dataset's downloads are complete), before the
+      # suite, so a later test failure or timeout doesn't lose them. Only `*/raw` is saved, never ETL output.
+      - name: Save raw demo downloads
+        if: steps.demo-build.outcome == 'success' && steps.download-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ env.MEDS_DEV_DOWNLOAD_DIR }}/*/raw
+          key: ${{ steps.download-cache.outputs.cache-primary-key }}
+
+      # --reuse_cached_dataset reuses this run's builds, so the session-scoped `demo_dataset` fixture does not
+      # rebuild a dataset each time the test order switches between datasets (once per model otherwise).
       - name: Run full test suite
         run: |
-          uv run pytest -v --doctest-modules --cov=src --cov-report=xml --junitxml=junit.xml -s -x
+          uv run pytest -v --doctest-modules --cov=src --cov-report=xml --junitxml=junit.xml -s -x \
+            --persistent_cache_dir="$MEDS_DEV_CACHE_DIR" --cache_dataset=all --reuse_cached_dataset=all
 
       - name: Upload coverage to Codecov
         if: always()
