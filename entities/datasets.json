@@ -1,1 +1,1042 @@
-{"MIMIC-IV": {"name": "MIMIC-IV", "data": {"type": "dataset", "readme": "# MIMIC-IV\n\nTODO: Summarize MIMIC-IV\n\nTODO: Add citations properly somehow.\n\n## URLs\n\n1. https://physionet.org/content/mimiciv/\n2. https://www.nature.com/articles/s41597-022-01899-x\n", "entity": {"metadata": {"description": "A MEDS version of MIMIC-IV.", "links": ["https://github.com/mmcdermott/MIMIC_IV_MEDS", "https://physionet.org/content/mimiciv/3.1/", "https://www.nature.com/articles/s41597-022-01899-x"], "contacts": [{"name": "Tom Pollard", "github_username": "tompollard"}, {"name": "Matthew McDermott", "github_username": "mmcdermott"}]}, "commands": {"build_full": "MEDS_extract-MIMIC_IV raw_input_dir=\"{temp_dir}/raw\" pre_MEDS_dir=\"{temp_dir}/pre_MEDS\" MEDS_cohort_dir=\"{output_dir}\" log_dir=\"{output_dir}/.pipeline_logs\"", "build_demo": "MEDS_extract-MIMIC_IV do_demo=True raw_input_dir=\"{temp_dir}/raw\" pre_MEDS_dir=\"{temp_dir}/pre_MEDS\" MEDS_cohort_dir=\"{output_dir}\" log_dir=\"{output_dir}/.pipeline_logs\""}}, "predicates": {"predicates": {"hospital_admission": {"code": {"regex": "^HOSPITAL_ADMISSION//.*"}}, "hospital_discharge": {"code": {"regex": "^HOSPITAL_DISCHARGE//.*"}}, "ED_registration": {"code": {"regex": "^ED_REGISTRATION//.*"}}, "ED_discharge": {"code": {"regex": "^ED_OUT//.*"}}, "icu_admission": {"code": {"regex": "^ICU_ADMISSION//.*"}}, "icu_discharge": {"code": {"regex": "^ICU_DISCHARGE//.*"}}, "creatinine_mgdl": {"code": {"any": ["LAB//50912//mg/dL", "LAB//52546//mg/dL"]}}, "sodium_meql": {"code": {"any": ["LAB//220645//mEq/L", "LAB//50983//mEq/L", "LAB//52623//mEq/L"]}}, "bicarbonate_meql": {"code": {"any": ["LAB//227443//mEq/L", "LAB//50882//mEq/L"]}}, "hemoglobin_gdl": {"code": {"any": ["LAB//220228//g/dl", "LAB//50811//g/dL"]}}, "wbc_kul": {"code": {"any": ["LAB//220546//K/uL", "LAB//51300//K/uL"]}}, "platelets_kul": {"code": {"any": ["LAB//227457//K/uL", "LAB//51265//K/uL"]}}, "map_mmhg": {"code": {"any": ["LAB//220052//mmHg", "LAB//220181//mmHg", "LAB//225312//mmHg"]}}}}, "refs": "@article{johnson2023mimic,\n  title={MIMIC-IV, a freely accessible electronic health record dataset},\n  author={Johnson, Alistair EW and Bulgarelli, Lucas and Shen, Lu and Gayles, Alvin and Shammout, Ayad and Horng, Steven and Pollard, Tom J and Hao, Sicheng and Moody, Benjamin and Gow, Brian and others},\n  journal={Scientific data},\n  volume={10},\n  number={1},\n  pages={1},\n  year={2023},\n  publisher={Nature Publishing Group UK London}\n}\n", "requirements": ["MIMIC-IV-MEDS==0.0.6"]}, "children": []}}
+{
+  "AUMCdb": {
+    "children": [],
+    "data": {
+      "entity": {
+        "commands": {
+          "build_full": "MEDS_extract-AUMCdb raw_input_dir=\"{raw_input_dir}\" pre_MEDS_dir=\"{temp_dir}/pre_MEDS\" MEDS_cohort_dir=\"{output_dir}\" log_dir=\"{output_dir}/.pipeline_logs\""
+        },
+        "metadata": {
+          "contacts": [
+            {
+              "github_username": "prockenschaub",
+              "name": "Patrick Rockenschaub"
+            },
+            {
+              "github_username": "rvandewater",
+              "name": "Robin P. van de Water"
+            }
+          ],
+          "description": "A MEDS version of AUMCdb.",
+          "links": [
+            "https://github.com/prockenschaub/AUMCdb_MEDS",
+            "https://lifesciences.datastations.nl/dataset.xhtml?persistentId=doi:10.17026/dans-22u-f8vd",
+            "https://journals.lww.com/ccmjournal/fulltext/2021/06000/sharing_icu_patient_data_responsibly_under_the.16.aspx"
+          ]
+        }
+      },
+      "predicates": {
+        "predicates": {
+          "abnormally_high_creatinine_1_umol_l": {
+            "code": "MEASURE//Kreatinine (bloed)//\ufffdmol/l",
+            "value_max": null,
+            "value_min": 115,
+            "value_min_inclusive": false
+          },
+          "abnormally_high_creatinine_2_umol_l": {
+            "code": "MEASURE//Kreatinine//\ufffdmol/l",
+            "value_max": null,
+            "value_min": 115,
+            "value_min_inclusive": false
+          },
+          "abnormally_high_creatinine_umol_L": {
+            "expr": "or(abnormally_high_creatinine_1_umol_l, abnormally_high_creatinine_2_umol_l)"
+          },
+          "abnormally_high_potassium": {
+            "code": "MEASURE//Kalium (bloed)//mmol/l",
+            "value_max": null,
+            "value_min": 5.0,
+            "value_min_inclusive": true
+          },
+          "abnormally_high_wbc": {
+            "expr": "or(abnormally_high_wbc_1, abnormally_high_wbc_2)"
+          },
+          "abnormally_high_wbc_1": {
+            "code": "MEASURE//Leucocyten//10^9/l",
+            "value_max": null,
+            "value_min": 11,
+            "value_min_inclusive": false
+          },
+          "abnormally_high_wbc_2": {
+            "code": "MEASURE//Leuco's (bloed)//10^9/l",
+            "value_max": null,
+            "value_min": 11,
+            "value_min_inclusive": false
+          },
+          "abnormally_low_glucose": {
+            "code": "MEASURE//Glucose (bloed)//mmol/l",
+            "value_max": 70.2,
+            "value_max_inclusive": true,
+            "value_min": null
+          },
+          "abnormally_low_hemoglobin": {
+            "expr": "or(abnormally_low_hemoglobin_1, abnormally_low_hemoglobin_2)"
+          },
+          "abnormally_low_hemoglobin_1": {
+            "code": "MEASURE//Hemoglobine//mmol/l",
+            "value_max": 8,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_hemoglobin_2": {
+            "code": "MEASURE//Hb (bloed)//mmol/l",
+            "value_max": 8,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_hemoglobin_3": {
+            "code": "MEASURE//Hb(v.Bgs) (bloed)//mmol/l",
+            "value_max": 8,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_map": {
+            "expr": "or(abnormally_low_map_1, abnormally_low_map_2)"
+          },
+          "abnormally_low_map_1": {
+            "code": "MEASURE//ABP gemiddeld//mmHg",
+            "value_max": 65,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_map_2": {
+            "code": "MEASURE//Niet invasieve bloeddruk gemiddeld//mmHg",
+            "value_max": 65,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_platelets": {
+            "expr": "or(abnormally_low_platelets_1, abnormally_low_platelets_2)"
+          },
+          "abnormally_low_platelets_1": {
+            "code": "MEASURE//Thrombo's (bloed)//10^9/l",
+            "value_max": 150,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_platelets_2": {
+            "code": "MEASURE//Thrombocyten//10^9/l",
+            "value_max": 150,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_sodium": {
+            "code": "MEASURE//Natrium (bloed)//mmol/l",
+            "value_max": 135,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "creatinine": {
+            "expr": "or(creatinine_1, creatinine_2)"
+          },
+          "creatinine_1": {
+            "code": "MEASURE//Kreatinine (bloed)//\ufffdmol/l"
+          },
+          "creatinine_2": {
+            "code": "MEASURE//Kreatinine//\ufffdmol/l"
+          },
+          "glucose": {
+            "code": "MEASURE//Glucose (bloed)//mmol/l"
+          },
+          "hemoglobin": {
+            "expr": "or(hemoglobin_1, hemoglobin_2)"
+          },
+          "hemoglobin_1": {
+            "code": "MEASURE//Hemoglobine//mmol/l"
+          },
+          "hemoglobin_2": {
+            "code": "MEASURE//Hb (bloed)//mmol/l"
+          },
+          "hemoglobin_3": {
+            "code": "MEASURE//Hb(v.Bgs) (bloed)//mmol/l"
+          },
+          "hospital_admission": {
+            "code": {
+              "regex": "^ICU_ADMISSION//.*"
+            }
+          },
+          "hospital_discharge": {
+            "code": {
+              "regex": "^ICU_DISCHARGE//.*"
+            }
+          },
+          "icu_admission": {
+            "code": {
+              "regex": "^ICU_ADMISSION//.*"
+            }
+          },
+          "icu_discharge": {
+            "code": {
+              "regex": "^ICU_DISCHARGE//.*"
+            }
+          },
+          "map": {
+            "expr": "or(map_1, map_2)"
+          },
+          "map_1": {
+            "code": "MEASURE//ABP gemiddeld//mmHg"
+          },
+          "map_2": {
+            "code": "MEASURE//Niet invasieve bloeddruk gemiddeld//mmHg"
+          },
+          "platelets": {
+            "expr": "or(platelets_1, platelets_2)"
+          },
+          "platelets_1": {
+            "code": "MEASURE//Thrombo's (bloed)//10^9/l"
+          },
+          "platelets_2": {
+            "code": "MEASURE//Thrombocyten//10^9/l"
+          },
+          "potassium": {
+            "code": "MEASURE//Kalium (bloed)//mmol/l"
+          },
+          "sodium": {
+            "code": "MEASURE//Natrium (bloed)//mmol/l"
+          },
+          "wbc": {
+            "expr": "or(wbc_1, wbc_2)"
+          },
+          "wbc_1": {
+            "code": "MEASURE//Leucocyten//10^9/l"
+          },
+          "wbc_2": {
+            "code": "MEASURE//Leuco's (bloed)//10^9/l"
+          }
+        }
+      },
+      "readme": "# AUMCdb\n\n## Description\n\nThe first freely accessible intensive care database from within the European Union containing de-identified health data related to tens of thousands of European intensive care unit admissions, including demographics, vital signs, laboratory tests and medications.\n\n## Access Requirements\n\nTaken from [official website](https://amsterdammedicaldatascience.nl/amsterdamumcdb/#requesting-access):\n\n- **Access Policy**: Fill out and sign the combined Access and End User License form.\n- **License (for files)**: Specify the license under which the dataset files are distributed.\n- **Data Use Agreement**: Agreement found [here](https://amsterdammedicaldatascience.nl/content/uploads/sites/2/2022/12/arfeula_v1.6.pdf).\n- **Required training**: Valid training courses include the Data or Specimens Only Research (DSOR) course from CITI, the Basic Course for Clinical Investigators (BROK) from NFU or an equivalent course. The DSOR course may be taken free of charge and is also needed to gain access to the MIMIC and eICU intensive care databases from the USA.\n\n## Supported Tasks\n\n- `tasks/mortality/in_icu/first_24h.yaml`\n\n## MEDS-transformation\n\n[MEDS_transforms](https://github.com/mmcdermott/MEDS_transforms) now includes the AUMCdb example. Please refer to the [guide](https://github.com/mmcdermott/MEDS_transforms/tree/main/AUMC_Example).\n\n## Sources\n\n1. [AUMCdb dataset](https://amsterdammedicaldatascience.nl/amsterdamumcdb/)\n2. [AUMCdb Research Paper](https://journals.lww.com/ccmjournal/fulltext/2021/06000/sharing_icu_patient_data_responsibly_under_the.16.aspx)\n3. [AUMCdb Data Use Agreement](https://amsterdammedicaldatascience.nl/content/uploads/sites/2/2022/12/arfeula_v1.6.pdf)\n4. [Data Repository](https://easy.dans.knaw.nl/ui/home)\n5. [Code Repository](https://github.com/AmsterdamUMC/AmsterdamUMCdb)\n\n## Disclaimer\n\nPlease refer to the data owners and the most up-to-date information when using this dataset in your research.\n",
+      "refs": "@article{thoralSharingICUPatient2021,\n  title = {Sharing {{ICU Patient Data Responsibly Under}} the {{Society}} of {{Critical Care Medicine}}/{{European Society}} of {{Intensive Care Medicine Joint Data Science Collaboration}}: {{The Amsterdam University Medical Centers Database}} ({{AmsterdamUMCdb}}) {{Example}}*},\n  shorttitle = {Sharing {{ICU Patient Data Responsibly Under}} the {{Society}} of {{Critical Care Medicine}}/{{European Society}} of {{Intensive Care Medicine Joint Data Science Collaboration}}},\n  author = {Thoral, Patrick J. and Peppink, Jan M. and Driessen, Ronald H. and Sijbrands, Eric J. G. and Kompanje, Erwin J. O. and Kaplan, Lewis and Bailey, Heatherlee and Kesecioglu, Jozef and Cecconi, Maurizio and Churpek, Matthew and Clermont, Gilles and {van der Schaar}, Mihaela and Ercole, Ari and Girbes, Armand R. J. and Elbers, Paul W. G.},\n  year = 2021,\n  month = jun,\n  journal = {Critical Care Medicine},\n  volume = {49},\n  number = {6},\n  pages = {e563-e577},\n  issn = {0090-3493},\n  doi = {10.1097/CCM.0000000000004916},\n  urldate = {2022-04-29},\n  abstract = {OBJECTIVES: Critical care medicine is a natural environment for machine learning approaches to improve outcomes for critically ill patients as admissions to ICUs generate vast amounts of data. However, technical, legal, ethical, and privacy concerns have so far limited the critical care medicine community from making these data readily available. The Society of Critical Care Medicine and the European Society of Intensive Care Medicine have identified ICU patient data sharing as one of the priorities under their Joint Data Science Collaboration. To encourage ICUs worldwide to share their patient data responsibly, we now describe the development and release of Amsterdam University Medical Centers Database (AmsterdamUMCdb), the first freely available critical care database in full compliance with privacy laws from both the United States and Europe, as an example of the feasibility of sharing complex critical care data. SETTING: University hospital ICU. SUBJECTS: Data from ICU patients admitted between 2003 and 2016. INTERVENTIONS: We used a risk-based deidentification strategy to maintain data utility while preserving privacy. In addition, we implemented contractual and governance processes, and a communication strategy. Patient organizations, supporting hospitals, and experts on ethics and privacy audited these processes and the database. MEASUREMENTS AND MAIN RESULTS: AmsterdamUMCdb contains approximately 1 billion clinical data points from 23,106 admissions of 20,109 patients. The privacy audit concluded that reidentification is not reasonably likely, and AmsterdamUMCdb can therefore be considered as anonymous information, both in the context of the U.S. Health Insurance Portability and Accountability Act and the European General Data Protection Regulation. The ethics audit concluded that responsible data sharing imposes minimal burden, whereas the potential benefit is tremendous. CONCLUSIONS: Technical, legal, ethical, and privacy challenges related to responsible data sharing can be addressed using a multidisciplinary approach. A risk-based deidentification strategy, that complies with both U.S. and European privacy regulations, should be the preferred approach to releasing ICU patient data. This supports the shared Society of Critical Care Medicine and European Society of Intensive Care Medicine vision to Patrick J. Thoral, MD1},\n  langid = {english},\n  keywords = {_tablet},\n}\n",
+      "requirements": [
+        "AUMCdb-MEDS==0.0.3"
+      ],
+      "type": "dataset"
+    },
+    "name": "AUMCdb"
+  },
+  "INSPIRE": {
+    "children": [],
+    "data": {
+      "entity": {
+        "commands": {
+          "build_full": "MEDS_extract-INSPIRE \"{temp_dir}\" --raw-input-dir \"{raw_input_dir}\" --output-dir \"{output_dir}\""
+        },
+        "metadata": {
+          "access_details": "Requires a credentialed PhysioNet account, completion of the required CITI training, and acceptance of the Korea Credentialed Health Data Use Agreement for INSPIRE.",
+          "access_policy": "public_with_approval",
+          "contacts": [
+            {
+              "github_username": "rvandewater",
+              "name": "Robin P. van de Water"
+            }
+          ],
+          "description": "A MEDS version of INSPIRE.",
+          "links": [
+            "https://github.com/rvandewater/INSPIRE_MEDS",
+            "https://physionet.org/content/inspire/"
+          ]
+        }
+      },
+      "predicates": {
+        "predicates": {
+          "abnormally_high_creatinine": {
+            "code": "LAB//creatinine//mg/dL",
+            "value_max": null,
+            "value_min": 1.3,
+            "value_min_inclusive": false
+          },
+          "abnormally_high_wbc": {
+            "code": "LAB//wbc///nL",
+            "value_max": null,
+            "value_min": 11,
+            "value_min_inclusive": false
+          },
+          "abnormally_low_bicarbonate": {
+            "code": "LAB//hco3//mmol/L",
+            "value_max": 22,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_hemoglobin": {
+            "code": "LAB//hb//g/dL",
+            "value_max": 13,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_map": {
+            "expr": "or(abnormally_low_map_1, abnormally_low_map_2, abnormally_low_map_3)"
+          },
+          "abnormally_low_map_1": {
+            "code": "VITAL//art_mbp//mmHg",
+            "value_max": 65,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_map_2": {
+            "code": "VITAL//nibp_mbp//mmHg",
+            "value_max": 65,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_map_3": {
+            "code": "WARD_VITAL//nibp_mbp//mmHg",
+            "value_max": 65,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_platelets": {
+            "code": "LAB//platelet///nL",
+            "value_max": 150,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_sodium": {
+            "code": "LAB//sodium//mmol/L",
+            "value_max": 135,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "bicarbonate": {
+            "code": "LAB//hco3//mmol/L"
+          },
+          "creatinine": {
+            "code": "LAB//creatinine//mg/dL"
+          },
+          "hemoglobin": {
+            "code": "LAB//hb//g/dL"
+          },
+          "hospital_admission": {
+            "code": "HOSPITAL_ADMISSION"
+          },
+          "hospital_discharge": {
+            "code": "HOSPITAL_DISCHARGE"
+          },
+          "icu_admission": {
+            "code": "ICU_ADMISSION"
+          },
+          "icu_discharge": {
+            "code": "ICU_DISCHARGE"
+          },
+          "map": {
+            "expr": "or(map_1, map_2, map_3)"
+          },
+          "map_1": {
+            "code": "VITAL//art_mbp//mmHg"
+          },
+          "map_2": {
+            "code": "VITAL//nibp_mbp//mmHg"
+          },
+          "map_3": {
+            "code": "WARD_VITAL//nibp_mbp//mmHg"
+          },
+          "platelets": {
+            "code": "LAB//platelet///nL"
+          },
+          "sodium": {
+            "code": "LAB//sodium//mmol/L"
+          },
+          "wbc": {
+            "code": "LAB//wbc///nL"
+          }
+        }
+      },
+      "readme": "# INSPIRE: a publicly available research dataset for perioperative medicine\n\n## Description\n\nThe INSPIRE dataset is a publicly available research dataset in perioperative medicine, which includes approximately 130,000 cases (50% of all surgical cases) who underwent anesthesia for surgery at an academic institution in South Korea between 2011 and 2020. This comprehensive dataset includes patient characteristics such as age, sex, American Society of Anesthesiologists physical status classification, diagnosis, surgical procedure code, department, and type of anesthesia. It also includes vital signs in the operating theatre, general wards, and intensive care units (ICUs), laboratory results from six months before admission to six months after discharge, and medication during hospitalization. Complications include total hospital and ICU length of stay and in-hospital death.[1]\n\n## Access Requirements\n\nTaken from [PhysioNet](https://physionet.org/content/inspire/1.4.2/):\n\n- **Access Policy**: Only credentialed users who sign the data use agreement can access the files.[1]\n- **License**: Korea Credentialed Health Data License 1.0.0.[1]\n- **Data Use Agreement**: Korea Credentialed Health Data Agreement 1.0.0; the data may be used for research purposes only.[1,2]\n- **Required training**: CITI Data or Specimens Only Research.[1]\n- **Agreement term**: Five years, automatically extended unless notice is given.[2]\n\n## Supported Tasks\n\n## MEDS transformation\n\nThe [`INSPIRE_MEDS`](https://github.com/rvandewater/INSPIRE_MEDS) ETL transforms the original INSPIRE data from PhysioNet into the Medical Event Data Standard (MEDS).\n\n## Sources\n\n1. [INSPIRE PhysioNet Website](https://physionet.org/content/inspire/1.4.2/)\n2. [Korea Credentialed Health Data License 1.0.0](https://physionet.org/content/inspire/view-license/1.4.2/)\n",
+      "refs": "@article{limINSPIREPubliclyAvailable2024,\n  title = {{{INSPIRE}}, a Publicly Available Research Dataset for Perioperative Medicine},\n  author = {Lim, Leerang and Lee, Hyeonhoon and Jung, Chul-Woo and Sim, Dayeon and Borrat, Xavier and Pollard, Tom J. and Celi, Leo A. and Mark, Roger G. and Vistisen, Simon T. and Lee, Hyung-Chul},\n  year = {2024},\n  month = jun,\n  journal = {Scientific Data},\n  volume = {11},\n  number = {1},\n  pages = {655},\n  issn = {2052-4463},\n  doi = {10.1038/s41597-024-03517-4}\n}\n\n@misc{vanDeWaterINSPIREMEDS2025,\n  title = {{{INSPIRE_MEDS ETL}}},\n  author = {van de Water, Robin Philippus},\n  year = {2025},\n  month = feb,\n  howpublished = {Zenodo},\n  doi = {10.5281/zenodo.14891940},\n  url = {https://doi.org/10.5281/zenodo.14891940}\n}\n",
+      "requirements": [
+        "INSPIRE-MEDS==1.0.0"
+      ],
+      "type": "dataset"
+    },
+    "name": "INSPIRE"
+  },
+  "MIMIC-IV": {
+    "children": [],
+    "data": {
+      "entity": {
+        "commands": {
+          "build_demo": "MEDS_extract-MIMIC_IV root_output_dir=\"{output_dir}\" do_demo=True raw_input_dir=\"{raw_input_dir}\" pre_MEDS_dir=\"{temp_dir}/pre_MEDS\" MEDS_output_dir=\"{output_dir}\" log_dir=\"{output_dir}/.pipeline_logs\"",
+          "build_full": "MEDS_extract-MIMIC_IV root_output_dir=\"{output_dir}\" raw_input_dir=\"{raw_input_dir}\" pre_MEDS_dir=\"{temp_dir}/pre_MEDS\" MEDS_output_dir=\"{output_dir}\" log_dir=\"{output_dir}/.pipeline_logs\""
+        },
+        "metadata": {
+          "contacts": [
+            {
+              "github_username": "tompollard",
+              "name": "Tom Pollard"
+            },
+            {
+              "github_username": "mmcdermott",
+              "name": "Matthew McDermott"
+            }
+          ],
+          "description": "A MEDS version of MIMIC-IV.",
+          "links": [
+            "https://github.com/mmcdermott/MIMIC_IV_MEDS",
+            "https://physionet.org/content/mimiciv/3.1/",
+            "https://www.nature.com/articles/s41597-022-01899-x"
+          ]
+        }
+      },
+      "predicates": {
+        "predicates": {
+          "ED_discharge": {
+            "code": "ED_OUT"
+          },
+          "ED_registration": {
+            "code": "ED_REGISTRATION"
+          },
+          "abnormally_high_creatinine": {
+            "expr": "or(abnormally_high_creatinine_1, abnormally_high_creatinine_2)"
+          },
+          "abnormally_high_creatinine_1": {
+            "code": "LAB//RESULT//50912//mg/dL",
+            "value_max": null,
+            "value_min": 1.3,
+            "value_min_inclusive": false
+          },
+          "abnormally_high_creatinine_2": {
+            "code": "LAB//RESULT//52546//mg/dL",
+            "value_max": null,
+            "value_min": 1.3,
+            "value_min_inclusive": false
+          },
+          "abnormally_high_wbc": {
+            "expr": "or(abnormally_high_wbc_1, abnormally_high_wbc_2)"
+          },
+          "abnormally_high_wbc_1": {
+            "code": "LAB//220546//K/uL",
+            "value_max": null,
+            "value_min": 11,
+            "value_min_inclusive": false
+          },
+          "abnormally_high_wbc_2": {
+            "code": "LAB//RESULT//51300//K/uL",
+            "value_max": null,
+            "value_min": 11,
+            "value_min_inclusive": false
+          },
+          "abnormally_low_bicarbonate": {
+            "expr": "or(abnormally_low_bicarbonate_1, abnormally_low_bicarbonate_2)"
+          },
+          "abnormally_low_bicarbonate_1": {
+            "code": "LAB//227443//mEq/L",
+            "value_max": 22,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_bicarbonate_2": {
+            "code": "LAB//RESULT//50882//mEq/L",
+            "value_max": 22,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_hemoglobin": {
+            "expr": "or(abnormally_low_hemoglobin_1, abnormally_low_hemoglobin_2)"
+          },
+          "abnormally_low_hemoglobin_1": {
+            "code": "LAB//220228//g/dl",
+            "value_max": 13,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_hemoglobin_2": {
+            "code": "LAB//RESULT//50811//g/dL",
+            "value_max": 13,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_map": {
+            "expr": "or(abnormally_low_map_1, abnormally_low_map_2, abnormally_low_map_3)"
+          },
+          "abnormally_low_map_1": {
+            "code": "LAB//220052//mmHg",
+            "value_max": 65,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_map_2": {
+            "code": "LAB//220181//mmHg",
+            "value_max": 65,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_map_3": {
+            "code": "LAB//225312//mmHg",
+            "value_max": 65,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_platelets": {
+            "expr": "or(abnormally_low_platelets_1, abnormally_low_platelets_2)"
+          },
+          "abnormally_low_platelets_1": {
+            "code": "LAB//227457//K/uL",
+            "value_max": 150,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_platelets_2": {
+            "code": "LAB//RESULT//51265//K/uL",
+            "value_max": 150,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_sodium": {
+            "expr": "or(abnormally_low_sodium_1, abnormally_low_sodium_2, abnormally_low_sodium_3)"
+          },
+          "abnormally_low_sodium_1": {
+            "code": "LAB//220645//mEq/L",
+            "value_max": 135,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_sodium_2": {
+            "code": "LAB//RESULT//50983//mEq/L",
+            "value_max": 135,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_sodium_3": {
+            "code": "LAB//RESULT//52623//mEq/L",
+            "value_max": 135,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "bicarbonate": {
+            "expr": "or(bicarbonate_1, bicarbonate_2)"
+          },
+          "bicarbonate_1": {
+            "code": "LAB//227443//mEq/L"
+          },
+          "bicarbonate_2": {
+            "code": "LAB//RESULT//50882//mEq/L"
+          },
+          "creatinine": {
+            "expr": "or(creatinine_1, creatinine_2)"
+          },
+          "creatinine_1": {
+            "code": "LAB//RESULT//50912//mg/dL"
+          },
+          "creatinine_2": {
+            "code": "LAB//RESULT//52546//mg/dL"
+          },
+          "hemoglobin": {
+            "expr": "or(hemoglobin_1, hemoglobin_2)"
+          },
+          "hemoglobin_1": {
+            "code": "LAB//220228//g/dl"
+          },
+          "hemoglobin_2": {
+            "code": "LAB//RESULT//50811//g/dL"
+          },
+          "hospital_admission": {
+            "code": {
+              "regex": "^HOSPITAL_ADMISSION//.*"
+            }
+          },
+          "hospital_discharge": {
+            "code": {
+              "regex": "^HOSPITAL_DISCHARGE//.*"
+            }
+          },
+          "icu_admission": {
+            "code": {
+              "regex": "^ICU_ADMISSION//.*"
+            }
+          },
+          "icu_discharge": {
+            "code": {
+              "regex": "^ICU_DISCHARGE//.*"
+            }
+          },
+          "map": {
+            "expr": "or(map_1, map_2, map_3)"
+          },
+          "map_1": {
+            "code": "LAB//220052//mmHg"
+          },
+          "map_2": {
+            "code": "LAB//220181//mmHg"
+          },
+          "map_3": {
+            "code": "LAB//225312//mmHg"
+          },
+          "platelets": {
+            "expr": "or(platelets_1, platelets_2)"
+          },
+          "platelets_1": {
+            "code": "LAB//227457//K/uL"
+          },
+          "platelets_2": {
+            "code": "LAB//RESULT//51265//K/uL"
+          },
+          "sodium": {
+            "expr": "or(sodium_1, sodium_2, sodium_3)"
+          },
+          "sodium_1": {
+            "code": "LAB//220645//mEq/L"
+          },
+          "sodium_2": {
+            "code": "LAB//RESULT//50983//mEq/L"
+          },
+          "sodium_3": {
+            "code": "LAB//RESULT//52623//mEq/L"
+          },
+          "wbc": {
+            "expr": "or(wbc_1, wbc_2)"
+          },
+          "wbc_1": {
+            "code": "LAB//220546//K/uL"
+          },
+          "wbc_2": {
+            "code": "LAB//RESULT//51300//K/uL"
+          }
+        }
+      },
+      "readme": "# MIMIC-IV\n\nTODO: Summarize MIMIC-IV\n\nTODO: Add citations properly somehow.\n\n## URLs\n\n1. https://physionet.org/content/mimiciv/\n2. https://www.nature.com/articles/s41597-022-01899-x\n",
+      "refs": "@article{johnson2023mimic,\n  title={MIMIC-IV, a freely accessible electronic health record dataset},\n  author={Johnson, Alistair EW and Bulgarelli, Lucas and Shen, Lu and Gayles, Alvin and Shammout, Ayad and Horng, Steven and Pollard, Tom J and Hao, Sicheng and Moody, Benjamin and Gow, Brian and others},\n  journal={Scientific data},\n  volume={10},\n  number={1},\n  pages={1},\n  year={2023},\n  publisher={Nature Publishing Group UK London}\n}\n",
+      "requirements": [
+        "MIMIC-IV-MEDS==0.1.0"
+      ],
+      "type": "dataset"
+    },
+    "name": "MIMIC-IV"
+  },
+  "NWICU": {
+    "children": [],
+    "data": {
+      "entity": {
+        "commands": {
+          "build_full": "meds-extract-run spec=NWICU download_dest_dir=\"{raw_input_dir}\" output_dir=\"{output_dir}\""
+        },
+        "metadata": {
+          "access_details": "Requires a credentialed PhysioNet account, completion of the required CITI training, and acceptance of the PhysioNet Credentialed Health Data Use Agreement for NWICU.",
+          "access_policy": "public_with_approval",
+          "contacts": [
+            {
+              "github_username": "rvandewater",
+              "name": "Robin P. van de Water"
+            }
+          ],
+          "description": "A MEDS version of the Northwestern ICU (NWICU) database.",
+          "links": [
+            "https://github.com/rvandewater/NWICU_MEDS",
+            "https://physionet.org/content/nwicu-northwestern-icu/0.1.0/",
+            "https://doi.org/10.13026/s84w-1829"
+          ]
+        }
+      },
+      "predicates": {
+        "predicates": {
+          "ED_discharge": {
+            "code": "ED_OUT"
+          },
+          "ED_registration": {
+            "code": "ED_REGISTRATION"
+          },
+          "abnormally_high_creatinine": {
+            "expr": "abnormally_high_creatinine_1"
+          },
+          "abnormally_high_creatinine_1": {
+            "code": "LAB//100002//mg/dL",
+            "value_max": null,
+            "value_min": 1.3,
+            "value_min_inclusive": false
+          },
+          "abnormally_high_wbc": {
+            "expr": "or(abnormally_high_wbc_1, abnormally_high_wbc_2, abnormally_high_wbc_3, abnormally_high_wbc_4, abnormally_high_wbc_5, abnormally_high_wbc_6)"
+          },
+          "abnormally_high_wbc_1": {
+            "code": "LAB//100016//10\u02c63/\u00b5L",
+            "value_max": null,
+            "value_min": 11,
+            "value_min_inclusive": false
+          },
+          "abnormally_high_wbc_2": {
+            "code": "LAB//100016//K/UL",
+            "value_max": null,
+            "value_min": 11,
+            "value_min_inclusive": false
+          },
+          "abnormally_high_wbc_3": {
+            "code": "LAB//100016//K/\u00b5L",
+            "value_max": null,
+            "value_min": 11,
+            "value_min_inclusive": false
+          },
+          "abnormally_high_wbc_4": {
+            "code": "LAB//100016//k/cu mm",
+            "value_max": null,
+            "value_min": 11,
+            "value_min_inclusive": false
+          },
+          "abnormally_high_wbc_5": {
+            "code": "LAB//100016//k/mcL",
+            "value_max": null,
+            "value_min": 11,
+            "value_min_inclusive": false
+          },
+          "abnormally_high_wbc_6": {
+            "code": "LAB//100016//x10E3/uL",
+            "value_max": null,
+            "value_min": 11,
+            "value_min_inclusive": false
+          },
+          "abnormally_low_bicarbonate": {
+            "expr": "or(abnormally_low_bicarbonate_1, abnormally_low_bicarbonate_2, abnormally_low_bicarbonate_3)"
+          },
+          "abnormally_low_bicarbonate_1": {
+            "code": "LAB//100013//mEq/L",
+            "value_max": 22,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_bicarbonate_2": {
+            "code": "LAB//100013//mmol/L",
+            "value_max": 22,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_bicarbonate_3": {
+            "code": "LAB//100013//mmoles/L",
+            "value_max": 22,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_hemoglobin": {
+            "expr": "or(abnormally_low_hemoglobin_1, abnormally_low_hemoglobin_2)"
+          },
+          "abnormally_low_hemoglobin_1": {
+            "code": "LAB//100007//g/dL",
+            "value_max": 13,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_hemoglobin_2": {
+            "code": "LAB//100007//gm/dL",
+            "value_max": 13,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_platelets": {
+            "expr": "or(abnormally_low_platelets_1, abnormally_low_platelets_2, abnormally_low_platelets_3, abnormally_low_platelets_4, abnormally_low_platelets_5, abnormally_low_platelets_6)"
+          },
+          "abnormally_low_platelets_1": {
+            "code": "LAB//100014//10\u02c63/\u00b5L",
+            "value_max": 150,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_platelets_2": {
+            "code": "LAB//100014//K/UL",
+            "value_max": 150,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_platelets_3": {
+            "code": "LAB//100014//K/\u00b5L",
+            "value_max": 150,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_platelets_4": {
+            "code": "LAB//100014//k/cu mm",
+            "value_max": 150,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_platelets_5": {
+            "code": "LAB//100014//k/mcL",
+            "value_max": 150,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_platelets_6": {
+            "code": "LAB//100014//x10E3/uL",
+            "value_max": 150,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_sodium": {
+            "expr": "or(abnormally_low_sodium_1, abnormally_low_sodium_2, abnormally_low_sodium_3)"
+          },
+          "abnormally_low_sodium_1": {
+            "code": "LAB//100010//mEq/L",
+            "value_max": 135,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_sodium_2": {
+            "code": "LAB//100010//mmol/L",
+            "value_max": 135,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_sodium_3": {
+            "code": "LAB//100010//mmoles/L",
+            "value_max": 135,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "bicarbonate": {
+            "expr": "or(bicarbonate_1, bicarbonate_2, bicarbonate_3)"
+          },
+          "bicarbonate_1": {
+            "code": "LAB//100013//mEq/L"
+          },
+          "bicarbonate_2": {
+            "code": "LAB//100013//mmol/L"
+          },
+          "bicarbonate_3": {
+            "code": "LAB//100013//mmoles/L"
+          },
+          "creatinine": {
+            "expr": "creatinine_1"
+          },
+          "creatinine_1": {
+            "code": "LAB//100002//mg/dL"
+          },
+          "hemoglobin": {
+            "expr": "or(hemoglobin_1, hemoglobin_2)"
+          },
+          "hemoglobin_1": {
+            "code": "LAB//100007//g/dL"
+          },
+          "hemoglobin_2": {
+            "code": "LAB//100007//gm/dL"
+          },
+          "hospital_admission": {
+            "code": {
+              "regex": "^HOSPITAL_ADMISSION//.*"
+            }
+          },
+          "hospital_discharge": {
+            "code": {
+              "regex": "^HOSPITAL_DISCHARGE//.*"
+            }
+          },
+          "icu_admission": {
+            "code": {
+              "regex": "^ICU_ADMISSION//.*"
+            }
+          },
+          "icu_discharge": {
+            "code": {
+              "regex": "^ICU_DISCHARGE//.*"
+            }
+          },
+          "platelets": {
+            "expr": "or(platelets_1, platelets_2, platelets_3, platelets_4, platelets_5, platelets_6)"
+          },
+          "platelets_1": {
+            "code": "LAB//100014//10\u02c63/\u00b5L"
+          },
+          "platelets_2": {
+            "code": "LAB//100014//K/UL"
+          },
+          "platelets_3": {
+            "code": "LAB//100014//K/\u00b5L"
+          },
+          "platelets_4": {
+            "code": "LAB//100014//k/cu mm"
+          },
+          "platelets_5": {
+            "code": "LAB//100014//k/mcL"
+          },
+          "platelets_6": {
+            "code": "LAB//100014//x10E3/uL"
+          },
+          "sodium": {
+            "expr": "or(sodium_1, sodium_2, sodium_3)"
+          },
+          "sodium_1": {
+            "code": "LAB//100010//mEq/L"
+          },
+          "sodium_2": {
+            "code": "LAB//100010//mmol/L"
+          },
+          "sodium_3": {
+            "code": "LAB//100010//mmoles/L"
+          },
+          "wbc": {
+            "expr": "or(wbc_1, wbc_2, wbc_3, wbc_4, wbc_5, wbc_6)"
+          },
+          "wbc_1": {
+            "code": "LAB//100016//10\u02c63/\u00b5L"
+          },
+          "wbc_2": {
+            "code": "LAB//100016//K/UL"
+          },
+          "wbc_3": {
+            "code": "LAB//100016//K/\u00b5L"
+          },
+          "wbc_4": {
+            "code": "LAB//100016//k/cu mm"
+          },
+          "wbc_5": {
+            "code": "LAB//100016//k/mcL"
+          },
+          "wbc_6": {
+            "code": "LAB//100016//x10E3/uL"
+          }
+        }
+      },
+      "readme": "# Northwestern ICU (NWICU) Database\n\n## Description\n\nThe Northwestern ICU (NWICU) database is a de-identified critical-care database containing data from\nmore than 25,000 patients treated in the Northwestern Medicine health system from 2020 through 2022. It\nretains the MIMIC-IV hospital and ICU module structure and includes demographics, admissions, laboratory\nmeasurements, diagnoses, medication administration, ICU stays, charted observations, and procedures.[1]\n\n## Access Requirements\n\nTaken from [PhysioNet](https://physionet.org/content/nwicu-northwestern-icu/0.1.0/):\n\n- **Access Policy**: Credentialed access\n- **License (for files)**: PhysioNet Credentialed Health Data License Version 1.5.0\n- **Data Use Agreement**: PhysioNet Credentialed Health Data Use Agreement Version 1.5.0\n- **Required training**: CITI Data or Specimens Only Research\n\nThe ETL downloads the source files from PhysioNet. Set `DATASET_DOWNLOAD_USERNAME` and\n`DATASET_DOWNLOAD_PASSWORD` to the credentials of an account with access before running it.[2]\n\n## Supported Tasks\n\n## MEDS Transformation\n\n[`NWICU-MEDS`](https://github.com/rvandewater/NWICU_MEDS) transforms the credentialed PhysioNet\nrelease into MEDS. The MEDS-DEV recipe intentionally exposes only the full-data pipeline because NWICU\ndoes not provide a public demo dataset.[2]\n\n## Sources\n\n1. [NWICU on PhysioNet](https://physionet.org/content/nwicu-northwestern-icu/0.1.0/)\n2. [NWICU-MEDS ETL](https://github.com/rvandewater/NWICU_MEDS)\n",
+      "refs": "@article{PhysioNet-nwicu-northwestern-icu-0.1.0,\n  author = {Moukheiber, Dana and Temps, William and Molgi, Bhadrappa and Li, Yikuan and Lu, Alice and Nannapaneni, Prasanth and Chahin, Abdulrahman and Hao, Sicheng and {Torres Fabregas}, Felipe and Celi, Leo Anthony and Wong, Adrian and Lloyd, Maxwell and {Borrat Frigola}, Xavier and Lee, Hyung-Chul and Schneider, Daniel and Pollard, Tom and Luo, Yuan and Kho, Abel and Mark, Roger},\n  title = {{Northwestern ICU (NWICU) database}},\n  journal = {{PhysioNet}},\n  year = {2024},\n  month = nov,\n  note = {Version 0.1.0},\n  doi = {10.13026/s84w-1829},\n  url = {https://doi.org/10.13026/s84w-1829},\n}\n\n@software{van_de_Water_NWICU_MEDS_ETL_2025,\n  author = {van de Water, Robin Philippus},\n  doi = {10.5281/zenodo.14892134},\n  license = {MIT},\n  month = feb,\n  title = {{NWICU\\_MEDS ETL}},\n  url = {https://github.com/rvandewater/NWICU_MEDS},\n  year = {2025},\n}\n",
+      "requirements": [
+        "NWICU-MEDS==1.0.0"
+      ],
+      "type": "dataset"
+    },
+    "name": "NWICU"
+  },
+  "eICU": {
+    "children": [],
+    "data": {
+      "entity": {
+        "commands": {
+          "build_demo": "MEDS_extract-eICU do_demo=True root_output_dir=\"{temp_dir}\" raw_input_dir=\"{raw_input_dir}\" MEDS_output_dir=\"{output_dir}\" log_dir=\"{output_dir}/.pipeline_logs\"",
+          "build_full": "MEDS_extract-eICU root_output_dir=\"{temp_dir}\" raw_input_dir=\"{raw_input_dir}\" MEDS_output_dir=\"{output_dir}\" log_dir=\"{output_dir}/.pipeline_logs\""
+        },
+        "metadata": {
+          "access_details": "Requires a credentialed PhysioNet account, completion of the required CITI training, and acceptance of the PhysioNet Credentialed Health Data Use Agreement for eICU.",
+          "access_policy": "public_with_approval",
+          "contacts": [
+            {
+              "github_username": "rvandewater",
+              "name": "Robin P. van de Water"
+            }
+          ],
+          "description": "A MEDS version of eICU.",
+          "links": [
+            "https://github.com/Medical-Event-Data-Standard/eICU_MEDS",
+            "https://physionet.org/content/eicu-crd/"
+          ]
+        }
+      },
+      "predicates": {
+        "predicates": {
+          "abnormally_high_creatinine": {
+            "code": "LAB//RESULT//creatinine//mg/dL",
+            "value_max": null,
+            "value_min": 1.3,
+            "value_min_inclusive": false
+          },
+          "abnormally_high_wbc": {
+            "code": "LAB//RESULT//WBC x 1000//K/mcL",
+            "value_max": null,
+            "value_min": 11,
+            "value_min_inclusive": false
+          },
+          "abnormally_low_bicarbonate": {
+            "expr": "or(abnormally_low_bicarbonate_1, abnormally_low_bicarbonate_2)"
+          },
+          "abnormally_low_bicarbonate_1": {
+            "code": "LAB//RESULT//bicarbonate//mmol/L",
+            "value_max": 22,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_bicarbonate_2": {
+            "code": "LAB//RESULT//HCO3//mmol/L",
+            "value_max": 22,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_hemoglobin": {
+            "code": "LAB//RESULT//Hgb//g/dL",
+            "value_max": 13,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_map": {
+            "expr": "or(abnormally_low_map_1, abnormally_low_map_2)"
+          },
+          "abnormally_low_map_1": {
+            "code": "VITALS//APERIODIC//BP//NONINVASIVE_MEAN",
+            "value_max": 65,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_map_2": {
+            "code": "VITALS//PERIODIC//BP//SYSTEMIC_MEAN",
+            "value_max": 65,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_platelets": {
+            "code": "LAB//RESULT//platelets x 1000//K/mcL",
+            "value_max": 150,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_sodium": {
+            "code": "LAB//RESULT//sodium//mmol/L",
+            "value_max": 135,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "bicarbonate": {
+            "expr": "or(bicarbonate_1, bicarbonate_2)"
+          },
+          "bicarbonate_1": {
+            "code": "LAB//RESULT//bicarbonate//mmol/L"
+          },
+          "bicarbonate_2": {
+            "code": "LAB//RESULT//HCO3//mmol/L"
+          },
+          "creatinine": {
+            "code": "LAB//RESULT//creatinine//mg/dL"
+          },
+          "hemoglobin": {
+            "code": "LAB//RESULT//Hgb//g/dL"
+          },
+          "hospital_admission": {
+            "code": {
+              "regex": "^HOSPITAL_ADMISSION//.*"
+            }
+          },
+          "hospital_discharge": {
+            "code": {
+              "regex": "^HOSPITAL_DISCHARGE//.*"
+            }
+          },
+          "icu_admission": {
+            "code": {
+              "regex": "^ICU_ADMISSION//.*"
+            }
+          },
+          "icu_discharge": {
+            "code": {
+              "regex": "^ICU_DISCHARGE//.*"
+            }
+          },
+          "map": {
+            "expr": "or(map_1, map_2)"
+          },
+          "map_1": {
+            "code": "VITALS//APERIODIC//BP//NONINVASIVE_MEAN"
+          },
+          "map_2": {
+            "code": "VITALS//PERIODIC//BP//SYSTEMIC_MEAN"
+          },
+          "platelets": {
+            "code": "LAB//RESULT//platelets x 1000//K/mcL"
+          },
+          "sodium": {
+            "code": "LAB//RESULT//sodium//mmol/L"
+          },
+          "wbc": {
+            "code": "LAB//RESULT//WBC x 1000//K/mcL"
+          }
+        }
+      },
+      "readme": "# eICU Collaborative Research Database\n\n## Description\n\nThe eICU Collaborative Research Database is a multi-center database comprising de-identified health data associated with over 200,000 admissions to ICUs across the United States between 2014-2015. The database includes vital sign measurements, care plan documentation, severity of illness measures, diagnosis information, and treatment information. Data is collected through the Philips eICU program, a critical care telehealth program that delivers information to caregivers at the bedside.[1]\n\n## Access Requirements\n\nTaken from [PhysioNet](https://physionet.org/content/eicu-crd/2.0/):\n\n- **Access Policy**: Complete the credentialed data access requirements on PhysioNet[2]\n- **License (for files)**: PhysioNet Credentialed Health Data License Version 1.5.0[2]\n- **Data Use Agreement**: Agreement requires verified institutional affiliation and commitment to use data solely for lawful scientific research[2]\n- **Required training**: Valid CITI training certification in human research subject protection and HIPAA regulations[2]\n- **Code Sharing**: Agreement to contribute code associated with publications to open research repository[2]\n\n## Supported Tasks\n\n## MEDS transformation\n\nThe [`eICU_MEDS`](https://github.com/Medical-Event-Data-Standard/eICU_MEDS) ETL downloads the original eICU-CRD data from PhysioNet and transforms it into the Medical Event Data Standard (MEDS).\n\n## Sources\n\n1. [eICU PhysioNet Repository](https://physionet.org/content/eicu-crd/2.0/)\n2. [PhysioNet Credentialed Access](https://physionet.org/content/eicu-crd/view-license/2.0/)\n",
+      "refs": "@article{pollardEICUCollaborativeResearch2018,\n  title = {The {{eICU Collaborative Research Database}}, a Freely Available Multi-Center Database for Critical Care Research},\n  author = {Pollard, Tom J. and Johnson, Alistair E. W. and Raffa, Jesse D. and Celi, Leo A. and Mark, Roger G. and Badawi, Omar},\n  year = {2018},\n  month = sep,\n  journal = {Scientific Data},\n  volume = {5},\n  number = {1},\n  pages = {180178},\n  issn = {2052-4463},\n  doi = {10.1038/sdata.2018.178}\n}\n",
+      "requirements": [
+        "eICU-MEDS==0.1.0"
+      ],
+      "type": "dataset"
+    },
+    "name": "eICU"
+  }
+}
