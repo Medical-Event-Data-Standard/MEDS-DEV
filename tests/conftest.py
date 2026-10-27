@@ -25,6 +25,16 @@ def pytest_addoption(parser):
         ),
     )
 
+    parser.addoption(
+        "--download_cache_dir",
+        default=None,
+        help=(
+            "Keep each demo dataset's raw downloads in <dir>/<dataset>/raw across builds (passed to "
+            "meds-dev-dataset as raw_input_dir). Only the downloads are kept, so the ETL always runs. ETLs "
+            "skip files that are already present with a valid checksum."
+        ),
+    )
+
     def add_cache_opt(opt: str):
         cache_str_template = (
             "Cache the {opt} with the given name. Use 'all' to cache all {opt}s. Add specific {opt}s "
@@ -144,12 +154,14 @@ def pytest_collection_modifyitems(session: pytest.Session, config: pytest.Config
 
         model_idx = _safe_index(model_opts, fixture_params["unsupervised_model"])
 
+        # Session-scoped parametrized fixtures only keep one param alive at a time, so switching datasets
+        # between a model's supervised and evaluation tests would tear down and retrain the model each time.
         if is_unsupervised_model_test:
-            return (model_idx, -1, -1, dataset_idx)
+            return (model_idx, dataset_idx, -1, 0)
         elif is_supervised_model_test:
-            return (model_idx, task_idx, -1, dataset_idx)
+            return (model_idx, dataset_idx, task_idx, 1)
         elif is_evaluation_test:
-            return (model_idx, task_idx, 1, dataset_idx)
+            return (model_idx, dataset_idx, task_idx, 2)
         else:
             raise ValueError(f"Item {item} does not fit any category.")
 
@@ -378,17 +390,19 @@ def demo_dataset(request, venv_cache: Path) -> NAME_AND_DIR:
         already_tested = check_fp.exists() and data_exists and metadata_exists
         if do_overwrite or not already_tested:
             venv_dir = venv_cache / "datasets" / dataset_name
+            hydra_kwargs = {
+                "dataset": dataset_name,
+                "output_dir": str(output_dir.resolve()),
+                "demo": True,
+                "venv_dir": str(venv_dir.resolve()),
+            }
 
-            run_command(
-                "meds-dev-dataset",
-                test_name=f"Build {dataset_name}",
-                hydra_kwargs={
-                    "dataset": dataset_name,
-                    "output_dir": str(output_dir.resolve()),
-                    "demo": True,
-                    "venv_dir": str(venv_dir.resolve()),
-                },
-            )
+            if download_cache_dir := request.config.getoption("--download_cache_dir"):
+                hydra_kwargs["raw_input_dir"] = str(
+                    (Path(download_cache_dir) / dataset_name / "raw").resolve()
+                )
+
+            run_command("meds-dev-dataset", test_name=f"Build {dataset_name}", hydra_kwargs=hydra_kwargs)
 
             # Dataset venvs should never be used again, so we delete it here for simplicity.
             logger.info(f"Deleting venv for {dataset_name} at {venv_dir}")
