@@ -14,7 +14,7 @@ commands:
   build_full: >-
     MEDS_extract-MIMIC_IV
     root_output_dir="{output_dir}"
-    raw_input_dir="{temp_dir}/raw"
+    raw_input_dir="{raw_input_dir}"
     pre_MEDS_dir="{temp_dir}/pre_MEDS"
     MEDS_output_dir="{output_dir}"
     log_dir="{output_dir}/.pipeline_logs"
@@ -23,7 +23,7 @@ commands:
     MEDS_extract-MIMIC_IV
     root_output_dir="{output_dir}"
     do_demo=True
-    raw_input_dir="{temp_dir}/raw"
+    raw_input_dir="{raw_input_dir}"
     pre_MEDS_dir="{temp_dir}/pre_MEDS"
     MEDS_output_dir="{output_dir}"
     log_dir="{output_dir}/.pipeline_logs"
