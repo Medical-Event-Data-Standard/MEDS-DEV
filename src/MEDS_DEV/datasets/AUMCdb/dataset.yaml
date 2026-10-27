@@ -13,7 +13,7 @@ metadata:
 commands:
   build_full: >-
     MEDS_extract-AUMCdb
-    raw_input_dir="{temp_dir}/raw"
+    raw_input_dir="{raw_input_dir}"
     pre_MEDS_dir="{temp_dir}/pre_MEDS"
     MEDS_cohort_dir="{output_dir}"
     log_dir="{output_dir}/.pipeline_logs"
