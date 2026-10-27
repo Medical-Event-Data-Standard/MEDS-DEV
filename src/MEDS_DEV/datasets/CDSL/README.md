@@ -35,7 +35,8 @@ all four local datasets (Zigong, PICdb, ALOTT, CDSL) are registered, to avoid co
 ## MEDS Transformation
 
 [`CDSL-MEDS`](https://github.com/rvandewater/CDSL_MEDS) (a configuration-only MEDS-Extract 0.7 ETL,
-not on PyPI yet, so `requirements.txt` pins a commit) transforms the PhysioNet release into MEDS.
+not on PyPI at a version with the `MEDS_extract-CDSL` command, so `requirements.txt` pins the
+0.0.3 tag) transforms the PhysioNet release into MEDS.
 Three CDSL files are Latin-1 encoded, so the build downloads first and then runs
 `MEDS_extract-CDSL`, which stages a UTF-8 view before extraction. There is no public demo, so only
 the full-data pipeline is exposed. The pin is on
