@@ -33,6 +33,7 @@ jobs:
       changed_tasks: ${{ steps.scope.outputs.changed_tasks }}
       changed_models: ${{ steps.scope.outputs.changed_models }}
       reason: ${{ steps.scope.outputs.reason }}
+      all_models: ${{ steps.models.outputs.all_models }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -109,6 +110,14 @@ jobs:
           fi
 
           python .github/scripts/select_test_scope.py "$BASE_REF" "$HEAD_REF"
+
+      # The full-integration matrix: one entry per `model.yaml`, keyed like the MODELS registry.
+      - name: List models
+        id: models
+        run: |
+          models=$(find src/MEDS_DEV/models -mindepth 2 -name model.yaml -printf '%h\n' \
+            | sed 's|^src/MEDS_DEV/models/||' | sort | jq -R . | jq -sc .)
+          echo "all_models=$models" >> "$GITHUB_OUTPUT"
 
       - name: Print scope summary
         run: |
@@ -268,46 +277,57 @@ jobs:
             --download_cache_dir="$MEDS_DEV_DOWNLOAD_DIR"
 
   # ---------------------------------------------------------------------------
-  # Job 6: Full integration — push to main, schedule, label, or core changes
+  # Job 6: Demo downloads — fetch the raw demo data once for the full-integration matrix
   # ---------------------------------------------------------------------------
-  full-integration:
+  demo-downloads:
     runs-on: ubuntu-latest
     needs: [determine-scope, fast-checks]
     if: needs.determine-scope.outputs.run_full == 'true'
-    timeout-minutes: 120
+    timeout-minutes: 90
     env:
-      # Built datasets, reused within this run only (never saved to the Actions cache).
       MEDS_DEV_CACHE_DIR: /tmp/meds_dev_cache
       # Raw PhysioNet downloads, the only thing cached across runs.
       MEDS_DEV_DOWNLOAD_DIR: /tmp/meds_dev_downloads
     steps:
+      # Checked out first: the cache key hashes the dataset requirements.
       - uses: actions/checkout@v4
-
-      - name: Setup package
-        uses: ./.github/actions/setup
-        with:
-          python-version: "3.11"
 
       # Only the raw demo downloads (open-access MIMIC-IV / eICU-CRD demo files) are cached across runs; the
       # ETL always runs on them, so every run still tests the transformation. The ETLs skip files that are
       # already present with a valid PhysioNet checksum, so a changed upstream file is re-downloaded. The
       # key follows the ETL pins; restore-keys reuses an older entry so only new files are fetched.
       # Caches saved from PRs are scoped to that PR, so they can never be restored on `main`.
-      - name: Restore raw demo downloads
-        id: download-cache
+      - name: Check for cached raw demo downloads
+        id: download-cache-lookup
         uses: actions/cache/restore@v4
         with:
           path: ${{ env.MEDS_DEV_DOWNLOAD_DIR }}/*/raw
           key: demo-downloads-v1-${{ runner.os }}-${{ hashFiles('src/MEDS_DEV/datasets/**/requirements.txt') }}
+          lookup-only: true
+
+      # Everything below runs only on a cache miss, so the matrix jobs don't each download from PhysioNet.
+      - name: Setup package
+        if: steps.download-cache-lookup.outputs.cache-hit != 'true'
+        uses: ./.github/actions/setup
+        with:
+          python-version: "3.11"
+
+      - name: Restore older raw demo downloads
+        id: download-cache
+        if: steps.download-cache-lookup.outputs.cache-hit != 'true'
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ env.MEDS_DEV_DOWNLOAD_DIR }}/*/raw
+          key: ${{ steps.download-cache-lookup.outputs.cache-primary-key }}
           restore-keys: demo-downloads-v1-${{ runner.os }}-
 
       # PhysioNet is flaky (502s, dropped connections) and the ETLs don't retry, so build the demo datasets
-      # up front with one retry. Built datasets go to the per-run cache (`<cache>/<name>/` plus a
-      # `<cache>/.<name>.check` marker, see tests/conftest.py) and are reused by the retry and the suite. A
-      # failed build's partial output (and its venv) is removed first, because `run_in_env` refuses to
-      # reuse a directory whose `cmd.sh` differs.
+      # (which downloads them) with one retry. Built datasets go to `<cache>/<name>/` plus a
+      # `<cache>/.<name>.check` marker (see tests/conftest.py). A failed build's partial output (and its
+      # venv) is removed first, because `run_in_env` refuses to reuse a directory whose `cmd.sh` differs.
       - name: Build demo datasets
         id: demo-build
+        if: steps.download-cache-lookup.outputs.cache-hit != 'true'
         run: |
           mkdir -p "$MEDS_DEV_CACHE_DIR"
           for attempt in 1 2; do
@@ -327,21 +347,59 @@ jobs:
           done
           exit 1
 
-      # Saved right after a successful build (so every demo dataset's downloads are complete), before the
-      # suite, so a later test failure or timeout doesn't lose them. Only `*/raw` is saved, never ETL output.
+      # Saved only after a successful build, so every demo dataset's downloads are complete. Only `*/raw` is
+      # saved, never ETL output.
       - name: Save raw demo downloads
-        if: steps.demo-build.outcome == 'success' && steps.download-cache.outputs.cache-hit != 'true'
+        if: steps.demo-build.outcome == 'success'
         uses: actions/cache/save@v4
         with:
           path: ${{ env.MEDS_DEV_DOWNLOAD_DIR }}/*/raw
-          key: ${{ steps.download-cache.outputs.cache-primary-key }}
+          key: ${{ steps.download-cache-lookup.outputs.cache-primary-key }}
 
-      # --reuse_cached_dataset reuses this run's builds, so the session-scoped `demo_dataset` fixture does not
-      # rebuild a dataset each time the test order switches between datasets (once per model otherwise).
-      - name: Run full test suite
+  # ---------------------------------------------------------------------------
+  # Job 7: Full integration — push to main, schedule, label, or core changes; one job per model
+  # ---------------------------------------------------------------------------
+  full-integration:
+    runs-on: ubuntu-latest
+    needs: [determine-scope, demo-downloads]
+    if: needs.determine-scope.outputs.run_full == 'true'
+    timeout-minutes: 120
+    env:
+      # Built datasets, reused within this job only (never saved to the Actions cache).
+      MEDS_DEV_CACHE_DIR: /tmp/meds_dev_cache
+      MEDS_DEV_DOWNLOAD_DIR: /tmp/meds_dev_downloads
+    strategy:
+      fail-fast: false
+      matrix:
+        model: ${{ fromJson(needs.determine-scope.outputs.all_models) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup package
+        uses: ./.github/actions/setup
+        with:
+          python-version: "3.11"
+
+      - name: Restore raw demo downloads
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ env.MEDS_DEV_DOWNLOAD_DIR }}/*/raw
+          key: demo-downloads-v1-${{ runner.os }}-${{ hashFiles('src/MEDS_DEV/datasets/**/requirements.txt') }}
+          restore-keys: demo-downloads-v1-${{ runner.os }}-
+
+      # Each job builds the demo datasets from the restored downloads (fetching any file still missing) and runs the dataset, task, and
+      # non-integration tests alongside its model's tests, so every job is a complete suite for that model.
+      # --reuse_cached_dataset reuses this job's builds, so the session-scoped `demo_dataset` fixture does not
+      # rebuild a dataset each time the test order switches between datasets.
+      - name: Run full test suite for ${{ matrix.model }}
+        env:
+          MODEL: ${{ matrix.model }}
         run: |
+          mkdir -p "$MEDS_DEV_CACHE_DIR"
           uv run pytest -v --doctest-modules --cov=src --cov-report=xml --junitxml=junit.xml -s -x \
-            --persistent_cache_dir="$MEDS_DEV_CACHE_DIR" --cache_dataset=all --reuse_cached_dataset=all
+            --test_model="$MODEL" \
+            --persistent_cache_dir="$MEDS_DEV_CACHE_DIR" --cache_dataset=all --reuse_cached_dataset=all \
+            --download_cache_dir="$MEDS_DEV_DOWNLOAD_DIR"
 
       - name: Upload coverage to Codecov
         if: always()
@@ -359,7 +417,7 @@ jobs:
           files: ./junit.xml
 
   # ---------------------------------------------------------------------------
-  # Job 7: Summary — report what ran (named run_tests_ubuntu for branch ruleset compatibility)
+  # Job 8: Summary — report what ran (named run_tests_ubuntu for branch ruleset compatibility)
   # ---------------------------------------------------------------------------
   run_tests_ubuntu:
     runs-on: ubuntu-latest
@@ -371,6 +429,7 @@ jobs:
         dataset-lane,
         task-lane,
         model-lane,
+        demo-downloads,
         full-integration,
       ]
     steps:
@@ -384,6 +443,7 @@ jobs:
           echo "| dataset-lane | ${{ needs.dataset-lane.result }} |" >> "$GITHUB_STEP_SUMMARY"
           echo "| task-lane | ${{ needs.task-lane.result }} |" >> "$GITHUB_STEP_SUMMARY"
           echo "| model-lane | ${{ needs.model-lane.result }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| demo-downloads | ${{ needs.demo-downloads.result }} |" >> "$GITHUB_STEP_SUMMARY"
           echo "| full-integration | ${{ needs.full-integration.result }} |" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "**Scope reason**: ${{ needs.determine-scope.outputs.reason }}" >> "$GITHUB_STEP_SUMMARY"
@@ -395,6 +455,7 @@ jobs:
           DATASET_LANE_RESULT: ${{ needs.dataset-lane.result }}
           TASK_LANE_RESULT: ${{ needs.task-lane.result }}
           MODEL_LANE_RESULT: ${{ needs.model-lane.result }}
+          DEMO_DOWNLOADS_RESULT: ${{ needs.demo-downloads.result }}
           FULL_INTEGRATION_RESULT: ${{ needs.full-integration.result }}
           RUN_FULL: ${{ needs.determine-scope.outputs.run_full }}
           DOCS_ONLY: ${{ needs.determine-scope.outputs.docs_only }}
@@ -447,6 +508,8 @@ jobs:
           check_lane dataset-lane "$DATASET_LANE_RESULT" "$ds_expected"
           check_lane task-lane "$TASK_LANE_RESULT" "$tk_expected"
           check_lane model-lane "$MODEL_LANE_RESULT" "$md_expected"
+          check_lane demo-downloads "$DEMO_DOWNLOADS_RESULT" "$full_expected"
+          # A matrix job's result is "success" only if every model's job succeeded.
           check_lane full-integration "$FULL_INTEGRATION_RESULT" "$full_expected"
 
           if [[ -n "$FAILED" ]]; then

@@ -92,7 +92,8 @@ CI uses a tiered, change-aware strategy (see `.github/workflows/tests.yaml`):
 1. **Fast checks** — always run (lint + doctests + unit/registry tests)
 2. **Affected integration lanes** — run only for changed datasets, tasks, or models
 3. **Full integration** — runs on push to `main`, weekly schedule, `full-ci` PR label, or
-    when shared/core files change
+    when shared/core files change. It runs as one parallel job per model (`--test_model=<model>`),
+    after a `demo-downloads` job has cached the raw demo downloads
 
 To force a full CI run on a PR, add the `full-ci` label.
 
