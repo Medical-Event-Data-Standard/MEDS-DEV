@@ -39,7 +39,7 @@ all four local datasets (Zigong, PICdb, ALOTT, CDSL) are registered, to avoid co
 ## MEDS Transformation
 
 [`Zigong-MEDS`](https://github.com/rvandewater/ZIGONG_MEDS) (a configuration-only MEDS-Extract 0.7
-ETL, not on PyPI yet, so `requirements.txt` pins a commit) transforms the credentialed PhysioNet
+ETL, pinned to its PyPI release in `requirements.txt`) transforms the credentialed PhysioNet
 release into MEDS. There is no public demo, so only the full-data pipeline is exposed.[3]
 
 ## Sources
