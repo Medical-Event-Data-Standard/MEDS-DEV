@@ -15,5 +15,5 @@ metadata:
 commands:
   build_full: >-
     MEDS_extract-INSPIRE "{temp_dir}"
-    --raw-input-dir "{temp_dir}/raw"
+    --raw-input-dir "{raw_input_dir}"
     --output-dir "{output_dir}"

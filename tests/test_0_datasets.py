@@ -146,3 +146,32 @@ def test_main_selects_build_command(monkeypatch, tmp_path):
         do_overwrite=False,
         cwd=build_dir,
     )
+
+
+@pytest.mark.parametrize("explicit_raw_dir", [False, True])
+def test_main_formats_raw_input_dir(monkeypatch, tmp_path, explicit_raw_dir):
+    output_dir = tmp_path / "output"
+    build_dir = tmp_path / "build"
+    build_dir.mkdir()
+    raw_dir = tmp_path / "downloads"
+    run_in_env = Mock()
+
+    @contextmanager
+    def fake_temp_env(cfg, requirements):
+        yield build_dir, "env"
+
+    monkeypatch.setattr(
+        datasets_main,
+        "DATASETS",
+        {"D": {"commands": {"build_full": "build {raw_input_dir} {temp_dir}"}, "requirements": []}},
+    )
+    monkeypatch.setattr(datasets_main, "temp_env", fake_temp_env)
+    monkeypatch.setattr(datasets_main, "run_in_env", run_in_env)
+
+    cfg = {"dataset": "D", "demo": False, "output_dir": str(output_dir), "do_overwrite": False}
+    if explicit_raw_dir:
+        cfg["raw_input_dir"] = str(raw_dir)
+    datasets_main.main.__wrapped__(OmegaConf.create(cfg))
+
+    expected_raw_dir = raw_dir.resolve() if explicit_raw_dir else build_dir.resolve() / "raw"
+    assert run_in_env.call_args.args[0] == f"build {expected_raw_dir} {build_dir.resolve()}"
