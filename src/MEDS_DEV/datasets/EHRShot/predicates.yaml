@@ -44,39 +44,6 @@ predicates:
       any:
         - "Visit/DP"
 
-  ED_admission:
-    code:
-      {
-        any:
-          [
-            "CARE_SITE/7928450",
-            "CARE_SITE/7930385",
-            "CARE_SITE/7930600",
-            "CARE_SITE/7928852",
-            "CARE_SITE/7928619",
-            "CARE_SITE/7929727",
-            "CARE_SITE/7928675",
-            "CARE_SITE/7930225",
-            "CARE_SITE/7928759",
-            "CARE_SITE/7928227",
-            "CARE_SITE/7928810",
-            "CARE_SITE/7929179",
-            "CARE_SITE/7928650",
-            "CARE_SITE/7929351",
-            "CARE_SITE/7928457",
-            "CARE_SITE/7928195",
-            "CARE_SITE/7930681",
-            "CARE_SITE/7930670",
-            "CARE_SITE/7930176",
-            "CARE_SITE/7931420",
-            "CARE_SITE/7929149",
-            "CARE_SITE/7930857",
-            "CARE_SITE/7931186",
-            "CARE_SITE/7930934",
-            "CARE_SITE/7930924",
-          ],
-      }
-
   # Disease diagnosis concepts
   pancreatic_cancer:
     code: "SNOMED/372003004"
@@ -109,7 +76,7 @@ predicates:
   glucose_3:
     code: "LOINC/14749-6"
 
-  # Hypoglycemia severity levels (mmol/L thresholds)
+  # Hypoglycemia severity levels (mg/dL thresholds)
   abnormally_low_glucose_1:
     code: "SNOMED/33747003"
     value_min: null
@@ -174,7 +141,7 @@ predicates:
   abnormally_low_hemoglobin:
     code: "LOINC/718-7"
     value_min: null
-    value_max: 13 # mg/dL
+    value_max: 13 # g/dL
     value_max_inclusive: False
 
   # Potassium measurements for hyperkalemia
@@ -256,7 +223,7 @@ predicates:
 
   platelets:
     expr: or(platelets_1, platelets_2, platelets_3)
-  abnormally_low_platelets_kul:
+  abnormally_low_platelets:
     expr: or(abnormally_low_platelets_1, abnormally_low_platelets_2, abnormally_low_platelets_3)
   # Idiopathic thrombocytopenic purpura (disorder)
   itp:
@@ -300,33 +267,13 @@ predicates:
     code: SNOMED/420270002 # ketoacidosis
 
   # Leukocytosis
-  wbc_1:
-    code: LOINC/6690-2
-  wbc_2:
-    code: LOINC/736-9
-  wbc_3:
-    code: LOINC/736-9
-  abnormally_high_wbc_1:
-    code: LOINC/6690-2
-    value_min: 11 # K/uL
-    value_min_inclusive: False
-    value_max: null
-
-  abnormally_high_wbc_2:
-    code: LOINC/736-9
-    value_min: 11 # K/uL
-    value_min_inclusive: False
-    value_max: null
-
-  abnormally_high_wbc_3:
-    code: LOINC/736-9
-    value_min: 11 # K/uL
-    value_min_inclusive: False
-    value_max: null
   wbc:
-    expr: or(wbc_1, wbc_2, wbc_3)
+    code: LOINC/6690-2
   abnormally_high_wbc:
-    expr: or(abnormally_high_wbc_1, abnormally_high_wbc_2, abnormally_high_wbc_3)
+    code: LOINC/6690-2
+    value_min: 11 # K/uL
+    value_min_inclusive: False
+    value_max: null
 
   # Hypertension
   systolic_bp:

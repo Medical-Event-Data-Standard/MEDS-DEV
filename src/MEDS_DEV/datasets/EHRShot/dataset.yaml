@@ -6,6 +6,13 @@ metadata:
   contacts:
     - name: "Robin P. van de Water"
       github_username: "rvandewater"
+  access_policy: public_with_approval
+  access_details: >-
+    Requires signing the EHRSHOT Credentialed Health Data License and Data Use Agreement, a verified
+    institutional affiliation, and valid CITI training in human research subject protection and HIPAA.
 
 commands:
-  build_full: echo "MEDS extraction is pre-done for this dataset"
+  build_full: >-
+    echo "EHRShot is distributed in MEDS format and must be downloaded manually after signing its data use
+    agreement (see https://som-shahlab.github.io/ehrshot-website/docs/). Pass the downloaded MEDS directory
+    as dataset_dir to meds-dev-task and meds-dev-model instead of building it." >&2 && exit 1
