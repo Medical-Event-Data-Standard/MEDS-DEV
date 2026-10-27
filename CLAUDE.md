@@ -72,8 +72,8 @@ pytest -v -s -x --test_task=mortality/in_icu/first_24h
 **Key test options:**
 
 - `--persistent_cache_dir=DIR` — persist built datasets/models across runs (DIR must exist)
-- `--download_cache_dir=DIR` — keep demo datasets' raw downloads in `DIR/<dataset>/raw` across builds;
-    the ETL still always runs (full-integration CI caches only these downloads)
+- `--download_cache_dir=DIR` — keep demo datasets' raw downloads in `DIR/<dataset>/raw` across builds
+    (passed as `raw_input_dir`); the ETL still always runs (full-integration CI caches only these downloads)
 - `--cache_dataset=NAME|all` — cache dataset builds in persistent dir
 - `--cache_task=NAME|all` — cache task extractions
 - `--cache_model=NAME|all` — cache model outputs
@@ -173,7 +173,8 @@ models is filtered by compatibility.
 1. Create `src/MEDS_DEV/datasets/<name>/` with: `dataset.yaml`, `predicates.yaml`,
     `requirements.txt`, `README.md`
 2. `dataset.yaml` must have `metadata` (with `description`, `contacts`, `access_policy`) and
-    `commands` (with `build_full` and `build_demo` using `{temp_dir}` and `{output_dir}` placeholders)
+    `commands` (with `build_full` and `build_demo` using `{temp_dir}`, `{raw_input_dir}`, and `{output_dir}`
+    placeholders)
 3. `predicates.yaml` contains ACES-syntax predicates for task extraction
 4. Access policy must be one of: `public_with_approval`, `public_unrestricted`, `institutional`,
     `private_single_use`, `other`

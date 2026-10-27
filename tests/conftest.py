@@ -30,9 +30,8 @@ def pytest_addoption(parser):
         default=None,
         help=(
             "Keep each demo dataset's raw downloads in <dir>/<dataset>/raw across builds (passed to "
-            "meds-dev-dataset as temp_dir; build commands download into {temp_dir}/raw). Only the downloads "
-            "are kept: everything else in <dir>/<dataset> is removed before each build, so the ETL always "
-            "runs. ETLs skip files that are already present with a valid checksum."
+            "meds-dev-dataset as raw_input_dir). Only the downloads are kept, so the ETL always runs. ETLs "
+            "skip files that are already present with a valid checksum."
         ),
     )
 
@@ -399,17 +398,9 @@ def demo_dataset(request, venv_cache: Path) -> NAME_AND_DIR:
             }
 
             if download_cache_dir := request.config.getoption("--download_cache_dir"):
-                # Keep only the raw downloads, so no intermediate ETL output (e.g. pre_MEDS) is reused.
-                build_temp_dir = Path(download_cache_dir) / dataset_name
-                build_temp_dir.mkdir(parents=True, exist_ok=True)
-                for path in build_temp_dir.iterdir():
-                    if path.name == "raw":
-                        continue
-                    if path.is_dir() and not path.is_symlink():
-                        shutil.rmtree(path)
-                    else:
-                        path.unlink()
-                hydra_kwargs["temp_dir"] = str(build_temp_dir.resolve())
+                hydra_kwargs["raw_input_dir"] = str(
+                    (Path(download_cache_dir) / dataset_name / "raw").resolve()
+                )
 
             run_command("meds-dev-dataset", test_name=f"Build {dataset_name}", hydra_kwargs=hydra_kwargs)
 
