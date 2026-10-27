@@ -94,6 +94,16 @@ meds-dev-dataset dataset=$DATASET_NAME output_dir=$DATASET_DIR
 where `DATASET_NAME` is the name of the dataset you want to build and `OUTPUT_DIR` is the directory where you
 want to store the final, MEDS-formatted dataset.
 
+If you have already downloaded the raw source data, point the builder at it to avoid downloading it again:
+
+```bash
+meds-dev-dataset dataset=$DATASET_NAME output_dir=$DATASET_DIR raw_input_dir=/path/to/downloaded/data
+```
+
+If the directory is empty, the ETL downloads the data into it (for datasets whose ETL can download), so it can
+be reused for later builds. If `raw_input_dir` is omitted, the raw data is downloaded to a temporary directory
+that is removed after the build. `do_overwrite=True` never deletes `raw_input_dir`.
+
 > [!NOTE]
 > Note that you can also specify `demo=True` to build a demo version of this dataset (if supported) for ease
 > of testing the pipeline and your downstream code.
@@ -204,6 +214,10 @@ If you successfully run the sequence of stages above on a new dataset not yet in
 know and we'll happily help you add your dataset's information (but no sensitive data) and these results to
 the public record to help advance the science of Health AI!
 
+For an overview of how submissions, datasets, tasks, and models flow from this repository to the
+[MEDS website](https://medical-event-data-standard.github.io) leaderboard — and how to debug or manually
+trigger the pipeline — see [`src/MEDS_DEV/web/README.md`](src/MEDS_DEV/web/README.md).
+
 ## Contributing New Things to MEDS-DEV
 
 > [!NOTE]
@@ -218,10 +232,10 @@ dataset, containing the following files:
 2. `requirements.txt`: This file should be a valid `pip` specification for what is needed to install the ETL
     to build the environment. _The ETL must be runnable on Python 3.11_.
 3. `dataset.yaml`: This file needs to have two keys: `metadata` and `commands`. Under `commands`, you must
-    have the keys `build_full` and `build_demo` that, if run in an environment with the requirements installed,
+    have `build_full` and may provide `build_demo`. These commands, when run with their requirements installed,
     with the specified placeholder variables (indicated in python syntax, include `temp_dir` for intermediate
-    files and `output_dir` for where you want the final MEDS cohort to live) will produce the desired MEDS
-    cohort. The `metadata` key should contain information about the dataset. See the `MIMIC-IV` dataset for an
+    files, `raw_input_dir` for the raw source data, and `output_dir` for where you want the final MEDS cohort
+    to live) will produce the desired MEDS cohort. The `metadata` key should contain information about the dataset. See the `MIMIC-IV` dataset for an
     example of the allowed syntax here. Mandatory keys include `description`, `access_policy`, and the key
     `contacts` with at least one entry. Note that the values for `access_policy` are restricted to the values
     of the `AccessPolicy` `StrEnum` in the `MEDS_DEV.datasets` codebase, namely:
@@ -287,6 +301,8 @@ here, like with a dataset.
 A full description of these commands is coming soon, but for now, note that:
 
 1. Commands can use the template variables `{output_dir}`, `{dataset_dir}`, `{labels_dir}`, and `{demo}`.
+    Models that need a dataset's predicates file (e.g., for featurization) can also use the optional
+    `{predicates_path}` template variable, populated from the `predicates_path` argument to `meds-dev-model`.
 2. Commands should be added in a nested manner for running either over `unsupervised` or `supervised`
     datasets, in either `train` or `predict` modes. See the random predictors example for an example.
 

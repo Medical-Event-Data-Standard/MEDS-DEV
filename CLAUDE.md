@@ -32,16 +32,32 @@ Requires Python ≥ 3.11. Uses `setuptools-scm` for versioning (version is deriv
 
 ## Running Tests
 
+Tests are split into two tiers using pytest markers:
+
+- **Fast tests** (`-m "not integration"`): doctests, registry validation, unit tests, CLI error
+    tests. No venvs, no dataset builds. Target: under 5 minutes.
+- **Integration tests** (`-m integration`): end-to-end tests that build datasets, extract tasks,
+    create model venvs, train/predict, evaluate, and package results.
+
 ```bash
-# Fast: doctests + unit tests only (no venvs, no data builds)
+# Fast checks only (doctests + unit + registry validation)
 pytest --doctest-modules -m "not integration" -x
 
-# Full suite (builds demo datasets, creates model venvs, runs end-to-end)
-pytest -v -s -x
+# Full integration suite (builds demo datasets, creates model venvs, runs end-to-end)
+pytest -v -s -x --doctest-modules
 
-# Full suite with persistent caching (much faster on repeat runs)
+# One dataset lane (integration tests scoped to a single dataset)
+pytest -v -s -x -m integration --test_dataset=MIMIC-IV_DEMO
+
+# One task lane
+pytest -v -s -x -m integration --test_task=mortality/in_icu/first_24h
+
+# One model lane
+pytest -v -s -x -m integration --test_model=random_predictor
+
+# Full suite with persistent caching (much faster on repeat local runs)
 mkdir -p /tmp/meds_dev_cache
-pytest -v -s -x \
+pytest -v -s -x --doctest-modules \
 	--persistent_cache_dir=/tmp/meds_dev_cache \
 	--cache_dataset=all --cache_task=all --cache_model=all \
 	--reuse_cached_dataset=all
@@ -56,6 +72,8 @@ pytest -v -s -x --test_task=mortality/in_icu/first_24h
 **Key test options:**
 
 - `--persistent_cache_dir=DIR` — persist built datasets/models across runs (DIR must exist)
+- `--download_cache_dir=DIR` — keep demo datasets' raw downloads in `DIR/<dataset>/raw` across builds
+    (passed as `raw_input_dir`); the ETL still always runs (full-integration CI caches only these downloads)
 - `--cache_dataset=NAME|all` — cache dataset builds in persistent dir
 - `--cache_task=NAME|all` — cache task extractions
 - `--cache_model=NAME|all` — cache model outputs
@@ -66,6 +84,17 @@ pytest -v -s -x --test_task=mortality/in_icu/first_24h
 Tests are **ordered** by `pytest_collection_modifyitems` in conftest.py to ensure datasets are
 built before tasks, and tasks before models. Tests within a model are grouped so venvs can be
 cleaned up between models.
+
+### CI Tiers
+
+CI uses a tiered, change-aware strategy (see `.github/workflows/tests.yaml`):
+
+1. **Fast checks** — always run (lint + doctests + unit/registry tests)
+2. **Affected integration lanes** — run only for changed datasets, tasks, or models
+3. **Full integration** — runs on push to `main`, weekly schedule, `full-ci` PR label, or
+    when shared/core files change
+
+To force a full CI run on a PR, add the `full-ci` label.
 
 ## Code Quality
 
@@ -144,7 +173,8 @@ models is filtered by compatibility.
 1. Create `src/MEDS_DEV/datasets/<name>/` with: `dataset.yaml`, `predicates.yaml`,
     `requirements.txt`, `README.md`
 2. `dataset.yaml` must have `metadata` (with `description`, `contacts`, `access_policy`) and
-    `commands` (with `build_full` and `build_demo` using `{temp_dir}` and `{output_dir}` placeholders)
+    `commands` (with `build_full` and `build_demo` using `{temp_dir}`, `{raw_input_dir}`, and `{output_dir}`
+    placeholders)
 3. `predicates.yaml` contains ACES-syntax predicates for task extraction
 4. Access policy must be one of: `public_with_approval`, `public_unrestricted`, `institutional`,
     `private_single_use`, `other`
@@ -162,7 +192,9 @@ models is filtered by compatibility.
 2. `model.yaml` must have `metadata` and `commands` with nested `unsupervised`/`supervised` →
     `train`/`predict` structure
 3. Commands use template variables: `{dataset_dir}`, `{labels_dir}`, `{output_dir}`,
-    `{model_dir}`, `{model_initialization_dir}`, `{split}`, `{demo}`
+    `{model_dir}`, `{model_initialization_dir}`, `{split}`, `{demo}`, and (optionally)
+    `{predicates_path}` for models that need a predicates file (populated from the
+    `predicates_path` argument to `meds-dev-model`)
 4. Predictions must output parquet files compatible with `meds-evaluation`
 
 ### YAML Config Conventions
@@ -175,8 +207,8 @@ models is filtered by compatibility.
 
 | Package                  | Purpose                                |
 | ------------------------ | -------------------------------------- |
-| `meds==0.3.3`            | MEDS data schema and split constants   |
-| `es-aces==0.6.1`         | ACES task extraction engine            |
+| `meds==0.4.1`            | MEDS data schema and split constants   |
+| `es-aces==0.7.3`         | ACES task extraction engine            |
 | `hydra-core`             | CLI configuration management           |
 | `meds-evaluation==0.0.3` | Prediction evaluation (AUROC, etc.)    |
 | `validators`             | Email/URL validation for metadata      |
@@ -186,7 +218,7 @@ models is filtered by compatibility.
 ## Common Pitfalls
 
 - **Don't run `pytest` without flags if you just want fast feedback.** The full suite builds
-    datasets and model venvs. Use `-m "not integration"` for quick iteration.
+    datasets and model venvs. Use `--doctest-modules -m "not integration"` for quick iteration.
 - **Model venvs can conflict with the host environment.** Models run in isolated venvs created
     by `utils.install_venv()`. Don't install model requirements into your dev environment.
 - **Task `supported_datasets` is validated against the `DATASETS` registry at import time.**

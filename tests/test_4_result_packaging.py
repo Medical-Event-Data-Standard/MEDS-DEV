@@ -4,8 +4,18 @@ import tempfile
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
+import pytest
+
 from MEDS_DEV import __version__ as MEDS_DEV_version
-from MEDS_DEV.results import Result
+from MEDS_DEV.results import Result, _sanitize_nan_inf
+
+
+def test_sanitize_nan_inf_preserves_tuples():
+    result = _sanitize_nan_inf((1.0, float("nan"), (float("inf"), 2.0)))
+
+    assert result == (1.0, None, (None, 2.0))
+    assert isinstance(result, tuple)
+    assert isinstance(result[2], tuple)
 
 
 def test_validate_result_error():
@@ -66,6 +76,7 @@ def test_pack_result_error():
         assert f"FileNotFoundError: File not found: {non_existent_fp!s}" in out.stderr.decode()
 
 
+@pytest.mark.integration
 def test_packages_result(packaged_result: Path):
     results_fp = packaged_result
 

@@ -189,6 +189,23 @@ def model_commands(
         >>> list(model_commands(cfg, commands, model_dir))
         [('FT data=data labels=labels output=output', PosixPath('output'))]
 
+    Models that need a dataset's predicates file (e.g., for featurization) can use the optional
+    `predicates_path` template variable, which is populated when `predicates_path` is set in the config:
+        >>> cfg.predicates_path = "predicates.yaml"
+        >>> commands["supervised"]["train"] = (
+        ...     "FT data={dataset_dir} labels={labels_dir} output={output_dir} predicates={predicates_path}"
+        ... )
+        >>> list(model_commands(cfg, commands, model_dir))
+        [('FT data=data labels=labels output=output predicates=predicates.yaml', PosixPath('output'))]
+
+    If a model command needs the variable but the caller does not provide it, command formatting fails
+    immediately instead of running the model without its required predicates:
+        >>> cfg.predicates_path = None
+        >>> list(model_commands(cfg, commands, model_dir))
+        Traceback (most recent call last):
+            ...
+        KeyError: 'predicates_path'
+
     The system errors if a split is set but it is in full mode.
         >>> cfg.split = "tuning"
         >>> cfg.mode = "full"
@@ -212,6 +229,8 @@ def model_commands(
     }
     if cfg.get("model_initialization_dir", None):
         format_kwargs["model_initialization_dir"] = cfg.model_initialization_dir
+    if cfg.get("predicates_path", None):
+        format_kwargs["predicates_path"] = str(cfg.predicates_path)
     if cfg.get("split", None):
         if do_set_split:
             raise ValueError(f"Cannot set split manually when mode is {cfg.mode}.")

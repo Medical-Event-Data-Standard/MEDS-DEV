@@ -25,6 +25,16 @@ def pytest_addoption(parser):
         ),
     )
 
+    parser.addoption(
+        "--download_cache_dir",
+        default=None,
+        help=(
+            "Keep each demo dataset's raw downloads in <dir>/<dataset>/raw across builds (passed to "
+            "meds-dev-dataset as raw_input_dir). Only the downloads are kept, so the ETL always runs. ETLs "
+            "skip files that are already present with a valid checksum."
+        ),
+    )
+
     def add_cache_opt(opt: str):
         cache_str_template = (
             "Cache the {opt} with the given name. Use 'all' to cache all {opt}s. Add specific {opt}s "
@@ -100,6 +110,19 @@ def pytest_collection_modifyitems(session: pytest.Session, config: pytest.Config
     task_opts = get_opts(config, "task")
     model_opts = get_opts(config, "model")
 
+    def _safe_index(opts: list[str], value) -> int:
+        """Return the index of value in opts, or len(opts) for unresolved (NOTSET) params.
+
+        Pytest 9.x stores ``NotSetType.token`` in ``callspec.params`` for indirect parameters
+        that are part of an empty parametrize set.  These items carry a skip mark and will never
+        actually run, but they still pass through ``pytest_collection_modifyitems`` and must be
+        sortable.  Pushing them to the end keeps the ordering stable.
+        """
+        try:
+            return opts.index(value)
+        except ValueError:
+            return len(opts)
+
     def sort_key(item: pytest.Item) -> tuple[int, int, int, int]:
         if hasattr(item, "callspec"):
             fixture_params = dict(item.callspec.params.items())
@@ -108,7 +131,7 @@ def pytest_collection_modifyitems(session: pytest.Session, config: pytest.Config
 
         if "demo_dataset" not in fixture_params:
             return (-1, -1, -1, -1)
-        dataset_idx = dataset_opts.index(fixture_params["demo_dataset"])
+        dataset_idx = _safe_index(dataset_opts, fixture_params["demo_dataset"])
 
         has_task = "task_labels" in item.fixturenames
         has_model = "unsupervised_model" in item.fixturenames or "supervised_model" in item.fixturenames
@@ -124,19 +147,21 @@ def pytest_collection_modifyitems(session: pytest.Session, config: pytest.Config
         if is_dataset_extraction_test:
             return (-1, -1, -1, dataset_idx)
 
-        task_idx = task_opts.index(fixture_params["task_labels"]) if has_task else -1
+        task_idx = _safe_index(task_opts, fixture_params["task_labels"]) if has_task else -1
 
         if is_task_extraction_test:
             return (-1, task_idx, -1, dataset_idx)
 
-        model_idx = model_opts.index(fixture_params["unsupervised_model"])
+        model_idx = _safe_index(model_opts, fixture_params["unsupervised_model"])
 
+        # Session-scoped parametrized fixtures only keep one param alive at a time, so switching datasets
+        # between a model's supervised and evaluation tests would tear down and retrain the model each time.
         if is_unsupervised_model_test:
-            return (model_idx, -1, -1, dataset_idx)
+            return (model_idx, dataset_idx, -1, 0)
         elif is_supervised_model_test:
-            return (model_idx, task_idx, -1, dataset_idx)
+            return (model_idx, dataset_idx, task_idx, 1)
         elif is_evaluation_test:
-            return (model_idx, task_idx, 1, dataset_idx)
+            return (model_idx, dataset_idx, task_idx, 2)
         else:
             raise ValueError(f"Item {item} does not fit any category.")
 
@@ -312,6 +337,11 @@ def get_opts(config, opt: str) -> list[str]:
     if isinstance(out, dict):
         out = list(out.keys())
 
+    if opt == "dataset":
+        # Drop datasets that don't declare a build_demo command — they can't be exercised by the
+        # demo-mode integration tests below.
+        out = [name for name in out if "build_demo" in (DATASETS[name].get("commands") or {})]
+
     return out
 
 
@@ -360,17 +390,19 @@ def demo_dataset(request, venv_cache: Path) -> NAME_AND_DIR:
         already_tested = check_fp.exists() and data_exists and metadata_exists
         if do_overwrite or not already_tested:
             venv_dir = venv_cache / "datasets" / dataset_name
+            hydra_kwargs = {
+                "dataset": dataset_name,
+                "output_dir": str(output_dir.resolve()),
+                "demo": True,
+                "venv_dir": str(venv_dir.resolve()),
+            }
 
-            run_command(
-                "meds-dev-dataset",
-                test_name=f"Build {dataset_name}",
-                hydra_kwargs={
-                    "dataset": dataset_name,
-                    "output_dir": str(output_dir.resolve()),
-                    "demo": True,
-                    "venv_dir": str(venv_dir.resolve()),
-                },
-            )
+            if download_cache_dir := request.config.getoption("--download_cache_dir"):
+                hydra_kwargs["raw_input_dir"] = str(
+                    (Path(download_cache_dir) / dataset_name / "raw").resolve()
+                )
+
+            run_command("meds-dev-dataset", test_name=f"Build {dataset_name}", hydra_kwargs=hydra_kwargs)
 
             # Dataset venvs should never be used again, so we delete it here for simplicity.
             logger.info(f"Deleting venv for {dataset_name} at {venv_dir}")
@@ -588,6 +620,7 @@ def supervised_model(
         "dataset_dir": str(dataset_dir.resolve()),
         "labels_dir": str(task_labels_dir.resolve()),
         "dataset_name": dataset_name,
+        "predicates_path": str(DATASETS[dataset_name]["predicates"]),
         "task_name": task_name,
         "demo": True,
     }
