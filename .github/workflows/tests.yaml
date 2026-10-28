@@ -637,7 +637,6 @@ jobs:
           fi
           echo "All required jobs completed as expected (scope: run_full=$RUN_FULL docs_only=$DOCS_ONLY)."
 
-
   # Publish the most recent completed, full matrix from trusted main-branch
   # runs. PRs retain their own Actions reports but cannot modify _web.
   publish-ci:

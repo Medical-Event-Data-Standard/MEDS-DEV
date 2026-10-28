@@ -3,7 +3,6 @@
 import importlib.util
 from pathlib import Path
 
-
 SCRIPT = Path(__file__).resolve().parents[1] / ".github" / "scripts" / "ci_matrix_report.py"
 SPEC = importlib.util.spec_from_file_location("ci_matrix_report", SCRIPT)
 assert SPEC and SPEC.loader
@@ -22,9 +21,7 @@ def job(combination, conclusion="success", job_id=1):
         "id": job_id,
         "html_url": f"https://github.com/example/repo/actions/runs/12/job/{job_id}",
         "conclusion": conclusion,
-        "steps": [
-            {"name": f"Run full test suite for {combination['model']}", "conclusion": conclusion}
-        ],
+        "steps": [{"name": f"Run full test suite for {combination['model']}", "conclusion": conclusion}],
     }
 
 
@@ -36,9 +33,7 @@ def test_pass_fail_skip_and_missing_jobs():
     combos = [combo(), combo("cehrbert"), combo("genhpf"), combo("random_predictor")]
     jobs = [job(combos[0]), job(combos[1], "failure", 2), job(combos[2], "skipped", 3)]
     report = make_report(combos, jobs)
-    assert [x["status"] for x in report["results"]] == [
-        "passed", "failed", "skipped", "not_run"
-    ]
+    assert [x["status"] for x in report["results"]] == ["passed", "failed", "skipped", "not_run"]
     assert report["summary"]["total"] == 4
     assert report["summary"]["passed"] == 1
     assert report["summary"]["failed"] == 1

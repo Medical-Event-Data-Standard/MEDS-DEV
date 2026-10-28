@@ -1,16 +1,15 @@
 """Summarize full-integration GitHub Actions matrix jobs as JSON and Markdown.
 
-The JSON is both an Actions artifact and the source of the public _web/ci/latest.json
-snapshot. Job conclusions, rather than benchmark scores, determine the cell status.
+The JSON is both an Actions artifact and the source of the public _web/ci/latest.json snapshot. Job
+conclusions, rather than benchmark scores, determine the cell status.
 """
 
 import json
 import os
 import subprocess
 from collections import Counter
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-
 
 STATUSES = ("passed", "failed", "skipped", "cancelled", "not_run", "other")
 CONCLUSIONS = {
@@ -58,9 +57,7 @@ def build_report(
     by_name: dict[str, dict] = {}
     for job in jobs:
         name = job["name"]
-        if name.startswith("full-integration (") and (
-            name not in by_name or job["id"] > by_name[name]["id"]
-        ):
+        if name.startswith("full-integration (") and (name not in by_name or job["id"] > by_name[name]["id"]):
             by_name[name] = job
 
     results = []
@@ -100,7 +97,7 @@ def build_report(
         "run_url": f"https://github.com/{repository}/actions/runs/{run_id}",
         "commit_sha": sha,
         "branch": branch,
-        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "generated_at": datetime.now(UTC).isoformat(),
         "scope": "full-integration",
         "summary": {"total": len(results), **{key: counts[key] for key in STATUSES}},
         "results": results,
