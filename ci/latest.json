@@ -1,0 +1,622 @@
+{
+  "schema_version": 1,
+  "repository": "Medical-Event-Data-Standard/MEDS-DEV",
+  "run_id": 40941510795,
+  "run_attempt": 1,
+  "run_url": "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/runs/40941510795",
+  "commit_sha": "37f7fd2163e532db7d7157d14202256721ed91fd",
+  "branch": "main",
+  "generated_at": "2026-10-29T20:10:35.426063+00:00",
+  "scope": "full-integration",
+  "summary": {
+    "total": 60,
+    "passed": 55,
+    "failed": 0,
+    "skipped": 0,
+    "cancelled": 0,
+    "not_run": 5,
+    "other": 0
+  },
+  "results": [
+    {
+      "model": "cehrbert",
+      "dataset": "MIMIC-IV",
+      "task": "abnormal_lab/blood_chemistry/elevated_creatinine/first_24h",
+      "status": "passed",
+      "job_conclusion": "success",
+      "test_conclusion": "success",
+      "job_id": 123687263652,
+      "job_url": "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/runs/40941510795/job/123687263652"
+    },
+    {
+      "model": "cehrbert",
+      "dataset": "MIMIC-IV",
+      "task": "abnormal_lab/blood_chemistry/hyponatremia/first_24h",
+      "status": "passed",
+      "job_conclusion": "success",
+      "test_conclusion": "success",
+      "job_id": 123687263613,
+      "job_url": "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/runs/40941510795/job/123687263613"
+    },
+    {
+      "model": "cehrbert",
+      "dataset": "MIMIC-IV",
+      "task": "abnormal_lab/blood_chemistry/metabolic_acidosis/first_24h",
+      "status": "passed",
+      "job_conclusion": "success",
+      "test_conclusion": "success",
+      "job_id": 123687263641,
+      "job_url": "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/runs/40941510795/job/123687263641"
+    },
+    {
+      "model": "cehrbert",
+      "dataset": "MIMIC-IV",
+      "task": "abnormal_lab/cbc/anemia/first_24h",
+      "status": "passed",
+      "job_conclusion": "success",
+      "test_conclusion": "success",
+      "job_id": 123687263912,
+      "job_url": "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/runs/40941510795/job/123687263912"
+    },
+    {
+      "model": "cehrbert",
+      "dataset": "MIMIC-IV",
+      "task": "abnormal_lab/cbc/leukocytosis/first_24h",
+      "status": "passed",
+      "job_conclusion": "success",
+      "test_conclusion": "success",
+      "job_id": 123687263584,
+      "job_url": "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/runs/40941510795/job/123687263584"
+    },
+    {
+      "model": "cehrbert",
+      "dataset": "MIMIC-IV",
+      "task": "abnormal_lab/cbc/thrombocytopenia/first_24h",
+      "status": "passed",
+      "job_conclusion": "success",
+      "test_conclusion": "success",
+      "job_id": 123687263626,
+      "job_url": "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/runs/40941510795/job/123687263626"
+    },
+    {
+      "model": "cehrbert",
+      "dataset": "MIMIC-IV",
+      "task": "abnormal_lab/vital/hypotension/first_24h",
+      "status": "passed",
+      "job_conclusion": "success",
+      "test_conclusion": "success",
+      "job_id": 123687263808,
+      "job_url": "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/runs/40941510795/job/123687263808"
+    },
+    {
+      "model": "cehrbert",
+      "dataset": "MIMIC-IV",
+      "task": "mortality/in_icu/first_24h",
+      "status": "passed",
+      "job_conclusion": "success",
+      "test_conclusion": "success",
+      "job_id": 123687263728,
+      "job_url": "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/runs/40941510795/job/123687263728"
+    },
+    {
+      "model": "cehrbert",
+      "dataset": "eICU",
+      "task": "abnormal_lab/blood_chemistry/elevated_creatinine/first_24h",
+      "status": "passed",
+      "job_conclusion": "success",
+      "test_conclusion": "success",
+      "job_id": 123687263817,
+      "job_url": "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/runs/40941510795/job/123687263817"
+    },
+    {
+      "model": "cehrbert",
+      "dataset": "eICU",
+      "task": "abnormal_lab/blood_chemistry/hyponatremia/first_24h",
+      "status": "passed",
+      "job_conclusion": "success",
+      "test_conclusion": "success",
+      "job_id": 123687263779,
+      "job_url": "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/runs/40941510795/job/123687263779"
+    },
+    {
+      "model": "cehrbert",
+      "dataset": "eICU",
+      "task": "abnormal_lab/blood_chemistry/metabolic_acidosis/first_24h",
+      "status": "passed",
+      "job_conclusion": "success",
+      "test_conclusion": "success",
+      "job_id": 123687263679,
+      "job_url": "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/runs/40941510795/job/123687263679"
+    },
+    {
+      "model": "cehrbert",
+      "dataset": "eICU",
+      "task": "abnormal_lab/cbc/anemia/first_24h",
+      "status": "passed",
+      "job_conclusion": "success",
+      "test_conclusion": "success",
+      "job_id": 123687263765,
+      "job_url": "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/runs/40941510795/job/123687263765"
+    },
+    {
+      "model": "cehrbert",
+      "dataset": "eICU",
+      "task": "abnormal_lab/cbc/leukocytosis/first_24h",
+      "status": "passed",
+      "job_conclusion": "success",
+      "test_conclusion": "success",
+      "job_id": 123687263685,
+      "job_url": "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/runs/40941510795/job/123687263685"
+    },
+    {
+      "model": "cehrbert",
+      "dataset": "eICU",
+      "task": "abnormal_lab/cbc/thrombocytopenia/first_24h",
+      "status": "passed",
+      "job_conclusion": "success",
+      "test_conclusion": "success",
+      "job_id": 123687263858,
+      "job_url": "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/runs/40941510795/job/123687263858"
+    },
+    {
+      "model": "cehrbert",
+      "dataset": "eICU",
+      "task": "abnormal_lab/vital/hypotension/first_24h",
+      "status": "passed",
+      "job_conclusion": "success",
+      "test_conclusion": "success",
+      "job_id": 123687263958,
+      "job_url": "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/runs/40941510795/job/123687263958"
+    },
+    {
+      "model": "genhpf",
+      "dataset": "MIMIC-IV",
+      "task": "abnormal_lab/blood_chemistry/elevated_creatinine/first_24h",
+      "status": "passed",
+      "job_conclusion": "success",
+      "test_conclusion": "success",
+      "job_id": 123687264352,
+      "job_url": "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/runs/40941510795/job/123687264352"
+    },
+    {
+      "model": "genhpf",
+      "dataset": "MIMIC-IV",
+      "task": "abnormal_lab/blood_chemistry/hyponatremia/first_24h",
+      "status": "passed",
+      "job_conclusion": "success",
+      "test_conclusion": "success",
+      "job_id": 123687264252,
+      "job_url": "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/runs/40941510795/job/123687264252"
+    },
+    {
+      "model": "genhpf",
+      "dataset": "MIMIC-IV",
+      "task": "abnormal_lab/blood_chemistry/metabolic_acidosis/first_24h",
+      "status": "passed",
+      "job_conclusion": "success",
+      "test_conclusion": "success",
+      "job_id": 123687264060,
+      "job_url": "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/runs/40941510795/job/123687264060"
+    },
+    {
+      "model": "genhpf",
+      "dataset": "MIMIC-IV",
+      "task": "abnormal_lab/cbc/anemia/first_24h",
+      "status": "passed",
+      "job_conclusion": "success",
+      "test_conclusion": "success",
+      "job_id": 123687264033,
+      "job_url": "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/runs/40941510795/job/123687264033"
+    },
+    {
+      "model": "genhpf",
+      "dataset": "MIMIC-IV",
+      "task": "abnormal_lab/cbc/leukocytosis/first_24h",
+      "status": "passed",
+      "job_conclusion": "success",
+      "test_conclusion": "success",
+      "job_id": 123687264003,
+      "job_url": "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/runs/40941510795/job/123687264003"
+    },
+    {
+      "model": "genhpf",
+      "dataset": "MIMIC-IV",
+      "task": "abnormal_lab/cbc/thrombocytopenia/first_24h",
+      "status": "passed",
+      "job_conclusion": "success",
+      "test_conclusion": "success",
+      "job_id": 123687264288,
+      "job_url": "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/runs/40941510795/job/123687264288"
+    },
+    {
+      "model": "genhpf",
+      "dataset": "MIMIC-IV",
+      "task": "abnormal_lab/vital/hypotension/first_24h",
+      "status": "passed",
+      "job_conclusion": "success",
+      "test_conclusion": "success",
+      "job_id": 123687264530,
+      "job_url": "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/runs/40941510795/job/123687264530"
+    },
+    {
+      "model": "genhpf",
+      "dataset": "MIMIC-IV",
+      "task": "mortality/in_icu/first_24h",
+      "status": "passed",
+      "job_conclusion": "success",
+      "test_conclusion": "success",
+      "job_id": 123687264251,
+      "job_url": "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/runs/40941510795/job/123687264251"
+    },
+    {
+      "model": "genhpf",
+      "dataset": "eICU",
+      "task": "abnormal_lab/blood_chemistry/elevated_creatinine/first_24h",
+      "status": "passed",
+      "job_conclusion": "success",
+      "test_conclusion": "success",
+      "job_id": 123687263960,
+      "job_url": "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/runs/40941510795/job/123687263960"
+    },
+    {
+      "model": "genhpf",
+      "dataset": "eICU",
+      "task": "abnormal_lab/blood_chemistry/hyponatremia/first_24h",
+      "status": "passed",
+      "job_conclusion": "success",
+      "test_conclusion": "success",
+      "job_id": 123687264121,
+      "job_url": "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/runs/40941510795/job/123687264121"
+    },
+    {
+      "model": "genhpf",
+      "dataset": "eICU",
+      "task": "abnormal_lab/blood_chemistry/metabolic_acidosis/first_24h",
+      "status": "passed",
+      "job_conclusion": "success",
+      "test_conclusion": "success",
+      "job_id": 123687264309,
+      "job_url": "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/runs/40941510795/job/123687264309"
+    },
+    {
+      "model": "genhpf",
+      "dataset": "eICU",
+      "task": "abnormal_lab/cbc/anemia/first_24h",
+      "status": "passed",
+      "job_conclusion": "success",
+      "test_conclusion": "success",
+      "job_id": 123687264232,
+      "job_url": "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/runs/40941510795/job/123687264232"
+    },
+    {
+      "model": "genhpf",
+      "dataset": "eICU",
+      "task": "abnormal_lab/cbc/leukocytosis/first_24h",
+      "status": "passed",
+      "job_conclusion": "success",
+      "test_conclusion": "success",
+      "job_id": 123687264253,
+      "job_url": "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/runs/40941510795/job/123687264253"
+    },
+    {
+      "model": "genhpf",
+      "dataset": "eICU",
+      "task": "abnormal_lab/cbc/thrombocytopenia/first_24h",
+      "status": "passed",
+      "job_conclusion": "success",
+      "test_conclusion": "success",
+      "job_id": 123687264245,
+      "job_url": "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/runs/40941510795/job/123687264245"
+    },
+    {
+      "model": "genhpf",
+      "dataset": "eICU",
+      "task": "abnormal_lab/vital/hypotension/first_24h",
+      "status": "passed",
+      "job_conclusion": "success",
+      "test_conclusion": "success",
+      "job_id": 123687264306,
+      "job_url": "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/runs/40941510795/job/123687264306"
+    },
+    {
+      "model": "meds_tab/tiny",
+      "dataset": "MIMIC-IV",
+      "task": "abnormal_lab/blood_chemistry/elevated_creatinine/first_24h",
+      "status": "not_run",
+      "job_conclusion": null,
+      "test_conclusion": null,
+      "job_id": null,
+      "job_url": null
+    },
+    {
+      "model": "meds_tab/tiny",
+      "dataset": "MIMIC-IV",
+      "task": "abnormal_lab/blood_chemistry/hyponatremia/first_24h",
+      "status": "passed",
+      "job_conclusion": "success",
+      "test_conclusion": "success",
+      "job_id": 123687264257,
+      "job_url": "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/runs/40941510795/job/123687264257"
+    },
+    {
+      "model": "meds_tab/tiny",
+      "dataset": "MIMIC-IV",
+      "task": "abnormal_lab/blood_chemistry/metabolic_acidosis/first_24h",
+      "status": "not_run",
+      "job_conclusion": null,
+      "test_conclusion": null,
+      "job_id": null,
+      "job_url": null
+    },
+    {
+      "model": "meds_tab/tiny",
+      "dataset": "MIMIC-IV",
+      "task": "abnormal_lab/cbc/anemia/first_24h",
+      "status": "passed",
+      "job_conclusion": "success",
+      "test_conclusion": "success",
+      "job_id": 123687264408,
+      "job_url": "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/runs/40941510795/job/123687264408"
+    },
+    {
+      "model": "meds_tab/tiny",
+      "dataset": "MIMIC-IV",
+      "task": "abnormal_lab/cbc/leukocytosis/first_24h",
+      "status": "passed",
+      "job_conclusion": "success",
+      "test_conclusion": "success",
+      "job_id": 123687264282,
+      "job_url": "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/runs/40941510795/job/123687264282"
+    },
+    {
+      "model": "meds_tab/tiny",
+      "dataset": "MIMIC-IV",
+      "task": "abnormal_lab/cbc/thrombocytopenia/first_24h",
+      "status": "passed",
+      "job_conclusion": "success",
+      "test_conclusion": "success",
+      "job_id": 123687264361,
+      "job_url": "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/runs/40941510795/job/123687264361"
+    },
+    {
+      "model": "meds_tab/tiny",
+      "dataset": "MIMIC-IV",
+      "task": "abnormal_lab/vital/hypotension/first_24h",
+      "status": "passed",
+      "job_conclusion": "success",
+      "test_conclusion": "success",
+      "job_id": 123687264130,
+      "job_url": "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/runs/40941510795/job/123687264130"
+    },
+    {
+      "model": "meds_tab/tiny",
+      "dataset": "MIMIC-IV",
+      "task": "mortality/in_icu/first_24h",
+      "status": "passed",
+      "job_conclusion": "success",
+      "test_conclusion": "success",
+      "job_id": 123687264351,
+      "job_url": "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/runs/40941510795/job/123687264351"
+    },
+    {
+      "model": "meds_tab/tiny",
+      "dataset": "eICU",
+      "task": "abnormal_lab/blood_chemistry/elevated_creatinine/first_24h",
+      "status": "passed",
+      "job_conclusion": "success",
+      "test_conclusion": "success",
+      "job_id": 123687264572,
+      "job_url": "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/runs/40941510795/job/123687264572"
+    },
+    {
+      "model": "meds_tab/tiny",
+      "dataset": "eICU",
+      "task": "abnormal_lab/blood_chemistry/hyponatremia/first_24h",
+      "status": "passed",
+      "job_conclusion": "success",
+      "test_conclusion": "success",
+      "job_id": 123687264101,
+      "job_url": "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/runs/40941510795/job/123687264101"
+    },
+    {
+      "model": "meds_tab/tiny",
+      "dataset": "eICU",
+      "task": "abnormal_lab/blood_chemistry/metabolic_acidosis/first_24h",
+      "status": "passed",
+      "job_conclusion": "success",
+      "test_conclusion": "success",
+      "job_id": 123687264166,
+      "job_url": "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/runs/40941510795/job/123687264166"
+    },
+    {
+      "model": "meds_tab/tiny",
+      "dataset": "eICU",
+      "task": "abnormal_lab/cbc/anemia/first_24h",
+      "status": "passed",
+      "job_conclusion": "success",
+      "test_conclusion": "success",
+      "job_id": 123687264350,
+      "job_url": "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/runs/40941510795/job/123687264350"
+    },
+    {
+      "model": "meds_tab/tiny",
+      "dataset": "eICU",
+      "task": "abnormal_lab/cbc/leukocytosis/first_24h",
+      "status": "passed",
+      "job_conclusion": "success",
+      "test_conclusion": "success",
+      "job_id": 123687264382,
+      "job_url": "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/runs/40941510795/job/123687264382"
+    },
+    {
+      "model": "meds_tab/tiny",
+      "dataset": "eICU",
+      "task": "abnormal_lab/cbc/thrombocytopenia/first_24h",
+      "status": "passed",
+      "job_conclusion": "success",
+      "test_conclusion": "success",
+      "job_id": 123687264216,
+      "job_url": "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/runs/40941510795/job/123687264216"
+    },
+    {
+      "model": "meds_tab/tiny",
+      "dataset": "eICU",
+      "task": "abnormal_lab/vital/hypotension/first_24h",
+      "status": "passed",
+      "job_conclusion": "success",
+      "test_conclusion": "success",
+      "job_id": 123687264407,
+      "job_url": "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/runs/40941510795/job/123687264407"
+    },
+    {
+      "model": "random_predictor",
+      "dataset": "MIMIC-IV",
+      "task": "abnormal_lab/blood_chemistry/elevated_creatinine/first_24h",
+      "status": "not_run",
+      "job_conclusion": null,
+      "test_conclusion": null,
+      "job_id": null,
+      "job_url": null
+    },
+    {
+      "model": "random_predictor",
+      "dataset": "MIMIC-IV",
+      "task": "abnormal_lab/blood_chemistry/hyponatremia/first_24h",
+      "status": "passed",
+      "job_conclusion": "success",
+      "test_conclusion": "success",
+      "job_id": 123687264480,
+      "job_url": "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/runs/40941510795/job/123687264480"
+    },
+    {
+      "model": "random_predictor",
+      "dataset": "MIMIC-IV",
+      "task": "abnormal_lab/blood_chemistry/metabolic_acidosis/first_24h",
+      "status": "not_run",
+      "job_conclusion": null,
+      "test_conclusion": null,
+      "job_id": null,
+      "job_url": null
+    },
+    {
+      "model": "random_predictor",
+      "dataset": "MIMIC-IV",
+      "task": "abnormal_lab/cbc/anemia/first_24h",
+      "status": "passed",
+      "job_conclusion": "success",
+      "test_conclusion": "success",
+      "job_id": 123687264279,
+      "job_url": "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/runs/40941510795/job/123687264279"
+    },
+    {
+      "model": "random_predictor",
+      "dataset": "MIMIC-IV",
+      "task": "abnormal_lab/cbc/leukocytosis/first_24h",
+      "status": "passed",
+      "job_conclusion": "success",
+      "test_conclusion": "success",
+      "job_id": 123687264433,
+      "job_url": "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/runs/40941510795/job/123687264433"
+    },
+    {
+      "model": "random_predictor",
+      "dataset": "MIMIC-IV",
+      "task": "abnormal_lab/cbc/thrombocytopenia/first_24h",
+      "status": "passed",
+      "job_conclusion": "success",
+      "test_conclusion": "success",
+      "job_id": 123687264163,
+      "job_url": "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/runs/40941510795/job/123687264163"
+    },
+    {
+      "model": "random_predictor",
+      "dataset": "MIMIC-IV",
+      "task": "abnormal_lab/vital/hypotension/first_24h",
+      "status": "passed",
+      "job_conclusion": "success",
+      "test_conclusion": "success",
+      "job_id": 123687264337,
+      "job_url": "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/runs/40941510795/job/123687264337"
+    },
+    {
+      "model": "random_predictor",
+      "dataset": "MIMIC-IV",
+      "task": "mortality/in_icu/first_24h",
+      "status": "passed",
+      "job_conclusion": "success",
+      "test_conclusion": "success",
+      "job_id": 123687264360,
+      "job_url": "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/runs/40941510795/job/123687264360"
+    },
+    {
+      "model": "random_predictor",
+      "dataset": "eICU",
+      "task": "abnormal_lab/blood_chemistry/elevated_creatinine/first_24h",
+      "status": "not_run",
+      "job_conclusion": null,
+      "test_conclusion": null,
+      "job_id": null,
+      "job_url": null
+    },
+    {
+      "model": "random_predictor",
+      "dataset": "eICU",
+      "task": "abnormal_lab/blood_chemistry/hyponatremia/first_24h",
+      "status": "passed",
+      "job_conclusion": "success",
+      "test_conclusion": "success",
+      "job_id": 123687264258,
+      "job_url": "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/runs/40941510795/job/123687264258"
+    },
+    {
+      "model": "random_predictor",
+      "dataset": "eICU",
+      "task": "abnormal_lab/blood_chemistry/metabolic_acidosis/first_24h",
+      "status": "passed",
+      "job_conclusion": "success",
+      "test_conclusion": "success",
+      "job_id": 123687264533,
+      "job_url": "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/runs/40941510795/job/123687264533"
+    },
+    {
+      "model": "random_predictor",
+      "dataset": "eICU",
+      "task": "abnormal_lab/cbc/anemia/first_24h",
+      "status": "passed",
+      "job_conclusion": "success",
+      "test_conclusion": "success",
+      "job_id": 123687264464,
+      "job_url": "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/runs/40941510795/job/123687264464"
+    },
+    {
+      "model": "random_predictor",
+      "dataset": "eICU",
+      "task": "abnormal_lab/cbc/leukocytosis/first_24h",
+      "status": "passed",
+      "job_conclusion": "success",
+      "test_conclusion": "success",
+      "job_id": 123687264376,
+      "job_url": "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/runs/40941510795/job/123687264376"
+    },
+    {
+      "model": "random_predictor",
+      "dataset": "eICU",
+      "task": "abnormal_lab/cbc/thrombocytopenia/first_24h",
+      "status": "passed",
+      "job_conclusion": "success",
+      "test_conclusion": "success",
+      "job_id": 123687264314,
+      "job_url": "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/runs/40941510795/job/123687264314"
+    },
+    {
+      "model": "random_predictor",
+      "dataset": "eICU",
+      "task": "abnormal_lab/vital/hypotension/first_24h",
+      "status": "passed",
+      "job_conclusion": "success",
+      "test_conclusion": "success",
+      "job_id": 123687264680,
+      "job_url": "https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/runs/40941510795/job/123687264680"
+    }
+  ]
+}
