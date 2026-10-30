@@ -21,6 +21,8 @@ model_initialization_dir: null
 
 predicates_path: null # optional path to a predicates file, for models that need one (e.g., for featurization)
 
+task_criteria_path: null # optional ACES task criteria file; defaults to the registered file of task_name
+
 output_dir: ???
 
 hydra:
@@ -66,5 +68,10 @@ hydra:
       If a model's commands use the "{predicates_path}" template variable (e.g., to bind dataset-specific
       predicates for featurization), point "predicates_path" to the appropriate predicates file (such as the
       dataset's predicates.yaml). It can be left as null for models that do not use it.
+
+      If a model's commands use the "{task_criteria_path}" template variable (e.g., zero-shot models, which
+      predict a task from its definition rather than from its labels), it is the ACES criteria file of the
+      task: "task_criteria_path" when set, otherwise the registered criteria file of "task_name". Pair it
+      with "predicates_path" to give the model the same task that "meds-dev-task" extracted the labels with.
 
       If do_overwrite is set to true, the output dir will be cleared before anything is run.

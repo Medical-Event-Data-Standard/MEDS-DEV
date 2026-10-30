@@ -197,7 +197,9 @@ models is filtered by compatibility.
 3. Commands use template variables: `{dataset_dir}`, `{labels_dir}`, `{output_dir}`,
     `{model_dir}`, `{model_initialization_dir}`, `{split}`, `{demo}`, and (optionally)
     `{predicates_path}` for models that need a predicates file (populated from the
-    `predicates_path` argument to `meds-dev-model`)
+    `predicates_path` argument to `meds-dev-model`), and `{task_criteria_path}` for models that need
+    the task's ACES criteria file (the `task_criteria_path` argument, else the registered file of
+    `task_name`)
 4. Predictions must output parquet files compatible with `meds-evaluation`
 
 ### YAML Config Conventions
