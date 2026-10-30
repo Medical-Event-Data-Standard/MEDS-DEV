@@ -1,0 +1,172 @@
+# Predicates for Zigong (Zigong-MEDS, MESSY spec). Reasoning: README.md.
+# Can support: mortality/in_icu/first_24h (direct-ICU admissions only) and the six abnormal_lab blood tasks.
+# Not supported: abnormal_lab/vital/hypotension -- no MAP (the raw MAP column holds only unit strings).
+# Labs are SI units; thresholds are converted from the tasks' US units. No MEDS_BIRTH (age only), so
+# the tasks' age >= 18 window cannot exclude the small share of subjects younger than 18.
+
+predicates:
+  hospital_admission:
+    code: HOSPITAL_ADMISSION
+  hospital_discharge:
+    code: HOSPITAL_DISCHARGE
+
+  # No ICU_ADMISSION event, and dtTransfer repeats rows within a stay (ZIGONG_MEDS#3), so a transfer
+  # into an ICU ward is not a unique admission. Use the admission department instead: only subjects
+  # admitted straight into an ICU department (about half) get an ICU admission, at hospital admission.
+  icu_admission:
+    code:
+      regex: '^ADMISSION_DEPARTMENT//(EICU|Emergency department ward \(EICU\)|Intensive care unit \(ICU\)|Respiratory intensive care unit RICU|SICU|Neurosurgery severe NICU|Department of Neurology critical NICU)$'
+  icu_discharge:
+    code: ICU_DISCHARGE
+  # MEDS_DEATH (task default) has day precision and includes post-discharge follow-up deaths; the
+  # in-ICU window ends at ICU discharge, so the follow-up deaths do not leak into that task.
+
+  # Serum creatinine panels, umol/L (median 71).
+  creatinine_1:
+    code: "LAB//Renal function (hospitalized)//Creatinine (enzymatic method) (CRE)//umol/L"
+  creatinine_2:
+    code: "LAB//Biochemistry 2//Creatinine (enzymatic method) (CRE)//umol/L"
+  creatinine_3:
+    code: "LAB//Biochemical 1//Creatinine (enzymatic method) (CRE)//umol/L"
+  abnormally_high_creatinine_1:
+    code: "LAB//Renal function (hospitalized)//Creatinine (enzymatic method) (CRE)//umol/L"
+    value_min: 115 # umol/L == 1.3 mg/dL (x 88.4)
+    value_min_inclusive: False
+    value_max: null
+  abnormally_high_creatinine_2:
+    code: "LAB//Biochemistry 2//Creatinine (enzymatic method) (CRE)//umol/L"
+    value_min: 115 # umol/L == 1.3 mg/dL (x 88.4)
+    value_min_inclusive: False
+    value_max: null
+  abnormally_high_creatinine_3:
+    code: "LAB//Biochemical 1//Creatinine (enzymatic method) (CRE)//umol/L"
+    value_min: 115 # umol/L == 1.3 mg/dL (x 88.4)
+    value_min_inclusive: False
+    value_max: null
+  creatinine:
+    expr: or(creatinine_1, creatinine_2, creatinine_3)
+  abnormally_high_creatinine:
+    expr: or(abnormally_high_creatinine_1, abnormally_high_creatinine_2, abnormally_high_creatinine_3)
+
+  # Serum electrolyte panels (blood-gas Na left out, as for MIMIC-IV); mmol/L == mEq/L.
+  sodium_1:
+    code: "LAB//Electrolyte 2//Sodium (NA)//mmol/L"
+  sodium_2:
+    code: "LAB//Electrolyte 1//Sodium (NA)//mmol/L"
+  abnormally_low_sodium_1:
+    code: "LAB//Electrolyte 2//Sodium (NA)//mmol/L"
+    value_max: 135 # mmol/L == mEq/L
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_sodium_2:
+    code: "LAB//Electrolyte 1//Sodium (NA)//mmol/L"
+    value_max: 135 # mmol/L == mEq/L
+    value_max_inclusive: False
+    value_min: null
+  sodium:
+    expr: or(sodium_1, sodium_2)
+  abnormally_low_sodium:
+    expr: or(abnormally_low_sodium_1, abnormally_low_sodium_2)
+
+  # Serum total CO2 (chemistry 'bicarbonate') plus measured blood-gas HCO3. Standard bicarbonate and
+  # the EICU/ED 'TCO2(P)' codes (median ~58, not plausible as HCO3) are left out.
+  bicarbonate_1:
+    code: "LAB//Electrolyte 2//Carbon dioxide (CO2)//mmol/L"
+  bicarbonate_2:
+    code: "LAB//Electrolyte 1//Carbon dioxide (CO2)//mmol/L"
+  bicarbonate_3:
+    code: "LAB//Blood gas analysis combination//Measured bicarbonate (hco3act)//mmol/L"
+  bicarbonate_4:
+    code: "LAB//EICU blood gas analysis//HCO3 - measured bicarbonate (HCO3 -)//mmol/L"
+  bicarbonate_5:
+    code: "LAB//Blood gas analysis in emergency department//HCO3 - measured bicarbonate (HCO3 -)//mmol/L"
+  abnormally_low_bicarbonate_1:
+    code: "LAB//Electrolyte 2//Carbon dioxide (CO2)//mmol/L"
+    value_max: 22 # mmol/L == mEq/L
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_bicarbonate_2:
+    code: "LAB//Electrolyte 1//Carbon dioxide (CO2)//mmol/L"
+    value_max: 22 # mmol/L == mEq/L
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_bicarbonate_3:
+    code: "LAB//Blood gas analysis combination//Measured bicarbonate (hco3act)//mmol/L"
+    value_max: 22 # mmol/L == mEq/L
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_bicarbonate_4:
+    code: "LAB//EICU blood gas analysis//HCO3 - measured bicarbonate (HCO3 -)//mmol/L"
+    value_max: 22 # mmol/L == mEq/L
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_bicarbonate_5:
+    code: "LAB//Blood gas analysis in emergency department//HCO3 - measured bicarbonate (HCO3 -)//mmol/L"
+    value_max: 22 # mmol/L == mEq/L
+    value_max_inclusive: False
+    value_min: null
+  bicarbonate:
+    expr: or(bicarbonate_1, bicarbonate_2, bicarbonate_3, bicarbonate_4, bicarbonate_5)
+  abnormally_low_bicarbonate:
+    expr: or(abnormally_low_bicarbonate_1, abnormally_low_bicarbonate_2, abnormally_low_bicarbonate_3, abnormally_low_bicarbonate_4, abnormally_low_bicarbonate_5)
+
+  # CBC hemoglobin in g/L (median 99). Blood-gas THB is left out: the EICU one is labelled g/L but has
+  # a median of 10.65, i.e. it is really g/dL.
+  hemoglobin_1:
+    code: "LAB//Blood analysis (five categories)//Hemoglobin (Hgb)//g/L"
+  hemoglobin_2:
+    code: "LAB//Blood analysis + CRP//Hemoglobin (Hgb)//g/L"
+  abnormally_low_hemoglobin_1:
+    code: "LAB//Blood analysis (five categories)//Hemoglobin (Hgb)//g/L"
+    value_max: 130 # g/L == 13 g/dL
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_hemoglobin_2:
+    code: "LAB//Blood analysis + CRP//Hemoglobin (Hgb)//g/L"
+    value_max: 130 # g/L == 13 g/dL
+    value_max_inclusive: False
+    value_min: null
+  hemoglobin:
+    expr: or(hemoglobin_1, hemoglobin_2)
+  abnormally_low_hemoglobin:
+    expr: or(abnormally_low_hemoglobin_1, abnormally_low_hemoglobin_2)
+
+  # CBC WBC; 10^9/L == K/uL.
+  wbc_1:
+    code: "LAB//Blood analysis (five categories)//White blood cell (WBC)//10^9/L"
+  wbc_2:
+    code: "LAB//Blood analysis + CRP//White blood cell (WBC)//10^9/L"
+  abnormally_high_wbc_1:
+    code: "LAB//Blood analysis (five categories)//White blood cell (WBC)//10^9/L"
+    value_min: 11 # 10^9/L == K/uL
+    value_min_inclusive: False
+    value_max: null
+  abnormally_high_wbc_2:
+    code: "LAB//Blood analysis + CRP//White blood cell (WBC)//10^9/L"
+    value_min: 11 # 10^9/L == K/uL
+    value_min_inclusive: False
+    value_max: null
+  wbc:
+    expr: or(wbc_1, wbc_2)
+  abnormally_high_wbc:
+    expr: or(abnormally_high_wbc_1, abnormally_high_wbc_2)
+
+  # CBC platelets; 10^9/L == K/uL.
+  platelets_1:
+    code: "LAB//Blood analysis (five categories)//Platelet (PLT)//10^9/L"
+  platelets_2:
+    code: "LAB//Blood analysis + CRP//Platelet (PLT)//10^9/L"
+  abnormally_low_platelets_1:
+    code: "LAB//Blood analysis (five categories)//Platelet (PLT)//10^9/L"
+    value_max: 150 # 10^9/L == K/uL
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_platelets_2:
+    code: "LAB//Blood analysis + CRP//Platelet (PLT)//10^9/L"
+    value_max: 150 # 10^9/L == K/uL
+    value_max_inclusive: False
+    value_min: null
+  platelets:
+    expr: or(platelets_1, platelets_2)
+  abnormally_low_platelets:
+    expr: or(abnormally_low_platelets_1, abnormally_low_platelets_2)
