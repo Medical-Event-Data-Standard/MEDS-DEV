@@ -12,6 +12,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Check out main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: main-branch
+
       - name: Check out the _results branch
         uses: actions/checkout@v4
         with:
@@ -29,8 +35,10 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install MEDS-DEV from PyPI
-        run: pip install meds-dev
+      - name: Install MEDS-DEV from source
+        # Install from main rather than PyPI: the web CLIs used below are not in a PyPI release yet, and
+        # this keeps the workflow in sync with main (as regenerate_entities.yaml does).
+        run: pip install ./main-branch
 
       - name: Aggregate results
         run: |
