@@ -56,6 +56,11 @@ To see how to use and contribute to MEDS-DEV, see the sections below!
 
 ## Installation
 
+MEDS-DEV supports Python 3.11, 3.12, and 3.13; use Python 3.11 to run benchmarks. Dataset ETLs and models
+run in virtual environments built with the same Python version as MEDS-DEV, and the end-to-end tests only
+run them on 3.11. Python 3.14 is not supported yet, because `hydra-core` 1.3, which every MEDS-DEV command
+uses, crashes on 3.14.
+
 If you just want to reproduce MEDS-DEV models and tasks over public or your own, local datasets, you can
 install MEDS-DEV from [PyPI](https://pypi.org/project/MEDS-DEV/) via `pip install MEDS-DEV`.
 

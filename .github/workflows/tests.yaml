@@ -121,19 +121,26 @@ jobs:
           echo "- **reason**: ${{ steps.scope.outputs.reason }}" >> "$GITHUB_STEP_SUMMARY"
 
   # ---------------------------------------------------------------------------
-  # Job 2: Fast checks — always run
+  # Job 2: Fast checks — always run, on every supported Python version. Integration lanes run on 3.11 only:
+  # dataset and model venvs inherit MEDS-DEV's interpreter, and dataset ETLs only need to run on 3.11.
   # ---------------------------------------------------------------------------
   fast-checks:
     runs-on: ubuntu-latest
     needs: [determine-scope]
     timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        # Keep in sync with the Python classifiers in pyproject.toml. 3.14 is blocked on hydra-core: every
+        # 1.3.x release crashes at CLI startup on 3.14 ("badly formed help string"); it's fixed in 1.4.
+        python-version: ["3.11", "3.12", "3.13"]
     steps:
       - uses: actions/checkout@v4
 
       - name: Setup package
         uses: ./.github/actions/setup
         with:
-          python-version: "3.11"
+          python-version: ${{ matrix.python-version }}
 
       - name: Doctests and unit tests
         run: uv run pytest --doctest-modules -m "not integration" -x
