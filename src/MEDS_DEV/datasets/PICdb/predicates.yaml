@@ -1,0 +1,17 @@
+# Predicates for PICdb (PICdb-MEDS, MESSY spec). Reasoning: README.md.
+# Can support: mortality/in_icu/first_24h only. PICdb is paediatric (every subject is < 18 at ICU admission,
+# many of them neonates), so every abnormal_lab task's age >= 18 window leaves an empty cohort, and the adult
+# thresholds would not apply anyway. The lab codes are listed in the doc for paediatric task variants.
+# No ICU MAP either: only systolic/diastolic chart items (MAP exists only intra-operatively).
+
+predicates:
+  hospital_admission:
+    code: { regex: "^HOSPITAL_ADMISSION//.*" }
+  hospital_discharge:
+    code: { regex: "^HOSPITAL_DISCHARGE//.*" }
+  # ICU_ADMISSION//<unit> covers CICU, General ICU, NICU, PICU and SICU.
+  icu_admission:
+    code: { regex: "^ICU_ADMISSION//.*" }
+  icu_discharge:
+    code: { regex: "^ICU_DISCHARGE//.*" }
+  # MEDS_DEATH (task default) coincides with the last ICU discharge for nearly all ICU deaths.
