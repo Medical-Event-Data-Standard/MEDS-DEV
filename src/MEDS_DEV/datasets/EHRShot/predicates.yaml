@@ -1,0 +1,253 @@
+predicates:
+  # Visit and administrative concepts
+  hospital_admission:
+    code:
+      any:
+        - "Visit/IP"
+        - "Visit/ERIP"
+
+  outpatient_visit:
+    code: "Visit/OP"
+
+  # This release predates `MEDS_BIRTH`/`MEDS_DEATH` and records them under these codes instead.
+  birth:
+    code: "SNOMED/3950001"
+  death:
+    code: "Condition Type/OMOP4822053"
+  # `hospital_discharge` and `icu_discharge` are deliberately undefined: this release has no visit-end
+  # events, so tasks that exclude early discharges can't be extracted faithfully.
+  ED_admission:
+    code:
+      any:
+        - "Visit/ER"
+        - "Visit/ERIP"
+  # ICU visit details - care sites with ICU designation. IDs use this release's own care-site numbering;
+  # not all of them occur in the release, and there are no discharge events to pair them with.
+  icu_admission:
+    code:
+      any:
+        - "CARE_SITE/7928450"
+        - "CARE_SITE/7930385"
+        - "CARE_SITE/7930600"
+        - "CARE_SITE/7928852"
+        - "CARE_SITE/7928619"
+        - "CARE_SITE/7929727"
+        - "CARE_SITE/7928675"
+        - "CARE_SITE/7930225"
+        - "CARE_SITE/7928759"
+        - "CARE_SITE/7928227"
+        - "CARE_SITE/7928810"
+        - "CARE_SITE/7929179"
+        - "CARE_SITE/7928650"
+        - "CARE_SITE/7929351"
+        - "CARE_SITE/7928457"
+        - "CARE_SITE/7928195"
+        - "CARE_SITE/7930681"
+        - "CARE_SITE/7930670"
+        - "CARE_SITE/7930176"
+        - "CARE_SITE/7931420"
+        - "CARE_SITE/7929149"
+        - "CARE_SITE/7930857"
+        - "CARE_SITE/7931186"
+        - "CARE_SITE/7930934"
+        - "CARE_SITE/7930924"
+
+  # Disease diagnosis concepts
+  pancreatic_cancer:
+    code: "SNOMED/372003004"
+
+  celiac_disease:
+    code: "SNOMED/396331005"
+
+  systemic_lupus_erythematosus:
+    code: "SNOMED/55464009"
+
+  acute_myocardial_infarction:
+    code: "SNOMED/57054005"
+
+  chronic_thromboembolic_pulmonary_hypertension:
+    code: "SNOMED/233947005"
+
+  essential_hypertension:
+    code: "SNOMED/59621000"
+
+  hyperlipidemia:
+    code: "SNOMED/55822004"
+
+  # Glucose measurements for hypoglycemia
+  glucose_1:
+    code: "SNOMED/33747003"
+
+  glucose_2:
+    code: "LOINC/2345-7"
+
+  glucose_3:
+    code: "LOINC/14749-6"
+
+  glucose_4:
+    code: "LOINC/2339-0"
+
+  # Hypoglycemia severity levels (mg/dL thresholds)
+  abnormally_low_glucose_1:
+    code: "SNOMED/33747003"
+    value_min: null
+    value_max: 70.2 # mg/dL
+    value_max_inclusive: True
+
+  abnormally_low_glucose_2:
+    code: "LOINC/2345-7"
+    value_min: null
+    value_max: 70.2 # mg/dL
+    value_max_inclusive: True
+
+  abnormally_low_glucose_3:
+    code: "LOINC/14749-6"
+    value_min: null
+    value_max: 70.2 # mg/dL
+    value_max_inclusive: True
+
+  abnormally_low_glucose_4:
+    code: "LOINC/2339-0"
+    value_min: null
+    value_max: 70.2 # mg/dL
+    value_max_inclusive: True
+
+  glucose:
+    expr: or(glucose_1, glucose_2, glucose_3, glucose_4)
+
+  abnormally_low_glucose:
+    expr: or(abnormally_low_glucose_1, abnormally_low_glucose_2, abnormally_low_glucose_3, abnormally_low_glucose_4)
+
+  # Sodium measurements for hyponatremia
+
+  sodium_2:
+    code: "LOINC/2951-2"
+
+  sodium_3:
+    code: "LOINC/2947-0"
+  sodium:
+    expr: or(sodium_2, sodium_3)
+
+  abnormally_low_sodium_2:
+    code: LOINC/2951-2
+    value_min: null
+    value_max: 135 # mEq/L
+    value_max_inclusive: False
+  abnormally_low_sodium_3:
+    code: LOINC/2947-0
+    value_min: null
+    value_max: 135 # mEq/L
+    value_max_inclusive: False
+  abnormally_low_sodium:
+    expr: or(abnormally_low_sodium_2, abnormally_low_sodium_3)
+
+  # Anemia task predicates
+  # Hemoglobin measurements for anemia
+
+  hemoglobin:
+    code: "LOINC/718-7"
+    # code: "LOINC/LP392452-1"
+
+  abnormally_low_hemoglobin:
+    code: "LOINC/718-7"
+    value_min: null
+    value_max: 13 # g/dL
+    value_max_inclusive: False
+
+  # Potassium measurements for hyperkalemia
+
+  potassium_4:
+    code: "LOINC/6298-4"
+
+  potassium_5:
+    code: "LOINC/2823-3"
+
+  potassium:
+    expr: or(potassium_4, potassium_5)
+
+  abnormally_high_potassium_4:
+    code: "LOINC/6298-4"
+    value_min: 5.0 # mEq/L
+    value_min_inclusive: True
+    value_max: null
+  abnormally_high_potassium_5:
+    code: "LOINC/2823-3"
+    value_min: 5.0 # mEq/L
+    value_min_inclusive: True
+    value_max: null
+
+  abnormally_high_potassium:
+    expr: or(abnormally_high_potassium_4, abnormally_high_potassium_5)
+
+  # Platelet measurements for thrombocytopenia (10^9/L thresholds)
+  platelets:
+    code: "LOINC/777-3"
+  abnormally_low_platelets:
+    code: "LOINC/777-3"
+    value_min: null
+    value_max: 150 # 10^9/L
+    value_max_inclusive: False
+
+  # Idiopathic thrombocytopenic purpura (disorder)
+  itp:
+    code: SNOMED/32273002
+  # Autoimmune thrombocytopenic purpura (disorder)
+  aitp:
+    code: SNOMED/128091003
+  diagnosed_thrombocytopenia:
+    expr: or(itp, aitp)
+
+  # acute_kidney_injury predicates
+  aki_1:
+    code: SNOMED/14669001
+  aki_2:
+    code: SNOMED/298015003
+  aki_3:
+    code: SNOMED/35455006
+  acute_kidney_injury:
+    expr: or(aki_1, aki_2, aki_3)
+
+  # Metabolic Acidosis task predicates
+  bicarbonate_1:
+    code: LOINC/2028-9 # total CO2
+  bicarbonate_2:
+    code: LOINC/1959-6
+  abnormally_low_bicarbonate_1:
+    code: LOINC/2028-9
+    value_min: null
+    value_max: 22 # mEq/L
+    value_max_inclusive: False
+  abnormally_low_bicarbonate_2:
+    code: LOINC/1959-6
+    value_min: null
+    value_max: 22 # mEq/L
+    value_max_inclusive: False
+  bicarbonate:
+    expr: or(bicarbonate_1, bicarbonate_2)
+  abnormally_low_bicarbonate:
+    expr: or(abnormally_low_bicarbonate_1, abnormally_low_bicarbonate_2)
+  metabolic_acidosis:
+    code: SNOMED/420270002 # ketoacidosis
+
+  # Leukocytosis. LOINC/6690-2 is not used: its values here are on the erythrocyte scale (MIL/uL).
+  wbc:
+    code: LOINC/20584-9
+  abnormally_high_wbc:
+    code: LOINC/20584-9
+    value_min: 11 # K/uL
+    value_min_inclusive: False
+    value_max: null
+
+  # Hypertension
+  systolic_bp:
+    code: LOINC/8480-6
+  diastolic_bp:
+    code: LOINC/8462-4
+  abnormally_high_systolic_bp:
+    code: LOINC/8480-6
+    value_min: 130
+  abnormally_high_diastolic_bp:
+    code: LOINC/8462-4
+    value_min: 80
+  abnormally_high_bp:
+    expr: or(abnormally_high_systolic_bp, abnormally_high_diastolic_bp)
