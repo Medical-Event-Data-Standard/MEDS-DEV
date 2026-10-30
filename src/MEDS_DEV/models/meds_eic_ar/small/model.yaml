@@ -1,0 +1,64 @@
+metadata:
+  description: >-
+    MEDS-EIC-AR ("Everything is Code" autoregressive model), small capacity: a 8-layer
+    transformer (8 heads x 64-dim, hidden size 512). Pre-training is fully
+    dataset-agnostic — tokenization, tensorization, and autoregressive pre-training run on any
+    MEDS dataset directly. The supervised lane currently runs zero-shot trajectory generation;
+    resolving those trajectories into a predictions.parquet is blocked on two gaps documented in
+    the parent README (a MEDS-DEV change to expose the ACES task config to model commands, and an
+    upstream meds-trajectory-evaluation CLI to aggregate per-trajectory labels into empirical
+    probabilities).
+  links:
+    - https://github.com/mmcdermott/MEDS_EIC_AR
+    - https://doi.org/10.5281/zenodo.17535558
+  contacts:
+    - name: "Matthew McDermott"
+      github_username: "mmcdermott"
+    - name: "Nassim Oufattole"
+      github_username: "Oufattole"
+    - name: "Teya Bergamaschi"
+      github_username: "teyaberg"
+commands:
+  unsupervised:
+    train: |-
+      MEICAR_process_data \
+          input_dir="{dataset_dir}" \
+          intermediate_dir="{output_dir}/intermediate" \
+          output_dir="{output_dir}/tensorized" \
+          do_demo={demo}
+
+      if [ "{demo}" = "True" ]; then
+          MEICAR_pretrain --config-name=_demo_pretrain \
+              datamodule.config.tensorized_cohort_dir="{output_dir}/tensorized" \
+              output_dir="{output_dir}/pretrained"
+      else
+          MEICAR_pretrain lightning_module=small \
+              datamodule.config.tensorized_cohort_dir="{output_dir}/tensorized" \
+              output_dir="{output_dir}/pretrained"
+      fi
+  supervised:
+    predict: |-
+      # Step 1 — generate per-sample future trajectories from the pretrained model.
+      # model_initialization_dir is the output_dir of the unsupervised:train stage, which holds
+      # both the tensorized cohort and the pretrained model under known subdirectories.
+      if [ "{demo}" = "True" ]; then
+          MEICAR_generate_trajectories --config-name=_demo_generate_trajectories \
+              output_dir="{output_dir}/trajectories" \
+              model_initialization_dir="{model_initialization_dir}/pretrained" \
+              datamodule.config.tensorized_cohort_dir="{model_initialization_dir}/tensorized" \
+              datamodule.config.task_labels_dir="{labels_dir}"
+      else
+          MEICAR_generate_trajectories \
+              output_dir="{output_dir}/trajectories" \
+              model_initialization_dir="{model_initialization_dir}/pretrained" \
+              datamodule.config.tensorized_cohort_dir="{model_initialization_dir}/tensorized" \
+              datamodule.config.task_labels_dir="{labels_dir}"
+      fi
+
+      # Step 2 (NOT YET WIRED) — resolve trajectories into {output_dir}/predictions.parquet.
+      # Blocked on two gaps; see the parent README and the linked issues:
+      #   - MEDS-DEV does not expose the ACES task criteria / dataset predicates files to model
+      #     supervised commands, which `ZSACES_label` needs.
+      #   - meds-trajectory-evaluation has no CLI to aggregate per-trajectory `ZSACES_label`
+      #     output into an empirical-probability predictions.parquet in meds-evaluation format.
+      echo "MEDS-EIC-AR: trajectory generation complete; prediction resolution not yet wired (see README)."
