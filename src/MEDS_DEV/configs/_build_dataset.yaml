@@ -25,5 +25,5 @@ hydra:
       instead of the full dataset (good for testing), "output_dir" to say where the final, raw MEDS cohort
       should be stored on disk, "raw_input_dir" to reuse raw source data you already downloaded (or to keep
       the downloads), and "temp_dir" to overwrite the default temporary directory for storing intermediate
-      files. If you specify "do_overwrite=True", the output directory (but never "raw_input_dir") will be
-      deleted prior to running the command.
+      files. If you specify "do_overwrite=True", everything in the output directory except its ".logs" log
+      directory (and never "raw_input_dir") will be deleted prior to running the command.
