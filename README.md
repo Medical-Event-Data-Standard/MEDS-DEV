@@ -1,14 +1,18 @@
 # MEDS-DEV: Establishing Reproducibility and Comparability in Health AI
 
 [![PyPI - Version](https://img.shields.io/pypi/v/MEDS-DEV)](https://pypi.org/project/MEDS-DEV/)
-![python](https://img.shields.io/badge/-Python_3.11-blue?logo=python&logoColor=white)
+[![Python](https://img.shields.io/python/required-version-toml?tomlFilePath=https%3A%2F%2Fraw.githubusercontent.com%2FMedical-Event-Data-Standard%2FMEDS-DEV%2Fmain%2Fpyproject.toml&logo=python&logoColor=white)](https://github.com/Medical-Event-Data-Standard/MEDS-DEV/blob/main/pyproject.toml)
+[![MEDS v0.4](https://img.shields.io/badge/MEDS-0.4-blue)](https://medical-event-data-standard.github.io/)
+[![Tests](https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/workflows/tests.yaml/badge.svg?branch=main)](https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/workflows/tests.yaml?query=branch%3Amain)
 [![codecov](https://codecov.io/gh/Medical-Event-Data-Standard/MEDS-DEV/graph/badge.svg?token=5RORKQOZF9)](https://codecov.io/gh/Medical-Event-Data-Standard/MEDS-DEV)
-[![tests](https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/workflows/tests.yaml/badge.svg)](https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/workflows/tests.yaml)
-[![code-quality](https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/workflows/code-quality-main.yaml/badge.svg)](https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/workflows/code-quality-main.yaml)
-[![hydra](https://img.shields.io/badge/Config-Hydra_1.3-89b8cd)](https://hydra.cc/)
-[![license](https://img.shields.io/badge/License-MIT-green.svg?labelColor=gray)](https://github.com/Medical-Event-Data-Standard/MEDS-DEV#license)
-[![PRs](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Medical-Event-Data-Standard/MEDS-DEV/pulls)
-[![contributors](https://img.shields.io/github/contributors/Medical-Event-Data-Standard/MEDS-DEV.svg)](https://github.com/Medical-Event-Data-Standard/MEDS-DEV/graphs/contributors)
+[![Code Quality](https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/workflows/code-quality-main.yaml/badge.svg?branch=main)](https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/workflows/code-quality-main.yaml?query=branch%3Amain)
+[![uv](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fastral-sh%2Fuv%2Fmain%2Fassets%2Fbadge%2Fv0.json)](https://github.com/astral-sh/uv)
+[![Ruff](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fastral-sh%2Fruff%2Fmain%2Fassets%2Fbadge%2Fv2.json)](https://github.com/astral-sh/ruff)
+[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)](https://github.com/pre-commit/pre-commit)
+[![Hydra](https://img.shields.io/badge/Config-Hydra_1.3-89b8cd)](https://hydra.cc/)
+[![License](https://img.shields.io/github/license/Medical-Event-Data-Standard/MEDS-DEV)](https://github.com/Medical-Event-Data-Standard/MEDS-DEV/blob/main/LICENSE)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Medical-Event-Data-Standard/MEDS-DEV/blob/main/CONTRIBUTORS.md)
+[![Contributors](https://img.shields.io/github/contributors/Medical-Event-Data-Standard/MEDS-DEV)](https://github.com/Medical-Event-Data-Standard/MEDS-DEV/graphs/contributors)
 
 The MEDS Decentralized, Extensible Validation (MEDS-DEV) system is a new kind of benchmark for Health AI that
 has three key differences from existing systems:
