@@ -233,6 +233,20 @@ path to it. To evaluate exactly one file, set `predictions_path` instead; it als
 The output JSON file from MEDS-Evaluation will contain the results of the evaluation, including the AUROC,
 which is the primary metric for MEDS-DEV at this time.
 
+### Re-running commands and `do_overwrite`
+
+`meds-dev-dataset`, `meds-dev-task`, `meds-dev-model`, and `meds-dev-evaluation` are all safe to re-run:
+
+- When a command succeeds, it writes an empty `.done` file to its `output_dir`. A later run with the same
+    `output_dir` sees that file and skips the work, _even if you changed other arguments_. With `mode=full`,
+    `meds-dev-model` tracks this per stage, so a re-run resumes at the first stage that has not finished.
+- If an earlier run did not finish, `meds-dev-dataset` and `meds-dev-model` refuse to run a different
+    command than the one saved in `output_dir/cmd.sh`, so outputs from two configurations never get mixed.
+- `do_overwrite=True` deletes everything in `output_dir` before running, so the command starts from
+    scratch. The `.logs` directory, which holds the current run's logs, is kept. For `meds-dev-model`, this
+    also deletes the model's virtual environment, which lives in `output_dir/.venv` unless you set
+    `venv_dir`. `meds-dev-dataset` never deletes `raw_input_dir`.
+
 ### Adding your result to MEDS-DEV
 
 If you successfully run the sequence of stages above on a new dataset not yet included in MEDS-DEV -- let us
