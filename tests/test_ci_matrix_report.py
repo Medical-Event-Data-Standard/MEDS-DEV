@@ -1,7 +1,11 @@
 """Unit tests for the GitHub Actions compatibility report generator."""
 
 import importlib.util
+import json
+import subprocess
 from pathlib import Path
+
+import pytest
 
 SCRIPT = Path(__file__).resolve().parents[1] / ".github" / "scripts" / "ci_matrix_report.py"
 SPEC = importlib.util.spec_from_file_location("ci_matrix_report", SCRIPT)
@@ -58,3 +62,31 @@ def test_failed_upload_is_distinguished_from_successful_pytest():
     report = make_report([c], [j])
     assert report["results"][0]["status"] == "failed"
     assert report["results"][0]["test_conclusion"] == "success"
+
+
+def test_fetch_jobs_retries_transient_api_errors(monkeypatch):
+    pages = [{"jobs": [{"id": 1}]}, {"jobs": [{"id": 2}]}]
+    responses = [subprocess.CalledProcessError(1, "gh"), json.dumps(pages)]
+
+    def fake_check_output(cmd, text):
+        response = responses.pop(0)
+        if isinstance(response, Exception):
+            raise response
+        return response
+
+    monkeypatch.setattr(reporter.subprocess, "check_output", fake_check_output)
+    assert reporter.fetch_jobs("example/repo", 12, backoff_seconds=0) == [{"id": 1}, {"id": 2}]
+    assert responses == []
+
+
+def test_fetch_jobs_gives_up_after_all_attempts(monkeypatch):
+    calls = []
+
+    def fake_check_output(cmd, text):
+        calls.append(cmd)
+        raise subprocess.CalledProcessError(1, cmd)
+
+    monkeypatch.setattr(reporter.subprocess, "check_output", fake_check_output)
+    with pytest.raises(subprocess.CalledProcessError):
+        reporter.fetch_jobs("example/repo", 12, attempts=3, backoff_seconds=0)
+    assert len(calls) == 3
