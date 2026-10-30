@@ -1,14 +1,18 @@
 # MEDS-DEV: Establishing Reproducibility and Comparability in Health AI
 
 [![PyPI - Version](https://img.shields.io/pypi/v/MEDS-DEV)](https://pypi.org/project/MEDS-DEV/)
-![python](https://img.shields.io/badge/-Python_3.11-blue?logo=python&logoColor=white)
+[![Python](https://img.shields.io/python/required-version-toml?tomlFilePath=https%3A%2F%2Fraw.githubusercontent.com%2FMedical-Event-Data-Standard%2FMEDS-DEV%2Fmain%2Fpyproject.toml&logo=python&logoColor=white)](https://github.com/Medical-Event-Data-Standard/MEDS-DEV/blob/main/pyproject.toml)
+[![MEDS v0.4](https://img.shields.io/badge/MEDS-0.4-blue)](https://medical-event-data-standard.github.io/)
+[![Tests](https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/workflows/tests.yaml/badge.svg?branch=main)](https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/workflows/tests.yaml?query=branch%3Amain)
 [![codecov](https://codecov.io/gh/Medical-Event-Data-Standard/MEDS-DEV/graph/badge.svg?token=5RORKQOZF9)](https://codecov.io/gh/Medical-Event-Data-Standard/MEDS-DEV)
-[![tests](https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/workflows/tests.yaml/badge.svg)](https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/workflows/tests.yml)
-[![code-quality](https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/workflows/code-quality-main.yaml/badge.svg)](https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/workflows/code-quality-main.yaml)
-[![hydra](https://img.shields.io/badge/Config-Hydra_1.3-89b8cd)](https://hydra.cc/)
-[![license](https://img.shields.io/badge/License-MIT-green.svg?labelColor=gray)](https://github.com/Medical-Event-Data-Standard/MEDS-DEV#license)
-[![PRs](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Medical-Event-Data-Standard/MEDS-DEV/pulls)
-[![contributors](https://img.shields.io/github/contributors/Medical-Event-Data-Standard/MEDS-DEV.svg)](https://github.com/Medical-Event-Data-Standard/MEDS-DEV/graphs/contributors)
+[![Code Quality](https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/workflows/code-quality-main.yaml/badge.svg?branch=main)](https://github.com/Medical-Event-Data-Standard/MEDS-DEV/actions/workflows/code-quality-main.yaml?query=branch%3Amain)
+[![uv](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fastral-sh%2Fuv%2Fmain%2Fassets%2Fbadge%2Fv0.json)](https://github.com/astral-sh/uv)
+[![Ruff](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fastral-sh%2Fruff%2Fmain%2Fassets%2Fbadge%2Fv2.json)](https://github.com/astral-sh/ruff)
+[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)](https://github.com/pre-commit/pre-commit)
+[![Hydra](https://img.shields.io/badge/Config-Hydra_1.3-89b8cd)](https://hydra.cc/)
+[![License](https://img.shields.io/github/license/Medical-Event-Data-Standard/MEDS-DEV)](https://github.com/Medical-Event-Data-Standard/MEDS-DEV/blob/main/LICENSE)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Medical-Event-Data-Standard/MEDS-DEV/blob/main/CONTRIBUTORS.md)
+[![Contributors](https://img.shields.io/github/contributors/Medical-Event-Data-Standard/MEDS-DEV)](https://github.com/Medical-Event-Data-Standard/MEDS-DEV/graphs/contributors)
 
 The MEDS Decentralized, Extensible Validation (MEDS-DEV) system is a new kind of benchmark for Health AI that
 has three key differences from existing systems:
@@ -68,6 +72,12 @@ If you want to _contribute new models, tasks, or datasets_ to MEDS-DEV, you need
 clone your fork, and then install the repository locally in "editable" mode via `pip install -e .[dev,tests]`.
 This will let you prepare your PR code and run the tests to ensure your contributions are valid and
 transportable across MEDS-DEV datasets and tasks.
+
+> [!WARNING]
+> MEDS-DEV supports Linux and macOS only; native Windows is not supported. MEDS-DEV runs dataset and model
+> commands through `bash` in POSIX-style virtual environments, which do not work natively on Windows. On a
+> Windows machine, run MEDS-DEV inside the [Windows Subsystem for Linux
+> (WSL)](https://learn.microsoft.com/windows/wsl/) instead.
 
 ## Using Existing MEDS-DEV Datasets, Tasks, or Models
 
@@ -204,11 +214,21 @@ parameter, and likewise for the fine-tuned model weights to the prediction stage
 
 ### Evaluating predictions
 
-To evaluate the predictions of a model on a task, you can use the `meds-evaluation` helper:
+To evaluate the predictions of a model on a task, you can use the `meds-dev-evaluation` helper. Point it
+at your predictions in one of two ways:
 
 ```bash
+# A directory of predictions, such as the output_dir of a `meds-dev-model` predict run:
 meds-dev-evaluation predictions_dir=$PREDICTIONS_DIR output_dir=$EVALUATION_DIR
+
+# A single predictions parquet file:
+meds-dev-evaluation predictions_path=$PREDICTIONS_DIR/predictions.parquet output_dir=$EVALUATION_DIR
 ```
+
+`predictions_dir` must be a directory: it is expanded to `predictions_path=$PREDICTIONS_DIR/**/*.parquet`,
+so _every_ parquet file anywhere below that directory is read and evaluated together. Don't point it at a
+directory that also holds other parquet files (e.g., predictions for another split), and don't pass a file
+path to it. To evaluate exactly one file, set `predictions_path` instead; it also accepts a glob pattern.
 
 The output JSON file from MEDS-Evaluation will contain the results of the evaluation, including the AUROC,
 which is the primary metric for MEDS-DEV at this time.
