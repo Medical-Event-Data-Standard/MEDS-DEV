@@ -24,8 +24,17 @@ jobs:
           ref: _results
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Install MEDS-DEV package from PyPI
-        run: pip install meds-dev
+      # Checked out after _results: checking out to the workspace root (as above) clears the workspace.
+      - name: Check out main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: main-branch
+
+      - name: Install MEDS-DEV from source
+        # Install from main rather than PyPI: the web CLIs used below are not in a PyPI release yet, and
+        # this keeps the workflow in sync with main (as regenerate_entities.yaml does).
+        run: pip install ./main-branch
 
       - name: Extract result and write to _results tree
         env:
