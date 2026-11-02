@@ -66,7 +66,7 @@
           ]
         }
       },
-      "readme": "# GenHPF Predictor for MEDS dataset\n\nFor detailed documentation for GenHPF model, please refer to [https://github.com/hoon9405/GenHPF](https://github.com/hoon9405/GenHPF).\n",
+      "readme": "# GenHPF Predictor for MEDS dataset\n\nFor detailed documentation for GenHPF model, please refer to [https://github.com/hoon9405/GenHPF](https://github.com/hoon9405/GenHPF).\n\n## Known limitations\n\nGenHPF encodes every number in an event's text with a digit-place embedding that only has room for 10 digits\nbefore the decimal point. Numbers with more integer digits (i.e., values of 10,000,000,000 or larger) produce\nout-of-range embedding indices, and training crashes with an index error. This applies to any run of digits\nin the event text: numeric values, but also digits embedded in codes or text values. If your dataset contains\nsuch values, clip or remove them before running this model.\n",
       "refs": "@article{hur2023genhpf,\n  title={GenHPF: General Healthcare Predictive Framework for Multi-task Multi-source Learning},\n  author={Hur, Kyunghoon and Oh, Jungwoo and Kim, Junu and Kim, Jiyoun and Lee, Min Jae and Cho, Eunbyeol and Moon, Seong-Eun and Kim, Young-Hak and Atallah, Louis and Choi, Edward},\n  journal={IEEE Journal of Biomedical and Health Informatics},\n  year={2023},\n  publisher={IEEE}\n}\n",
       "requirements": [
         "genhpf==1.0.11",
@@ -92,7 +92,7 @@
       "entity": {
         "commands": {
           "supervised": {
-            "predict": "mkdir -p \"{output_dir}\"\nLATEST_TRAIN_DIR=$(ls -td {output_dir}/../train/results/*/ | head -n 1)\ncp $LATEST_TRAIN_DIR/best_trial/{split}_predictions.parquet {output_dir}/predictions.parquet",
+            "predict": "mkdir -p \"{output_dir}\"\nLATEST_TRAIN_DIR=$(ls -td {model_initialization_dir}/results/*/ | head -n 1)\ncp $LATEST_TRAIN_DIR/best_trial/{split}_predictions.parquet {output_dir}/predictions.parquet",
             "train": "meds-tab-describe \\\n    \"input_dir={dataset_dir}/data\" \"output_dir={output_dir}/meds_tab\"\n\nmeds-tab-tabularize-static \\\n    \"input_dir={dataset_dir}/data\" \"output_dir={output_dir}/meds_tab\" \\\n    do_overwrite=False \"input_label_dir={labels_dir}\" \\\n    \"tabularization.aggs=[code/count,value/sum]\" \\\n    \"tabularization.window_sizes=[7d,30d]\" \\\n    \"tabularization.max_included_codes=100\"\n\nmeds-tab-tabularize-time-series \\\n    --multirun \\\n    worker=\"range(0,1)\" \\\n    hydra/launcher=joblib \\\n    \"input_dir={dataset_dir}/data\" \"output_dir={output_dir}/meds_tab\" \\\n    do_overwrite=False \"input_label_dir={labels_dir}\" \\\n    \"tabularization.aggs=[code/count,value/sum]\" \\\n    \"tabularization.window_sizes=[7d,30d]\" \\\n    \"tabularization.max_included_codes=100\"\n\nmeds-tab-xgboost \\\n    --multirun \\\n    \"input_dir={dataset_dir}/data\" \"output_dir={output_dir}/meds_tab\" \\\n    \"output_model_dir={output_dir}/results\" \"task_name=null\" do_overwrite=False \\\n    \"hydra.sweeper.n_trials=20\" \"hydra.sweeper.n_jobs=1\" \\\n    \"input_tabularized_cache_dir={output_dir}/meds_tab/tabularize/\" \\\n    \"input_label_cache_dir={labels_dir}\" \\\n    \"tabularization.aggs=[code/count,value/sum]\" \\\n    \"tabularization.window_sizes=[7d,30d]\" \\\n    \"tabularization.max_included_codes=100\" tabularization.min_code_inclusion_count=null"
           },
           "unsupervised": null
