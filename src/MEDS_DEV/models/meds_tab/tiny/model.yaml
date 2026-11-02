@@ -47,5 +47,5 @@ commands:
 
     predict: |-
       mkdir -p "{output_dir}"
-      LATEST_TRAIN_DIR=$(ls -td {output_dir}/../train/results/*/ | head -n 1)
+      LATEST_TRAIN_DIR=$(ls -td {model_initialization_dir}/results/*/ | head -n 1)
       cp $LATEST_TRAIN_DIR/best_trial/{split}_predictions.parquet {output_dir}/predictions.parquet

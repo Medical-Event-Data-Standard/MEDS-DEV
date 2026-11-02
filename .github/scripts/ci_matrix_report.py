@@ -7,6 +7,7 @@ conclusions, rather than benchmark scores, determine the cell status.
 import json
 import os
 import subprocess
+import time
 from collections import Counter
 from datetime import UTC, datetime
 from pathlib import Path
@@ -21,22 +22,29 @@ CONCLUSIONS = {
 }
 
 
-def fetch_jobs(repository: str, run_id: int) -> list[dict]:
-    """Fetch *all* jobs, not just GitHub's default 30 or first 100."""
-    pages = json.loads(
-        subprocess.check_output(
-            [
-                "gh",
-                "api",
-                "--method",
-                "GET",
-                "--paginate",
-                "--slurp",
-                f"repos/{repository}/actions/runs/{run_id}/jobs?per_page=100",
-            ],
-            text=True,
-        )
-    )
+def fetch_jobs(repository: str, run_id: int, attempts: int = 4, backoff_seconds: float = 15) -> list[dict]:
+    """Fetch *all* jobs, not just GitHub's default 30 or first 100.
+
+    The jobs endpoint intermittently answers HTTP 502 for large matrix runs, which would fail the whole
+    required check even though every test passed, so failed calls are retried with a linear backoff.
+    """
+    cmd = [
+        "gh",
+        "api",
+        "--method",
+        "GET",
+        "--paginate",
+        "--slurp",
+        f"repos/{repository}/actions/runs/{run_id}/jobs?per_page=100",
+    ]
+    for attempt in range(1, attempts + 1):
+        try:
+            pages = json.loads(subprocess.check_output(cmd, text=True))
+            break
+        except subprocess.CalledProcessError:
+            if attempt == attempts:
+                raise
+            time.sleep(backoff_seconds * attempt)
     return [job for page in pages for job in page["jobs"]]
 
 

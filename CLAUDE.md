@@ -28,7 +28,9 @@ pip install MEDS-DEV
 pip install -e ".[dev,tests]"
 ```
 
-Requires Python ≥ 3.11. Uses `setuptools-scm` for versioning (version is derived from git tags).
+Supports Python 3.11–3.13 (fast checks run on all three; integration tests and dataset/model venvs use 3.11).
+Python 3.14 is blocked on `hydra-core` 1.3, whose CLIs crash on 3.14. Uses `setuptools-scm` for versioning
+(version is derived from git tags).
 
 ## Running Tests
 
