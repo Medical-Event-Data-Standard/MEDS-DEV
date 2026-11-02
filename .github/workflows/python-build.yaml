@@ -1,11 +1,16 @@
-name: Publish Python 🐍 distribution 📦 to PyPI and TestPyPI
+name: Publish Python 🐍 distribution 📦 to PyPI
 
+# Every push builds the distribution. A push to main whose pyproject.toml version has no git tag yet
+# (i.e. after `uv version --bump ...`) also publishes it to PyPI and tags it as a GitHub Release.
 on: push
 
 jobs:
   build:
     name: Build distribution 📦
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      release: ${{ steps.version.outputs.release }}
 
     steps:
       - uses: actions/checkout@v4
@@ -22,6 +27,18 @@ jobs:
       - name: Build
         run: uv build
 
+      - name: Check whether this version still needs a release
+        id: version
+        run: |
+          version="$(uv version --short)"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          if [[ "$GITHUB_REF" == refs/heads/main ]] && ! git ls-remote --exit-code --tags origin "refs/tags/$version" > /dev/null; then
+            echo "release=true" >> "$GITHUB_OUTPUT"
+            echo "Releasing $version" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "release=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Store the distribution packages
         uses: actions/upload-artifact@v4
         with:
@@ -31,7 +48,7 @@ jobs:
   publish-to-pypi:
     name: >-
       Publish Python 🐍 distribution 📦 to PyPI
-    if: startsWith(github.ref, 'refs/tags/') # only publish to PyPI on tag pushes
+    if: needs.build.outputs.release == 'true'
     needs:
       - build
     runs-on: ubuntu-latest
@@ -50,12 +67,16 @@ jobs:
 
       - name: Publish distribution 📦 to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          # Lets a re-run finish the release if the upload succeeded but the GitHub Release step failed.
+          skip-existing: true
 
   github-release:
     name: >-
       Sign the Python 🐍 distribution 📦 with Sigstore
       and upload them to GitHub Release
     needs:
+      - build
       - publish-to-pypi
     runs-on: ubuntu-latest
 
@@ -79,18 +100,20 @@ jobs:
       - name: Create GitHub Release
         env:
           GITHUB_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.build.outputs.version }}
         run: >-
-          gh release create
-          '${{ github.ref_name }}'
+          gh release create "$VERSION"
           --repo '${{ github.repository }}'
-          --notes ""
+          --target '${{ github.sha }}'
+          --title "$VERSION"
+          --generate-notes
       - name: Upload artifact signatures to GitHub Release
         env:
           GITHUB_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.build.outputs.version }}
         # Upload to GitHub Release using the `gh` CLI.
         # `dist/` contains the built packages, and the
         # sigstore-produced signatures and certificates.
         run: >-
-          gh release upload
-          '${{ github.ref_name }}' dist/**
+          gh release upload "$VERSION" dist/**
           --repo '${{ github.repository }}'
