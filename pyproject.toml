@@ -1,10 +1,10 @@
 [build-system]
-requires = ["setuptools>=64", "setuptools-scm>=8.0", "wheel"]
+requires = ["setuptools>=64", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "MEDS_DEV"
-dynamic = ["version"]
+version = "0.0.14"
 authors = [
     {name="Matthew B. A. McDermott", email="matthew_mcdermott@hms.harvard.edu"},
     {name="Ethan Steinberg", email="ethanid@stanford.edu"},
@@ -45,7 +45,12 @@ dev = [
   "pretty-print-directory",
 ]
 
-[tool.setuptools_scm]
+[tool.setuptools.package-data]
+# Ship every registry file (dataset/task/model YAMLs, READMEs, requirements, citations) with the code.
+MEDS_DEV = ["**/*"]
+
+[tool.setuptools.exclude-package-data]
+MEDS_DEV = ["**/__pycache__/*", "**/*.pyc", "**/.DS_Store"]
 
 [tool.coverage.run]
 patch = ["subprocess"]

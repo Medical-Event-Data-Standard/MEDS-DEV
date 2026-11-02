@@ -29,8 +29,9 @@ pip install -e ".[dev,tests]"
 ```
 
 Supports Python 3.11–3.13 (fast checks run on all three; integration tests and dataset/model venvs use 3.11).
-Python 3.14 is blocked on `hydra-core` 1.3, whose CLIs crash on 3.14. Uses `setuptools-scm` for versioning
-(version is derived from git tags).
+Python 3.14 is blocked on `hydra-core` 1.3, whose CLIs crash on 3.14. The version is static in
+`pyproject.toml`: release with `uv version --bump minor|patch|major` and merge into `main`, which
+publishes to PyPI and tags the release (see `CONTRIBUTORS.md`).
 
 ## Running Tests
 
