@@ -1,0 +1,27 @@
+metadata:
+  description: >-
+    A MEDS version of eICU.
+  links:
+    - https://github.com/Medical-Event-Data-Standard/eICU_MEDS
+    - https://physionet.org/content/eicu-crd/
+  contacts:
+    - name: "Robin P. van de Water"
+      github_username: "rvandewater"
+  access_policy: public_with_approval
+  access_details: >-
+    Requires a credentialed PhysioNet account, completion of the required CITI training, and acceptance
+    of the PhysioNet Credentialed Health Data Use Agreement for eICU.
+commands:
+  build_full: >-
+    MEDS_extract-eICU
+    root_output_dir="{temp_dir}"
+    raw_input_dir="{raw_input_dir}"
+    MEDS_output_dir="{output_dir}"
+    log_dir="{output_dir}/.pipeline_logs"
+  build_demo: >-
+    MEDS_extract-eICU
+    do_demo=True
+    root_output_dir="{temp_dir}"
+    raw_input_dir="{raw_input_dir}"
+    MEDS_output_dir="{output_dir}"
+    log_dir="{output_dir}/.pipeline_logs"

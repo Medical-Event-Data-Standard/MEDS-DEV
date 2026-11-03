@@ -21,6 +21,8 @@ import logging
 from pathlib import Path
 from typing import Any
 
+from ..results import _sanitize_nan_inf
+
 logger = logging.getLogger(__name__)
 
 
@@ -164,7 +166,7 @@ def aggregate_results(
     if do_overwrite or not output_path.exists():
         results: dict[str, Any] = {}
     else:
-        results = json.loads(output_path.read_text())
+        results = _sanitize_nan_inf(json.loads(output_path.read_text()))
 
     result_fps = sorted(input_dir.rglob("result.json"))
     if not result_fps:
@@ -175,7 +177,7 @@ def aggregate_results(
     for result_fp in result_fps:
         issue_num = result_fp.parent.name
         try:
-            new_content = json.loads(result_fp.read_text())
+            new_content = _sanitize_nan_inf(json.loads(result_fp.read_text()))
         except (json.JSONDecodeError, OSError) as e:
             err = f"{result_fp}: {e}"
             logger.warning(f"Failed to read {err}")
@@ -201,7 +203,7 @@ def aggregate_results(
         new_results += 1
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(json.dumps(results, indent=2, sort_keys=True))
+    output_path.write_text(json.dumps(results, indent=2, sort_keys=True, allow_nan=False))
     logger.info(
         f"Wrote {len(results)} results ({new_results} new, {len(parse_errors)} errors) to {output_path}"
     )

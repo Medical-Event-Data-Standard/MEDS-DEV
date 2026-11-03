@@ -1,10 +1,10 @@
 [build-system]
-requires = ["setuptools>=64", "setuptools-scm>=8.0", "wheel"]
+requires = ["setuptools>=64", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "MEDS_DEV"
-dynamic = ["version"]
+version = "0.0.14"
 authors = [
     {name="Matthew B. A. McDermott", email="matthew_mcdermott@hms.harvard.edu"},
     {name="Ethan Steinberg", email="ethanid@stanford.edu"},
@@ -25,10 +25,14 @@ readme = "README.md"
 requires-python = ">=3.11"
 classifiers = [
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS",
 ]
-dependencies = ["meds==0.3.3", "es-aces==0.6.1", "hydra-core", "meds-evaluation==0.0.3", "validators", "uv"]
+dependencies = ["meds==0.4.1", "es-aces==0.7.3", "hydra-core", "meds-evaluation==0.0.3", "validators", "uv"]
 
 [dependency-groups]
 dev = [
@@ -41,7 +45,12 @@ dev = [
   "pretty-print-directory",
 ]
 
-[tool.setuptools_scm]
+[tool.setuptools.package-data]
+# Ship every registry file (dataset/task/model YAMLs, READMEs, requirements, citations) with the code.
+MEDS_DEV = ["**/*"]
+
+[tool.setuptools.exclude-package-data]
+MEDS_DEV = ["**/__pycache__/*", "**/*.pyc", "**/.DS_Store"]
 
 [tool.coverage.run]
 patch = ["subprocess"]
@@ -52,6 +61,8 @@ omit = ["*/models/cehrbert/*"]
 [tool.pytest.ini_options]
 addopts = [
   "--color=yes",
+  "--strict-markers",
+  "--strict-config",
 ]
 doctest_optionflags = "ELLIPSIS NORMALIZE_WHITESPACE"
 markers = [

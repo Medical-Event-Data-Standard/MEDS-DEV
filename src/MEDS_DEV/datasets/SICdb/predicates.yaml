@@ -1,0 +1,186 @@
+predicates:
+  # Codes are those of SICdb-MEDS 0.1.0. Each SICdb case is one ICU admission with its preceding surgery,
+  # if any.
+  #
+  # `ADMISSION//<urgency>` opens the case. SICdb records no hospital admission time, so the start of the
+  # case is used for `hospital_admission`. `HOSPITAL_DISCHARGE//<type>` is recorded to the day; the ETL
+  # places it at noon.
+  hospital_admission:
+    code: { regex: "^ADMISSION//.*" }
+  hospital_discharge:
+    code: { regex: "^HOSPITAL_DISCHARGE//.*" }
+
+  # `ICU_ADMISSION` is the first transfer to an intensive or intermediate care ward. `DISCHARGE//<state>`
+  # closes the case and carries the patient's state on leaving the ICU.
+  icu_admission:
+    code: ICU_ADMISSION
+  icu_discharge:
+    code: { regex: "^DISCHARGE//.*" }
+
+  # Labs are `LAB//<LaboratoryID>//<specimen>`, where the specimen is `ARTERIAL` for blood-gas analyses
+  # and `UNSPEC` otherwise. A code is included when its LOINC parent (in `metadata/codes.parquet`) measures
+  # the analyte in blood, serum or plasma, and its unit matches the task threshold. Every abnormal predicate
+  # is a plain code, so ACES applies its numeric threshold.
+
+  # LOINC 2160-0, Creatinine [Mass/volume] in Serum or Plasma (mg/dl).
+  creatinine_1:
+    code: LAB//367//UNSPEC
+  creatinine_2:
+    code: LAB//368//UNSPEC
+  abnormally_high_creatinine_1:
+    code: LAB//367//UNSPEC
+    value_min: 1.3 # mg/dL
+    value_min_inclusive: False
+    value_max: null
+  abnormally_high_creatinine_2:
+    code: LAB//368//UNSPEC
+    value_min: 1.3 # mg/dL
+    value_min_inclusive: False
+    value_max: null
+  creatinine:
+    expr: or(creatinine_1, creatinine_2)
+  abnormally_high_creatinine:
+    expr: or(abnormally_high_creatinine_1, abnormally_high_creatinine_2)
+
+  # LOINC 2951-2, Sodium in Serum or Plasma, and 32717-1, Sodium in Arterial blood (mmol/L = mEq/L).
+  # Urine sodium (LOINC 2955-3, `LAB//470//UNSPEC`) is excluded.
+  sodium_1:
+    code: LAB//469//UNSPEC
+  sodium_2:
+    code: LAB//686//ARTERIAL
+  sodium_3:
+    code: LAB//686//UNSPEC
+  abnormally_low_sodium_1:
+    code: LAB//469//UNSPEC
+    value_min: null
+    value_max: 135 # mEq/L
+    value_max_inclusive: False
+  abnormally_low_sodium_2:
+    code: LAB//686//ARTERIAL
+    value_min: null
+    value_max: 135 # mEq/L
+    value_max_inclusive: False
+  abnormally_low_sodium_3:
+    code: LAB//686//UNSPEC
+    value_min: null
+    value_max: 135 # mEq/L
+    value_max_inclusive: False
+  sodium:
+    expr: or(sodium_1, sodium_2, sodium_3)
+  abnormally_low_sodium:
+    expr: or(abnormally_low_sodium_1, abnormally_low_sodium_2, abnormally_low_sodium_3)
+
+  # SICdb has no serum bicarbonate; it is measured by blood-gas analysis. LOINC 1960-4 (Arterial blood),
+  # 14627-4 (Venous blood) and 1961-2 (Capillary blood), all mmol/L = mEq/L.
+  bicarbonate_1:
+    code: LAB//666//ARTERIAL
+  bicarbonate_2:
+    code: LAB//666//UNSPEC
+  bicarbonate_3:
+    code: LAB//456//UNSPEC
+  bicarbonate_4:
+    code: LAB//667//UNSPEC
+  abnormally_low_bicarbonate_1:
+    code: LAB//666//ARTERIAL
+    value_min: null
+    value_max: 22 # mEq/L
+    value_max_inclusive: False
+  abnormally_low_bicarbonate_2:
+    code: LAB//666//UNSPEC
+    value_min: null
+    value_max: 22 # mEq/L
+    value_max_inclusive: False
+  abnormally_low_bicarbonate_3:
+    code: LAB//456//UNSPEC
+    value_min: null
+    value_max: 22 # mEq/L
+    value_max_inclusive: False
+  abnormally_low_bicarbonate_4:
+    code: LAB//667//UNSPEC
+    value_min: null
+    value_max: 22 # mEq/L
+    value_max_inclusive: False
+  bicarbonate:
+    expr: or(bicarbonate_1, bicarbonate_2, bicarbonate_3, bicarbonate_4)
+  abnormally_low_bicarbonate:
+    expr:
+      or(abnormally_low_bicarbonate_1, abnormally_low_bicarbonate_2, abnormally_low_bicarbonate_3,
+      abnormally_low_bicarbonate_4)
+
+  # LOINC 718-7, Hemoglobin in Blood, and 30313-1, Hemoglobin in Arterial blood (g/dl).
+  hemoglobin_1:
+    code: LAB//289//UNSPEC
+  hemoglobin_2:
+    code: LAB//658//ARTERIAL
+  hemoglobin_3:
+    code: LAB//658//UNSPEC
+  abnormally_low_hemoglobin_1:
+    code: LAB//289//UNSPEC
+    value_min: null
+    value_max: 13 # g/dL
+    value_max_inclusive: False
+  abnormally_low_hemoglobin_2:
+    code: LAB//658//ARTERIAL
+    value_min: null
+    value_max: 13 # g/dL
+    value_max_inclusive: False
+  abnormally_low_hemoglobin_3:
+    code: LAB//658//UNSPEC
+    value_min: null
+    value_max: 13 # g/dL
+    value_max_inclusive: False
+  hemoglobin:
+    expr: or(hemoglobin_1, hemoglobin_2, hemoglobin_3)
+  abnormally_low_hemoglobin:
+    expr: or(abnormally_low_hemoglobin_1, abnormally_low_hemoglobin_2, abnormally_low_hemoglobin_3)
+
+  # LOINC 26464-8, Leukocytes [#/volume] in Blood (G/L = 10^9/L = K/uL). The neutrophil percentage
+  # (LOINC 26511-6, `LAB//230//UNSPEC`) is excluded.
+  wbc:
+    code: LAB//301//UNSPEC
+  abnormally_high_wbc:
+    code: LAB//301//UNSPEC
+    value_min: 11 # K/uL
+    value_min_inclusive: False
+    value_max: null
+
+  # LOINC 26515-7, Platelets [#/volume] in Blood (G/L = K/uL).
+  platelets_1:
+    code: LAB//314//UNSPEC
+  platelets_2:
+    code: LAB//315//UNSPEC
+  abnormally_low_platelets_1:
+    code: LAB//314//UNSPEC
+    value_min: null
+    value_max: 150 # K/uL
+    value_max_inclusive: False
+  abnormally_low_platelets_2:
+    code: LAB//315//UNSPEC
+    value_min: null
+    value_max: 150 # K/uL
+    value_max_inclusive: False
+  platelets:
+    expr: or(platelets_1, platelets_2)
+  abnormally_low_platelets:
+    expr: or(abnormally_low_platelets_1, abnormally_low_platelets_2)
+
+  # Monitor signals are `VITAL//<DataID>`, hourly aggregates of the minute-resolution signal: 703 is the
+  # invasive arterial mean pressure and 706 the non-invasive mean pressure (mmHg).
+  map_1:
+    code: VITAL//703
+  map_2:
+    code: VITAL//706
+  abnormally_low_map_1:
+    code: VITAL//703
+    value_min: null
+    value_max: 65 # mmHg
+    value_max_inclusive: False
+  abnormally_low_map_2:
+    code: VITAL//706
+    value_min: null
+    value_max: 65 # mmHg
+    value_max_inclusive: False
+  map:
+    expr: or(map_1, map_2)
+  abnormally_low_map:
+    expr: or(abnormally_low_map_1, abnormally_low_map_2)

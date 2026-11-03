@@ -24,5 +24,8 @@ runs:
 
     - name: Install packages
       shell: bash
+      env:
+        # Build the project venv with the requested interpreter, not whichever Python uv finds first.
+        UV_PYTHON: ${{ inputs.python-version }}
       run: |
         uv sync --locked --group ${{ inputs.group }}

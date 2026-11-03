@@ -11,6 +11,8 @@ metadata:
       github_username: "jwoo5"
   supported_datasets:
     - MIMIC-IV
+    - SICdb
+    - eICU
 
 predicates:
   birth:

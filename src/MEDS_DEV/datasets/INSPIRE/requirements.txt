@@ -1,0 +1,1 @@
+INSPIRE-MEDS==1.0.0

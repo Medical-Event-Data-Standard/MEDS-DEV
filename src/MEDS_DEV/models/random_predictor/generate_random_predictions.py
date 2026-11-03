@@ -26,6 +26,7 @@ def main(cfg: DictConfig) -> None:
         cfg: The configuration object, controlled through Hydra command line arguments. Takes:
           - dataset_dir: The directory containing the dataset.
           - labels_dir: The directory containing the labels.
+          - predicates_path: The dataset predicates file passed through by MEDS-DEV.
           - predictions_fp: The file path to write the predictions to.
           - seed: The random seed to use for generating predictions.
           - split: The split to generate predictions for. Must be the held-out split.
@@ -51,6 +52,19 @@ def main(cfg: DictConfig) -> None:
     Traceback (most recent call last):
         ...
     ValueError: Split train does not match ...
+
+    >>> cfg = DictConfig({
+    ...     "split": "held_out",
+    ...     "dataset_dir": "data/dataset",
+    ...     "labels_dir": "data/labels",
+    ...     "predicates_path": "data/missing_predicates.yaml",
+    ...     "predictions_fp": "data/predictions.parquet",
+    ...     "seed": 42,
+    ... })
+    >>> main(cfg)
+    Traceback (most recent call last):
+        ...
+    FileNotFoundError: Could not find predicates file data/missing_predicates.yaml.
 
     >>> import tempfile, os
     >>> with tempfile.TemporaryDirectory() as tmp_dir:
@@ -151,6 +165,11 @@ def main(cfg: DictConfig) -> None:
     predictions_fp.parent.mkdir(parents=True, exist_ok=True)
     seed = cfg.seed
 
+    if cfg.get("predicates_path") is not None:
+        predicates_path = Path(cfg.predicates_path)
+        if not predicates_path.is_file():
+            raise FileNotFoundError(f"Could not find predicates file {predicates_path}.")
+
     if cfg.split != meds.held_out_split:
         raise ValueError(
             f"Split {cfg.split} does not match held out split {meds.held_out_split}; this model should "
@@ -164,7 +183,7 @@ def main(cfg: DictConfig) -> None:
         )
 
     splits = pl.read_parquet(splits_file, use_pyarrow=True)
-    subjects = set(splits.filter(pl.col("split") == cfg.split)[meds.subject_id_field])
+    subjects = set(splits.filter(pl.col("split") == cfg.split)[meds.DataSchema.subject_id_name])
 
     # Labels can live in any parquet file within the labels directory:
     labels_files = list(labels_dir.rglob("*.parquet"))
@@ -173,7 +192,9 @@ def main(cfg: DictConfig) -> None:
         return
 
     def read_split(fp: Path) -> pl.DataFrame:
-        return pl.read_parquet(fp, use_pyarrow=True).filter(pl.col(meds.subject_id_field).is_in(subjects))
+        return pl.read_parquet(fp, use_pyarrow=True).filter(
+            pl.col(meds.DataSchema.subject_id_name).is_in(subjects)
+        )
 
     try:
         labels = pl.concat([read_split(f) for f in labels_files], how="vertical_relaxed")

@@ -13,6 +13,8 @@ import sys
 import pytest
 from yaml_to_disk import yaml_disk
 
+from MEDS_DEV.web.aggregate_results import aggregate_results
+
 ISSUE_BODY = """Hi! Here's my result.
 
 ```json
@@ -123,6 +125,20 @@ def test_aggregate_results_cli() -> None:
             "43": {"model": "b", "score": 0.85},
             "44": {"model": "c", "score": 0.78},
         }
+
+
+def test_aggregate_results_sanitizes_legacy_nan(tmp_path) -> None:
+    """Legacy non-standard JSON is rewritten as strict JSON."""
+    input_dir = tmp_path / "_results" / "42"
+    input_dir.mkdir(parents=True)
+    (input_dir / "result.json").write_text('{"metric": NaN}')
+    output = tmp_path / "all_results.json"
+    output.write_text('{"old": {"metric": NaN}}')
+
+    aggregate_results(input_dir.parent, output)
+
+    assert "NaN" not in output.read_text()
+    assert json.loads(output.read_text()) == {"42": {"metric": None}, "old": {"metric": None}}
 
 
 def test_process_submission_cli_issue_body_arg() -> None:

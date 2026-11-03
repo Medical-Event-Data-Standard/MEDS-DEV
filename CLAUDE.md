@@ -28,7 +28,10 @@ pip install MEDS-DEV
 pip install -e ".[dev,tests]"
 ```
 
-Requires Python ≥ 3.11. Uses `setuptools-scm` for versioning (version is derived from git tags).
+Supports Python 3.11–3.13 (fast checks run on all three; integration tests and dataset/model venvs use 3.11).
+Python 3.14 is blocked on `hydra-core` 1.3, whose CLIs crash on 3.14. The version is static in
+`pyproject.toml`: release with `uv version --bump minor|patch|major` and merge into `main`, which
+publishes to PyPI and tags the release (see `CONTRIBUTORS.md`).
 
 ## Running Tests
 
@@ -72,6 +75,8 @@ pytest -v -s -x --test_task=mortality/in_icu/first_24h
 **Key test options:**
 
 - `--persistent_cache_dir=DIR` — persist built datasets/models across runs (DIR must exist)
+- `--download_cache_dir=DIR` — keep demo datasets' raw downloads in `DIR/<dataset>/raw` across builds
+    (passed as `raw_input_dir`); the ETL still always runs (full-integration CI caches only these downloads)
 - `--cache_dataset=NAME|all` — cache dataset builds in persistent dir
 - `--cache_task=NAME|all` — cache task extractions
 - `--cache_model=NAME|all` — cache model outputs
@@ -90,7 +95,10 @@ CI uses a tiered, change-aware strategy (see `.github/workflows/tests.yaml`):
 1. **Fast checks** — always run (lint + doctests + unit/registry tests)
 2. **Affected integration lanes** — run only for changed datasets, tasks, or models
 3. **Full integration** — runs on push to `main`, weekly schedule, `full-ci` PR label, or
-    when shared/core files change
+    when shared/core files change. It runs as one parallel job per model × dataset × task that pytest
+    collects (so new components are picked up automatically). A `full-integration-setup` job lists them
+    and caches the raw demo downloads, and a `demo-datasets` job builds each demo dataset once per run
+    and hands it to the combination jobs as an artifact
 
 To force a full CI run on a PR, add the `full-ci` label.
 
@@ -171,7 +179,8 @@ models is filtered by compatibility.
 1. Create `src/MEDS_DEV/datasets/<name>/` with: `dataset.yaml`, `predicates.yaml`,
     `requirements.txt`, `README.md`
 2. `dataset.yaml` must have `metadata` (with `description`, `contacts`, `access_policy`) and
-    `commands` (with `build_full` and `build_demo` using `{temp_dir}` and `{output_dir}` placeholders)
+    `commands` (with `build_full` and `build_demo` using `{temp_dir}`, `{raw_input_dir}`, and `{output_dir}`
+    placeholders)
 3. `predicates.yaml` contains ACES-syntax predicates for task extraction
 4. Access policy must be one of: `public_with_approval`, `public_unrestricted`, `institutional`,
     `private_single_use`, `other`
@@ -189,7 +198,9 @@ models is filtered by compatibility.
 2. `model.yaml` must have `metadata` and `commands` with nested `unsupervised`/`supervised` →
     `train`/`predict` structure
 3. Commands use template variables: `{dataset_dir}`, `{labels_dir}`, `{output_dir}`,
-    `{model_dir}`, `{model_initialization_dir}`, `{split}`, `{demo}`
+    `{model_dir}`, `{model_initialization_dir}`, `{split}`, `{demo}`, and (optionally)
+    `{predicates_path}` for models that need a predicates file (populated from the
+    `predicates_path` argument to `meds-dev-model`)
 4. Predictions must output parquet files compatible with `meds-evaluation`
 
 ### YAML Config Conventions
@@ -202,8 +213,8 @@ models is filtered by compatibility.
 
 | Package                  | Purpose                                |
 | ------------------------ | -------------------------------------- |
-| `meds==0.3.3`            | MEDS data schema and split constants   |
-| `es-aces==0.6.1`         | ACES task extraction engine            |
+| `meds==0.4.1`            | MEDS data schema and split constants   |
+| `es-aces==0.7.3`         | ACES task extraction engine            |
 | `hydra-core`             | CLI configuration management           |
 | `meds-evaluation==0.0.3` | Prediction evaluation (AUROC, etc.)    |
 | `validators`             | Email/URL validation for metadata      |
