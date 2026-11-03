@@ -61,7 +61,8 @@ Version 0.0.1 includes [ALOTT_MEDS#2](https://github.com/rvandewater/ALOTT_MEDS/
 - **Labs** are `LAB//RESULT//<panel>//<component>`, timed at the end of the result date. The code carries
     no unit; the values are in US units (mg/dL, mmol/L, g/dL, K/uL). A chemistry panel reports each analyte
     under one of two component names, `BKR <ANALYTE>` or the plain name, and total CO2 as `CARBON DIOXIDE`
-    or `CARBON DIOXIDE (CO2)`. The predicates list both, for every panel seen in at least 20 subjects.
+    or `CARBON DIOXIDE (CO2)`. The predicates list both names wherever a code occurs in at least 20
+    subjects.
 
 ## Sources
 
