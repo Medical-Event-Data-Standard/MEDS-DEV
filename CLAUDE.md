@@ -28,7 +28,10 @@ pip install MEDS-DEV
 pip install -e ".[dev,tests]"
 ```
 
-Requires Python ≥ 3.11. Uses `setuptools-scm` for versioning (version is derived from git tags).
+Supports Python 3.11–3.13 (fast checks run on all three; integration tests and dataset/model venvs use 3.11).
+Python 3.14 is blocked on `hydra-core` 1.3, whose CLIs crash on 3.14. The version is static in
+`pyproject.toml`: release with `uv version --bump minor|patch|major` and merge into `main`, which
+publishes to PyPI and tags the release (see `CONTRIBUTORS.md`).
 
 ## Running Tests
 
@@ -92,7 +95,10 @@ CI uses a tiered, change-aware strategy (see `.github/workflows/tests.yaml`):
 1. **Fast checks** — always run (lint + doctests + unit/registry tests)
 2. **Affected integration lanes** — run only for changed datasets, tasks, or models
 3. **Full integration** — runs on push to `main`, weekly schedule, `full-ci` PR label, or
-    when shared/core files change
+    when shared/core files change. It runs as one parallel job per model × dataset × task that pytest
+    collects (so new components are picked up automatically). A `full-integration-setup` job lists them
+    and caches the raw demo downloads, and a `demo-datasets` job builds each demo dataset once per run
+    and hands it to the combination jobs as an artifact
 
 To force a full CI run on a PR, add the `full-ci` label.
 
