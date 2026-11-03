@@ -233,7 +233,10 @@ predicates:
   abnormally_low_sodium:
     expr: or(abnormally_low_sodium_1, abnormally_low_sodium_2, abnormally_low_sodium_3, abnormally_low_sodium_4, abnormally_low_sodium_5, abnormally_low_sodium_6, abnormally_low_sodium_7, abnormally_low_sodium_8, abnormally_low_sodium_9, abnormally_low_sodium_10, abnormally_low_sodium_11, abnormally_low_sodium_12, abnormally_low_sodium_13, abnormally_low_sodium_14)
 
-  # Chemistry total CO2 plus blood-gas HCO3.
+  # Chemistry total CO2 plus blood-gas HCO3. The chemistry panels name the CO2 component two ways: `CARBON
+  # DIOXIDE (CO2)` next to the plain components (`SODIUM`, `CREATININE SERUM`), and `CARBON DIOXIDE` next to
+  # the `BKR ...` components, which cover about three times as many subjects. CO2 partial pressures (PCO2)
+  # are excluded.
   bicarbonate_1:
     code: "LAB//RESULT//33387//CARBON DIOXIDE (CO2)"
   bicarbonate_2:
@@ -254,6 +257,20 @@ predicates:
     code: "LAB//RESULT//10201892//CARBON DIOXIDE (CO2)"
   bicarbonate_10:
     code: "LAB//RESULT//10201082//CARBON DIOXIDE (CO2)"
+  bicarbonate_11:
+    code: "LAB//RESULT//33387//CARBON DIOXIDE"
+  bicarbonate_12:
+    code: "LAB//RESULT//10201908//CARBON DIOXIDE"
+  bicarbonate_13:
+    code: "LAB//RESULT//10201113//CARBON DIOXIDE"
+  bicarbonate_14:
+    code: "LAB//RESULT//678//CARBON DIOXIDE"
+  bicarbonate_15:
+    code: "LAB//RESULT//682//CARBON DIOXIDE"
+  bicarbonate_16:
+    code: "LAB//RESULT//10201892//CARBON DIOXIDE"
+  bicarbonate_17:
+    code: "LAB//RESULT//10201082//CARBON DIOXIDE"
   abnormally_low_bicarbonate_1:
     code: "LAB//RESULT//33387//CARBON DIOXIDE (CO2)"
     value_max: 22 # mEq/L
@@ -304,10 +321,45 @@ predicates:
     value_max: 22 # mEq/L
     value_max_inclusive: False
     value_min: null
+  abnormally_low_bicarbonate_11:
+    code: "LAB//RESULT//33387//CARBON DIOXIDE"
+    value_max: 22 # mEq/L
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_bicarbonate_12:
+    code: "LAB//RESULT//10201908//CARBON DIOXIDE"
+    value_max: 22 # mEq/L
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_bicarbonate_13:
+    code: "LAB//RESULT//10201113//CARBON DIOXIDE"
+    value_max: 22 # mEq/L
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_bicarbonate_14:
+    code: "LAB//RESULT//678//CARBON DIOXIDE"
+    value_max: 22 # mEq/L
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_bicarbonate_15:
+    code: "LAB//RESULT//682//CARBON DIOXIDE"
+    value_max: 22 # mEq/L
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_bicarbonate_16:
+    code: "LAB//RESULT//10201892//CARBON DIOXIDE"
+    value_max: 22 # mEq/L
+    value_max_inclusive: False
+    value_min: null
+  abnormally_low_bicarbonate_17:
+    code: "LAB//RESULT//10201082//CARBON DIOXIDE"
+    value_max: 22 # mEq/L
+    value_max_inclusive: False
+    value_min: null
   bicarbonate:
-    expr: or(bicarbonate_1, bicarbonate_2, bicarbonate_3, bicarbonate_4, bicarbonate_5, bicarbonate_6, bicarbonate_7, bicarbonate_8, bicarbonate_9, bicarbonate_10)
+    expr: or(bicarbonate_1, bicarbonate_2, bicarbonate_3, bicarbonate_4, bicarbonate_5, bicarbonate_6, bicarbonate_7, bicarbonate_8, bicarbonate_9, bicarbonate_10, bicarbonate_11, bicarbonate_12, bicarbonate_13, bicarbonate_14, bicarbonate_15, bicarbonate_16, bicarbonate_17)
   abnormally_low_bicarbonate:
-    expr: or(abnormally_low_bicarbonate_1, abnormally_low_bicarbonate_2, abnormally_low_bicarbonate_3, abnormally_low_bicarbonate_4, abnormally_low_bicarbonate_5, abnormally_low_bicarbonate_6, abnormally_low_bicarbonate_7, abnormally_low_bicarbonate_8, abnormally_low_bicarbonate_9, abnormally_low_bicarbonate_10)
+    expr: or(abnormally_low_bicarbonate_1, abnormally_low_bicarbonate_2, abnormally_low_bicarbonate_3, abnormally_low_bicarbonate_4, abnormally_low_bicarbonate_5, abnormally_low_bicarbonate_6, abnormally_low_bicarbonate_7, abnormally_low_bicarbonate_8, abnormally_low_bicarbonate_9, abnormally_low_bicarbonate_10, abnormally_low_bicarbonate_11, abnormally_low_bicarbonate_12, abnormally_low_bicarbonate_13, abnormally_low_bicarbonate_14, abnormally_low_bicarbonate_15, abnormally_low_bicarbonate_16, abnormally_low_bicarbonate_17)
 
   # CBC and H&H hemoglobin (hemoglobinopathy work-ups left out).
   hemoglobin_1:
