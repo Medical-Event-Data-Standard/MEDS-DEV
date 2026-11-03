@@ -15,6 +15,7 @@ metadata:
   supported_datasets:
     - AUMCdb
     - MIMIC-IV
+    - PICdb
     - SICdb
 
 predicates:

@@ -22,23 +22,41 @@ The ETL downloads the source files from PhysioNet. Set `DATASET_DOWNLOAD_USERNAM
 
 ## Supported Tasks
 
-- `mortality/in_icu/first_24h`: well defined. ICU stays carry their unit (CICU, General ICU, NICU,
-    PICU, SICU), and `MEDS_DEATH` coincides with the last ICU discharge for nearly all ICU deaths.
-    Many subjects are neonates; a NICU-excluded variant may be worth a separate task.
-- `abnormal_lab/*`: not supported. Every subject is under 18, so these tasks' age >= 18 window leaves
-    an empty cohort, and their adult thresholds would not apply. The lab codes for a paediatric variant:
-    creatinine `LAB//5041//μmol/L`, sodium `LAB//5230//mmol/L` (blood gas), bicarbonate
-    `LAB//5248//mmol/L` / `LAB//5224//mmol/L`, hemoglobin `LAB//5099//g/L`, WBC `LAB//5141//×10^9/L`,
-    platelets `LAB//5129//×10^9/L`. There is no ICU MAP (chart data has systolic/diastolic only).
+Extracted on the full 1.1.0 release:
 
-These tasks are not yet listed in their `supported_datasets`; that follows in a separate PR once
-all four local datasets (Zigong, PICdb, ALOTT, CDSL) are registered, to avoid conflicting edits.
+- `tasks/mortality/in_icu/first_24h.yaml`: ICU stays carry their unit (`ICU_ADMISSION//<unit>` for CICU,
+    General ICU, NICU, PICU and SICU), and `MEDS_DEATH` coincides with the last ICU discharge for 968 of the
+    971 deaths. Almost a quarter of the ICU stays start in the NICU; a variant without them may be worth a
+    separate task.
+
+The `abnormal_lab` tasks are not supported, although they extract without errors. They exclude patients aged
+18 or younger and use adult thresholds, and PIC has no admission at 18 or older. Their only rows come from 68
+admissions of newborns recorded up to a day before the recorded time of birth, which the age window does not
+catch. The lab codes for a paediatric variant are creatinine `LAB//5041//μmol/L` and `LAB//5032//μmol/L`
+(LOINC 2160-0), sodium `LAB//5230//mmol/L` (whole blood, LOINC 2947-0), bicarbonate `LAB//5248//mmol/L` and
+`LAB//5224//mmol/L` (blood gas), hemoglobin `LAB//5099//g/L` (LOINC 718-7) and `LAB//5257//g/L` (blood gas),
+WBC `LAB//5141//×10^9/L` (LOINC 26464-8) and platelets `LAB//5129//×10^9/L` (LOINC 777-3). There is no ICU
+mean arterial pressure: the chart data has only systolic and diastolic pressure, and MAP is recorded only
+during surgery (`SURGERY_VITAL//SV5`, `SURGERY_VITAL//SV12`).
+
+PICdb has no demo, so the integration tests do not exercise these pairs.
 
 ## MEDS Transformation
 
-[`PICdb-MEDS`](https://github.com/rvandewater/PICdb_MEDS) (a configuration-only MEDS-Extract 0.7
-ETL; its PyPI release 0.0.1 does not ship the spec file, so `requirements.txt` pins a commit) transforms the credentialed PhysioNet
-release into MEDS. There is no public demo, so only the full-data pipeline is exposed.[3]
+[`PICdb-MEDS`](https://github.com/rvandewater/PICdb_MEDS) is a pure-config
+[MEDS-Extract](https://github.com/mmcdermott/MEDS_extract) 0.7 pipeline, registered as `spec=PICdb` for
+`meds-extract-run`. There is no public demo, so only `build_full` is provided.[3] `requirements.txt` pins
+commit `2cbffc3` of its `main` branch: the 0.0.1 release on PyPI (and the 0.0.2 tag) does not ship
+`event_configs.yaml`, so its `spec=PICdb` entry point cannot load. That commit ships it and adds a
+description for every code in `metadata/codes.parquet`. Notable properties of the conversion:
+
+- **Dates are shifted** 50–100 years into the future per patient, so only time differences within one
+    subject carry meaning.
+- **Admissions and stays.** `HOSPITAL_ADMISSION//<department>` and `HOSPITAL_DISCHARGE//<department>` bound
+    each hospital admission, and `ICU_ADMISSION//<unit>` and `ICU_DISCHARGE//<unit>` each ICU stay.
+- **Birth and death** are `MEDS_BIRTH` and `MEDS_DEATH`, so the tasks' default predicates apply.
+- **Labs** are `LAB//<ITEMID>//<unit>`, named in `metadata/codes.parquet` with the `LOINC/` parents of
+    `D_LABITEMS`. Chart events are `CHART//<ITEMID>//<unit>`.
 
 ## Sources
 
