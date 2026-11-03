@@ -21,29 +21,45 @@ The ETL downloads the source files from PhysioNet. Set `DATASET_DOWNLOAD_USERNAM
 
 ## Supported Tasks
 
-- `mortality/in_icu/first_24h`: supported. There is no `MEDS_DEATH`; death is only the discharge
-    destination, so `predicates.yaml` overrides the task's `death` with `HOSPITAL_DISCHARGE//Death`,
-    timed at hospital discharge. For most ICU deaths that falls before the last ICU discharge.
-- The six blood `abnormal_lab/*/first_24h` tasks: supported. Labs are already in the tasks' units.
-    Bicarbonate exists only as blood-gas HCO3. There is no birth event (only age at admission), so
-    the age >= 18 window cannot exclude the small share of subjects younger than 18.
-- `abnormal_lab/vital/hypotension/first_24h`: not supported. Vitals have systolic/diastolic only.
+Every current task except hypotension, each extracted on the full 1.0.0 release:
 
-These tasks are not yet listed in their `supported_datasets`; that follows in a separate PR once
-all four local datasets (Zigong, PICdb, ALOTT, CDSL) are registered, to avoid conflicting edits.
+- `tasks/mortality/in_icu/first_24h.yaml`
+- `tasks/abnormal_lab/blood_chemistry/elevated_creatinine/first_24h.yaml`
+- `tasks/abnormal_lab/blood_chemistry/hyponatremia/first_24h.yaml`
+- `tasks/abnormal_lab/blood_chemistry/metabolic_acidosis/first_24h.yaml`
+- `tasks/abnormal_lab/cbc/anemia/first_24h.yaml`
+- `tasks/abnormal_lab/cbc/leukocytosis/first_24h.yaml`
+- `tasks/abnormal_lab/cbc/thrombocytopenia/first_24h.yaml`
+
+`tasks/abnormal_lab/vital/hypotension/first_24h.yaml` is not supported: CDSL records systolic and diastolic
+blood pressure but no mean arterial pressure. CDSL has no demo, so the integration tests do not exercise
+these pairs.
 
 ## MEDS Transformation
 
-[`CDSL-MEDS`](https://github.com/rvandewater/CDSL_MEDS) (a configuration-only MEDS-Extract 0.7 ETL,
-not on PyPI at a version with the `MEDS_extract-CDSL` command, so `requirements.txt` pins the
-0.0.3 tag) transforms the PhysioNet release into MEDS.
-Three CDSL files are Latin-1 encoded, so the build downloads first and then runs
-`MEDS_extract-CDSL`, which stages a UTF-8 view before extraction. There is no public demo, so only
-the full-data pipeline is exposed. The pin is on
-[CDSL_MEDS#2](https://github.com/rvandewater/CDSL_MEDS/pull/2), which introduces
-`MEDS_extract-CDSL`; re-pin to `main` once that is merged.[2]
+[`CDSL-MEDS`](https://github.com/rvandewater/CDSL_MEDS) is a configuration-only
+[MEDS-Extract](https://github.com/mmcdermott/MEDS_extract) 0.7 pipeline, registered as `spec=CDSL`.[2]
+`requirements.txt` pins `CDSL-MEDS==0.0.1`, the newest code on PyPI: it was published from the `0.0.3` tag
+after `0.0.2`, which is older code. Three CDSL files are Latin-1 encoded, so the build downloads first and
+then runs `MEDS_extract-CDSL`, which stages a UTF-8 view of the download before extraction. There is no
+public demo, so only `build_full` is provided. Notable properties of the conversion:
+
+- **One hospital stay per subject.** `HOSPITAL_ADMISSION` and `HOSPITAL_DISCHARGE//<destination>` are
+    recorded to the day and placed at midnight, so "the first 24 hours" of the abnormal-lab tasks is the
+    admission day. `ICU_ADMISSION` and `ICU_DISCHARGE` carry a time of day.
+- **Death** is only a discharge destination. There is no `MEDS_DEATH`, so `predicates.yaml` overrides the
+    tasks' `death` with `HOSPITAL_DISCHARGE//Death`, timed at the (midnight) hospital discharge. For most
+    ICU deaths that falls before the ICU discharge, so the in-ICU target window still sees it.
+- **Age** is recorded in whole years at admission (`AGE_AT_ADMISSION`), and there is no `MEDS_BIRTH`. The
+    abnormal-lab tasks exclude children by requiring no `birth` in the 18 years before admission, so
+    `predicates.yaml` defines `birth` as an age below 18 at that admission. This excludes exactly the
+    subjects younger than 18.
+- **Labs** are `LAB//<item> -- <name>//<unit>` and are already in the tasks' units. Bicarbonate and total
+    CO2 are reported only in blood-gas panels, so `bicarbonate` uses blood-gas HCO3.
 
 ## Sources
 
 1. [CDSL v1.0.0 on PhysioNet](https://physionet.org/content/covid-data-shared-learning/1.0.0/)
+    ([doi:10.13026/1176-6c44](https://doi.org/10.13026/1176-6c44))
 2. [CDSL-MEDS ETL](https://github.com/rvandewater/CDSL_MEDS)
+    ([doi:10.5281/zenodo.23676596](https://doi.org/10.5281/zenodo.23676596))

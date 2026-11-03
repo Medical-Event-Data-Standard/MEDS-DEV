@@ -1,10 +1,11 @@
-# Predicates for CDSL (CDSL-MEDS, MESSY spec). Reasoning: README.md.
-# Can support: mortality/in_icu/first_24h and the six abnormal_lab blood tasks. Not supported:
+# Predicates for CDSL, built with CDSL-MEDS 0.0.1. Reasoning: README.md.
+# Supported: mortality/in_icu/first_24h and the six blood abnormal_lab tasks. Not supported:
 # abnormal_lab/vital/hypotension (vitals have systolic/diastolic only, no MAP). Labs are already in the
-# tasks' units. No MEDS_BIRTH (age only), so the age >= 18 window cannot exclude the small share of
-# subjects younger than 18.
+# tasks' units.
 
 predicates:
+  # One hospital stay per subject. Hospital admission and discharge are recorded to the day (at midnight);
+  # ICU admission and discharge carry a time of day.
   hospital_admission:
     code: HOSPITAL_ADMISSION
   hospital_discharge:
@@ -13,10 +14,18 @@ predicates:
     code: ICU_ADMISSION
   icu_discharge:
     code: ICU_DISCHARGE
-  # No MEDS_DEATH: death is only a discharge destination, so it is timed at hospital discharge. For most ICU
-  # deaths that is before the last ICU discharge (the in-ICU window still sees it); a few fall after.
+  # No MEDS_DEATH: death is only a discharge destination, so it is timed at the (midnight) hospital discharge.
+  # For most ICU deaths that is before the ICU discharge, so the in-ICU target window still sees it.
   death:
     code: HOSPITAL_DISCHARGE//Death
+  # No MEDS_BIRTH: CDSL records the age in whole years at admission, timed at the hospital admission. The
+  # abnormal_lab tasks exclude children by requiring no `birth` in the 18 years up to the admission, so
+  # `birth` matches an age below 18 at that admission, which excludes exactly those subjects.
+  birth:
+    code: AGE_AT_ADMISSION
+    value_min: null
+    value_max: 18
+    value_max_inclusive: False
 
   # Serum and point-of-care creatinine, mg/dL.
   creatinine_1:
@@ -72,7 +81,7 @@ predicates:
   abnormally_low_sodium:
     expr: or(abnormally_low_sodium_1, abnormally_low_sodium_2, abnormally_low_sodium_3, abnormally_low_sodium_4)
 
-  # Only blood-gas HCO3 exists (no chemistry total CO2); mmol/L == mEq/L.
+  # Bicarbonate (HCO3) and total CO2 are reported only in blood-gas panels; HCO3 is used. mmol/L == mEq/L.
   bicarbonate_1:
     code: "LAB//HCO3 -- Bicarbonate//mmol/L"
   bicarbonate_2:
