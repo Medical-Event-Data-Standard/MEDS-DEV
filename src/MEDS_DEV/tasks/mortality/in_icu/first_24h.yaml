@@ -16,6 +16,7 @@ metadata:
     - AUMCdb
     - MIMIC-IV
     - SICdb
+    - Zigong
 
 predicates:
   icu_admission: ???

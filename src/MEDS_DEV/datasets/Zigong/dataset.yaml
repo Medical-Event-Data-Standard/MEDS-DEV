@@ -1,6 +1,7 @@
 metadata:
   description: >-
-    A MEDS version of the Zigong Fourth People's Hospital ICU infection database.
+    A MEDS version of the Zigong Fourth People's Hospital ICU infection database (PhysioNet release 1.1),
+    built with MEDS-Extract from the pure-config Zigong-MEDS 0.3.0 pipeline.
   links:
     - https://github.com/rvandewater/ZIGONG_MEDS
     - https://physionet.org/content/icu-infection-zigong-fourth/1.1/

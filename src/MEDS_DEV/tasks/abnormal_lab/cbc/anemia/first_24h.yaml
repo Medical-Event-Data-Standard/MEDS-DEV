@@ -12,6 +12,7 @@ metadata:
   supported_datasets:
     - MIMIC-IV
     - SICdb
+    - Zigong
     - eICU
 
 predicates:

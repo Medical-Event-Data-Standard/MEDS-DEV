@@ -1,10 +1,19 @@
-# Predicates for Zigong (Zigong-MEDS, MESSY spec). Reasoning: README.md.
+# Predicates for Zigong (Zigong-MEDS 0.3.0, MESSY spec). Reasoning: README.md.
 # Can support: mortality/in_icu/first_24h (direct-ICU admissions only) and the six abnormal_lab blood tasks.
 # Not supported: abnormal_lab/vital/hypotension -- no MAP (the raw MAP column holds only unit strings).
-# Labs are SI units; thresholds are converted from the tasks' US units. No MEDS_BIRTH (age only), so
-# the tasks' age >= 18 window cannot exclude the small share of subjects younger than 18.
+# Labs are SI units; thresholds are converted from the tasks' US units.
 
 predicates:
+  # There is no MEDS_BIRTH, only the age in years at admission (`AGE_AT_ADMISSION`, an event at hospital
+  # admission). The abnormal_lab tasks exclude children with a window from 18 years before admission up to
+  # and including admission that must not contain `birth`. Matching the admission-time age event of
+  # subjects younger than 18 as `birth` makes that window exclude exactly them.
+  birth:
+    code: AGE_AT_ADMISSION
+    value_min: null
+    value_max: 18 # years
+    value_max_inclusive: False
+
   hospital_admission:
     code: HOSPITAL_ADMISSION
   hospital_discharge:
@@ -30,17 +39,17 @@ predicates:
     code: "LAB//Biochemical 1//Creatinine (enzymatic method) (CRE)//umol/L"
   abnormally_high_creatinine_1:
     code: "LAB//Renal function (hospitalized)//Creatinine (enzymatic method) (CRE)//umol/L"
-    value_min: 115 # umol/L == 1.3 mg/dL (x 88.4)
+    value_min: 114.92 # umol/L == 1.3 mg/dL (x 88.4)
     value_min_inclusive: False
     value_max: null
   abnormally_high_creatinine_2:
     code: "LAB//Biochemistry 2//Creatinine (enzymatic method) (CRE)//umol/L"
-    value_min: 115 # umol/L == 1.3 mg/dL (x 88.4)
+    value_min: 114.92 # umol/L == 1.3 mg/dL (x 88.4)
     value_min_inclusive: False
     value_max: null
   abnormally_high_creatinine_3:
     code: "LAB//Biochemical 1//Creatinine (enzymatic method) (CRE)//umol/L"
-    value_min: 115 # umol/L == 1.3 mg/dL (x 88.4)
+    value_min: 114.92 # umol/L == 1.3 mg/dL (x 88.4)
     value_min_inclusive: False
     value_max: null
   creatinine:
