@@ -26,8 +26,18 @@ to fetch the manifest.
 
 ## Supported Tasks
 
-No MEDS-DEV task lists SICdb in its `supported_datasets` yet. `predicates.yaml` defines every predicate the
-current tasks need, and all of them extract on the full release.
+Every current task, each extracted on the full 1.0.8 release:
+
+- `tasks/mortality/in_icu/first_24h.yaml`
+- `tasks/abnormal_lab/blood_chemistry/elevated_creatinine/first_24h.yaml`
+- `tasks/abnormal_lab/blood_chemistry/hyponatremia/first_24h.yaml`
+- `tasks/abnormal_lab/blood_chemistry/metabolic_acidosis/first_24h.yaml`
+- `tasks/abnormal_lab/cbc/anemia/first_24h.yaml`
+- `tasks/abnormal_lab/cbc/leukocytosis/first_24h.yaml`
+- `tasks/abnormal_lab/cbc/thrombocytopenia/first_24h.yaml`
+- `tasks/abnormal_lab/vital/hypotension/first_24h.yaml`
+
+SICdb has no demo, so the integration tests do not exercise these pairs.
 
 ## MEDS Transformation
 
