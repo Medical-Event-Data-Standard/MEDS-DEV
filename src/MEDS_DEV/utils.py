@@ -314,6 +314,39 @@ def file_hash(filepath, algorithm="sha256", chunk_size=4096):
     return hash_func.hexdigest()
 
 
+def clear_output_dir(output_dir: Path, keep: tuple[str, ...] = (".logs",)) -> None:
+    """Deletes the contents of `output_dir`, except for the top-level entries named in `keep`.
+
+    The MEDS-DEV entry points write their Hydra logs to `${output_dir}/.logs`, and those log files stay open
+    while the command runs. Deleting them would discard the current run's logs and, on network filesystems
+    such as NFS, fails with `OSError: [Errno 39] Directory not empty` because open files that are deleted get
+    renamed to `.nfs*` placeholders instead of being removed. So `.logs` is kept by default.
+
+    Args:
+        output_dir: The directory to clear. It must exist, and is itself not removed.
+        keep: Names of top-level entries in `output_dir` to leave in place.
+
+    Examples:
+        >>> with tempfile.TemporaryDirectory() as root:
+        ...     output_dir = Path(root)
+        ...     (output_dir / ".logs").mkdir()
+        ...     _ = (output_dir / ".logs" / "run.log").write_text("log")
+        ...     (output_dir / "data").mkdir()
+        ...     _ = (output_dir / "data" / "0.parquet").write_text("data")
+        ...     (output_dir / ".done").touch()
+        ...     clear_output_dir(output_dir)
+        ...     sorted(p.relative_to(output_dir).as_posix() for p in output_dir.rglob("*"))
+        ['.logs', '.logs/run.log']
+    """
+    for path in output_dir.iterdir():
+        if path.name in keep:
+            continue
+        if path.is_dir() and not path.is_symlink():
+            shutil.rmtree(path)
+        else:
+            path.unlink()
+
+
 @contextlib.contextmanager
 def temp_env(cfg: DictConfig, requirements: str | Path | None) -> tuple[Path, dict]:
     with tempdir_ctx(cfg) as build_temp_dir:
@@ -362,8 +395,8 @@ def run_in_env(
         output_dir = Path(output_dir)
 
     if do_overwrite and output_dir.exists():
-        logger.info(f"Removing existing output directory: {output_dir}")
-        shutil.rmtree(output_dir)
+        logger.info(f"Clearing existing output directory: {output_dir}")
+        clear_output_dir(output_dir)
 
     output_dir.mkdir(parents=True, exist_ok=True)
 

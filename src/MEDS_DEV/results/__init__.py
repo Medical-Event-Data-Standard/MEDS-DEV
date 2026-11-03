@@ -80,7 +80,7 @@ def _is_future(dt: datetime.datetime) -> bool:
         return dt > datetime.datetime.now(dt.tzinfo)
     else:
         logger.warning("Naive datetime detected. Assuming UTC.")
-        return dt > datetime.datetime.utcnow()  # noqa: DTZ003
+        return dt > datetime.datetime.now(datetime.UTC).replace(tzinfo=None)
 
 
 @dataclasses.dataclass
