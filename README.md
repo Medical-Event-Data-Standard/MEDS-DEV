@@ -187,6 +187,71 @@ parameter, and likewise for the fine-tuned model weights to the prediction stage
 > as needed, using the `mode=full` and `dataset_type=full` options. This will run the full sequence of
 > commands in 1-3 above, and store the intermediate results in subdirectories of the output directory.
 
+#### What `unsupervised` and `supervised` mean
+
+The two `dataset_type`s differ in whether a stage depends on a task, not only in whether it uses labels:
+
+| `dataset_type` | Receives `{labels_dir}`? | Depends on the task? | Typical use                                                             |
+| -------------- | ------------------------ | -------------------- | ----------------------------------------------------------------------- |
+| `unsupervised` | no                       | no                   | pre-training (run once per dataset, reusable by every task)             |
+| `supervised`   | yes                      | yes                  | task-specific training, and prediction for a task (including zero-shot) |
+
+A zero-shot model therefore defines `unsupervised.train` (pre-training) and `supervised.predict`, with
+`supervised.train` set to `null`. It predicts in `supervised` mode because it needs the task's labels
+directory (the rows to predict) and, through `{task_criteria_path}`, the task's definition.
+
+#### Reusing one pre-trained model across several tasks
+
+Pre-training does not depend on the task, so you can pre-train once and reuse the result for many tasks.
+There are two ways to do this.
+
+**Explicit stages.** Pre-train once, then point every task's stages at that directory:
+
+```bash
+# Pre-train once per dataset
+meds-dev-model model=$MODEL_NAME dataset_dir=$DATASET_DIR mode=train dataset_type=unsupervised \
+	output_dir=$RUN_DIR/pretrain
+
+for TASK_NAME in $TASKS; do
+	meds-dev-task task=$TASK_NAME dataset=$DATASET_NAME dataset_dir=$DATASET_DIR output_dir=$LABELS_ROOT/$TASK_NAME
+
+	# Fine-tune. Zero-shot models skip this command and use $RUN_DIR/pretrain as model_initialization_dir below.
+	meds-dev-model model=$MODEL_NAME dataset_dir=$DATASET_DIR labels_dir=$LABELS_ROOT/$TASK_NAME \
+		task_name=$TASK_NAME mode=train dataset_type=supervised \
+		model_initialization_dir=$RUN_DIR/pretrain output_dir=$RUN_DIR/$TASK_NAME/train
+
+	meds-dev-model model=$MODEL_NAME dataset_dir=$DATASET_DIR labels_dir=$LABELS_ROOT/$TASK_NAME \
+		task_name=$TASK_NAME mode=predict dataset_type=supervised split=held_out \
+		model_initialization_dir=$RUN_DIR/$TASK_NAME/train output_dir=$RUN_DIR/$TASK_NAME/predict
+
+	meds-dev-evaluation predictions_dir=$RUN_DIR/$TASK_NAME/predict output_dir=$RUN_DIR/$TASK_NAME/evaluation
+done
+```
+
+Passing `task_name` lets models that use `{task_criteria_path}` receive the task's registered criteria file.
+
+**Full mode with a shared output directory.** Run `mode=full dataset_type=full` once per task with the
+same `output_dir`, `dataset_name`, and `model`. Full mode lays out its stages as:
+
+```
+$RUN_DIR/$DATASET_NAME/unsupervised/train/   # shared by all tasks
+$RUN_DIR/$DATASET_NAME/$TASK_NAME/train/
+$RUN_DIR/$DATASET_NAME/$TASK_NAME/predict/
+```
+
+Every stage writes a `.done` marker when it finishes, and a stage whose directory already has one is
+skipped. Pre-training therefore runs for the first task only; later tasks reuse it. Stages whose command is
+`null` (for example `supervised.train` of a zero-shot model) are skipped, and `model_initialization_dir` then
+still points at the pre-training directory.
+
+> [!WARNING]
+> Do not set `do_overwrite=true` when reusing a pre-trained model. It deletes the whole `output_dir`
+> before anything runs, and also clears each stage's directory before running it. In full mode this deletes
+> the shared pre-training stage and the results of every other task, so pre-training runs again.
+>
+> Run the tasks one after another. Two runs started at the same time on a shared `output_dir` can both
+> start pre-training before either writes its `.done` marker.
+
 ### Evaluating predictions
 
 To evaluate the predictions of a model on a task, you can use the `meds-evaluation` helper:
@@ -298,6 +363,23 @@ A full description of these commands is coming soon, but for now, note that:
     `task_criteria_path` argument or, by default, the registered criteria file of `task_name`.
 2. Commands should be added in a nested manner for running either over `unsupervised` or `supervised`
     datasets, in either `train` or `predict` modes. See the random predictors example for an example.
+    Put task-independent work (e.g., pre-training) under `unsupervised`, so it runs once per dataset, and
+    task-dependent work under `supervised`; see
+    [What `unsupervised` and `supervised` mean](#what-unsupervised-and-supervised-mean).
+
+> [!TIP]
+> To start a new model, consider the
+> [MEDS algorithm template](https://github.com/McDermottHealthAI/MEDS_algorithm_template). It generates a
+> repository with a standard command-line interface for six profiles (`supervised`, `finetune`, `probe`,
+> `zero_shot_direct`, `zero_shot_materialized`, `predict_only`), conformance tests that run the model
+> through MEDS-DEV, and one `model.yaml` per profile. Register a profile with:
+>
+> ```bash
+> meds-algorithm-add-to-meds-dev --meds-dev /path/to/MEDS-DEV --name my_model --profile probe
+> ```
+>
+> which adds it as the `my_model__probe` model. The template is optional: any `model.yaml` that follows the
+> structure above can be added.
 
 See the help string for `meds-dev-model` for more information. Note the final output predictions should be
 stored as a set of parquet files in the final output directory specified by the `output_dir` variable in the
