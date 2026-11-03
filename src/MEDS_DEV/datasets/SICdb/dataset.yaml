@@ -1,0 +1,22 @@
+metadata:
+  description: >-
+    A MEDS version of the Salzburg Intensive Care database (SICdb), built with MEDS-Extract from the
+    pure-config SICdb_MEDS pipeline.
+  links:
+    - https://github.com/rvandewater/SICdb_MEDS
+    - https://physionet.org/content/sicdb/1.0.8/
+    - https://doi.org/10.13026/8m72-6j83
+    - https://doi.org/10.1038/s41597-024-03164-9
+  contacts:
+    - name: "Robin P. van de Water"
+      github_username: "rvandewater"
+  access_policy: public_with_approval
+  access_details: >-
+    Requires a credentialed PhysioNet account, completion of the CITI Data or Specimens Only Research
+    training, and signing the PhysioNet Contributor Review Health Data Use Agreement 1.5.0. Each study must
+    also be reviewed and approved by the SICdb contributors.
+commands:
+  build_full: >-
+    meds-extract-run spec=SICdb
+    download_dest_dir="{raw_input_dir}"
+    output_dir="{output_dir}"
