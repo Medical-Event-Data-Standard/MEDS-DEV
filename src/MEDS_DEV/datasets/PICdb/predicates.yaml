@@ -1,4 +1,4 @@
-# Predicates for PICdb, with the codes of PICdb-MEDS at commit 2cbffc3 (see README.md).
+# Predicates for PICdb, with the codes of PICdb-MEDS 0.0.3 (see README.md).
 # Supports mortality/in_icu/first_24h only. PICdb is paediatric (no admission at age 18 or older, many
 # neonates), so the abnormal_lab tasks, which exclude patients aged 18 or younger and use adult thresholds, do
 # not apply. Their lab codes are listed in README.md for paediatric task variants. There is no ICU MAP either:

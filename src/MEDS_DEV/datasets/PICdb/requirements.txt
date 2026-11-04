@@ -1,1 +1,1 @@
-PICdb-MEDS @ git+https://github.com/rvandewater/PICdb_MEDS@2cbffc3cc2559eaa382c55851268acfd68683709
+PICdb-MEDS==0.0.3

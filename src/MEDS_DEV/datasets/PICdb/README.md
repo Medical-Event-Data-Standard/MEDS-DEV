@@ -45,10 +45,10 @@ PICdb has no demo, so the integration tests do not exercise these pairs.
 
 [`PICdb-MEDS`](https://github.com/rvandewater/PICdb_MEDS) is a pure-config
 [MEDS-Extract](https://github.com/mmcdermott/MEDS_extract) 0.7 pipeline, registered as `spec=PICdb` for
-`meds-extract-run`. There is no public demo, so only `build_full` is provided.[3] `requirements.txt` pins
-commit `2cbffc3` of its `main` branch: the 0.0.1 release on PyPI (and the 0.0.2 tag) does not ship
-`event_configs.yaml`, so its `spec=PICdb` entry point cannot load. That commit ships it and adds a
-description for every code in `metadata/codes.parquet`. Notable properties of the conversion:
+`meds-extract-run`. There is no public demo, so only `build_full` is provided.[3] MEDS-DEV uses PICdb-MEDS
+0.0.3, the first release whose wheel ships `event_configs.yaml` (0.0.1 lacks it, so its `spec=PICdb` entry
+point cannot load). It also describes every code in `metadata/codes.parquet`. Notable properties of the
+conversion:
 
 - **Dates are shifted** 50–100 years into the future per patient, so only time differences within one
     subject carry meaning.
