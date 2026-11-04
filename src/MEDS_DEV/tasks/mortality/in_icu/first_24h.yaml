@@ -14,9 +14,12 @@ metadata:
       github_username: "mmcdermott"
   supported_datasets:
     - AUMCdb
+    - CDSL
+    - HIRID
     - MIMIC-IV
     - PICdb
     - SICdb
+    - Zigong
 
 predicates:
   icu_admission: ???
