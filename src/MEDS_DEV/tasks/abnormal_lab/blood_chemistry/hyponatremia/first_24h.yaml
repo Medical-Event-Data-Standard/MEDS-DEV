@@ -10,6 +10,7 @@ metadata:
     - name: "Jungwoo Oh"
       github_username: "jwoo5"
   supported_datasets:
+    - CDSL
     - HIRID
     - MIMIC-IV
     - SICdb
