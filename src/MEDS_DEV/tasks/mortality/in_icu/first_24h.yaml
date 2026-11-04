@@ -14,6 +14,7 @@ metadata:
       github_username: "mmcdermott"
   supported_datasets:
     - AUMCdb
+    - HIRID
     - MIMIC-IV
     - SICdb
 
