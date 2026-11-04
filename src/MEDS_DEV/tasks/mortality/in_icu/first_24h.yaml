@@ -15,8 +15,10 @@ metadata:
   supported_datasets:
     - AUMCdb
     - CDSL
+    - HIRID
     - MIMIC-IV
     - SICdb
+    - Zigong
 
 predicates:
   icu_admission: ???
