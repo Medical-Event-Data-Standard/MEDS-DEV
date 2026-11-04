@@ -1,0 +1,25 @@
+metadata:
+  description: >-
+    A MEDS version of HiRID, a high time-resolution dataset of ICU admissions at the Bern University Hospital,
+    built with MEDS-Extract from the pure-config HIRID_MEDS pipeline.
+  links:
+    - https://github.com/rvandewater/HIRID_MEDS
+    - https://physionet.org/content/hirid/1.1.1/
+    - https://doi.org/10.13026/nkwc-js72
+    - https://doi.org/10.1038/s41591-020-0789-4
+  contacts:
+    - name: "Robin P. van de Water"
+      github_username: "rvandewater"
+  access_policy: public_with_approval
+  access_details: >-
+    Requires a credentialed PhysioNet account, completion of the CITI Data or Specimens Only Research
+    training, and signing the PhysioNet Contributor Review Health Data Use Agreement 1.5.0. Each study must
+    also be reviewed by the HiRID contributors.
+commands:
+  # The polars streaming engine keeps the subject-sharding stage within ~10 GB of memory; without it the
+  # stage runs out of memory on a 24 GB machine (rvandewater/HIRID_MEDS#9).
+  build_full: >-
+    POLARS_ENGINE_AFFINITY=streaming
+    meds-extract-run spec=HIRID
+    download_dest_dir="{raw_input_dir}"
+    output_dir="{output_dir}"
