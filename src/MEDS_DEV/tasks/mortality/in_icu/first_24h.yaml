@@ -17,6 +17,7 @@ metadata:
     - CDSL
     - HIRID
     - MIMIC-IV
+    - PICdb
     - SICdb
     - Zigong
 
