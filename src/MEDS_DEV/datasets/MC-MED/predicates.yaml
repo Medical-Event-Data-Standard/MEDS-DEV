@@ -11,8 +11,12 @@ predicates:
   hospital_discharge:
     code: { regex: "^HOSPITAL_DISCHARGE//.*" }
 
-  # `icu_admission` and `icu_discharge` are deliberately undefined: MC-MED records only the ED's decision to
-  # admit a patient to the ICU (`ED_DISPOSITION//ICU`), not ICU stays.
+  # `ED_DISPOSITION//ICU` is the ED's decision to admit a patient to the ICU, at the disposition time (2.3% of
+  # visits). The patient then boards in the ED until departure (median 2.3 h), so it precedes arrival in the
+  # ICU by a few hours. MC-MED records no ICU discharge and no labs or vital signs after ED departure, so
+  # `icu_discharge` is deliberately undefined.
+  icu_admission:
+    code: ED_DISPOSITION//ICU
 
   # Labs are `LAB//<component name>//<unit>`, from the ED visit only (MC-MED has no inpatient labs). A code
   # is included when it measures the analyte in blood, serum or plasma and its unit matches the task

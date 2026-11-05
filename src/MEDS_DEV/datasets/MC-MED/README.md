@@ -27,9 +27,10 @@ None of the current tasks. Every one of them needs a hospital or ICU stay, and M
 only:
 
 - `tasks/mortality/in_icu/first_24h.yaml` and
-    `tasks/abnormal_lab/blood_chemistry/metabolic_acidosis/first_24h.yaml` start at an ICU admission. MC-MED
-    records the ED's decision to admit a patient to the ICU, not ICU stays, so `icu_admission` and
-    `icu_discharge` are undefined.
+    `tasks/abnormal_lab/blood_chemistry/metabolic_acidosis/first_24h.yaml` follow an ICU stay. MC-MED
+    identifies the 2,766 visits (2.3%) admitted from the ED to the ICU, so `icu_admission` is
+    `ED_DISPOSITION//ICU`, the disposition decision. But it records no ICU discharge time and no labs or vital
+    signs after ED departure, so `icu_discharge` is undefined and the tasks cannot be extracted.
 - The other abnormal-lab tasks and `tasks/abnormal_lab/vital/hypotension/first_24h.yaml` start at the hospital
     admission and label a measurement 24 to 48 hours later. MC-MED's labs and vital signs end at ED
     departure, so only patients still boarding in the ED more than a day after their admission order
@@ -51,8 +52,9 @@ no public demo, so only `build_full` is provided.[3] Notable properties of the c
 - **One visit is one ED encounter**, from `ED_ARRIVAL//<means of arrival>` to `ED_DEPARTURE`, and every
     visit-scoped event carries the visit's `CSN` in a `csn` column. Triage has no time of its own and is placed
     at arrival.
-- **Hospital admission and discharge.** `HOSPITAL_ADMISSION//<service>` is the admission order of a visit
-    admitted from the ED. MC-MED has no discharge time, so `HOSPITAL_DISCHARGE//<disposition>` is
+- **Hospital and ICU admission, and discharge.** `HOSPITAL_ADMISSION//<service>` is the admission order of
+    a visit admitted from the ED, and `ED_DISPOSITION//ICU` marks the decision to admit it to the ICU, a median
+    of 2.3 h before the patient leaves the ED. MC-MED has no discharge time, so `HOSPITAL_DISCHARGE//<disposition>` is
     reconstructed from the whole-day hospital length of stay, never earlier than ED departure. It is
     accurate to about a day.
 - **Birth and death.** There is no `MEDS_BIRTH`: MC-MED gives only an age perturbed by up to 2 years at each
