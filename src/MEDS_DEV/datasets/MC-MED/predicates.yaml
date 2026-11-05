@@ -1,0 +1,136 @@
+predicates:
+  # Codes are those of MC-MED-MEDS 0.1.0. MC-MED holds adult emergency department (ED) visits; each visit
+  # carries its CSN in the `csn` column.
+  #
+  # `HOSPITAL_ADMISSION//<admit service>` is the admission order of a visit that is admitted from the ED.
+  # MC-MED records no discharge time, so `HOSPITAL_DISCHARGE//<disposition>` is reconstructed as arrival
+  # plus the whole-day hospital length of stay, and never earlier than ED departure; it is accurate to about
+  # a day. Visits that are not admitted have neither event.
+  hospital_admission:
+    code: { regex: "^HOSPITAL_ADMISSION//.*" }
+  hospital_discharge:
+    code: { regex: "^HOSPITAL_DISCHARGE//.*" }
+
+  # `icu_admission` and `icu_discharge` are deliberately undefined: MC-MED records only the ED's decision to
+  # admit a patient to the ICU (`ED_DISPOSITION//ICU`), not ICU stays.
+
+  # Labs are `LAB//<component name>//<unit>`, from the ED visit only (MC-MED has no inpatient labs). A code
+  # is included when it measures the analyte in blood, serum or plasma and its unit matches the task
+  # threshold. Every abnormal predicate is a plain code, so ACES applies its numeric threshold.
+
+  # Serum/plasma and i-STAT point-of-care creatinine (mg/dL). Urine creatinine is excluded.
+  creatinine_1:
+    code: "LAB//CREATININE//mg/dL"
+  creatinine_2:
+    code: "LAB//POC:CREATININE,ISTAT//mg/dL"
+  abnormally_high_creatinine_1:
+    code: "LAB//CREATININE//mg/dL"
+    value_min: 1.3 # mg/dL
+    value_min_inclusive: False
+    value_max: null
+  abnormally_high_creatinine_2:
+    code: "LAB//POC:CREATININE,ISTAT//mg/dL"
+    value_min: 1.3 # mg/dL
+    value_min_inclusive: False
+    value_max: null
+  creatinine:
+    expr: or(creatinine_1, creatinine_2)
+  abnormally_high_creatinine:
+    expr: or(abnormally_high_creatinine_1, abnormally_high_creatinine_2)
+
+  # Serum/plasma, i-STAT and whole-blood sodium (mmol/L = mEq/L). Urine sodium is excluded.
+  sodium_1:
+    code: "LAB//SODIUM//mmol/L"
+  sodium_2:
+    code: "LAB//POC:SODIUM, ISTAT//mmol/L"
+  sodium_3:
+    code: "LAB//SODIUM.WHOLE BLD//mmol/L"
+  abnormally_low_sodium_1:
+    code: "LAB//SODIUM//mmol/L"
+    value_min: null
+    value_max: 135 # mEq/L
+    value_max_inclusive: False
+  abnormally_low_sodium_2:
+    code: "LAB//POC:SODIUM, ISTAT//mmol/L"
+    value_min: null
+    value_max: 135 # mEq/L
+    value_max_inclusive: False
+  abnormally_low_sodium_3:
+    code: "LAB//SODIUM.WHOLE BLD//mmol/L"
+    value_min: null
+    value_max: 135 # mEq/L
+    value_max_inclusive: False
+  sodium:
+    expr: or(sodium_1, sodium_2, sodium_3)
+  abnormally_low_sodium:
+    expr: or(abnormally_low_sodium_1, abnormally_low_sodium_2, abnormally_low_sodium_3)
+
+  # Serum/plasma total CO2 (mmol/L = mEq/L), the chemistry panel's bicarbonate. The i-STAT and blood-gas
+  # total CO2 (`TCO2`) are whole-blood measurements that run a few mmol/L higher, so they are excluded.
+  bicarbonate:
+    code: "LAB//CO2//mmol/L"
+  abnormally_low_bicarbonate:
+    code: "LAB//CO2//mmol/L"
+    value_min: null
+    value_max: 22 # mEq/L
+    value_max_inclusive: False
+
+  # Measured hemoglobin (g/dL): the CBC and the blood-gas co-oximetry value. The i-STAT hemoglobin is
+  # calculated from the hematocrit, so it is excluded.
+  hemoglobin_1:
+    code: "LAB//HEMOGLOBIN (HGB)//g/dL"
+  hemoglobin_2:
+    code: "LAB//HGB//g/dL"
+  abnormally_low_hemoglobin_1:
+    code: "LAB//HEMOGLOBIN (HGB)//g/dL"
+    value_min: null
+    value_max: 13 # g/dL
+    value_max_inclusive: False
+  abnormally_low_hemoglobin_2:
+    code: "LAB//HGB//g/dL"
+    value_min: null
+    value_max: 13 # g/dL
+    value_max_inclusive: False
+  hemoglobin:
+    expr: or(hemoglobin_1, hemoglobin_2)
+  abnormally_low_hemoglobin:
+    expr: or(abnormally_low_hemoglobin_1, abnormally_low_hemoglobin_2)
+
+  # Blood white cell count (K/uL). Counts without a unit and CSF counts are excluded.
+  wbc:
+    code: "LAB//WHITE BLOOD CELLS (WBC)//K/uL"
+  abnormally_high_wbc:
+    code: "LAB//WHITE BLOOD CELLS (WBC)//K/uL"
+    value_min: 11 # K/uL
+    value_min_inclusive: False
+    value_max: null
+
+  # Platelet count (K/uL).
+  platelets:
+    code: "LAB//PLATELET COUNT (PLT)//K/uL"
+  abnormally_low_platelets:
+    code: "LAB//PLATELET COUNT (PLT)//K/uL"
+    value_min: null
+    value_max: 150 # K/uL
+    value_max_inclusive: False
+
+  # Mean arterial pressure (mmHg), charted by nursing or from the bedside monitor. Monitor values are means
+  # over the preceding minute.
+  map_1:
+    code: "VITAL//MAP//Chart"
+  map_2:
+    code: "VITAL//MAP//Monitor"
+  abnormally_low_map_1:
+    code: "VITAL//MAP//Chart"
+    value_min: null
+    value_max: 65 # mmHg
+    value_max_inclusive: False
+  abnormally_low_map_2:
+    code: "VITAL//MAP//Monitor"
+    value_min: null
+    value_max: 65 # mmHg
+    value_max_inclusive: False
+  map:
+    expr: or(map_1, map_2)
+  abnormally_low_map:
+    expr: or(abnormally_low_map_1, abnormally_low_map_2)
