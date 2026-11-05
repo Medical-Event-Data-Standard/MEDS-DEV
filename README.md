@@ -13,6 +13,9 @@
 [![License](https://img.shields.io/github/license/Medical-Event-Data-Standard/MEDS-DEV)](https://github.com/Medical-Event-Data-Standard/MEDS-DEV/blob/main/LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Medical-Event-Data-Standard/MEDS-DEV/blob/main/CONTRIBUTORS.md)
 [![Contributors](https://img.shields.io/github/contributors/Medical-Event-Data-Standard/MEDS-DEV)](https://github.com/Medical-Event-Data-Standard/MEDS-DEV/graphs/contributors)
+[![Datasets](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FMedical-Event-Data-Standard%2FMEDS-DEV%2F_web%2Fbadges%2Fdatasets.json)](https://github.com/Medical-Event-Data-Standard/MEDS-DEV/tree/main/src/MEDS_DEV/datasets)
+[![Tasks](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FMedical-Event-Data-Standard%2FMEDS-DEV%2F_web%2Fbadges%2Ftasks.json)](https://github.com/Medical-Event-Data-Standard/MEDS-DEV/tree/main/src/MEDS_DEV/tasks)
+[![Models](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FMedical-Event-Data-Standard%2FMEDS-DEV%2F_web%2Fbadges%2Fmodels.json)](https://github.com/Medical-Event-Data-Standard/MEDS-DEV/tree/main/src/MEDS_DEV/models)
 
 The MEDS Decentralized, Extensible Validation (MEDS-DEV) system is a new kind of benchmark for Health AI that
 has three key differences from existing systems:
