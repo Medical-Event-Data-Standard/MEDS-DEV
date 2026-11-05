@@ -9,6 +9,7 @@ from omegaconf import DictConfig, OmegaConf
 
 from ..tasks import TASKS
 from ..utils import Metadata
+from .steps import load_step_graph
 
 model_files = files("MEDS_DEV.models")
 CFG_YAML = files("MEDS_DEV.configs") / "_run_model.yaml"
@@ -19,6 +20,13 @@ for path in model_files.rglob("*/model.yaml"):
     model_name = path.relative_to(model_files).parent.with_suffix("").as_posix()
     MODELS[model_name] = OmegaConf.to_object(OmegaConf.load(path))
     MODELS[model_name]["metadata"] = Metadata(**MODELS[model_name]["metadata"])
+    # Version 1 files are run by `model_commands`; version 2 files by `MEDS_DEV.models.steps`. Both are
+    # described by a step graph, which also validates version 2 files when the registry is loaded.
+    MODELS[model_name]["schema_version"] = MODELS[model_name].get("schema_version", 1)
+    try:
+        MODELS[model_name]["step_graph"] = load_step_graph(MODELS[model_name])
+    except ValueError as e:
+        raise ValueError(f"Invalid model.yaml for model {model_name} ({path}): {e}") from e
     requirements_path = path.parent / "requirements.txt"
     MODELS[model_name]["requirements"] = requirements_path if requirements_path.exists() else None
     MODELS[model_name]["model_dir"] = path.parent
@@ -124,6 +132,24 @@ def fmt_command(
         raise RuntimeError(f"Model does not support run mode {run_mode}.")
 
     return commands[dataset_type][run_mode].format(**format_kwargs)
+
+
+def task_criteria_path(task_name: str | None, explicit_path: str | Path | None = None) -> str | None:
+    """Returns a task's ACES criteria file: `explicit_path` if set, else the registered file of `task_name`.
+
+    Examples:
+        >>> task_criteria_path("not/a/task", "local/criteria.yaml")
+        'local/criteria.yaml'
+        >>> task_criteria_path("not/a/task") is None
+        True
+        >>> task_criteria_path(None) is None
+        True
+    """
+    if explicit_path:
+        return str(explicit_path)
+    if task_name in TASKS:
+        return str(TASKS[task_name]["criteria_fp"])
+    return None
 
 
 def model_commands(
@@ -256,11 +282,9 @@ def model_commands(
         format_kwargs["model_initialization_dir"] = cfg.model_initialization_dir
     if cfg.get("predicates_path", None):
         format_kwargs["predicates_path"] = str(cfg.predicates_path)
-    task_criteria_path = cfg.get("task_criteria_path", None)
-    if not task_criteria_path and cfg.get("task_name", None) in TASKS:
-        task_criteria_path = TASKS[cfg.task_name]["criteria_fp"]
-    if task_criteria_path:
-        format_kwargs["task_criteria_path"] = str(task_criteria_path)
+    criteria_fp = task_criteria_path(cfg.get("task_name", None), cfg.get("task_criteria_path", None))
+    if criteria_fp:
+        format_kwargs["task_criteria_path"] = str(criteria_fp)
     if cfg.get("split", None):
         if do_set_split:
             raise ValueError(f"Cannot set split manually when mode is {cfg.mode}.")
@@ -312,4 +336,4 @@ def model_commands(
             format_kwargs["model_initialization_dir"] = str(run_output_dir)
 
 
-__all__ = ["CFG_YAML", "MODELS", "DatasetType", "RunMode", "model_commands"]
+__all__ = ["CFG_YAML", "MODELS", "DatasetType", "RunMode", "model_commands", "task_criteria_path"]

@@ -23,6 +23,14 @@ predicates_path: null # optional path to a predicates file, for models that need
 
 task_criteria_path: null # optional ACES task criteria file; defaults to the registered file of task_name
 
+# The following options apply to models whose model.yaml uses `schema_version: 2` (explicit steps).
+steps: null # run only these steps (plus the steps they need); defaults to the steps selected by dataset_type/mode
+tasks: null # run several tasks; shared dataset-scoped steps run once. Labels are read from labels_root/<task>
+labels_root: null # root directory of the per-task labels, used with tasks
+step_dirs: {} # existing outputs to use for these steps instead of running them, e.g. +step_dirs.pretrain=/path
+overwrite: null # none | task | all; which step directories to clear first (defaults to all if do_overwrite)
+lock_timeout: 86400 # seconds to wait for another run that holds the lock of a shared step
+
 output_dir: ???
 
 hydra:
@@ -79,6 +87,18 @@ hydra:
       predict a task from its definition rather than from its labels), it is the ACES criteria file of the
       task: "task_criteria_path" when set, otherwise the registered criteria file of "task_name". Pair it
       with "predicates_path" to give the model the same task that "meds-dev-task" extracted the labels with.
+
+      Models whose model.yaml sets "schema_version: 2" list explicit steps instead of the four slots above.
+      Each step is dataset-scoped (run once per dataset, stored under
+      "<output_dir>/<dataset_name>/_shared/<step>/" and shared by every task) or task-scoped (stored under
+      "<output_dir>/<dataset_name>/<task_name>/<step>/"; the predict step under ".../predict/"). For these
+      models: dataset_type/mode select steps as above (dataset-scoped steps for "unsupervised", task-scoped
+      ones for "supervised"), plus every step they need; "steps" selects steps by name instead; "tasks" with
+      "labels_root" runs several tasks in one call; "step_dirs" reuses existing outputs; "overwrite" chooses
+      which step directories to clear ("task" keeps shared steps); and "model_initialization_dir" points at
+      the output_dir of an earlier run whose shared steps should be reused. dataset_name is required, and
+      task_name (or tasks) whenever task-scoped steps run. Shared steps are locked while they run, so tasks
+      can run concurrently on the same output_dir.
 
       If do_overwrite is set to true, the output dir will be cleared before anything is run. With a shared
       output_dir in full mode, this also deletes the shared pre-training stage and other tasks' results.

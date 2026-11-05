@@ -385,6 +385,106 @@ See the help string for `meds-dev-model` for more information. Note the final ou
 stored as a set of parquet files in the final output directory specified by the `output_dir` variable in the
 format expected by `meds-evaluation`.
 
+#### `model.yaml` version 2: explicit steps
+
+> [!NOTE]
+> Version 2 is optional. Existing `model.yaml` files (version 1, the four slots above) keep working unchanged.
+
+With the four slots above, a model with more steps than slots has to group several steps into one slot.
+Task-independent work grouped into a `supervised` slot (e.g., preprocessing or computing embeddings) is then
+repeated for every task. A version 2 `model.yaml` instead lists the model's steps explicitly:
+
+```yaml
+schema_version: 2
+metadata: {'...': null}
+profile: probe # optional; enables extra checks (see below)
+steps:
+  preprocess_data:
+    scope: dataset # task-independent: run once per dataset, shared by every task
+    command: my-model preprocess input={dataset_dir} 
+      predicates={predicates_path} output={step_dir}
+  pretrain:
+    scope: dataset
+    needs: [preprocess_data]
+    command: my-model pretrain data={preprocess_data_dir} output={step_dir}
+  infer_embeddings:
+    scope: task # run once per task
+    needs: [preprocess_data, pretrain]
+    command: my-model embed data={preprocess_data_dir} encoder={pretrain_dir} 
+      index={labels_dir} output={step_dir}
+  train_probe:
+    scope: task
+    needs: [infer_embeddings]
+    command: my-model train_probe embeddings={infer_embeddings_dir} 
+      labels={labels_dir} output={step_dir}
+  predict_probe:
+    scope: task
+    needs: [infer_embeddings, train_probe]
+    predict: true # exactly one step; its output is evaluated
+    command: my-model predict embeddings={infer_embeddings_dir} 
+      probe={train_probe_dir} split={split} output={step_dir}
+```
+
+Each step has a `scope` (`dataset` or `task`), a `command`, optionally `needs` (earlier steps whose outputs
+it reads), and exactly one task-scoped step sets `predict: true`. Commands can use:
+
+| Template variable                                             | Available in       | Value                                      |
+| ------------------------------------------------------------- | ------------------ | ------------------------------------------ |
+| `{dataset_dir}`, `{model_dir}`, `{demo}`, `{predicates_path}` | every step         | as in version 1                            |
+| `{step_dir}`                                                  | every step         | this step's output directory               |
+| `{<step>_dir}`                                                | steps that need it | the output directory of that earlier step  |
+| `{labels_dir}`, `{task_criteria_path}`                        | task-scoped steps  | as in version 1                            |
+| `{split}`                                                     | the predict step   | the split to predict (default: `held_out`) |
+
+`{output_dir}` and `{model_initialization_dir}` are not used in version 2: each step writes to `{step_dir}`
+and reads the outputs of the steps it needs. These rules are checked when MEDS-DEV loads the model, so a
+dataset-scoped step cannot use `{labels_dir}` and no step can read an output it did not declare.
+
+Steps are stored under `<output_dir>/<dataset_name>/`:
+
+```
+_shared/<step>/output/        # dataset-scoped steps, shared by every task
+<task_name>/<step>/output/    # task-scoped steps
+<task_name>/predict/output/   # the predict step (held-out split)
+```
+
+MEDS-DEV keeps its own files (`cmd.sh`, `.done`) in `<step>/`, next to the step's `output/`. Finished steps
+are skipped, and shared steps are locked while they run, so several tasks can run at the same time on the
+same `output_dir`. `dataset_name` must be set, and `task_name` (or `tasks`) whenever task-scoped steps run.
+
+Running a version 2 model:
+
+```bash
+# Every step for one task (shared steps are reused if they already ran)
+meds-dev-model model=$MODEL_NAME dataset_dir=$DATASET_DIR dataset_name=$DATASET_NAME \
+	task_name=$TASK_NAME labels_dir=$LABELS_DIR predicates_path=$PREDICATES mode=full dataset_type=full \
+	output_dir=$RUN_DIR
+
+# Several tasks in one call: shared steps run once; labels are read from labels_root/<task>
+meds-dev-model model=$MODEL_NAME dataset_dir=$DATASET_DIR dataset_name=$DATASET_NAME \
+	'tasks=[task_a,task_b]' labels_root=$LABELS_ROOT mode=full dataset_type=full output_dir=$RUN_DIR
+
+# Only some steps (plus the steps they need), reusing an existing output for one of them
+meds-dev-model ... 'steps=[predict_probe]' +step_dirs.pretrain=/path/to/pretrain/output
+```
+
+`dataset_type` and `mode` select steps as in version 1 (`unsupervised` selects the dataset-scoped steps,
+`supervised` the task-scoped ones; `train` the steps before the predict step, `predict` the predict step),
+plus every step they need. `model_initialization_dir` points at the `output_dir` of an earlier run whose
+shared steps should be reused. `overwrite=task` clears this run's task-scoped steps but keeps the shared ones;
+`overwrite=all` (or `do_overwrite=true`) clears every step the run executes, but never the rest of
+`output_dir`.
+
+If `profile` is set, MEDS-DEV also checks the steps against it:
+
+| `profile`                | Check                                                                                                                        |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
+| `supervised`             | at least one task-scoped training step before the predict step                                                               |
+| `finetune`, `probe`      | at least one dataset-scoped step, and at least one task-scoped training step                                                 |
+| `zero_shot_direct`       | at least one dataset-scoped step; no task-scoped step besides the predict step; the predict step uses `{task_criteria_path}` |
+| `zero_shot_materialized` | at least one dataset-scoped step; the predict step uses `{task_criteria_path}`                                               |
+| `predict_only`           | no task-scoped step besides the predict step                                                                                 |
+
 ## Efficient Testing
 
 To make testing more efficient during model / task development, you can use a local, persistent cache dir to
