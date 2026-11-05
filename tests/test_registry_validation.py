@@ -72,6 +72,9 @@ def test_all_models_have_metadata():
 
 def test_all_models_have_commands():
     for name, model in MODELS.items():
+        if model["schema_version"] >= 2:
+            assert model["step_graph"].predict_step is not None, f"Model {name} has no predict step"
+            continue
         commands = model.get("commands")
         assert commands is not None, f"Model {name} missing commands"
         has_unsupervised = "unsupervised" in commands
@@ -79,6 +82,14 @@ def test_all_models_have_commands():
         assert has_unsupervised or has_supervised, (
             f"Model {name} must have at least one of unsupervised/supervised commands"
         )
+
+
+def test_all_models_have_step_graphs():
+    """Every registered model, of either schema version, is described by a step graph."""
+    for name, model in MODELS.items():
+        graph = model["step_graph"]
+        assert graph.schema_version == model["schema_version"], f"Model {name} has a mismatched step graph"
+        assert graph.steps, f"Model {name} has no steps"
 
 
 def test_all_models_requirements_exist_if_declared():

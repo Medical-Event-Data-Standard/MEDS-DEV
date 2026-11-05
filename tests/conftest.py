@@ -9,6 +9,7 @@ import polars as pl
 import pytest
 
 from MEDS_DEV import DATASETS, MODELS, TASKS
+from MEDS_DEV.models.steps import Scope
 from tests.utils import NAME_AND_DIR, run_command
 
 logger = logging.getLogger(__name__)
@@ -509,6 +510,17 @@ def missing_labels_in_splits(labels_dir: Path, dataset_dir: Path) -> set[str]:
     return all_splits - splits_with_labels
 
 
+def has_unsupervised_stage(model: str) -> bool:
+    """Whether a model has a task-independent stage to run before its task-specific stages.
+
+    For version 1 models this is `commands.unsupervised.train`; for version 2 models, any dataset-scoped step.
+    """
+    graph = MODELS[model]["step_graph"]
+    if graph.schema_version == 1:
+        return "unsupervised_train" in graph.by_name
+    return any(step.scope == Scope.DATASET for step in graph.steps)
+
+
 @pytest.fixture(scope="session")
 def unsupervised_model(request, demo_dataset: NAME_AND_DIR, venv_cache: Path) -> NAME_AND_DIR:
     model = request.param
@@ -525,8 +537,7 @@ def unsupervised_model(request, demo_dataset: NAME_AND_DIR, venv_cache: Path) ->
         model_fp.parent.mkdir(parents=True, exist_ok=True)
         model_fp.write_text(model)
 
-    unsupervised_commands = MODELS[model]["commands"].get("unsupervised", None)
-    if (not unsupervised_commands) or (not unsupervised_commands.get("train", None)):
+    if not has_unsupervised_stage(model):
         yield model, None
         return
 
@@ -552,6 +563,7 @@ def unsupervised_model(request, demo_dataset: NAME_AND_DIR, venv_cache: Path) ->
                     "mode": "train",
                     "dataset_dir": str(dataset_dir.resolve()),
                     "dataset_name": dataset_name,
+                    "predicates_path": str(DATASETS[dataset_name]["predicates"]),
                     "output_dir": str(model_dir.resolve()),
                     "demo": True,
                     "venv_dir": str(venv_dir.resolve()),
