@@ -35,3 +35,7 @@ def main(cfg: DictConfig):
                 raise ValueError(f"Failed to run {cfg.model} command {cmd}") from e
 
     logger.info(f"Model {cfg.model} finished successfully.")
+
+
+if __name__ == "__main__":  # pragma: no cover
+    main()
