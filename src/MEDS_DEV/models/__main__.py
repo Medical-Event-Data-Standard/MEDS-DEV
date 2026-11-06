@@ -1,11 +1,10 @@
 import logging
-import shutil
 from pathlib import Path
 
 import hydra
 from omegaconf import DictConfig
 
-from ..utils import run_in_env, temp_env
+from ..utils import clear_output_dir, run_in_env, temp_env
 from . import CFG_YAML, MODELS, model_commands
 
 logger = logging.getLogger(__name__)
@@ -22,8 +21,8 @@ def main(cfg: DictConfig):
 
     output_dir = Path(cfg.output_dir)
     if cfg.get("do_overwrite", False) and output_dir.exists():  # pragma: no cover
-        logger.info(f"Removing existing output directory: {output_dir}")
-        shutil.rmtree(output_dir)
+        logger.info(f"Clearing existing output directory: {output_dir}")
+        clear_output_dir(output_dir)
 
     output_dir.mkdir(parents=True, exist_ok=True)
 

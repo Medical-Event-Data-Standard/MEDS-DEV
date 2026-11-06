@@ -74,4 +74,5 @@ hydra:
       task: "task_criteria_path" when set, otherwise the registered criteria file of "task_name". Pair it
       with "predicates_path" to give the model the same task that "meds-dev-task" extracted the labels with.
 
-      If do_overwrite is set to true, the output dir will be cleared before anything is run.
+      If do_overwrite is set to true, the output dir (except for its ".logs" log directory) will be cleared
+      before anything is run.

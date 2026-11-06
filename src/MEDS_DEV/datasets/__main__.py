@@ -1,11 +1,10 @@
 import logging
-import shutil
 from pathlib import Path
 
 import hydra
 from omegaconf import DictConfig
 
-from ..utils import run_in_env, temp_env
+from ..utils import clear_output_dir, run_in_env, temp_env
 from . import CFG_YAML, DATASETS
 
 logger = logging.getLogger(__name__)
@@ -53,6 +52,35 @@ def _select_build_command(dataset: str, commands: dict, demo: bool) -> str:
     return commands["build_full"]
 
 
+def format_build_command(
+    command: str, output_dir: str, temp_dir: Path, raw_input_dir: str | Path | None = None
+) -> str:
+    """Fill in the path placeholders of a dataset build command.
+
+    Args:
+        command: The build command template, using `{output_dir}`, `{temp_dir}`, and `{raw_input_dir}`.
+        output_dir: Where the final MEDS cohort is written.
+        temp_dir: The directory for intermediate build files.
+        raw_input_dir: A directory holding (or to receive) the raw source data. If `None`, `{temp_dir}/raw`
+            is used, so the download does not outlive the build.
+
+    Returns:
+        The formatted build command, with absolute `temp_dir` and `raw_input_dir` paths.
+
+    Examples:
+        >>> cmd = "etl raw={raw_input_dir} tmp={temp_dir} out={output_dir}"
+        >>> out = format_build_command(cmd, "meds", Path("build"))
+        >>> out == f"etl raw={Path('build').resolve() / 'raw'} tmp={Path('build').resolve()} out=meds"
+        True
+        >>> out = format_build_command(cmd, "meds", Path("build"), raw_input_dir="downloads")
+        >>> out == f"etl raw={Path('downloads').resolve()} tmp={Path('build').resolve()} out=meds"
+        True
+    """
+    temp_dir = temp_dir.resolve()
+    raw_input_dir = temp_dir / "raw" if raw_input_dir is None else Path(raw_input_dir).expanduser().resolve()
+    return command.format(output_dir=output_dir, temp_dir=str(temp_dir), raw_input_dir=str(raw_input_dir))
+
+
 @hydra.main(version_base=None, config_path=str(CFG_YAML.parent), config_name=CFG_YAML.stem)
 def main(cfg: DictConfig):
     if cfg.dataset not in DATASETS:
@@ -65,10 +93,8 @@ def main(cfg: DictConfig):
 
     output_dir = Path(cfg.output_dir)
     if cfg.get("do_overwrite", False) and output_dir.exists():  # pragma: no cover
-        logger.info(f"Removing existing output directory: {output_dir}")
-        shutil.rmtree(output_dir)
-
-        output_dir.mkdir(parents=True, exist_ok=False)
+        logger.info(f"Clearing existing output directory: {output_dir}")
+        clear_output_dir(output_dir)
 
     done_fp = output_dir / ".done"
     if done_fp.is_file():  # pragma: no cover
@@ -78,7 +104,9 @@ def main(cfg: DictConfig):
     build_cmd = _select_build_command(cfg.dataset, commands, cfg.demo)
 
     with temp_env(cfg, requirements) as (build_temp_dir, env):
-        build_cmd = build_cmd.format(output_dir=cfg.output_dir, temp_dir=str(build_temp_dir.resolve()))
+        build_cmd = format_build_command(
+            build_cmd, cfg.output_dir, build_temp_dir, raw_input_dir=cfg.get("raw_input_dir")
+        )
 
         logger.info(f"Considering running build command: {build_cmd}")
         run_in_env(
