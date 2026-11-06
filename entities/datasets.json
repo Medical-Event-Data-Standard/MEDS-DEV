@@ -214,6 +214,142 @@
     },
     "name": "AUMCdb"
   },
+  "INSPECT": {
+    "children": [],
+    "data": {
+      "entity": {
+        "commands": {
+          "build_full": "echo \"INSPECT is distributed as STARR-OMOP tables and must be downloaded manually after accepting its data use agreement (see https://som-shahlab.github.io/inspect-website/), then converted to MEDS with meds_etl_omop (see src/MEDS_DEV/datasets/INSPECT/README.md). Pass the converted MEDS directory as dataset_dir to meds-dev-task and meds-dev-model instead of building it.\" >&2 && exit 1"
+        },
+        "metadata": {
+          "access_details": "The de-identified dataset is available for non-commercial research use under the INSPECT data use agreement. The EHR tables are distributed through Stanford's Redivis platform and the CT images through the Stanford AIMI shared datasets portal.",
+          "access_policy": "public_with_approval",
+          "contacts": [
+            {
+              "github_username": "rvandewater",
+              "name": "Robin P. van de Water"
+            }
+          ],
+          "description": "A MEDS version of the structured EHR modality of INSPECT, a Stanford Medicine dataset of patients who underwent CT pulmonary angiography, converted from its STARR-OMOP tables with meds_etl.",
+          "links": [
+            "https://som-shahlab.github.io/inspect-website/",
+            "https://doi.org/10.71718/aqrb-et67",
+            "https://arxiv.org/abs/2311.10798",
+            "https://github.com/Medical-Event-Data-Standard/meds_etl"
+          ]
+        }
+      },
+      "predicates": {
+        "predicates": {
+          "abnormally_high_creatinine": {
+            "code": "LOINC/2160-0",
+            "value_max": null,
+            "value_min": 1.3,
+            "value_min_inclusive": false
+          },
+          "abnormally_high_wbc": {
+            "code": "LOINC/20584-9",
+            "value_max": null,
+            "value_min": 11,
+            "value_min_inclusive": false
+          },
+          "abnormally_low_bicarbonate": {
+            "code": "LOINC/2028-9",
+            "value_max": 22,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_hemoglobin": {
+            "expr": "or(abnormally_low_hemoglobin_1, abnormally_low_hemoglobin_2)"
+          },
+          "abnormally_low_hemoglobin_1": {
+            "code": "LOINC/718-7",
+            "value_max": 13,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_hemoglobin_2": {
+            "code": "LOINC/30313-1",
+            "value_max": 13,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_map": {
+            "code": "LOINC/8478-0",
+            "value_max": 65,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_platelets": {
+            "code": "LOINC/777-3",
+            "value_max": 150,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_sodium": {
+            "expr": "or(abnormally_low_sodium_1, abnormally_low_sodium_2)"
+          },
+          "abnormally_low_sodium_1": {
+            "code": "LOINC/2951-2",
+            "value_max": 135,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_sodium_2": {
+            "code": "LOINC/2947-0",
+            "value_max": 135,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "bicarbonate": {
+            "code": "LOINC/2028-9"
+          },
+          "creatinine": {
+            "code": "LOINC/2160-0"
+          },
+          "hemoglobin": {
+            "expr": "or(hemoglobin_1, hemoglobin_2)"
+          },
+          "hemoglobin_1": {
+            "code": "LOINC/718-7"
+          },
+          "hemoglobin_2": {
+            "code": "LOINC/30313-1"
+          },
+          "hospital_admission": {
+            "code": {
+              "regex": "^STANFORD_VISIT/(Inpatient|Private [(]Gen/Acute[)] [(]I[)]|Ward [(]Gen/Acute[)] [(]I[)]|Intensive Care [(]IC[)]|Surgery Admit)[|][^|]*[|]Hospital Encounter$"
+            }
+          },
+          "icu_admission": {
+            "code": "Visit/OMOP4822460"
+          },
+          "map": {
+            "code": "LOINC/8478-0"
+          },
+          "platelets": {
+            "code": "LOINC/777-3"
+          },
+          "sodium": {
+            "expr": "or(sodium_1, sodium_2)"
+          },
+          "sodium_1": {
+            "code": "LOINC/2951-2"
+          },
+          "sodium_2": {
+            "code": "LOINC/2947-0"
+          },
+          "wbc": {
+            "code": "LOINC/20584-9"
+          }
+        }
+      },
+      "readme": "# INSPECT: Integrating Numerous Sources for Prognostic Evaluation of Clinical Timelines\n\n## Description\n\nINSPECT is a multimodal dataset from Stanford Medicine of 19,402 patients with 23,248 CT pulmonary\nangiography (CTPA) studies performed to diagnose pulmonary embolism. It pairs the CT images and radiology\nreport impressions with each patient's longitudinal structured EHR data, released as STARR-OMOP tables\n(Stanford's research data repository in the OMOP Common Data Model).[1][2] MEDS-DEV uses only the\nstructured EHR modality.\n\n## Access Requirements\n\nTaken from the [INSPECT website](https://som-shahlab.github.io/inspect-website/) and\n[Stanford AIMI](https://aimi.stanford.edu/datasets/inspect-Multimodal-Dataset-for-Pulmonary-Embolism-Diagnosis-and-Prognosis):\n\n- **Access Policy**: The de-identified dataset is available under a data use agreement.[1][3]\n- **Permitted use**: Non-commercial research use only.[1][3]\n- **Distribution**: The EHR tables are distributed through Stanford's Redivis platform; the CT images\n    through the Stanford AIMI shared datasets portal.[1][3]\n- **Dataset DOI**: [10.71718/aqrb-et67](https://doi.org/10.71718/aqrb-et67).[3]\n\n## Supported Tasks\n\nNo MEDS-DEV task lists INSPECT in its `supported_datasets` yet. Every current task excludes stays with a\nhospital or ICU discharge shortly after admission, and this conversion has no discharge events (see below), so\n`predicates.yaml` leaves `hospital_discharge` and `icu_discharge` undefined rather than approximating them.\n\n## MEDS Transformation\n\nThe INSPECT EHR data is distributed in OMOP form. The predicates target a conversion of the INSPECT STARR-OMOP\nrelease with [`meds_etl`](https://github.com/Medical-Event-Data-Standard/meds_etl)'s `meds_etl_omop` (version\n`0.3.9.dev11+gba0eec1`, MEDS 0.3.3), which prefers source concepts over standard ones and writes codes as\n`<vocabulary_id>/<concept_code>`, e.g. `LOINC/2951-2`. They do not match a conversion with MEDS-Extract, which\nwrites codes such as `LOINC//2951-2` and adds `//start` and `//end` events. `build_full` is not automated\nbecause the conversion has not been verified against a published `meds_etl` release, so convert the download\nyourself and pass the MEDS directory as `dataset_dir`. The conversion does not write\n`metadata/subject_splits.parquet`, so add one before training models.\n\nThe predicates were chosen from a privacy-preserving code summary made with\n[suMEDS](https://github.com/rvandewater/suMEDS) (codes seen in at least 20 subjects, with per-code and per-unit\nvalue statistics), without inspecting patient-level data. Notable properties of the conversion:\n\n- **Hospital admissions** are the `visit_occurrence` events, coded with Stanford source visit concepts\n    `STANFORD_VISIT/<patient class>|<admission type>|<encounter type>`. `hospital_admission` matches hospital\n    encounters with an inpatient patient class (`Inpatient`, `Private (Gen/Acute) (I)`, `Ward (Gen/Acute) (I)`,\n    `Intensive Care (IC)`, `Surgery Admit`) for any admission type. Observation, pre-admission, skilled-nursing,\n    and historical (legacy-system) encounters are excluded, as are appointments, anesthesia records, and lab\n    draws recorded under an inpatient class.\n- **ICU admissions** are `visit_detail` unit segments with the standard concept `Visit/OMOP4822460` (OMOP\n    concept 32037, \"Intensive Care\"). Several segments can belong to one ICU stay. `CMS Place of Service/OMOP4822038`\n    (\"Inpatient Cardiac Care Facility\") is not counted as ICU care.\n- **No discharge events.** `meds_etl.omop` keeps visit end times only in the `end` column of the visit's start\n    event, which ACES can't use, and writes a separate end-of-visit event only from `discharged_to_concept_id`,\n    for which the conversion has no events.\n- **Birth and death** are `MEDS_BIRTH` and `MEDS_DEATH`, so the tasks' default predicates apply.\n- **Labs and vitals** use LOINC codes measured directly in blood, serum, or plasma, with units equivalent to\n    the task thresholds: creatinine `LOINC/2160-0`; sodium `LOINC/2951-2`, `LOINC/2947-0`; bicarbonate as total\n    CO2 `LOINC/2028-9`; hemoglobin `LOINC/718-7`, `LOINC/30313-1`; WBC `LOINC/20584-9`; platelets `LOINC/777-3`;\n    and mean blood pressure `LOINC/8478-0`. `LOINC/6690-2` (leukocytes) is excluded because part of its values\n    are reported per uL rather than 10^3/uL.\n\nA conversion that emits visit-end events would support the discharge-based tasks, but it needs its own\npredicates.\n\n## Sources\n\n1. [INSPECT website](https://som-shahlab.github.io/inspect-website/)\n2. [INSPECT paper (arXiv:2311.10798)](https://arxiv.org/abs/2311.10798), NeurIPS 2023 Datasets and Benchmarks\n    Track\n3. [INSPECT on Stanford AIMI](https://aimi.stanford.edu/datasets/inspect-Multimodal-Dataset-for-Pulmonary-Embolism-Diagnosis-and-Prognosis)\n4. [INSPECT benchmark code](https://github.com/som-shahlab/INSPECT_public)\n",
+      "refs": "@inproceedings{huang2023inspect,\n  author = {Huang, Shih-Cheng and Huo, Zepeng and Steinberg, Ethan and Chiang, Chia-Chun and Langlotz, Curtis and Lungren, Matthew P. and Yeung, Serena and Shah, Nigam and Fries, Jason Alan},\n  title = {{INSPECT}: A Multimodal Dataset for Patient Outcome Prediction of Pulmonary Embolisms},\n  booktitle = {Advances in Neural Information Processing Systems},\n  volume = {36},\n  year = {2023},\n  note = {Datasets and Benchmarks Track},\n  url = {https://arxiv.org/abs/2311.10798},\n}\n\n@misc{inspect_dataset,\n  title = {{INSPECT}: A Multimodal Dataset for Pulmonary Embolism Diagnosis and Prognosis},\n  howpublished = {Stanford AIMI Shared Datasets},\n  doi = {10.71718/aqrb-et67},\n  url = {https://doi.org/10.71718/aqrb-et67},\n}\n",
+      "type": "dataset"
+    },
+    "name": "INSPECT"
+  },
   "INSPIRE": {
     "children": [],
     "data": {
