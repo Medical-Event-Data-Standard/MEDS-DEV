@@ -53,3 +53,7 @@ def main(cfg: DictConfig):
         run_as_script=False,
     )
     logger.info(f"Extract {cfg.task} for {cfg.dataset} command {cmd} finished successfully.")
+
+
+if __name__ == "__main__":  # pragma: no cover
+    main()
