@@ -1,0 +1,21 @@
+metadata:
+  description: >-
+    A MEDS version of MC-MED (Multimodal Clinical Monitoring in the Emergency Department), built with
+    MEDS-Extract from the pure-config MC-MED-MEDS pipeline, with its ICD code metadata enriched by suMEDS.
+  links:
+    - https://github.com/rvandewater/MC_MED_MEDS
+    - https://physionet.org/content/mc-med/1.0.1/
+    - https://doi.org/10.13026/wvyw-g663
+    - https://doi.org/10.1038/s41597-025-05419-5
+  contacts:
+    - name: "Robin P. van de Water"
+      github_username: "rvandewater"
+  access_policy: public_with_approval
+  access_details: >-
+    Requires a credentialed PhysioNet account, completion of the CITI Data or Specimens Only Research
+    training, and signing the PhysioNet Credentialed Health Data Use Agreement 1.5.0.
+commands:
+  build_full: >-
+    suMEDS-extract spec=MC-MED
+    download_dest_dir="{raw_input_dir}"
+    output_dir="{output_dir}"
