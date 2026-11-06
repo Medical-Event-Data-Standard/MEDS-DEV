@@ -72,7 +72,8 @@ If you just want to reproduce MEDS-DEV models and tasks over public or your own,
 install MEDS-DEV from [PyPI](https://pypi.org/project/MEDS-DEV/) via `pip install MEDS-DEV`.
 
 If you want to _contribute new models, tasks, or datasets_ to MEDS-DEV, you need to fork this repository,
-clone your fork, and then install the repository locally in "editable" mode via `pip install -e .[dev,tests]`.
+clone your fork, and then install the repository locally in "editable" mode via `uv sync` (see
+[`CONTRIBUTORS.md`](CONTRIBUTORS.md)).
 This will let you prepare your PR code and run the tests to ensure your contributions are valid and
 transportable across MEDS-DEV datasets and tasks.
 

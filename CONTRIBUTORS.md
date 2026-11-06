@@ -16,7 +16,7 @@ This project uses [`uv`](https://docs.astral.sh/uv/) for environment management.
 development, clone the repository, then sync the uv environment and install the pre-commit hook:
 
 ```bash
-uv sync                   # Creates .venv and installs the project (editable) plus the dev/test extras.
+uv sync                   # Creates .venv and installs the project (editable) plus the dev dependency group.
 uv run pre-commit install # Installs the Git pre-commit hook so checks run automatically on commit.
 ```
 
