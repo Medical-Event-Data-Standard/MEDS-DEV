@@ -24,8 +24,8 @@ The core abstractions are:
 # Standard install (users reproducing benchmarks)
 pip install MEDS-DEV
 
-# Development install (contributors)
-pip install -e ".[dev,tests]"
+# Development install (contributors): editable install plus the `dev` dependency group
+uv sync
 ```
 
 Supports Python 3.11–3.13 (fast checks run on all three; integration tests and dataset/model venvs use 3.11).
@@ -130,7 +130,7 @@ YAML files prefixed with `_`. Arguments are passed as Hydra overrides (dot-list 
 Models and datasets run in isolated venvs to avoid dependency conflicts. The venv lifecycle is
 managed by `src/MEDS_DEV/utils.py`:
 
-- `install_venv(venv_dir, requirements)` — creates venv + pip installs requirements
+- `install_venv(venv_dir, requirements)` — creates a venv and installs requirements with `uv`
 - `temp_env(cfg, requirements)` — context manager that sets up venv + PATH
 - `run_in_env(cmd, output_dir, env)` — runs a shell command in the venv, writes a `.done`
     sentinel on success to support idempotent reruns
