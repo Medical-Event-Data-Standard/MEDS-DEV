@@ -231,3 +231,85 @@ def test_http_fetch(monkeypatch):
 
     with pytest.raises(FileNotFoundError, match="does not exist"):
         sources.http_fetch("https://raw.githubusercontent.com/org/m/sha/missing")
+
+
+def test_register_source_models(tmp_path: Path):
+    from MEDS_DEV.models import register_source_models
+
+    root = tmp_path / "models"
+    write_source(root / "family" / "remote")
+    models = {}
+    register_source_models(root, models)
+    assert list(models) == ["family/remote"]
+    assert models["family/remote"]["source"].ref == REF
+    assert models["family/remote"]["model_dir"] == root / "family" / "remote"
+
+    with pytest.raises(ValueError, match=r"has both a model\.yaml and a source\.yaml"):
+        register_source_models(root, {"family/remote": {}})
+
+    write_source(root / "broken", ref="main")
+    with pytest.raises(ValueError, match=r"Invalid source\.yaml for model broken"):
+        register_source_models(root, {})
+
+
+def test_get_model_unknown():
+    with pytest.raises(ValueError, match="not currently configured"):
+        get_model("_no/such/model")
+
+
+def test_fetch_models_cli_without_source_models(monkeypatch, capsys):
+    from MEDS_DEV.models import fetch
+
+    for name in [name for name, entry in MODELS.items() if "source" in entry]:
+        monkeypatch.delitem(MODELS, name)
+    fetch.main([])
+    assert "No models are registered through source.yaml." in capsys.readouterr().out
+
+
+def test_default_cache_dir(monkeypatch, tmp_path: Path):
+    monkeypatch.setenv(sources.CACHE_ENV_VAR, str(tmp_path / "explicit"))
+    assert sources.default_cache_dir() == tmp_path / "explicit"
+
+    monkeypatch.delenv(sources.CACHE_ENV_VAR)
+    monkeypatch.setenv("XDG_CACHE_HOME", str(tmp_path / "xdg"))
+    assert sources.default_cache_dir() == tmp_path / "xdg" / "meds_dev" / "sources"
+
+    monkeypatch.delenv("XDG_CACHE_HOME")
+    assert sources.default_cache_dir() == Path.home() / ".cache" / "meds_dev" / "sources"
+
+
+def test_corrupted_cache_is_fetched_again(tmp_path: Path, github: FakeGitHub):
+    source = sources.read_source_file(write_source(tmp_path / "a"))
+    cached = sources.resolve_source(source, tmp_path / "cache", github)
+    downloads = len(github.calls)
+
+    (cached / "model.yaml").write_text("tampered: true\n")
+    again = sources.resolve_source(source, tmp_path / "cache", github)
+
+    assert again == cached
+    assert len(github.calls) > downloads
+    assert (again / "model.yaml").read_bytes() == V2_MODEL_YAML
+
+
+def test_failed_cache_write_leaves_no_partial_files(tmp_path: Path, github: FakeGitHub, monkeypatch):
+    source = sources.read_source_file(write_source(tmp_path / "a"))
+
+    def fail(*args, **kwargs):
+        raise OSError("disk full")
+
+    monkeypatch.setattr(sources.os, "replace", fail)
+    with pytest.raises(OSError, match="disk full"):
+        sources.resolve_source(source, tmp_path / "cache", github)
+
+    target = sources.source_cache_dir(source, tmp_path / "cache")
+    assert not target.exists()
+    assert not list(target.parent.iterdir()), "the staging directory must be removed"
+
+
+def test_http_fetch_other_errors(monkeypatch):
+    def fake_urlopen(request, timeout):
+        raise urllib.error.HTTPError(request.full_url, 500, "Server Error", {}, io.BytesIO())
+
+    monkeypatch.setattr(sources.urllib.request, "urlopen", fake_urlopen)
+    with pytest.raises(urllib.error.HTTPError):
+        sources.http_fetch("https://raw.githubusercontent.com/org/m/sha/file")

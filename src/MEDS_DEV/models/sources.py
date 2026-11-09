@@ -128,6 +128,14 @@ def parse_source(spec: Mapping[str, Any]) -> ModelSource:
         source.requirements must be a list of requirement lines.
         >>> check(requirements=["pkg==1.0"]).requirements
         ('pkg==1.0',)
+        >>> check(sha256="ABC")
+        source.sha256 must be a 64-character lowercase hex SHA-256; got 'ABC'.
+        >>> check(profile="Probe")
+        source.profile must be a profile name such as 'probe'; got 'Probe'.
+        >>> parse_source(["repo"])
+        Traceback (most recent call last):
+            ...
+        ValueError: source.yaml must contain a `source` mapping.
     """  # noqa: E501
     if not isinstance(spec, Mapping):
         raise ValueError("source.yaml must contain a `source` mapping.")

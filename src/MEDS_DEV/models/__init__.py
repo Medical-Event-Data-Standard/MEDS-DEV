@@ -40,17 +40,27 @@ for path in model_files.rglob("*/model.yaml"):
     MODELS[model_name]["requirements"] = requirements_path if requirements_path.exists() else None
     MODELS[model_name]["model_dir"] = path.parent
 
-# Models registered by reference (see `MEDS_DEV.models.sources`). Only `source.yaml` is read here; the model's
-# own model.yaml is fetched (or read from the cache) by `get_model`, so importing MEDS-DEV needs no network.
-for path in model_files.rglob(f"*/{SOURCE_FILENAME}"):
-    model_name = path.relative_to(model_files).parent.with_suffix("").as_posix()
-    if model_name in MODELS:
-        raise ValueError(f"Model {model_name} has both a model.yaml and a {SOURCE_FILENAME}; keep only one.")
-    try:
-        source = read_source_file(path)
-    except ValueError as e:
-        raise ValueError(f"Invalid {SOURCE_FILENAME} for model {model_name} ({path}): {e}") from e
-    MODELS[model_name] = {"source": source, "model_dir": path.parent}
+
+def register_source_models(models_root: Path, models: dict) -> None:
+    """Adds the models registered by reference (a `source.yaml`) under `models_root` to `models`.
+
+    Only `source.yaml` is read; the model's own model.yaml is fetched (or read from the cache) by `get_model`,
+    so importing MEDS-DEV needs no network. See `MEDS_DEV.models.sources`.
+    """
+    for path in models_root.rglob(f"*/{SOURCE_FILENAME}"):
+        model_name = path.relative_to(models_root).parent.with_suffix("").as_posix()
+        if model_name in models:
+            raise ValueError(
+                f"Model {model_name} has both a model.yaml and a {SOURCE_FILENAME}; keep only one."
+            )
+        try:
+            source = read_source_file(path)
+        except ValueError as e:
+            raise ValueError(f"Invalid {SOURCE_FILENAME} for model {model_name} ({path}): {e}") from e
+        models[model_name] = {"source": source, "model_dir": path.parent}
+
+
+register_source_models(Path(str(model_files)), MODELS)
 
 
 def get_model(model_name: str, cache_dir: Path | None = None, fetch: Fetcher | None = None) -> dict:
