@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "MEDS_DEV"
-version = "0.1.0"
+version = "0.2.0"
 authors = [
     {name="Matthew B. A. McDermott", email="matthew_mcdermott@hms.harvard.edu"},
     {name="Ethan Steinberg", email="ethanid@stanford.edu"},
