@@ -1,0 +1,127 @@
+predicates:
+  # Codes follow the `meds_etl.omop` layout `<OMOP vocabulary_id>/<concept_code>`, with source concepts preferred
+  # over standard ones. `MEDS_BIRTH` and `MEDS_DEATH` are present, so the tasks' default `birth` and `death`
+  # predicates apply unchanged.
+
+  # --- Hospital admissions ---
+  # `visit_occurrence` rows carry Stanford source visit concepts, `STANFORD_VISIT/<patient class>|<admission
+  # type>|<encounter type>` (e.g. `STANFORD_VISIT/Inpatient|Emergency|Hospital Encounter`), whose standard
+  # visit concepts are their parents in `codes.parquet`. `Visit/ERIP` and `Visit/ER` events come from
+  # `visit_detail` unit segments, several per stay, so they can't mark admissions. An admission is a hospital
+  # encounter with an inpatient patient class, for any admission type. Left out on purpose:
+  #   - other encounter types with an inpatient class (`Appointment`, `Anesthesia`, `Lab Draw`, `Office Visit`,
+  #     `LPCH`), which are contacts recorded during a stay rather than the stay itself;
+  #   - `Observation`, `To Be Admitted` and `Surgical Pre-Admit` classes, which are not inpatient stays, and
+  #     `SNF` (skilled nursing);
+  #   - `||Historical Inpatient Encounter`, legacy-system stays whose time resolution is unknown.
+  # The regex avoids backslash escapes: `[|]`, `[(]` and `[)]` match the literal characters.
+  hospital_admission:
+    code:
+      regex: "^STANFORD_VISIT/(Inpatient|Private [(]Gen/Acute[)] [(]I[)]|Ward [(]Gen/Acute[)] [(]I[)]|Intensive Care [(]IC[)]|Surgery Admit)[|][^|]*[|]Hospital Encounter$"
+
+  # --- ICU admissions ---
+  # `visit_detail` (ADT unit segments) uses standard concepts. `Visit/OMOP4822460` is OMOP concept 32037
+  # "Intensive Care". `CMS Place of Service/OMOP4822038` ("Inpatient Cardiac Care Facility") is not included: it
+  # covers far more patients than the ICU concept and likely includes cardiac step-down and telemetry units.
+  icu_admission:
+    code: Visit/OMOP4822460
+
+  # `hospital_discharge` and `icu_discharge` are deliberately undefined. `meds_etl.omop` keeps a visit's end time
+  # only in the `end` column of its start event, which ACES cannot use, and writes a separate end-of-visit event
+  # only from `discharged_to_concept_id`, for which this conversion has no events. Tasks that exclude early
+  # discharges therefore can't be extracted faithfully (see README.md).
+
+  # --- Labs and vitals ---
+  # Codes are LOINC concepts. Only codes measuring the analyte directly in blood, serum or plasma on the task's
+  # scale are used; units in this release are case variants or equivalents of the task units (mmol/L == mEq/L for
+  # sodium and bicarbonate; K/uL == Thousand/uL == 10^3/uL for WBC and platelets). Each abnormal predicate is a
+  # plain code so the threshold applies to it; multi-code concepts are or(...) of per-code predicates.
+
+  # Creatinine [Mass/volume] in Serum or Plasma. Urine creatinine codes are excluded.
+  creatinine:
+    code: LOINC/2160-0
+  abnormally_high_creatinine:
+    code: LOINC/2160-0
+    value_min: 1.3 # mg/dL
+    value_min_inclusive: False
+    value_max: null
+
+  # Sodium [Moles/volume] in Serum or Plasma (2951-2) and in Blood (2947-0).
+  sodium_1:
+    code: LOINC/2951-2
+  sodium_2:
+    code: LOINC/2947-0
+  abnormally_low_sodium_1:
+    code: LOINC/2951-2
+    value_min: null
+    value_max: 135 # mmol/L == mEq/L
+    value_max_inclusive: False
+  abnormally_low_sodium_2:
+    code: LOINC/2947-0
+    value_min: null
+    value_max: 135 # mmol/L == mEq/L
+    value_max_inclusive: False
+  sodium:
+    expr: or(sodium_1, sodium_2)
+  abnormally_low_sodium:
+    expr: or(abnormally_low_sodium_1, abnormally_low_sodium_2)
+
+  # Carbon dioxide, total [Moles/volume] in Serum or Plasma, the chemistry-panel bicarbonate. Bicarbonate in
+  # Specimen (22735-5, the blood-gas value) and the CO2 partial pressures (2019-8, 2021-4, 11557-6, 34705-4) are
+  # excluded.
+  bicarbonate:
+    code: LOINC/2028-9
+  abnormally_low_bicarbonate:
+    code: LOINC/2028-9
+    value_min: null
+    value_max: 22 # mmol/L == mEq/L
+    value_max_inclusive: False
+
+  # Hemoglobin [Mass/volume] in Blood (718-7) and in Arterial blood (30313-1). Hemoglobin in Blood by
+  # calculation (20509-6) and urine test strips (5794-3) are excluded.
+  hemoglobin_1:
+    code: LOINC/718-7
+  hemoglobin_2:
+    code: LOINC/30313-1
+  abnormally_low_hemoglobin_1:
+    code: LOINC/718-7
+    value_min: null
+    value_max: 13 # g/dL
+    value_max_inclusive: False
+  abnormally_low_hemoglobin_2:
+    code: LOINC/30313-1
+    value_min: null
+    value_max: 13 # g/dL
+    value_max_inclusive: False
+  hemoglobin:
+    expr: or(hemoglobin_1, hemoglobin_2)
+  abnormally_low_hemoglobin:
+    expr: or(abnormally_low_hemoglobin_1, abnormally_low_hemoglobin_2)
+
+  # Leukocytes [#/volume] in Specimen by Automated count, the CBC WBC count. LOINC/6690-2 is excluded: part of its
+  # values are reported per uL rather than 10^3/uL, so one threshold can't apply to it.
+  wbc:
+    code: LOINC/20584-9
+  abnormally_high_wbc:
+    code: LOINC/20584-9
+    value_min: 11 # K/uL
+    value_min_inclusive: False
+    value_max: null
+
+  # Platelets [#/volume] in Blood by Automated count.
+  platelets:
+    code: LOINC/777-3
+  abnormally_low_platelets:
+    code: LOINC/777-3
+    value_min: null
+    value_max: 150 # K/uL
+    value_max_inclusive: False
+
+  # Mean blood pressure (invasive and non-invasive, including intraoperative records).
+  map:
+    code: LOINC/8478-0
+  abnormally_low_map:
+    code: LOINC/8478-0
+    value_min: null
+    value_max: 65 # mmHg
+    value_max_inclusive: False
