@@ -192,3 +192,7 @@ def main() -> None:
     args = parser.parse_args()
     counts = write_count_badges(args.repo_dir, args.output_dir, args.do_overwrite)
     print(json.dumps(counts))
+
+
+if __name__ == "__main__":  # pragma: no cover
+    main()
