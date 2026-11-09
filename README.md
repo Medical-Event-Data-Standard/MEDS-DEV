@@ -537,6 +537,42 @@ If `profile` is set, MEDS-DEV also checks the steps against it:
 | `zero_shot_materialized` | at least one dataset-scoped step; the predict step uses `{task_criteria_path}`                                               |
 | `predict_only`           | no task-scoped step besides the predict step                                                                                 |
 
+#### Registering a model by reference: `source.yaml`
+
+If your model lives in its own GitHub repository with a `model.yaml` (for example, one generated with the
+[MEDS algorithm template](https://github.com/McDermottHealthAI/MEDS_algorithm_template)), you don't need to
+copy that file and a `requirements.txt` into MEDS-DEV. Instead, the model directory can hold a `source.yaml`
+pinning the repository's own `model.yaml` to a commit:
+
+```yaml
+# src/MEDS_DEV/models/my_model__zero_shot_direct/source.yaml
+source:
+  repo: https://github.com/org/my-model
+  ref: 3f2c9e1d0b7a4c5e8f9a0b1c2d3e4f5a6b7c8d9e # full commit SHA; branches and tags are rejected
+  profile: zero_shot_direct # reads algorithms/zero_shot_direct/model.yaml
+  # path: configs/model.yaml   # instead of profile, for repositories with another layout
+  sha256: 9b1e... # SHA-256 of that model.yaml at ref
+  # requirements: [...]        # optional; by default derived from the repository (see below)
+```
+
+- **Registry.** Importing MEDS-DEV reads only `source.yaml`; nothing is downloaded.
+- **First use.** When the model is run (or fetched with `meds-dev-fetch-models`), its `model.yaml` is
+    downloaded from GitHub at `ref`, checked against `sha256`, validated (version 1 or 2), and cached in
+    `$MEDS_DEV_SOURCE_CACHE` (default `~/.cache/meds_dev/sources`). Later runs use the cache, also offline.
+- **Requirements.** Generated from the repository at `ref`: its `requirements.txt`, with `-e .` replaced by
+    `<package> @ git+<repo>@<ref>` (the package name comes from its `pyproject.toml`).
+- **Pinning.** A `model.yaml` that does not match `sha256` is rejected. To get the hash for a new
+    `source.yaml`, leave `sha256` out and run `meds-dev-fetch-models <model>`: it fails and prints the hash of
+    the pinned file, to review and add.
+- **Updating** a model means changing `ref` and `sha256` in a pull request, so reviewers see exactly which
+    commit and which commands MEDS-DEV will run.
+- **Private repositories** can be fetched by setting `GITHUB_TOKEN` (it is only sent to GitHub).
+
+```bash
+meds-dev-fetch-models # fetch and verify every source.yaml model (e.g., before going offline)
+meds-dev-fetch-models my_model__zero_shot_direct
+```
+
 ## Efficient Testing
 
 To make testing more efficient during model / task development, you can use a local, persistent cache dir to

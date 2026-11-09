@@ -73,6 +73,7 @@ markers = [
 meds-dev-dataset = "MEDS_DEV.datasets.__main__:main"
 meds-dev-task = "MEDS_DEV.tasks.__main__:main"
 meds-dev-model = "MEDS_DEV.models.__main__:main"
+meds-dev-fetch-models = "MEDS_DEV.models.fetch:main"
 meds-dev-evaluation = "MEDS_DEV.evaluation.__main__:main"
 meds-dev-pack-result = "MEDS_DEV.results.__main__:pack_result"
 meds-dev-validate-result = "MEDS_DEV.results.__main__:validate_result"

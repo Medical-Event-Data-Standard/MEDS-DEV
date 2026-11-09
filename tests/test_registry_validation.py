@@ -5,6 +5,7 @@ building any datasets, creating venvs, or running any heavy integration steps.
 """
 
 from MEDS_DEV import DATASETS, MODELS, TASKS
+from MEDS_DEV.models import get_model
 
 
 def test_datasets_registry_populated():
@@ -63,15 +64,21 @@ def test_all_tasks_supported_datasets_valid():
             )
 
 
+def all_models():
+    """Yields every registered model's full entry, fetching `source.yaml` models (network on first use)."""
+    for name in MODELS:
+        yield name, get_model(name)
+
+
 def test_all_models_have_metadata():
-    for name, model in MODELS.items():
+    for name, model in all_models():
         assert "metadata" in model, f"Model {name} missing metadata"
         assert model["metadata"] is not None, f"Model {name} has None metadata"
         assert model["metadata"].description, f"Model {name} missing description"
 
 
 def test_all_models_have_commands():
-    for name, model in MODELS.items():
+    for name, model in all_models():
         if model["schema_version"] >= 2:
             assert model["step_graph"].predict_step is not None, f"Model {name} has no predict step"
             continue
@@ -86,7 +93,7 @@ def test_all_models_have_commands():
 
 def test_all_models_have_step_graphs():
     """Every registered model, of either schema version, is described by a step graph."""
-    for name, model in MODELS.items():
+    for name, model in all_models():
         graph = model["step_graph"]
         assert graph.schema_version == model["schema_version"], f"Model {name} has a mismatched step graph"
         assert graph.steps, f"Model {name} has no steps"
@@ -94,7 +101,7 @@ def test_all_models_have_step_graphs():
 
 def test_all_models_requirements_exist_if_declared():
     """If a model declares a requirements file, verify it exists on disk."""
-    for name, model in MODELS.items():
+    for name, model in all_models():
         reqs = model.get("requirements")
         if reqs is not None:
             assert reqs.exists(), f"Model {name} requirements file does not exist: {reqs}"

@@ -9,6 +9,8 @@ from omegaconf import DictConfig, OmegaConf
 
 from ..tasks import TASKS
 from ..utils import Metadata
+from . import sources
+from .sources import SOURCE_FILENAME, Fetcher, parse_source, read_source_file, resolve_source
 from .steps import load_step_graph
 
 model_files = files("MEDS_DEV.models")
@@ -37,6 +39,62 @@ for path in model_files.rglob("*/model.yaml"):
     requirements_path = path.parent / "requirements.txt"
     MODELS[model_name]["requirements"] = requirements_path if requirements_path.exists() else None
     MODELS[model_name]["model_dir"] = path.parent
+
+
+def register_source_models(models_root: Path, models: dict) -> None:
+    """Adds the models registered by reference (a `source.yaml`) under `models_root` to `models`.
+
+    Only `source.yaml` is read; the model's own model.yaml is fetched (or read from the cache) by `get_model`,
+    so importing MEDS-DEV needs no network. See `MEDS_DEV.models.sources`.
+    """
+    for path in models_root.rglob(f"*/{SOURCE_FILENAME}"):
+        model_name = path.relative_to(models_root).parent.with_suffix("").as_posix()
+        if model_name in models:
+            raise ValueError(
+                f"Model {model_name} has both a model.yaml and a {SOURCE_FILENAME}; keep only one."
+            )
+        try:
+            source = read_source_file(path)
+        except ValueError as e:
+            raise ValueError(f"Invalid {SOURCE_FILENAME} for model {model_name} ({path}): {e}") from e
+        models[model_name] = {"source": source, "model_dir": path.parent}
+
+
+register_source_models(Path(str(model_files)), MODELS)
+
+
+def get_model(model_name: str, cache_dir: Path | None = None, fetch: Fetcher | None = None) -> dict:
+    r"""Returns the full registry entry of a model, fetching a `source.yaml` model's files if needed.
+
+    For models with a local `model.yaml`, this is `MODELS[model_name]`. For models registered through a
+    `source.yaml`, the pinned `model.yaml` is fetched once (or read from the cache), verified and validated,
+    and the entry gains `metadata`, `schema_version`, `step_graph`, `commands`/`steps` and `requirements`
+    (the generated requirements file in the cache).
+
+    Examples:
+        >>> import hashlib, tempfile
+        >>> model_yaml = b"metadata: {description: d, contacts: [{name: n}]}\ncommands: {supervised: {predict: p}}\n"
+        >>> source = parse_source({
+        ...     "repo": "https://github.com/org/m", "ref": "a" * 40, "profile": "probe",
+        ...     "sha256": hashlib.sha256(model_yaml).hexdigest(), "requirements": ["pkg"],
+        ... })
+        >>> MODELS["_doctest/remote"] = {"source": source, "model_dir": Path("models/_doctest/remote")}
+        >>> with tempfile.TemporaryDirectory() as d:
+        ...     entry = get_model("_doctest/remote", cache_dir=Path(d), fetch=lambda url: model_yaml)
+        ...     requirements = entry["requirements"].read_text()
+        ...     print(entry["metadata"].description, entry["schema_version"], requirements)
+        d 1 pkg
+        <BLANKLINE>
+        >>> del MODELS["_doctest/remote"]
+    """  # noqa: E501
+    if model_name not in MODELS:
+        raise ValueError(f"Model {model_name} not currently configured. Available models: {MODELS.keys()}")
+    entry = MODELS[model_name]
+    if "source" in entry and "step_graph" not in entry:
+        resolved_dir = resolve_source(entry["source"], cache_dir=cache_dir, fetch=fetch or sources.http_fetch)
+        entry.update(load_model_yaml(resolved_dir / "model.yaml", model_name))
+        entry["requirements"] = resolved_dir / "requirements.txt"
+    return entry
 
 
 class RunMode(StrEnum):
@@ -343,4 +401,12 @@ def model_commands(
             format_kwargs["model_initialization_dir"] = str(run_output_dir)
 
 
-__all__ = ["CFG_YAML", "MODELS", "DatasetType", "RunMode", "model_commands", "task_criteria_path"]
+__all__ = [
+    "CFG_YAML",
+    "MODELS",
+    "DatasetType",
+    "RunMode",
+    "get_model",
+    "model_commands",
+    "task_criteria_path",
+]

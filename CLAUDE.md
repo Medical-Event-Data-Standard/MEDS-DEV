@@ -209,10 +209,14 @@ models is filtered by compatibility.
 5. New models may be generated with the
     [MEDS algorithm template](https://github.com/McDermottHealthAI/MEDS_algorithm_template), which
     registers each profile as `<name>__<profile>` via `meds-algorithm-add-to-meds-dev`
-6. Alternatively, `model.yaml` can set `schema_version: 2` and list explicit `steps` (each with `scope:  dataset|task`, `command`, optional `needs`, and one `predict: true` step) instead of `commands`; an
+6. Alternatively, `model.yaml` can set `schema_version: 2` and list explicit `steps` (each with `scope: dataset|task`, `command`, optional `needs`, and one `predict: true` step) instead of `commands`; an
     optional `profile` adds checks. Parsing, validation, planning and execution live in
     `src/MEDS_DEV/models/steps.py`; version 1 files are still run by `model_commands`. See the README section
     "`model.yaml` version 2: explicit steps"
+7. A model directory can hold a `source.yaml` (GitHub `repo`, commit `ref`, `profile` or `path`, `sha256`)
+    instead of `model.yaml` + `requirements.txt`. The registry only parses it; `MEDS_DEV.models.get_model`
+    fetches, verifies and caches the pinned model.yaml (`src/MEDS_DEV/models/sources.py`). Use
+    `get_model(name)` rather than `MODELS[name]` when you need a model's commands, steps or requirements
 
 ### YAML Config Conventions
 
