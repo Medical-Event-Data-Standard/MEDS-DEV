@@ -8,6 +8,8 @@ on:
       - "src/MEDS_DEV/tasks/**"
       - "src/MEDS_DEV/models/**"
       - "src/MEDS_DEV/web/collate_entities.py"
+      - "src/MEDS_DEV/web/count_badges.py"
+      - ".github/workflows/regenerate_entities.yaml"
   workflow_dispatch:
 
 # Each run regenerates from main's latest state, so a newer run supersedes
@@ -54,17 +56,26 @@ jobs:
             --output_dir web-branch/entities \
             --do_overwrite
 
+      - name: Regenerate count badges
+        # shields.io endpoint badges for the README's dataset, task, and model counts.
+        run: |
+          meds-dev-write-count-badges \
+            --repo_dir main-branch \
+            --output_dir web-branch/badges \
+            --do_overwrite
+
       - name: Commit and push to _web
         working-directory: web-branch
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add entities/datasets.json entities/tasks.json entities/models.json
+          git add badges/datasets.json badges/tasks.json badges/models.json
           if git diff --cached --quiet; then
-            echo "No changes to entity manifests; skipping commit."
+            echo "No changes to entity manifests or count badges; skipping commit."
           else
-            git commit -m "Regenerate entity manifests from main@${GITHUB_SHA::7}"
-            # Other workflows also push to _web (results/ vs. entities/), so a push can be
+            git commit -m "Regenerate entity manifests and count badges from main@${GITHUB_SHA::7}"
+            # Other workflows also push to _web (results/ vs. entities/ and badges/), so a push can be
             # rejected as non-fast-forward. They touch disjoint files, so rebasing onto the
             # latest _web is always conflict-free; retry a few times before giving up.
             for attempt in 1 2 3 4 5; do

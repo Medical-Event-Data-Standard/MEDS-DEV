@@ -1,15 +1,25 @@
 metadata:
   description: >-
-    A MEDS version of MIMIC-IV.
+    A MEDS version of MIMIC-IV 3.1, the deidentified electronic health records of patients admitted to the
+    emergency department or an intensive care unit at the Beth Israel Deaconess Medical Center in Boston,
+    built with the MIMIC_IV_MEDS ETL.
   links:
-    - https://github.com/mmcdermott/MIMIC_IV_MEDS
+    - https://github.com/Medical-Event-Data-Standard/MIMIC_IV_MEDS
     - https://physionet.org/content/mimiciv/3.1/
-    - https://www.nature.com/articles/s41597-022-01899-x
+    - https://doi.org/10.13026/kpb9-mt58
+    - https://doi.org/10.1038/s41597-022-01899-x
+    - https://physionet.org/content/mimic-iv-demo/2.2/
   contacts:
     - name: "Tom Pollard"
       github_username: "tompollard"
     - name: "Matthew McDermott"
       github_username: "mmcdermott"
+  access_policy: public_with_approval
+  access_details: >-
+    Requires a credentialed PhysioNet account, completion of the CITI Data or Specimens Only Research
+    training, and signing the PhysioNet Credentialed Health Data Use Agreement 1.5.0. The 100-patient
+    MIMIC-IV demo used by the demo build is open access under the Open Data Commons Open Database
+    License 1.0.
 commands:
   build_full: >-
     MEDS_extract-MIMIC_IV

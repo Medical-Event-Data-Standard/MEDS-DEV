@@ -13,6 +13,9 @@
 [![License](https://img.shields.io/github/license/Medical-Event-Data-Standard/MEDS-DEV)](https://github.com/Medical-Event-Data-Standard/MEDS-DEV/blob/main/LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Medical-Event-Data-Standard/MEDS-DEV/blob/main/CONTRIBUTORS.md)
 [![Contributors](https://img.shields.io/github/contributors/Medical-Event-Data-Standard/MEDS-DEV)](https://github.com/Medical-Event-Data-Standard/MEDS-DEV/graphs/contributors)
+[![Datasets](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FMedical-Event-Data-Standard%2FMEDS-DEV%2F_web%2Fbadges%2Fdatasets.json)](https://github.com/Medical-Event-Data-Standard/MEDS-DEV/tree/main/src/MEDS_DEV/datasets)
+[![Tasks](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FMedical-Event-Data-Standard%2FMEDS-DEV%2F_web%2Fbadges%2Ftasks.json)](https://github.com/Medical-Event-Data-Standard/MEDS-DEV/tree/main/src/MEDS_DEV/tasks)
+[![Models](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FMedical-Event-Data-Standard%2FMEDS-DEV%2F_web%2Fbadges%2Fmodels.json)](https://github.com/Medical-Event-Data-Standard/MEDS-DEV/tree/main/src/MEDS_DEV/models)
 
 The MEDS Decentralized, Extensible Validation (MEDS-DEV) system is a new kind of benchmark for Health AI that
 has three key differences from existing systems:
@@ -69,7 +72,8 @@ If you just want to reproduce MEDS-DEV models and tasks over public or your own,
 install MEDS-DEV from [PyPI](https://pypi.org/project/MEDS-DEV/) via `pip install MEDS-DEV`.
 
 If you want to _contribute new models, tasks, or datasets_ to MEDS-DEV, you need to fork this repository,
-clone your fork, and then install the repository locally in "editable" mode via `pip install -e .[dev,tests]`.
+clone your fork, and then install the repository locally in "editable" mode via `uv sync` (see
+[`CONTRIBUTORS.md`](CONTRIBUTORS.md)).
 This will let you prepare your PR code and run the tests to ensure your contributions are valid and
 transportable across MEDS-DEV datasets and tasks.
 
@@ -342,6 +346,9 @@ A full description of these commands is coming soon, but for now, note that:
 1. Commands can use the template variables `{output_dir}`, `{dataset_dir}`, `{labels_dir}`, and `{demo}`.
     Models that need a dataset's predicates file (e.g., for featurization) can also use the optional
     `{predicates_path}` template variable, populated from the `predicates_path` argument to `meds-dev-model`.
+    Models that predict a task from its definition rather than its labels (e.g., zero-shot models) can use
+    the optional `{task_criteria_path}` template variable: the task's ACES criteria file, from the
+    `task_criteria_path` argument or, by default, the registered criteria file of `task_name`.
 2. Commands should be added in a nested manner for running either over `unsupervised` or `supervised`
     datasets, in either `train` or `predict` modes. See the random predictors example for an example.
 
