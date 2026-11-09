@@ -100,5 +100,7 @@ hydra:
       task_name (or tasks) whenever task-scoped steps run. Shared steps are locked while they run, so tasks
       can run concurrently on the same output_dir.
 
-      If do_overwrite is set to true, the output dir will be cleared before anything is run. With a shared
-      output_dir in full mode, this also deletes the shared pre-training stage and other tasks' results.
+      If do_overwrite is set to true, the output dir (except for its ".logs" log directory) will be cleared
+      before anything is run. With a shared output_dir in full mode, this also deletes the shared pre-training
+      stage and other tasks' results. (For version 2 models, do_overwrite means overwrite=all: it clears the
+      directories of the steps that run, not the rest of the output dir.)

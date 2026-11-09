@@ -16,7 +16,7 @@ This project uses [`uv`](https://docs.astral.sh/uv/) for environment management.
 development, clone the repository, then sync the uv environment and install the pre-commit hook:
 
 ```bash
-uv sync                   # Creates .venv and installs the project (editable) plus the dev/test extras.
+uv sync                   # Creates .venv and installs the project (editable) plus the dev dependency group.
 uv run pre-commit install # Installs the Git pre-commit hook so checks run automatically on commit.
 ```
 
@@ -75,3 +75,18 @@ uv run pytest -v -s --doctest-modules
 
 Tests and pre-commit checks are run as part of the continuous integration process, so any failures will prevent
 pull requests from being merged.
+
+## Releasing
+
+The package version is set in `pyproject.toml` (`project.version`). To cut a release, bump it with `uv` in a
+pull request and merge that into `main`:
+
+```bash
+uv version --bump minor # or patch / major; updates pyproject.toml and uv.lock
+git commit -am "Release $(uv version --short)"
+```
+
+When a push to `main` carries a version that has no git tag yet, the
+`Publish Python 🐍 distribution 📦 to PyPI` workflow publishes it to PyPI and creates the matching tag and
+GitHub Release (with generated notes). Pushes that don't change the version only build the package. Don't
+create release tags by hand; the workflow creates them.

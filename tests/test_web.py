@@ -9,11 +9,14 @@ them with shell setup.
 import json
 import subprocess
 import sys
+from pathlib import Path
 
 import pytest
 from yaml_to_disk import yaml_disk
 
+from MEDS_DEV import DATASETS, MODELS, TASKS
 from MEDS_DEV.web.aggregate_results import aggregate_results
+from MEDS_DEV.web.count_badges import count_entities
 
 ISSUE_BODY = """Hi! Here's my result.
 
@@ -93,6 +96,42 @@ def test_collate_entities_cli() -> None:
                 "children": [],
             }
         }
+
+
+def test_write_count_badges_cli() -> None:
+    """``meds-dev-write-count-badges`` writes one shields.io endpoint badge per entity count."""
+    tree = {
+        "repo/src/MEDS_DEV/": {
+            "datasets/MIMIC-IV/dataset.yaml": {"metadata": {"description": "foo"}},
+            "datasets/eICU/dataset.yaml": {"metadata": {"description": "bar"}},
+            "tasks/mortality/first_24h.yaml": {"predicates": {"a": "b"}},
+            "models/rp/model.yaml": {"metadata": {"description": "rp"}},
+        }
+    }
+    with yaml_disk(tree) as d:
+        out = d / "badges"
+        result = subprocess.run(
+            ["meds-dev-write-count-badges", "--repo_dir", str(d / "repo"), "--output_dir", str(out)],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+
+        assert json.loads(result.stdout) == {"datasets": 2, "tasks": 1, "models": 1}
+        assert {p.name for p in out.iterdir()} == {"datasets.json", "tasks.json", "models.json"}
+        assert json.loads((out / "datasets.json").read_text()) == {
+            "schemaVersion": 1,
+            "label": "datasets",
+            "message": "2",
+            "color": "blue",
+        }
+
+
+def test_count_badges_match_registries() -> None:
+    """The badge counts of this repository equal the sizes of the ``DATASETS``, ``TASKS`` and ``MODELS``
+    registries, so the README badges count what MEDS-DEV registers."""
+    repo_dir = Path(__file__).resolve().parents[1]
+    assert count_entities(repo_dir) == {"datasets": len(DATASETS), "tasks": len(TASKS), "models": len(MODELS)}
 
 
 def test_aggregate_results_cli() -> None:
