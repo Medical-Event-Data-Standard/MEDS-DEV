@@ -6,7 +6,7 @@ import meds
 from omegaconf import DictConfig, OmegaConf
 
 from ..utils import clear_output_dir, run_in_env, temp_env
-from . import CFG_YAML, MODELS, model_commands, task_criteria_path
+from . import CFG_YAML, MODELS, get_model, model_commands, task_criteria_path
 from .steps import (
     SHARED_DIR_NAME,
     PlannedStep,
@@ -100,7 +100,7 @@ def main(cfg: DictConfig):
     if cfg.model not in MODELS:
         raise ValueError(f"Model {cfg.model} not currently configured. Available models: {MODELS.keys()}")
 
-    model = MODELS[cfg.model]
+    model = get_model(cfg.model)
     model_dir = model["model_dir"]
     requirements = model["requirements"]
     output_dir = Path(cfg.output_dir)

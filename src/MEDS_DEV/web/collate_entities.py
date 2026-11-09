@@ -36,6 +36,8 @@ from typing import Any, Literal
 
 from omegaconf import OmegaConf
 
+from ..models import sources
+
 EntityType = Literal["dataset", "task", "model"]
 
 DATASETS_REL_PATH = Path("src/MEDS_DEV/datasets")
@@ -120,6 +122,19 @@ def _read_leaf_dir(leaf_dir: Path, entity_type: EntityType) -> dict[str, Any]:
     spec_path = leaf_dir / f"{entity_type}.yaml"
     if spec_path.is_file():
         data["entity"] = _read_file(spec_path)
+    elif entity_type == "model" and (leaf_dir / sources.SOURCE_FILENAME).is_file():
+        # A model registered by reference: show the pinned model.yaml (fetched at its commit and verified) and
+        # where it comes from. The generated requirements stand in for a local requirements.txt.
+        source = sources.read_source_file(leaf_dir / sources.SOURCE_FILENAME)
+        resolved_dir = sources.resolve_source(source, fetch=sources.http_fetch)
+        data["entity"] = _read_file(resolved_dir / "model.yaml")
+        data["source"] = {
+            "repo": source.repo,
+            "ref": source.ref,
+            "path": source.path,
+            "sha256": source.sha256,
+        }
+        data["requirements"] = _read_file(resolved_dir / "requirements.txt")
 
     for fname, key in LEAF_FILES.items():
         sibling = leaf_dir / fname
@@ -231,6 +246,8 @@ def _collate_dir_leaves(root: Path, entity_type: Literal["dataset", "model"]) ->
     spec_name = f"{entity_type}.yaml"
 
     leaves = sorted(root.rglob(spec_name))
+    if entity_type == "model":
+        leaves = sorted([*leaves, *root.rglob(sources.SOURCE_FILENAME)])
     for spec_path in leaves:
         leaf_dir = spec_path.parent
         name = leaf_dir.relative_to(root).as_posix()

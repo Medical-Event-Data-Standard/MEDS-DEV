@@ -9,6 +9,7 @@ import yaml
 from omegaconf import OmegaConf
 
 from MEDS_DEV import MODELS, TASKS
+from MEDS_DEV.models import get_model
 from MEDS_DEV.models.__main__ import plan_from_cfg, task_inputs
 from MEDS_DEV.models.steps import (
     Overwrite,
@@ -270,7 +271,8 @@ def test_template_like_models_validate(profile: str):
 
 
 def test_registered_v1_models_are_described_by_step_graphs():
-    for name, model in MODELS.items():
+    for name in MODELS:
+        model = get_model(name)
         if model["schema_version"] != 1:
             continue
         graph = model["step_graph"]

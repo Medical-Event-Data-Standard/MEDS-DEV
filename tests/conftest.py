@@ -9,6 +9,7 @@ import polars as pl
 import pytest
 
 from MEDS_DEV import DATASETS, MODELS, TASKS
+from MEDS_DEV.models import get_model
 from MEDS_DEV.models.steps import Scope
 from tests.utils import NAME_AND_DIR, run_command
 
@@ -529,7 +530,7 @@ def has_unsupervised_stage(model: str) -> bool:
 
     For version 1 models this is `commands.unsupervised.train`; for version 2 models, any dataset-scoped step.
     """
-    graph = MODELS[model]["step_graph"]
+    graph = get_model(model)["step_graph"]
     if graph.schema_version == 1:
         return "unsupervised_train" in graph.by_name
     return any(step.scope == Scope.DATASET for step in graph.steps)
