@@ -9,7 +9,8 @@ import yaml
 from omegaconf import OmegaConf
 
 from MEDS_DEV import MODELS, TASKS
-from MEDS_DEV.models import get_model
+from MEDS_DEV.models import CFG_YAML, get_model, load_model_yaml
+from MEDS_DEV.models.__main__ import main as meds_dev_model_main
 from MEDS_DEV.models.__main__ import plan_from_cfg, task_inputs
 from MEDS_DEV.models.steps import (
     Overwrite,
@@ -18,6 +19,8 @@ from MEDS_DEV.models.steps import (
     load_step_graph,
     parse_step_graph,
     run_planned_steps,
+    select_steps,
+    step_lock,
 )
 from MEDS_DEV.utils import run_in_env
 
@@ -281,3 +284,99 @@ def test_registered_v1_models_are_described_by_step_graphs():
             assert graph.predict_step is not None and graph.predict_step.name == "supervised_predict", name
         if (commands.get("unsupervised") or {}).get("train"):
             assert graph.by_name["unsupervised_train"].scope == Scope.DATASET, name
+
+
+@pytest.mark.parametrize(
+    ("steps", "message"),
+    [
+        ({"x": "echo"}, "must be a mapping"),
+        ({"x": {"scope": "task", "command": "  "}}, "non-empty `command`"),
+        ({"x": {"scope": "task", "command": "x", "needs": "y"}}, "invalid `needs`"),
+        (
+            {
+                "y": {"scope": "dataset", "command": "y"},
+                "x": {"scope": "task", "command": "x", "needs": ["y", "y"]},
+            },
+            "more than once",
+        ),
+        ({"x": {"scope": "task", "command": "x", "predict": "yes"}}, "invalid `predict`"),
+    ],
+)
+def test_invalid_steps(steps, message):
+    with pytest.raises(ValueError, match=message):
+        parse_step_graph({"schema_version": 2, "steps": steps})
+
+
+def test_selection_and_planning_errors(tmp_path: Path):
+    graph = toy_graph(tmp_path / "log.txt")
+    with pytest.raises(ValueError, match="Unknown step"):
+        graph.closure(["nope"])
+    with pytest.raises(ValueError, match="Invalid dataset_type"):
+        select_steps(graph, dataset_type="semi-supervised", mode="train")
+    with pytest.raises(ValueError, match="when running several tasks"):
+        plan_from_cfg(
+            make_cfg(tmp_path, tasks=["a", "b"], labels_root="/labels", step_dirs={"fit": "/x"}),
+            graph,
+            Path("model_dir"),
+        )
+
+
+def test_step_lock_waits_then_times_out(tmp_path: Path):
+    lock_fp = tmp_path / "step.lock"
+    lock_fp.write_text("host=other pid=1\n")
+    with (
+        pytest.raises(TimeoutError, match="host=other pid=1"),
+        step_lock(lock_fp, timeout=0.05, poll_interval=0.01),
+    ):
+        pass
+    assert lock_fp.exists(), "a lock held by another run must not be removed"
+
+
+def test_failing_step_is_reported(tmp_path: Path):
+    graph = parse_step_graph(
+        {
+            "schema_version": 2,
+            "steps": {"pred": {"scope": "task", "predict": True, "command": "exit 3"}},
+        }
+    )
+    cfg = make_cfg(tmp_path, task_name="t1")
+    with pytest.raises(ValueError, match="Failed to run step pred: exit 3"):
+        run(cfg, graph)
+
+
+def test_meds_dev_model_main_runs_v2_models(tmp_path: Path, monkeypatch):
+    """`meds-dev-model`'s entry point plans and runs a version 2 model (called without the CLI)."""
+    log_fp = tmp_path / "log.txt"
+    model = {
+        "schema_version": 2,
+        "step_graph": toy_graph(log_fp),
+        "model_dir": tmp_path / "model",
+        "requirements": None,
+    }
+    monkeypatch.setitem(MODELS, "_test/v2", model)
+
+    cfg = OmegaConf.merge(
+        OmegaConf.load(CFG_YAML),
+        {
+            "model": "_test/v2",
+            "dataset_dir": str(tmp_path / "data"),
+            "dataset_name": "DS",
+            "output_dir": str(tmp_path / "runs"),
+            "task_name": "t1",
+            "labels_dir": "/labels/t1",
+            "mode": "full",
+            "dataset_type": "full",
+        },
+    )
+    cfg.pop("hydra")
+    meds_dev_model_main(cfg)
+    meds_dev_model_main(OmegaConf.merge(cfg, {"overwrite": "task"}))
+
+    assert executions(log_fp) == ["preprocess", "pretrain", "fit", "predict", "fit", "predict"]
+
+
+def test_invalid_model_yaml_names_the_model(tmp_path: Path):
+    model_yaml = tmp_path / "model.yaml"
+    model_yaml.write_text("schema_version: 2\nmetadata: {description: d, contacts: [{name: n}]}\nsteps: {}\n")
+    with pytest.raises(ValueError, match=r"Invalid model\.yaml for model broken"):
+        load_model_yaml(model_yaml, "broken")
