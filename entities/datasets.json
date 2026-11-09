@@ -1,4 +1,687 @@
 {
+  "ALOTT": {
+    "children": [],
+    "data": {
+      "entity": {
+        "commands": {
+          "build_full": "meds-extract-run spec=ALOTT download_dest_dir=\"{raw_input_dir}\" output_dir=\"{output_dir}\""
+        },
+        "metadata": {
+          "access_details": "Restricted access: requires a PhysioNet account and acceptance of the PhysioNet Restricted Health Data Use Agreement for ALOTT.",
+          "access_policy": "public_with_approval",
+          "contacts": [
+            {
+              "github_username": "rvandewater",
+              "name": "Robin P. van de Water"
+            }
+          ],
+          "description": "A MEDS version of the EMR tables of the ALOTT bedside-EMR database.",
+          "links": [
+            "https://github.com/rvandewater/ALOTT_MEDS",
+            "https://physionet.org/content/alott/1.0.0/",
+            "https://doi.org/10.13026/sbq5-dy17"
+          ]
+        }
+      },
+      "predicates": {
+        "predicates": {
+          "abnormally_high_creatinine": {
+            "expr": "or(abnormally_high_creatinine_1, abnormally_high_creatinine_2, abnormally_high_creatinine_3, abnormally_high_creatinine_4, abnormally_high_creatinine_5, abnormally_high_creatinine_6, abnormally_high_creatinine_7, abnormally_high_creatinine_8, abnormally_high_creatinine_9, abnormally_high_creatinine_10, abnormally_high_creatinine_11, abnormally_high_creatinine_12, abnormally_high_creatinine_13, abnormally_high_creatinine_14, abnormally_high_creatinine_15)"
+          },
+          "abnormally_high_creatinine_1": {
+            "code": "LAB//RESULT//33387//BKR CREATININE",
+            "value_max": null,
+            "value_min": 1.3,
+            "value_min_inclusive": false
+          },
+          "abnormally_high_creatinine_10": {
+            "code": "LAB//RESULT//780//BKR CREATININE",
+            "value_max": null,
+            "value_min": 1.3,
+            "value_min_inclusive": false
+          },
+          "abnormally_high_creatinine_11": {
+            "code": "LAB//RESULT//10201892//BKR CREATININE",
+            "value_max": null,
+            "value_min": 1.3,
+            "value_min_inclusive": false
+          },
+          "abnormally_high_creatinine_12": {
+            "code": "LAB//RESULT//682//CREATININE SERUM",
+            "value_max": null,
+            "value_min": 1.3,
+            "value_min_inclusive": false
+          },
+          "abnormally_high_creatinine_13": {
+            "code": "LAB//RESULT//780//CREATININE SERUM",
+            "value_max": null,
+            "value_min": 1.3,
+            "value_min_inclusive": false
+          },
+          "abnormally_high_creatinine_14": {
+            "code": "LAB//RESULT//10201892//CREATININE SERUM",
+            "value_max": null,
+            "value_min": 1.3,
+            "value_min_inclusive": false
+          },
+          "abnormally_high_creatinine_15": {
+            "code": "LAB//RESULT//10201850//BKR CREATININE",
+            "value_max": null,
+            "value_min": 1.3,
+            "value_min_inclusive": false
+          },
+          "abnormally_high_creatinine_2": {
+            "code": "LAB//RESULT//33387//CREATININE SERUM",
+            "value_max": null,
+            "value_min": 1.3,
+            "value_min_inclusive": false
+          },
+          "abnormally_high_creatinine_3": {
+            "code": "LAB//RESULT//10201908//BKR CREATININE",
+            "value_max": null,
+            "value_min": 1.3,
+            "value_min_inclusive": false
+          },
+          "abnormally_high_creatinine_4": {
+            "code": "LAB//RESULT//10201113//BKR CREATININE",
+            "value_max": null,
+            "value_min": 1.3,
+            "value_min_inclusive": false
+          },
+          "abnormally_high_creatinine_5": {
+            "code": "LAB//RESULT//678//BKR CREATININE",
+            "value_max": null,
+            "value_min": 1.3,
+            "value_min_inclusive": false
+          },
+          "abnormally_high_creatinine_6": {
+            "code": "LAB//RESULT//10201908//CREATININE SERUM",
+            "value_max": null,
+            "value_min": 1.3,
+            "value_min_inclusive": false
+          },
+          "abnormally_high_creatinine_7": {
+            "code": "LAB//RESULT//10201113//CREATININE SERUM",
+            "value_max": null,
+            "value_min": 1.3,
+            "value_min_inclusive": false
+          },
+          "abnormally_high_creatinine_8": {
+            "code": "LAB//RESULT//678//CREATININE SERUM",
+            "value_max": null,
+            "value_min": 1.3,
+            "value_min_inclusive": false
+          },
+          "abnormally_high_creatinine_9": {
+            "code": "LAB//RESULT//682//BKR CREATININE",
+            "value_max": null,
+            "value_min": 1.3,
+            "value_min_inclusive": false
+          },
+          "abnormally_high_wbc": {
+            "expr": "or(abnormally_high_wbc_1, abnormally_high_wbc_2, abnormally_high_wbc_3, abnormally_high_wbc_4)"
+          },
+          "abnormally_high_wbc_1": {
+            "code": "LAB//RESULT//10281581//BKR WBC COUNT",
+            "value_max": null,
+            "value_min": 11,
+            "value_min_inclusive": false
+          },
+          "abnormally_high_wbc_2": {
+            "code": "LAB//RESULT//10201249//BKR WBC COUNT",
+            "value_max": null,
+            "value_min": 11,
+            "value_min_inclusive": false
+          },
+          "abnormally_high_wbc_3": {
+            "code": "LAB//RESULT//1696//WBC (WHITE BLOOD COUNT)",
+            "value_max": null,
+            "value_min": 11,
+            "value_min_inclusive": false
+          },
+          "abnormally_high_wbc_4": {
+            "code": "LAB//RESULT//10201249//WBC (WHITE BLOOD COUNT)",
+            "value_max": null,
+            "value_min": 11,
+            "value_min_inclusive": false
+          },
+          "abnormally_low_bicarbonate": {
+            "expr": "or(abnormally_low_bicarbonate_1, abnormally_low_bicarbonate_2, abnormally_low_bicarbonate_3, abnormally_low_bicarbonate_4, abnormally_low_bicarbonate_5, abnormally_low_bicarbonate_6, abnormally_low_bicarbonate_7, abnormally_low_bicarbonate_8, abnormally_low_bicarbonate_9, abnormally_low_bicarbonate_10, abnormally_low_bicarbonate_11, abnormally_low_bicarbonate_12, abnormally_low_bicarbonate_13, abnormally_low_bicarbonate_14, abnormally_low_bicarbonate_15, abnormally_low_bicarbonate_16, abnormally_low_bicarbonate_17)"
+          },
+          "abnormally_low_bicarbonate_1": {
+            "code": "LAB//RESULT//33387//CARBON DIOXIDE (CO2)",
+            "value_max": 22,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_bicarbonate_10": {
+            "code": "LAB//RESULT//10201082//CARBON DIOXIDE (CO2)",
+            "value_max": 22,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_bicarbonate_11": {
+            "code": "LAB//RESULT//33387//CARBON DIOXIDE",
+            "value_max": 22,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_bicarbonate_12": {
+            "code": "LAB//RESULT//10201908//CARBON DIOXIDE",
+            "value_max": 22,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_bicarbonate_13": {
+            "code": "LAB//RESULT//10201113//CARBON DIOXIDE",
+            "value_max": 22,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_bicarbonate_14": {
+            "code": "LAB//RESULT//678//CARBON DIOXIDE",
+            "value_max": 22,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_bicarbonate_15": {
+            "code": "LAB//RESULT//682//CARBON DIOXIDE",
+            "value_max": 22,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_bicarbonate_16": {
+            "code": "LAB//RESULT//10201892//CARBON DIOXIDE",
+            "value_max": 22,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_bicarbonate_17": {
+            "code": "LAB//RESULT//10201082//CARBON DIOXIDE",
+            "value_max": 22,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_bicarbonate_2": {
+            "code": "LAB//RESULT//10201908//CARBON DIOXIDE (CO2)",
+            "value_max": 22,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_bicarbonate_3": {
+            "code": "LAB//RESULT//10201113//CARBON DIOXIDE (CO2)",
+            "value_max": 22,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_bicarbonate_4": {
+            "code": "LAB//RESULT//678//CARBON DIOXIDE (CO2)",
+            "value_max": 22,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_bicarbonate_5": {
+            "code": "LAB//RESULT//10202804//BKR HCO3 ARTERIAL",
+            "value_max": 22,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_bicarbonate_6": {
+            "code": "LAB//RESULT//10202804//HCO3",
+            "value_max": 22,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_bicarbonate_7": {
+            "code": "LAB//RESULT//682//CARBON DIOXIDE (CO2)",
+            "value_max": 22,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_bicarbonate_8": {
+            "code": "LAB//RESULT//10261879//HCO3",
+            "value_max": 22,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_bicarbonate_9": {
+            "code": "LAB//RESULT//10201892//CARBON DIOXIDE (CO2)",
+            "value_max": 22,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_hemoglobin": {
+            "expr": "or(abnormally_low_hemoglobin_1, abnormally_low_hemoglobin_2, abnormally_low_hemoglobin_3, abnormally_low_hemoglobin_4, abnormally_low_hemoglobin_5, abnormally_low_hemoglobin_6, abnormally_low_hemoglobin_7, abnormally_low_hemoglobin_8)"
+          },
+          "abnormally_low_hemoglobin_1": {
+            "code": "LAB//RESULT//10281581//HEMOGLOBIN",
+            "value_max": 13,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_hemoglobin_2": {
+            "code": "LAB//RESULT//10201249//HEMOGLOBIN",
+            "value_max": 13,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_hemoglobin_3": {
+            "code": "LAB//RESULT//1696//HEMOGLOBIN (HGB)",
+            "value_max": 13,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_hemoglobin_4": {
+            "code": "LAB//RESULT//10201247//HEMOGLOBIN",
+            "value_max": 13,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_hemoglobin_5": {
+            "code": "LAB//RESULT//10201249//HEMOGLOBIN (HGB)",
+            "value_max": 13,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_hemoglobin_6": {
+            "code": "LAB//RESULT//10201247//HEMOGLOBIN (HGB)",
+            "value_max": 13,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_hemoglobin_7": {
+            "code": "LAB//RESULT//1692//HEMOGLOBIN",
+            "value_max": 13,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_hemoglobin_8": {
+            "code": "LAB//RESULT//1692//HEMOGLOBIN (HGB)",
+            "value_max": 13,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_platelets": {
+            "expr": "or(abnormally_low_platelets_1, abnormally_low_platelets_2, abnormally_low_platelets_3, abnormally_low_platelets_4, abnormally_low_platelets_5, abnormally_low_platelets_6, abnormally_low_platelets_7, abnormally_low_platelets_8)"
+          },
+          "abnormally_low_platelets_1": {
+            "code": "LAB//RESULT//10281581//BKR PLATELET COUNT",
+            "value_max": 150,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_platelets_2": {
+            "code": "LAB//RESULT//10201249//BKR PLATELET COUNT",
+            "value_max": 150,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_platelets_3": {
+            "code": "LAB//RESULT//1696//PLATELET COUNT",
+            "value_max": 150,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_platelets_4": {
+            "code": "LAB//RESULT//1712//BKR PLATELET COUNT",
+            "value_max": 150,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_platelets_5": {
+            "code": "LAB//RESULT//10201249//PLATELET COUNT",
+            "value_max": 150,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_platelets_6": {
+            "code": "LAB//RESULT//1712//PLATELET COUNT",
+            "value_max": 150,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_platelets_7": {
+            "code": "LAB//RESULT//10283649//BKR PLATELET COUNT",
+            "value_max": 150,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_platelets_8": {
+            "code": "LAB//RESULT//10201266//PLATELET COUNT",
+            "value_max": 150,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_sodium": {
+            "expr": "or(abnormally_low_sodium_1, abnormally_low_sodium_2, abnormally_low_sodium_3, abnormally_low_sodium_4, abnormally_low_sodium_5, abnormally_low_sodium_6, abnormally_low_sodium_7, abnormally_low_sodium_8, abnormally_low_sodium_9, abnormally_low_sodium_10, abnormally_low_sodium_11, abnormally_low_sodium_12, abnormally_low_sodium_13, abnormally_low_sodium_14)"
+          },
+          "abnormally_low_sodium_1": {
+            "code": "LAB//RESULT//33387//BKR SODIUM",
+            "value_max": 135,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_sodium_10": {
+            "code": "LAB//RESULT//682//BKR SODIUM",
+            "value_max": 135,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_sodium_11": {
+            "code": "LAB//RESULT//892//SODIUM",
+            "value_max": 135,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_sodium_12": {
+            "code": "LAB//RESULT//10201892//BKR SODIUM",
+            "value_max": 135,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_sodium_13": {
+            "code": "LAB//RESULT//682//SODIUM",
+            "value_max": 135,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_sodium_14": {
+            "code": "LAB//RESULT//10201892//SODIUM",
+            "value_max": 135,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_sodium_2": {
+            "code": "LAB//RESULT//33387//SODIUM",
+            "value_max": 135,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_sodium_3": {
+            "code": "LAB//RESULT//10201908//BKR SODIUM",
+            "value_max": 135,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_sodium_4": {
+            "code": "LAB//RESULT//10201113//BKR SODIUM",
+            "value_max": 135,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_sodium_5": {
+            "code": "LAB//RESULT//678//BKR SODIUM",
+            "value_max": 135,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_sodium_6": {
+            "code": "LAB//RESULT//10201908//SODIUM",
+            "value_max": 135,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_sodium_7": {
+            "code": "LAB//RESULT//892//BKR SODIUM",
+            "value_max": 135,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_sodium_8": {
+            "code": "LAB//RESULT//10201113//SODIUM",
+            "value_max": 135,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_sodium_9": {
+            "code": "LAB//RESULT//678//SODIUM",
+            "value_max": 135,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "bicarbonate": {
+            "expr": "or(bicarbonate_1, bicarbonate_2, bicarbonate_3, bicarbonate_4, bicarbonate_5, bicarbonate_6, bicarbonate_7, bicarbonate_8, bicarbonate_9, bicarbonate_10, bicarbonate_11, bicarbonate_12, bicarbonate_13, bicarbonate_14, bicarbonate_15, bicarbonate_16, bicarbonate_17)"
+          },
+          "bicarbonate_1": {
+            "code": "LAB//RESULT//33387//CARBON DIOXIDE (CO2)"
+          },
+          "bicarbonate_10": {
+            "code": "LAB//RESULT//10201082//CARBON DIOXIDE (CO2)"
+          },
+          "bicarbonate_11": {
+            "code": "LAB//RESULT//33387//CARBON DIOXIDE"
+          },
+          "bicarbonate_12": {
+            "code": "LAB//RESULT//10201908//CARBON DIOXIDE"
+          },
+          "bicarbonate_13": {
+            "code": "LAB//RESULT//10201113//CARBON DIOXIDE"
+          },
+          "bicarbonate_14": {
+            "code": "LAB//RESULT//678//CARBON DIOXIDE"
+          },
+          "bicarbonate_15": {
+            "code": "LAB//RESULT//682//CARBON DIOXIDE"
+          },
+          "bicarbonate_16": {
+            "code": "LAB//RESULT//10201892//CARBON DIOXIDE"
+          },
+          "bicarbonate_17": {
+            "code": "LAB//RESULT//10201082//CARBON DIOXIDE"
+          },
+          "bicarbonate_2": {
+            "code": "LAB//RESULT//10201908//CARBON DIOXIDE (CO2)"
+          },
+          "bicarbonate_3": {
+            "code": "LAB//RESULT//10201113//CARBON DIOXIDE (CO2)"
+          },
+          "bicarbonate_4": {
+            "code": "LAB//RESULT//678//CARBON DIOXIDE (CO2)"
+          },
+          "bicarbonate_5": {
+            "code": "LAB//RESULT//10202804//BKR HCO3 ARTERIAL"
+          },
+          "bicarbonate_6": {
+            "code": "LAB//RESULT//10202804//HCO3"
+          },
+          "bicarbonate_7": {
+            "code": "LAB//RESULT//682//CARBON DIOXIDE (CO2)"
+          },
+          "bicarbonate_8": {
+            "code": "LAB//RESULT//10261879//HCO3"
+          },
+          "bicarbonate_9": {
+            "code": "LAB//RESULT//10201892//CARBON DIOXIDE (CO2)"
+          },
+          "creatinine": {
+            "expr": "or(creatinine_1, creatinine_2, creatinine_3, creatinine_4, creatinine_5, creatinine_6, creatinine_7, creatinine_8, creatinine_9, creatinine_10, creatinine_11, creatinine_12, creatinine_13, creatinine_14, creatinine_15)"
+          },
+          "creatinine_1": {
+            "code": "LAB//RESULT//33387//BKR CREATININE"
+          },
+          "creatinine_10": {
+            "code": "LAB//RESULT//780//BKR CREATININE"
+          },
+          "creatinine_11": {
+            "code": "LAB//RESULT//10201892//BKR CREATININE"
+          },
+          "creatinine_12": {
+            "code": "LAB//RESULT//682//CREATININE SERUM"
+          },
+          "creatinine_13": {
+            "code": "LAB//RESULT//780//CREATININE SERUM"
+          },
+          "creatinine_14": {
+            "code": "LAB//RESULT//10201892//CREATININE SERUM"
+          },
+          "creatinine_15": {
+            "code": "LAB//RESULT//10201850//BKR CREATININE"
+          },
+          "creatinine_2": {
+            "code": "LAB//RESULT//33387//CREATININE SERUM"
+          },
+          "creatinine_3": {
+            "code": "LAB//RESULT//10201908//BKR CREATININE"
+          },
+          "creatinine_4": {
+            "code": "LAB//RESULT//10201113//BKR CREATININE"
+          },
+          "creatinine_5": {
+            "code": "LAB//RESULT//678//BKR CREATININE"
+          },
+          "creatinine_6": {
+            "code": "LAB//RESULT//10201908//CREATININE SERUM"
+          },
+          "creatinine_7": {
+            "code": "LAB//RESULT//10201113//CREATININE SERUM"
+          },
+          "creatinine_8": {
+            "code": "LAB//RESULT//678//CREATININE SERUM"
+          },
+          "creatinine_9": {
+            "code": "LAB//RESULT//682//BKR CREATININE"
+          },
+          "hemoglobin": {
+            "expr": "or(hemoglobin_1, hemoglobin_2, hemoglobin_3, hemoglobin_4, hemoglobin_5, hemoglobin_6, hemoglobin_7, hemoglobin_8)"
+          },
+          "hemoglobin_1": {
+            "code": "LAB//RESULT//10281581//HEMOGLOBIN"
+          },
+          "hemoglobin_2": {
+            "code": "LAB//RESULT//10201249//HEMOGLOBIN"
+          },
+          "hemoglobin_3": {
+            "code": "LAB//RESULT//1696//HEMOGLOBIN (HGB)"
+          },
+          "hemoglobin_4": {
+            "code": "LAB//RESULT//10201247//HEMOGLOBIN"
+          },
+          "hemoglobin_5": {
+            "code": "LAB//RESULT//10201249//HEMOGLOBIN (HGB)"
+          },
+          "hemoglobin_6": {
+            "code": "LAB//RESULT//10201247//HEMOGLOBIN (HGB)"
+          },
+          "hemoglobin_7": {
+            "code": "LAB//RESULT//1692//HEMOGLOBIN"
+          },
+          "hemoglobin_8": {
+            "code": "LAB//RESULT//1692//HEMOGLOBIN (HGB)"
+          },
+          "hospital_admission": {
+            "code": {
+              "regex": "^HOSPITAL_ADMISSION//.*"
+            }
+          },
+          "hospital_discharge": {
+            "code": {
+              "regex": "^HOSPITAL_DISCHARGE//.*"
+            }
+          },
+          "icu_admission": {
+            "code": "ICU_ADMISSION"
+          },
+          "icu_discharge": {
+            "code": "ICU_DISCHARGE"
+          },
+          "platelets": {
+            "expr": "or(platelets_1, platelets_2, platelets_3, platelets_4, platelets_5, platelets_6, platelets_7, platelets_8)"
+          },
+          "platelets_1": {
+            "code": "LAB//RESULT//10281581//BKR PLATELET COUNT"
+          },
+          "platelets_2": {
+            "code": "LAB//RESULT//10201249//BKR PLATELET COUNT"
+          },
+          "platelets_3": {
+            "code": "LAB//RESULT//1696//PLATELET COUNT"
+          },
+          "platelets_4": {
+            "code": "LAB//RESULT//1712//BKR PLATELET COUNT"
+          },
+          "platelets_5": {
+            "code": "LAB//RESULT//10201249//PLATELET COUNT"
+          },
+          "platelets_6": {
+            "code": "LAB//RESULT//1712//PLATELET COUNT"
+          },
+          "platelets_7": {
+            "code": "LAB//RESULT//10283649//BKR PLATELET COUNT"
+          },
+          "platelets_8": {
+            "code": "LAB//RESULT//10201266//PLATELET COUNT"
+          },
+          "sodium": {
+            "expr": "or(sodium_1, sodium_2, sodium_3, sodium_4, sodium_5, sodium_6, sodium_7, sodium_8, sodium_9, sodium_10, sodium_11, sodium_12, sodium_13, sodium_14)"
+          },
+          "sodium_1": {
+            "code": "LAB//RESULT//33387//BKR SODIUM"
+          },
+          "sodium_10": {
+            "code": "LAB//RESULT//682//BKR SODIUM"
+          },
+          "sodium_11": {
+            "code": "LAB//RESULT//892//SODIUM"
+          },
+          "sodium_12": {
+            "code": "LAB//RESULT//10201892//BKR SODIUM"
+          },
+          "sodium_13": {
+            "code": "LAB//RESULT//682//SODIUM"
+          },
+          "sodium_14": {
+            "code": "LAB//RESULT//10201892//SODIUM"
+          },
+          "sodium_2": {
+            "code": "LAB//RESULT//33387//SODIUM"
+          },
+          "sodium_3": {
+            "code": "LAB//RESULT//10201908//BKR SODIUM"
+          },
+          "sodium_4": {
+            "code": "LAB//RESULT//10201113//BKR SODIUM"
+          },
+          "sodium_5": {
+            "code": "LAB//RESULT//678//BKR SODIUM"
+          },
+          "sodium_6": {
+            "code": "LAB//RESULT//10201908//SODIUM"
+          },
+          "sodium_7": {
+            "code": "LAB//RESULT//892//BKR SODIUM"
+          },
+          "sodium_8": {
+            "code": "LAB//RESULT//10201113//SODIUM"
+          },
+          "sodium_9": {
+            "code": "LAB//RESULT//678//SODIUM"
+          },
+          "wbc": {
+            "expr": "or(wbc_1, wbc_2, wbc_3, wbc_4)"
+          },
+          "wbc_1": {
+            "code": "LAB//RESULT//10281581//BKR WBC COUNT"
+          },
+          "wbc_2": {
+            "code": "LAB//RESULT//10201249//BKR WBC COUNT"
+          },
+          "wbc_3": {
+            "code": "LAB//RESULT//1696//WBC (WHITE BLOOD COUNT)"
+          },
+          "wbc_4": {
+            "code": "LAB//RESULT//10201249//WBC (WHITE BLOOD COUNT)"
+          }
+        }
+      },
+      "readme": "# ALarms, Outcomes Telemetry with Timing (ALOTT)\n\n## Description\n\nALOTT (ALarms, Outcomes Telemetry with Timing) is a pilot bedside-EMR database from two hospitals,\ncollected to support algorithms that predict emergency response team events. It pairs bedside\ntelemetry from 270 beds with electronic medical record data: admissions, diagnoses, ICU stays and bed\nmoves, labs, orders, medications and nursing flowsheets. MEDS-DEV uses the EMR tables only.[1]\n\n## Access Requirements\n\nTaken from [PhysioNet](https://physionet.org/content/alott/1.0.0/):\n\n- **Access Policy**: Restricted access\n- **License (for files)**: PhysioNet Restricted Health Data License Version 1.5.0\n- **Data Use Agreement**: PhysioNet Restricted Health Data Use Agreement Version 1.5.0\n- **Required training**: none\n\nThe ETL downloads the source files from PhysioNet. Set `DATASET_DOWNLOAD_USERNAME` and\n`DATASET_DOWNLOAD_PASSWORD` to the credentials of an account with access before running it.\n\n## Supported Tasks\n\nThe six blood `abnormal_lab` tasks, each extracted on the full 1.0.0 release:\n\n- `tasks/abnormal_lab/blood_chemistry/elevated_creatinine/first_24h.yaml`\n- `tasks/abnormal_lab/blood_chemistry/hyponatremia/first_24h.yaml`\n- `tasks/abnormal_lab/blood_chemistry/metabolic_acidosis/first_24h.yaml`\n- `tasks/abnormal_lab/cbc/anemia/first_24h.yaml`\n- `tasks/abnormal_lab/cbc/leukocytosis/first_24h.yaml`\n- `tasks/abnormal_lab/cbc/thrombocytopenia/first_24h.yaml`\n\nTwo caveats apply to all six. Labs carry only a result *date* and are placed at 23:59:59, so the tasks'\n24 h windows act as calendar days: the input window holds the labs of the admission day and the target\nwindow those of the next day. The release has no birth date or age, so the tasks' adult filter excludes\nno one.\n\nNot supported:\n\n- `mortality/in_icu/first_24h`: the release records no deaths, and no discharge destination marks one, so\n    every label would be False. The ICU predicates are defined only because metabolic acidosis excludes\n    stays with an ICU discharge in its first 48 h.\n- `abnormal_lab/vital/hypotension/first_24h`: the EMR flowsheet has no blood pressure.\n\nALOTT has no demo, so the integration tests do not exercise these pairs.\n\n## MEDS Transformation\n\n[`ALOTT-MEDS`](https://github.com/rvandewater/ALOTT_MEDS) 0.0.1, pinned to its PyPI release in\n`requirements.txt`, is a configuration-only [MEDS-Extract](https://github.com/mmcdermott/MEDS_extract) 0.7\npipeline, registered as `spec=ALOTT` for `meds-extract-run`. It transforms the EMR tables of the PhysioNet\nrelease into MEDS; the telemetry is out of scope. There is no public demo, so only `build_full` is provided.\nVersion 0.0.1 includes [ALOTT_MEDS#2](https://github.com/rvandewater/ALOTT_MEDS/pull/2) (MEDS-Extract\n0.7.1, aligned with the published 1.0.0 schema).[2] Notable properties of the conversion:\n\n- **Dates are shifted** by a random offset of up to 180 days in either direction per patient; the time of\n    day is kept.\n- **Admissions** are `HOSPITAL_ADMISSION//<type>//<source>` and `HOSPITAL_DISCHARGE//<destination>`. ICU\n    stays are `ICU_ADMISSION` and `ICU_DISCHARGE`; the release does not say which unit.\n- **No birth or death.** There is no `MEDS_BIRTH` or `MEDS_DEATH` event.\n- **Labs** are `LAB//RESULT//<panel>//<component>`, timed at the end of the result date. The code carries\n    no unit; the values are in US units (mg/dL, mmol/L, g/dL, K/uL). A chemistry panel reports each analyte\n    under one of two component names, `BKR <ANALYTE>` or the plain name, and total CO2 as `CARBON DIOXIDE`\n    or `CARBON DIOXIDE (CO2)`. The predicates list both names wherever a code occurs in at least 20\n    subjects.\n\n## Sources\n\n1. [ALOTT v1.0.0 on PhysioNet](https://physionet.org/content/alott/1.0.0/)\n2. [ALOTT-MEDS ETL](https://github.com/rvandewater/ALOTT_MEDS)\n",
+      "refs": "@article{PhysioNet-alott-1.0.0,\n  author = {Lawrence, John and Rayo, Mike and Huerta, Timothy},\n  title = {{ALarms, Outcomes Telemetry with Timing (ALOTT): a Bedside-EMR Database}},\n  journal = {{PhysioNet}},\n  year = {2025},\n  month = mar,\n  note = {Version 1.0.0},\n  doi = {10.13026/sbq5-dy17},\n  url = {https://doi.org/10.13026/sbq5-dy17},\n}\n\n@software{van_de_Water_ALOTT_MEDS_ETL_2025,\n  author = {van de Water, Robin Philippus},\n  license = {MIT},\n  month = apr,\n  title = {{ALOTT\\_MEDS ETL}},\n  url = {https://github.com/rvandewater/ALOTT_MEDS},\n  version = {0.0.1},\n  year = {2025},\n}\n",
+      "requirements": [
+        "ALOTT-MEDS==0.0.1"
+      ],
+      "type": "dataset"
+    },
+    "name": "ALOTT"
+  },
   "AUMCdb": {
     "children": [],
     "data": {
@@ -213,6 +896,679 @@
       "type": "dataset"
     },
     "name": "AUMCdb"
+  },
+  "CDSL": {
+    "children": [],
+    "data": {
+      "entity": {
+        "commands": {
+          "build_full": "meds-extract-download spec=CDSL output_dir=\"{raw_input_dir}\"\nMEDS_extract-CDSL spec=CDSL do_download=false input_dir=\"{raw_input_dir}\" output_dir=\"{output_dir}\""
+        },
+        "metadata": {
+          "access_details": "Contributor-review access: requires a credentialed PhysioNet account, completion of the required CITI training, acceptance of the PhysioNet Contributor Review Health Data Use Agreement, and approval of the request by the data contributors.",
+          "access_policy": "public_with_approval",
+          "contacts": [
+            {
+              "github_username": "rvandewater",
+              "name": "Robin P. van de Water"
+            }
+          ],
+          "description": "A MEDS version of the COVID Data for Shared Learning (CDSL) database.",
+          "links": [
+            "https://github.com/rvandewater/CDSL_MEDS",
+            "https://physionet.org/content/covid-data-shared-learning/1.0.0/",
+            "https://doi.org/10.13026/1176-6c44"
+          ]
+        }
+      },
+      "predicates": {
+        "predicates": {
+          "abnormally_high_creatinine": {
+            "expr": "or(abnormally_high_creatinine_1, abnormally_high_creatinine_2)"
+          },
+          "abnormally_high_creatinine_1": {
+            "code": "LAB//CREA -- Creatinine//mg/dL",
+            "value_max": null,
+            "value_min": 1.3,
+            "value_min_inclusive": false
+          },
+          "abnormally_high_creatinine_2": {
+            "code": "LAB//POCCREA -- POC Creatinine//mg/dL",
+            "value_max": null,
+            "value_min": 1.3,
+            "value_min_inclusive": false
+          },
+          "abnormally_high_wbc": {
+            "expr": "or(abnormally_high_wbc_1, abnormally_high_wbc_2)"
+          },
+          "abnormally_high_wbc_1": {
+            "code": "LAB//WBC -- White Blood Cells (Leukocytes)//x10e3/\u00b5L",
+            "value_max": null,
+            "value_min": 11,
+            "value_min_inclusive": false
+          },
+          "abnormally_high_wbc_2": {
+            "code": "LAB//WBC -- White Blood Cells (Blood Count)//x10e3/\u00b5L",
+            "value_max": null,
+            "value_min": 11,
+            "value_min_inclusive": false
+          },
+          "abnormally_low_bicarbonate": {
+            "expr": "or(abnormally_low_bicarbonate_1, abnormally_low_bicarbonate_2, abnormally_low_bicarbonate_3, abnormally_low_bicarbonate_4)"
+          },
+          "abnormally_low_bicarbonate_1": {
+            "code": "LAB//HCO3 -- Bicarbonate//mmol/L",
+            "value_max": 22,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_bicarbonate_2": {
+            "code": "LAB//HCO3 -- Bicarbonate (Venous)//mmol/L",
+            "value_max": 22,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_bicarbonate_3": {
+            "code": "LAB//HCO3 -- Venous Blood Gas//mmol/L",
+            "value_max": 22,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_bicarbonate_4": {
+            "code": "LAB//HCO3 -- Arterial Blood Gas//mmol/L",
+            "value_max": 22,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_hemoglobin": {
+            "expr": "or(abnormally_low_hemoglobin_1, abnormally_low_hemoglobin_2)"
+          },
+          "abnormally_low_hemoglobin_1": {
+            "code": "LAB//HGB -- Hemoglobin//g/dL",
+            "value_max": 13,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_hemoglobin_2": {
+            "code": "LAB//HGB -- Hemoglobin (Blood Count)//g/dL",
+            "value_max": 13,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_platelets": {
+            "expr": "or(abnormally_low_platelets_1, abnormally_low_platelets_2)"
+          },
+          "abnormally_low_platelets_1": {
+            "code": "LAB//PLT -- Platelet Count//x10e3/\u00b5L",
+            "value_max": 150,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_platelets_2": {
+            "code": "LAB//PLT -- Platelet Count (Blood Count)//x10e3/\u00b5L",
+            "value_max": 150,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_sodium": {
+            "expr": "or(abnormally_low_sodium_1, abnormally_low_sodium_2, abnormally_low_sodium_3, abnormally_low_sodium_4)"
+          },
+          "abnormally_low_sodium_1": {
+            "code": "LAB//NA -- Sodium//mmol/L",
+            "value_max": 135,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_sodium_2": {
+            "code": "LAB//NA+P -- NA+//mmol/L",
+            "value_max": 135,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_sodium_3": {
+            "code": "LAB//NA+P -- Ions in Gases//mmol/L",
+            "value_max": 135,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_sodium_4": {
+            "code": "LAB//POCNA -- POC Sodium//mmol/L",
+            "value_max": 135,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "bicarbonate": {
+            "expr": "or(bicarbonate_1, bicarbonate_2, bicarbonate_3, bicarbonate_4)"
+          },
+          "bicarbonate_1": {
+            "code": "LAB//HCO3 -- Bicarbonate//mmol/L"
+          },
+          "bicarbonate_2": {
+            "code": "LAB//HCO3 -- Bicarbonate (Venous)//mmol/L"
+          },
+          "bicarbonate_3": {
+            "code": "LAB//HCO3 -- Venous Blood Gas//mmol/L"
+          },
+          "bicarbonate_4": {
+            "code": "LAB//HCO3 -- Arterial Blood Gas//mmol/L"
+          },
+          "birth": {
+            "code": "AGE_AT_ADMISSION",
+            "value_max": 18,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "creatinine": {
+            "expr": "or(creatinine_1, creatinine_2)"
+          },
+          "creatinine_1": {
+            "code": "LAB//CREA -- Creatinine//mg/dL"
+          },
+          "creatinine_2": {
+            "code": "LAB//POCCREA -- POC Creatinine//mg/dL"
+          },
+          "death": {
+            "code": "HOSPITAL_DISCHARGE//Death"
+          },
+          "hemoglobin": {
+            "expr": "or(hemoglobin_1, hemoglobin_2)"
+          },
+          "hemoglobin_1": {
+            "code": "LAB//HGB -- Hemoglobin//g/dL"
+          },
+          "hemoglobin_2": {
+            "code": "LAB//HGB -- Hemoglobin (Blood Count)//g/dL"
+          },
+          "hospital_admission": {
+            "code": "HOSPITAL_ADMISSION"
+          },
+          "hospital_discharge": {
+            "code": {
+              "regex": "^HOSPITAL_DISCHARGE//.*"
+            }
+          },
+          "icu_admission": {
+            "code": "ICU_ADMISSION"
+          },
+          "icu_discharge": {
+            "code": "ICU_DISCHARGE"
+          },
+          "platelets": {
+            "expr": "or(platelets_1, platelets_2)"
+          },
+          "platelets_1": {
+            "code": "LAB//PLT -- Platelet Count//x10e3/\u00b5L"
+          },
+          "platelets_2": {
+            "code": "LAB//PLT -- Platelet Count (Blood Count)//x10e3/\u00b5L"
+          },
+          "sodium": {
+            "expr": "or(sodium_1, sodium_2, sodium_3, sodium_4)"
+          },
+          "sodium_1": {
+            "code": "LAB//NA -- Sodium//mmol/L"
+          },
+          "sodium_2": {
+            "code": "LAB//NA+P -- NA+//mmol/L"
+          },
+          "sodium_3": {
+            "code": "LAB//NA+P -- Ions in Gases//mmol/L"
+          },
+          "sodium_4": {
+            "code": "LAB//POCNA -- POC Sodium//mmol/L"
+          },
+          "wbc": {
+            "expr": "or(wbc_1, wbc_2)"
+          },
+          "wbc_1": {
+            "code": "LAB//WBC -- White Blood Cells (Leukocytes)//x10e3/\u00b5L"
+          },
+          "wbc_2": {
+            "code": "LAB//WBC -- White Blood Cells (Blood Count)//x10e3/\u00b5L"
+          }
+        }
+      },
+      "readme": "# COVID Data for Shared Learning (CDSL)\n\n## Description\n\nCOVID Data for Shared Learning (CDSL) is a multimodal database of de-identified medical data from\n4,479 patients hospitalized with confirmed or suspected COVID-19 in the Spanish HM Hospitales group\n(2019-12-26 to 2021-02-13). It provides demographic, diagnostic, clinical and treatment tables, and\nchest X-ray / CT images. MEDS-DEV uses the tabular data and the DICOM metadata, not the images.[1]\n\n## Access Requirements\n\nTaken from [PhysioNet](https://physionet.org/content/covid-data-shared-learning/1.0.0/):\n\n- **Access Policy**: Contributor review\n- **License (for files)**: PhysioNet Contributor Review Health Data License Version 1.5.0\n- **Data Use Agreement**: PhysioNet Contributor Review Health Data Use Agreement Version 1.5.0\n- **Required training**: CITI Data or Specimens Only Research\n\nThe ETL downloads the source files from PhysioNet. Set `DATASET_DOWNLOAD_USERNAME` and\n`DATASET_DOWNLOAD_PASSWORD` to the credentials of an account with access before running it.\n\n## Supported Tasks\n\nEvery current task except hypotension, each extracted on the full 1.0.0 release:\n\n- `tasks/mortality/in_icu/first_24h.yaml`\n- `tasks/abnormal_lab/blood_chemistry/elevated_creatinine/first_24h.yaml`\n- `tasks/abnormal_lab/blood_chemistry/hyponatremia/first_24h.yaml`\n- `tasks/abnormal_lab/blood_chemistry/metabolic_acidosis/first_24h.yaml`\n- `tasks/abnormal_lab/cbc/anemia/first_24h.yaml`\n- `tasks/abnormal_lab/cbc/leukocytosis/first_24h.yaml`\n- `tasks/abnormal_lab/cbc/thrombocytopenia/first_24h.yaml`\n\n`tasks/abnormal_lab/vital/hypotension/first_24h.yaml` is not supported: CDSL records systolic and diastolic\nblood pressure but no mean arterial pressure. CDSL has no demo, so the integration tests do not exercise\nthese pairs.\n\n## MEDS Transformation\n\n[`CDSL-MEDS`](https://github.com/rvandewater/CDSL_MEDS) is a configuration-only\n[MEDS-Extract](https://github.com/mmcdermott/MEDS_extract) 0.7 pipeline, registered as `spec=CDSL`.[2]\n`requirements.txt` pins `CDSL-MEDS==0.0.1`, the newest code on PyPI: it was published from the `0.0.3` tag\nafter `0.0.2`, which is older code. Three CDSL files are Latin-1 encoded, so the build downloads first and\nthen runs `MEDS_extract-CDSL`, which stages a UTF-8 view of the download before extraction. There is no\npublic demo, so only `build_full` is provided. Notable properties of the conversion:\n\n- **One hospital stay per subject.** `HOSPITAL_ADMISSION` and `HOSPITAL_DISCHARGE//<destination>` are\n    recorded to the day and placed at midnight, so \"the first 24 hours\" of the abnormal-lab tasks is the\n    admission day. `ICU_ADMISSION` and `ICU_DISCHARGE` carry a time of day.\n- **Death** is only a discharge destination. There is no `MEDS_DEATH`, so `predicates.yaml` overrides the\n    tasks' `death` with `HOSPITAL_DISCHARGE//Death`, timed at the (midnight) hospital discharge. For most\n    ICU deaths that falls before the ICU discharge, so the in-ICU target window still sees it.\n- **Age** is recorded in whole years at admission (`AGE_AT_ADMISSION`), and there is no `MEDS_BIRTH`. The\n    abnormal-lab tasks exclude children by requiring no `birth` in the 18 years before admission, so\n    `predicates.yaml` defines `birth` as an age below 18 at that admission. This excludes exactly the\n    subjects younger than 18.\n- **Labs** are `LAB//<item> -- <name>//<unit>` and are already in the tasks' units. Bicarbonate and total\n    CO2 are reported only in blood-gas panels, so `bicarbonate` uses blood-gas HCO3.\n\n## Sources\n\n1. [CDSL v1.0.0 on PhysioNet](https://physionet.org/content/covid-data-shared-learning/1.0.0/)\n    ([doi:10.13026/1176-6c44](https://doi.org/10.13026/1176-6c44))\n2. [CDSL-MEDS ETL](https://github.com/rvandewater/CDSL_MEDS)\n    ([doi:10.5281/zenodo.23676596](https://doi.org/10.5281/zenodo.23676596))\n",
+      "refs": "@misc{PhysioNet-covid-data-shared-learning-1.0.0,\n  author = {Ritor\u00e9, \u00c1lvaro and Oprescu, Andreea M and Estirado Bronchalo, Alberto and Armengol de la Hoz, Miguel \u00c1ngel},\n  title = {{COVID Data for Shared Learning (CDSL): A comprehensive, multimodal COVID-19 dataset from HM Hospitales}},\n  publisher = {PhysioNet},\n  year = {2024},\n  note = {Version 1.0.0},\n  doi = {10.13026/1176-6c44},\n  url = {https://doi.org/10.13026/1176-6c44},\n}\n\n@software{van_de_Water_CDSL_MEDS_ETL,\n  author = {van de Water, Robin Philippus},\n  doi = {10.5281/zenodo.23676596},\n  license = {MIT},\n  title = {{CDSL\\_MEDS ETL}},\n  url = {https://github.com/rvandewater/CDSL_MEDS},\n  version = {0.0.3},\n  note = {Published on PyPI as CDSL-MEDS 0.0.1},\n  year = {2026},\n}\n",
+      "requirements": [
+        "CDSL-MEDS==0.0.1"
+      ],
+      "type": "dataset"
+    },
+    "name": "CDSL"
+  },
+  "EHRShot": {
+    "children": [],
+    "data": {
+      "entity": {
+        "commands": {
+          "build_full": "echo \"EHRShot is distributed in MEDS format and must be downloaded manually after signing its data use agreement (see https://som-shahlab.github.io/ehrshot-website/docs/). Pass the downloaded MEDS directory as dataset_dir to meds-dev-task and meds-dev-model instead of building it.\" >&2 && exit 1"
+        },
+        "metadata": {
+          "access_details": "Requires signing the EHRSHOT Credentialed Health Data License and Data Use Agreement, a verified institutional affiliation, and valid CITI training in human research subject protection and HIPAA.",
+          "access_policy": "public_with_approval",
+          "contacts": [
+            {
+              "github_username": "rvandewater",
+              "name": "Robin P. van de Water"
+            }
+          ],
+          "description": "EHRShot dataset from Stanford Medicine.",
+          "links": [
+            "https://som-shahlab.github.io/ehrshot-website/docs/"
+          ]
+        }
+      },
+      "predicates": {
+        "predicates": {
+          "ED_admission": {
+            "code": {
+              "any": [
+                "Visit/ER",
+                "Visit/ERIP"
+              ]
+            }
+          },
+          "abnormally_high_bp": {
+            "expr": "or(abnormally_high_systolic_bp, abnormally_high_diastolic_bp)"
+          },
+          "abnormally_high_diastolic_bp": {
+            "code": "LOINC/8462-4",
+            "value_min": 80
+          },
+          "abnormally_high_potassium": {
+            "expr": "or(abnormally_high_potassium_4, abnormally_high_potassium_5)"
+          },
+          "abnormally_high_potassium_4": {
+            "code": "LOINC/6298-4",
+            "value_max": null,
+            "value_min": 5.0,
+            "value_min_inclusive": true
+          },
+          "abnormally_high_potassium_5": {
+            "code": "LOINC/2823-3",
+            "value_max": null,
+            "value_min": 5.0,
+            "value_min_inclusive": true
+          },
+          "abnormally_high_systolic_bp": {
+            "code": "LOINC/8480-6",
+            "value_min": 130
+          },
+          "abnormally_high_wbc": {
+            "code": "LOINC/20584-9",
+            "value_max": null,
+            "value_min": 11,
+            "value_min_inclusive": false
+          },
+          "abnormally_low_bicarbonate": {
+            "expr": "or(abnormally_low_bicarbonate_1, abnormally_low_bicarbonate_2)"
+          },
+          "abnormally_low_bicarbonate_1": {
+            "code": "LOINC/2028-9",
+            "value_max": 22,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_bicarbonate_2": {
+            "code": "LOINC/1959-6",
+            "value_max": 22,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_glucose": {
+            "expr": "or(abnormally_low_glucose_1, abnormally_low_glucose_2, abnormally_low_glucose_3, abnormally_low_glucose_4)"
+          },
+          "abnormally_low_glucose_1": {
+            "code": "SNOMED/33747003",
+            "value_max": 70.2,
+            "value_max_inclusive": true,
+            "value_min": null
+          },
+          "abnormally_low_glucose_2": {
+            "code": "LOINC/2345-7",
+            "value_max": 70.2,
+            "value_max_inclusive": true,
+            "value_min": null
+          },
+          "abnormally_low_glucose_3": {
+            "code": "LOINC/14749-6",
+            "value_max": 70.2,
+            "value_max_inclusive": true,
+            "value_min": null
+          },
+          "abnormally_low_glucose_4": {
+            "code": "LOINC/2339-0",
+            "value_max": 70.2,
+            "value_max_inclusive": true,
+            "value_min": null
+          },
+          "abnormally_low_hemoglobin": {
+            "code": "LOINC/718-7",
+            "value_max": 13,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_platelets": {
+            "code": "LOINC/777-3",
+            "value_max": 150,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_sodium": {
+            "expr": "or(abnormally_low_sodium_2, abnormally_low_sodium_3)"
+          },
+          "abnormally_low_sodium_2": {
+            "code": "LOINC/2951-2",
+            "value_max": 135,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_sodium_3": {
+            "code": "LOINC/2947-0",
+            "value_max": 135,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "acute_kidney_injury": {
+            "expr": "or(aki_1, aki_2, aki_3)"
+          },
+          "acute_myocardial_infarction": {
+            "code": "SNOMED/57054005"
+          },
+          "aitp": {
+            "code": "SNOMED/128091003"
+          },
+          "aki_1": {
+            "code": "SNOMED/14669001"
+          },
+          "aki_2": {
+            "code": "SNOMED/298015003"
+          },
+          "aki_3": {
+            "code": "SNOMED/35455006"
+          },
+          "bicarbonate": {
+            "expr": "or(bicarbonate_1, bicarbonate_2)"
+          },
+          "bicarbonate_1": {
+            "code": "LOINC/2028-9"
+          },
+          "bicarbonate_2": {
+            "code": "LOINC/1959-6"
+          },
+          "birth": {
+            "code": "SNOMED/3950001"
+          },
+          "celiac_disease": {
+            "code": "SNOMED/396331005"
+          },
+          "chronic_thromboembolic_pulmonary_hypertension": {
+            "code": "SNOMED/233947005"
+          },
+          "death": {
+            "code": "Condition Type/OMOP4822053"
+          },
+          "diagnosed_thrombocytopenia": {
+            "expr": "or(itp, aitp)"
+          },
+          "diastolic_bp": {
+            "code": "LOINC/8462-4"
+          },
+          "essential_hypertension": {
+            "code": "SNOMED/59621000"
+          },
+          "glucose": {
+            "expr": "or(glucose_1, glucose_2, glucose_3, glucose_4)"
+          },
+          "glucose_1": {
+            "code": "SNOMED/33747003"
+          },
+          "glucose_2": {
+            "code": "LOINC/2345-7"
+          },
+          "glucose_3": {
+            "code": "LOINC/14749-6"
+          },
+          "glucose_4": {
+            "code": "LOINC/2339-0"
+          },
+          "hemoglobin": {
+            "code": "LOINC/718-7"
+          },
+          "hospital_admission": {
+            "code": {
+              "any": [
+                "Visit/IP",
+                "Visit/ERIP"
+              ]
+            }
+          },
+          "hyperlipidemia": {
+            "code": "SNOMED/55822004"
+          },
+          "icu_admission": {
+            "code": {
+              "any": [
+                "CARE_SITE/7928450",
+                "CARE_SITE/7930385",
+                "CARE_SITE/7930600",
+                "CARE_SITE/7928852",
+                "CARE_SITE/7928619",
+                "CARE_SITE/7929727",
+                "CARE_SITE/7928675",
+                "CARE_SITE/7930225",
+                "CARE_SITE/7928759",
+                "CARE_SITE/7928227",
+                "CARE_SITE/7928810",
+                "CARE_SITE/7929179",
+                "CARE_SITE/7928650",
+                "CARE_SITE/7929351",
+                "CARE_SITE/7928457",
+                "CARE_SITE/7928195",
+                "CARE_SITE/7930681",
+                "CARE_SITE/7930670",
+                "CARE_SITE/7930176",
+                "CARE_SITE/7931420",
+                "CARE_SITE/7929149",
+                "CARE_SITE/7930857",
+                "CARE_SITE/7931186",
+                "CARE_SITE/7930934",
+                "CARE_SITE/7930924"
+              ]
+            }
+          },
+          "itp": {
+            "code": "SNOMED/32273002"
+          },
+          "metabolic_acidosis": {
+            "code": "SNOMED/420270002"
+          },
+          "outpatient_visit": {
+            "code": "Visit/OP"
+          },
+          "pancreatic_cancer": {
+            "code": "SNOMED/372003004"
+          },
+          "platelets": {
+            "code": "LOINC/777-3"
+          },
+          "potassium": {
+            "expr": "or(potassium_4, potassium_5)"
+          },
+          "potassium_4": {
+            "code": "LOINC/6298-4"
+          },
+          "potassium_5": {
+            "code": "LOINC/2823-3"
+          },
+          "sodium": {
+            "expr": "or(sodium_2, sodium_3)"
+          },
+          "sodium_2": {
+            "code": "LOINC/2951-2"
+          },
+          "sodium_3": {
+            "code": "LOINC/2947-0"
+          },
+          "systemic_lupus_erythematosus": {
+            "code": "SNOMED/55464009"
+          },
+          "systolic_bp": {
+            "code": "LOINC/8480-6"
+          },
+          "wbc": {
+            "code": "LOINC/20584-9"
+          }
+        }
+      },
+      "readme": "# EHRSHOT\n\n## Description\n\nA benchmark dataset of de-identified structured electronic health record data from Stanford Medicine containing longitudinal health records for 6,739 patients with 41.6 million coded clinical observations and 921,499 visits, designed for few-shot evaluation of foundation models on EHR data.[1][2]\n\n## Access Requirements\n\nTaken from [Stanford Shah Lab website](https://shahlab.stanford.edu/doku.php?id=ehrshot_license):\n\n- **Access Policy**: Sign the EHRSHOT Credentialed Health Data License and Data Use Agreement[3][4]\n- **License (for files)**: EHRSHOT Credentialed Health Data License Version 1.0 (modeled after Physionet Version 1.5.0)[3]\n- **Data Use Agreement**: Agreement requires verified institutional affiliation and commitment to use data solely for lawful scientific research[5][3]\n- **Required training**: Valid CITI training certification in human research subject protection and HIPAA regulations[4][3]\n- **License Term**: 3 years from account creation date[3]\n- **Code Sharing**: Agreement to contribute code associated with publications to open research repository[3]\n\n## Supported Tasks\n\nEHRSHOT includes 15 classification tasks organized into three categories as the benchmark dataset itself. However, here we use ACES-defined values to extract tasks from the dataset.\n\nNo MEDS-DEV task lists EHRShot in its `supported_datasets` yet. The current tasks exclude stays with a discharge\nshortly after admission, which this release can't express (see below), so they can't be enabled for it as is.\n\n## MEDS-transformation\n\nEHRSHOT is available in three formats: Original (compatible with benchmark repository), MEDS (Medical Event Data Standard), and OMOP (full OMOP table dumps). The MEDS version contains the same exact data as the Original dataset but in MEDS-compatible format.[1]\n\n### Which version `predicates.yaml` targets\n\nThe predicates target the **official MEDS release** (`EHRSHOT => MEDS ETL` 1.0, MEDS 0.3.3), with codes such as\n`LOINC/2951-2`, `Visit/IP`, and `CARE_SITE/<id>`. They do not match a MEDS dataset converted from the OMOP\ndownload with MEDS-Extract, which writes codes as `LOINC//2951-2` and conditions/visits with `//start` and\n`//end` suffixes.\n\nNotable properties of the official MEDS release:\n\n- **No discharge events.** Visits are recorded only at their start (`Visit/IP`, `Visit/ER`, `Visit/ERIP`, ...),\n    so `hospital_discharge` and `icu_discharge` are deliberately left undefined.\n- **ICU stays can't be verified.** ICU care sites use the release's own care-site IDs, which differ from the\n    OMOP `care_site` IDs, so the `icu_admission` IDs can't be checked against care-site names.\n- **Birth and death** are `SNOMED/3950001` and `Condition Type/OMOP4822053` rather than `MEDS_BIRTH` and\n    `MEDS_DEATH`; `predicates.yaml` overrides the tasks' `birth` and `death` predicates accordingly.\n- **WBC:** `LOINC/6690-2` holds erythrocyte-scale values (MIL/uL); white-cell counts are under `LOINC/20584-9`.\n- **Bicarbonate** uses total CO2 (`LOINC/2028-9`) and `LOINC/1959-6`; `LOINC/2021-4` is venous pCO2.\n\nThe OMOP-derived conversion has visit-end events, `MEDS_DEATH`, and care-site names, so it could support the\ndischarge- and ICU-based tasks, but it needs its own predicates and a reproducible build.\n\n## Sources\n\n1. [EHRSHOT Official Website](https://ehrshot.stanford.edu)\n2. [EHRSHOT Research Paper](https://arxiv.org/html/2307.02028v3)\n3. [GitHub Repository](https://github.com/som-shahlab/ehrshot-benchmark)\n4. [Redivis Dataset Portal](https://redivis.com/datasets/53gc-8rhx41kgt)\n5. [Stanford AIMI Shared Datasets](https://stanfordaimi.azurewebsites.net/datasets/54c5d2a1-ef39-489e-b5f8-8f9e27e9750b)\n6. [EHRSHOT License Agreement](https://shahlab.stanford.edu/doku.php?id=ehrshot_license)\n\n## Disclaimer\n\nPlease refer to the data owners and the most up-to-date information when using this dataset in your research. The EHRSHOT dataset has not been reviewed or approved by the Food and Drug Administration and is for non-clinical, research and education use only.[3]\n\n[1](https://github.com/som-shahlab/ehrshot-benchmark)\n[2](https://openreview.net/forum?id=CsXC6IcdwI)\n[3](https://shahlab.stanford.edu/doku.php?id=ehrshot_license)\n[4](https://redivis.com/datasets/6m7p-7yhq70029)\n[5](https://redivis.com/datasets/53gc-8rhx41kgt)\n[6](https://arxiv.org/html/2307.02028v3)\n[7](https://proceedings.neurips.cc/paper_files/paper/2023/file/d42db1f74df54cb992b3956eb7f15a6f-Supplemental-Datasets_and_Benchmarks.pdf)\n[8](https://stanfordaimi.azurewebsites.net/datasets/54c5d2a1-ef39-489e-b5f8-8f9e27e9750b)\n[9](https://redivis.com/ShahLab/datasets)\n[10](https://ehrshot.stanford.edu)\n[11](https://shahlab.stanford.edu/doku.php?id=ehrshot)\n[12](https://www.gosfield.com/images/PDF/Shay.JMPM.Your_EHR_License_Agmt.July-Aug_2014.pdf)\n[13](https://neurips.cc/virtual/2023/poster/73656)\n",
+      "type": "dataset"
+    },
+    "name": "EHRShot"
+  },
+  "HIRID": {
+    "children": [],
+    "data": {
+      "entity": {
+        "commands": {
+          "build_full": "POLARS_ENGINE_AFFINITY=streaming meds-extract-run spec=HIRID download_dest_dir=\"{raw_input_dir}\" output_dir=\"{output_dir}\""
+        },
+        "metadata": {
+          "access_details": "Requires a credentialed PhysioNet account, completion of the CITI Data or Specimens Only Research training, and signing the PhysioNet Contributor Review Health Data Use Agreement 1.5.0. Each study must also be reviewed by the HiRID contributors.",
+          "access_policy": "public_with_approval",
+          "contacts": [
+            {
+              "github_username": "rvandewater",
+              "name": "Robin P. van de Water"
+            }
+          ],
+          "description": "A MEDS version of HiRID, a high time-resolution dataset of ICU admissions at the Bern University Hospital, built with MEDS-Extract from the pure-config HIRID_MEDS pipeline.",
+          "links": [
+            "https://github.com/rvandewater/HIRID_MEDS",
+            "https://physionet.org/content/hirid/1.1.1/",
+            "https://doi.org/10.13026/nkwc-js72",
+            "https://doi.org/10.1038/s41591-020-0789-4"
+          ]
+        }
+      },
+      "predicates": {
+        "predicates": {
+          "abnormally_high_creatinine": {
+            "code": "OBSERVATION//Creatinine [Moles/volume] in Blood//umol/l",
+            "value_max": null,
+            "value_min": 114.92,
+            "value_min_inclusive": false
+          },
+          "abnormally_high_wbc": {
+            "code": "OBSERVATION//Leukocytes [#/volume] in Blood//G/l",
+            "value_max": null,
+            "value_min": 11,
+            "value_min_inclusive": false
+          },
+          "abnormally_low_bicarbonate": {
+            "code": "OBSERVATION//Bicarbonate [Moles/volume] in Arterial blood//mmol/l",
+            "value_max": 22,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_hemoglobin": {
+            "expr": "or(abnormally_low_hemoglobin_1, abnormally_low_hemoglobin_2)"
+          },
+          "abnormally_low_hemoglobin_1": {
+            "code": "OBSERVATION//Hemoglobin [Mass/volume] in Blood//g/l",
+            "value_max": 130,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_hemoglobin_2": {
+            "code": "OBSERVATION//Hemoglobin [Mass/volume] in Arterial blood//g/L",
+            "value_max": 130,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_map": {
+            "expr": "or(abnormally_low_map_1, abnormally_low_map_2)"
+          },
+          "abnormally_low_map_1": {
+            "code": "OBSERVATION//Invasive mean arterial pressure//mmHg",
+            "value_max": 65,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_map_2": {
+            "code": "OBSERVATION//Non-invasive mean arterial pressure//mmHg",
+            "value_max": 65,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_platelets": {
+            "code": "OBSERVATION//Platelets [#/volume] in Blood//G/l",
+            "value_max": 150,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_sodium": {
+            "code": "OBSERVATION//Sodium [Moles/volume] in Blood//mmol/l",
+            "value_max": 135,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "bicarbonate": {
+            "code": "OBSERVATION//Bicarbonate [Moles/volume] in Arterial blood//mmol/l"
+          },
+          "creatinine": {
+            "code": "OBSERVATION//Creatinine [Moles/volume] in Blood//umol/l"
+          },
+          "hemoglobin": {
+            "expr": "or(hemoglobin_1, hemoglobin_2)"
+          },
+          "hemoglobin_1": {
+            "code": "OBSERVATION//Hemoglobin [Mass/volume] in Blood//g/l"
+          },
+          "hemoglobin_2": {
+            "code": "OBSERVATION//Hemoglobin [Mass/volume] in Arterial blood//g/L"
+          },
+          "hospital_admission": {
+            "code": "HOSPITAL_ADMISSION"
+          },
+          "hospital_discharge": {
+            "code": "HOSPITAL_DISCHARGE"
+          },
+          "icu_admission": {
+            "code": "HOSPITAL_ADMISSION"
+          },
+          "icu_discharge": {
+            "code": "HOSPITAL_DISCHARGE"
+          },
+          "map": {
+            "expr": "or(map_1, map_2)"
+          },
+          "map_1": {
+            "code": "OBSERVATION//Invasive mean arterial pressure//mmHg"
+          },
+          "map_2": {
+            "code": "OBSERVATION//Non-invasive mean arterial pressure//mmHg"
+          },
+          "platelets": {
+            "code": "OBSERVATION//Platelets [#/volume] in Blood//G/l"
+          },
+          "sodium": {
+            "code": "OBSERVATION//Sodium [Moles/volume] in Blood//mmol/l"
+          },
+          "wbc": {
+            "code": "OBSERVATION//Leukocytes [#/volume] in Blood//G/l"
+          }
+        }
+      },
+      "readme": "# HiRID: a high time-resolution ICU dataset\n\n## Description\n\nHiRID holds 33,905 admissions to the Department of Intensive Care Medicine of the Bern University Hospital,\nSwitzerland, an interdisciplinary 60-bed unit, between January 2008 and June 2016. It contains de-identified\ndemographics and 681 routinely collected physiological variables, diagnostic test results and treatment\nparameters, with bedside measurements recorded as often as every two minutes. It was developed by the Swiss\nFederal Institute of Technology (ETH) Z\u00fcrich and the ICU.[1][2] MEDS-DEV uses release 1.1.1.\n\n## Access Requirements\n\nTaken from [PhysioNet](https://physionet.org/content/hirid/1.1.1/):\n\n- **Access Policy**: Only credentialed users who sign the DUA can access the files, and each study must be\n    reviewed by the HiRID contributors\n- **License (for files)**: PhysioNet Contributor Review Health Data License 1.5.0\n- **Data Use Agreement**: PhysioNet Contributor Review Health Data Use Agreement 1.5.0\n- **Required training**: CITI Data or Specimens Only Research\n\nThe ETL downloads the three release files it reads (about 7 GB) from PhysioNet. Set\n`DATASET_DOWNLOAD_USERNAME` and `DATASET_DOWNLOAD_PASSWORD` to the credentials of an account with access\nbefore running it. To reuse an existing download, pass its directory as `raw_input_dir`: files whose checksum\nmatches PhysioNet's manifest are not downloaded again, although the credentials are still needed to fetch the\nmanifest.\n\n## Supported Tasks\n\nEvery current task, each extracted on the full 1.1.1 release:\n\n- `tasks/mortality/in_icu/first_24h.yaml`\n- `tasks/abnormal_lab/blood_chemistry/elevated_creatinine/first_24h.yaml`\n- `tasks/abnormal_lab/blood_chemistry/hyponatremia/first_24h.yaml`\n- `tasks/abnormal_lab/blood_chemistry/metabolic_acidosis/first_24h.yaml`\n- `tasks/abnormal_lab/cbc/anemia/first_24h.yaml`\n- `tasks/abnormal_lab/cbc/leukocytosis/first_24h.yaml`\n- `tasks/abnormal_lab/cbc/thrombocytopenia/first_24h.yaml`\n- `tasks/abnormal_lab/vital/hypotension/first_24h.yaml`\n\nThe hospital-level tasks use the ICU stay (see below), so they predict from the first 24 hours of the ICU stay\nand require a stay of at least 48 hours.\n\nHiRID has no demo, so the integration tests do not exercise these pairs.\n\n## MEDS Transformation\n\n[`HIRID-MEDS`](https://github.com/rvandewater/HIRID_MEDS) is a pure-config\n[MEDS-Extract](https://github.com/mmcdermott/MEDS_extract) pipeline, registered as `spec=HIRID` for\n`meds-extract-run`.[3] HiRID has no public demo, so only `build_full` is provided. The build sets\n`POLARS_ENGINE_AFFINITY=streaming`, which keeps it under 10 GB of memory; without it, subject sharding runs out\nof memory on a 24 GB machine. Extracts made with HIRID-MEDS 0.0.1\u20130.0.4 duplicate, mislabel and drop some observation events, so they\nshould be rebuilt. Notable properties of the conversion:\n\n- **ICU stays only.** Each subject is one ICU admission. `HOSPITAL_ADMISSION` is the ICU admission time and\n    `HOSPITAL_DISCHARGE` is the time of the subject's last observation, since HiRID records no discharge time.\n    The ETL keeps these names from its earlier releases. HiRID records no hospital admission or discharge, so\n    the hospital-level tasks use the ICU stay, as they do for SICdb.\n- **Dates are shifted** into the future, keeping the order and spacing of events within a subject.\n- **Birth and death** are `MEDS_BIRTH` and `MEDS_DEATH`, so the tasks' default predicates apply. The birth is\n    estimated from the age at admission, which HiRID records in 5-year bins from 20 to 90, so it can be off by\n    up to about 5 years. `MEDS_DEATH` is placed at the last observation when the discharge status is `dead`,\n    which makes it a death in the ICU. It coincides with `HOSPITAL_DISCHARGE`.\n- **Observations** are `OBSERVATION//<variable name>//<unit>`, using HiRID's variable reference. Lab values\n    are in SI units, so two thresholds are converted: creatinine to 114.92 \u00b5mol/L (1.3 mg/dL) and hemoglobin to\n    130 g/L (13 g/dL). HiRID has no serum bicarbonate, so `bicarbonate` uses arterial blood-gas bicarbonate. The\n    LOINC codes of the lab variables come from the suMEDS rules file that HIRID-MEDS ships.\n- **Mean arterial pressure** combines the invasive and non-invasive readings. The invasive signal is recorded\n    as often as every two minutes, so `abnormally_low_map` flags a single reading below 65 mmHg. Few stays have\n    no such reading in their first 24 hours, so the hypotension cohort is small.\n\n## Sources\n\n1. [HiRID 1.1.1 on PhysioNet](https://physionet.org/content/hirid/1.1.1/)\n    ([doi:10.13026/nkwc-js72](https://doi.org/10.13026/nkwc-js72))\n2. Hyland et al.,\n    [Early prediction of circulatory failure in the intensive care unit using machine learning](https://doi.org/10.1038/s41591-020-0789-4),\n    Nature Medicine 26, 364\u2013373 (2020)\n3. [HIRID-MEDS ETL](https://github.com/rvandewater/HIRID_MEDS)\n",
+      "refs": "@misc{PhysioNet-hirid-1.1.1,\n  author = {Faltys, Martin and Zimmermann, Marc and Lyu, Xinrui and H{\\\"u}ser, Matthias and Hyland, Stephanie and R{\\\"a}tsch, Gunnar and Merz, Tobias},\n  title = {{HiRID, a high time-resolution ICU dataset}},\n  howpublished = {PhysioNet},\n  year = {2021},\n  month = feb,\n  note = {Version 1.1.1},\n  doi = {10.13026/nkwc-js72},\n  url = {https://doi.org/10.13026/nkwc-js72},\n}\n\n@article{hylandEarlyPredictionCirculatory2020,\n  author = {Hyland, Stephanie L. and Faltys, Martin and H{\\\"u}ser, Matthias and Lyu, Xinrui and Gumbsch, Thomas and Esteban, Crist{\\'o}bal and Bock, Christian and Horn, Max and Moor, Michael and Rieck, Bastian and Zimmermann, Marc and Bodenham, Dean and Borgwardt, Karsten and R{\\\"a}tsch, Gunnar and Merz, Tobias M.},\n  title = {{Early prediction of circulatory failure in the intensive care unit using machine learning}},\n  journal = {Nature Medicine},\n  volume = {26},\n  number = {3},\n  pages = {364--373},\n  year = {2020},\n  month = mar,\n  doi = {10.1038/s41591-020-0789-4},\n  url = {https://doi.org/10.1038/s41591-020-0789-4},\n}\n\n@software{van_de_Water_HIRID_MEDS_ETL_2025,\n  author = {van de Water, Robin Philippus},\n  doi = {10.5281/zenodo.17370178},\n  license = {MIT},\n  month = oct,\n  title = {{HIRID\\_MEDS ETL}},\n  url = {https://github.com/rvandewater/HIRID_MEDS},\n  year = {2025},\n}\n",
+      "requirements": [
+        "HIRID-MEDS==0.1.0"
+      ],
+      "type": "dataset"
+    },
+    "name": "HIRID"
   },
   "INSPECT": {
     "children": [],
@@ -485,6 +1841,189 @@
     },
     "name": "INSPIRE"
   },
+  "MC-MED": {
+    "children": [],
+    "data": {
+      "entity": {
+        "commands": {
+          "build_full": "suMEDS-extract spec=MC-MED download_dest_dir=\"{raw_input_dir}\" output_dir=\"{output_dir}\""
+        },
+        "metadata": {
+          "access_details": "Requires a credentialed PhysioNet account, completion of the CITI Data or Specimens Only Research training, and signing the PhysioNet Credentialed Health Data Use Agreement 1.5.0.",
+          "access_policy": "public_with_approval",
+          "contacts": [
+            {
+              "github_username": "rvandewater",
+              "name": "Robin P. van de Water"
+            }
+          ],
+          "description": "A MEDS version of MC-MED (Multimodal Clinical Monitoring in the Emergency Department), built with MEDS-Extract from the pure-config MC-MED-MEDS pipeline, with its ICD code metadata enriched by suMEDS.",
+          "links": [
+            "https://github.com/rvandewater/MC_MED_MEDS",
+            "https://physionet.org/content/mc-med/1.0.1/",
+            "https://doi.org/10.13026/wvyw-g663",
+            "https://doi.org/10.1038/s41597-025-05419-5"
+          ]
+        }
+      },
+      "predicates": {
+        "predicates": {
+          "abnormally_high_creatinine": {
+            "expr": "or(abnormally_high_creatinine_1, abnormally_high_creatinine_2)"
+          },
+          "abnormally_high_creatinine_1": {
+            "code": "LAB//CREATININE//mg/dL",
+            "value_max": null,
+            "value_min": 1.3,
+            "value_min_inclusive": false
+          },
+          "abnormally_high_creatinine_2": {
+            "code": "LAB//POC:CREATININE,ISTAT//mg/dL",
+            "value_max": null,
+            "value_min": 1.3,
+            "value_min_inclusive": false
+          },
+          "abnormally_high_wbc": {
+            "code": "LAB//WHITE BLOOD CELLS (WBC)//K/uL",
+            "value_max": null,
+            "value_min": 11,
+            "value_min_inclusive": false
+          },
+          "abnormally_low_bicarbonate": {
+            "code": "LAB//CO2//mmol/L",
+            "value_max": 22,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_hemoglobin": {
+            "expr": "or(abnormally_low_hemoglobin_1, abnormally_low_hemoglobin_2)"
+          },
+          "abnormally_low_hemoglobin_1": {
+            "code": "LAB//HEMOGLOBIN (HGB)//g/dL",
+            "value_max": 13,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_hemoglobin_2": {
+            "code": "LAB//HGB//g/dL",
+            "value_max": 13,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_map": {
+            "expr": "or(abnormally_low_map_1, abnormally_low_map_2)"
+          },
+          "abnormally_low_map_1": {
+            "code": "VITAL//MAP//Chart",
+            "value_max": 65,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_map_2": {
+            "code": "VITAL//MAP//Monitor",
+            "value_max": 65,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_platelets": {
+            "code": "LAB//PLATELET COUNT (PLT)//K/uL",
+            "value_max": 150,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_sodium": {
+            "expr": "or(abnormally_low_sodium_1, abnormally_low_sodium_2, abnormally_low_sodium_3)"
+          },
+          "abnormally_low_sodium_1": {
+            "code": "LAB//SODIUM//mmol/L",
+            "value_max": 135,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_sodium_2": {
+            "code": "LAB//POC:SODIUM, ISTAT//mmol/L",
+            "value_max": 135,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_sodium_3": {
+            "code": "LAB//SODIUM.WHOLE BLD//mmol/L",
+            "value_max": 135,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "bicarbonate": {
+            "code": "LAB//CO2//mmol/L"
+          },
+          "creatinine": {
+            "expr": "or(creatinine_1, creatinine_2)"
+          },
+          "creatinine_1": {
+            "code": "LAB//CREATININE//mg/dL"
+          },
+          "creatinine_2": {
+            "code": "LAB//POC:CREATININE,ISTAT//mg/dL"
+          },
+          "hemoglobin": {
+            "expr": "or(hemoglobin_1, hemoglobin_2)"
+          },
+          "hemoglobin_1": {
+            "code": "LAB//HEMOGLOBIN (HGB)//g/dL"
+          },
+          "hemoglobin_2": {
+            "code": "LAB//HGB//g/dL"
+          },
+          "hospital_admission": {
+            "code": {
+              "regex": "^HOSPITAL_ADMISSION//.*"
+            }
+          },
+          "hospital_discharge": {
+            "code": {
+              "regex": "^HOSPITAL_DISCHARGE//.*"
+            }
+          },
+          "icu_admission": {
+            "code": "ED_DISPOSITION//ICU"
+          },
+          "map": {
+            "expr": "or(map_1, map_2)"
+          },
+          "map_1": {
+            "code": "VITAL//MAP//Chart"
+          },
+          "map_2": {
+            "code": "VITAL//MAP//Monitor"
+          },
+          "platelets": {
+            "code": "LAB//PLATELET COUNT (PLT)//K/uL"
+          },
+          "sodium": {
+            "expr": "or(sodium_1, sodium_2, sodium_3)"
+          },
+          "sodium_1": {
+            "code": "LAB//SODIUM//mmol/L"
+          },
+          "sodium_2": {
+            "code": "LAB//POC:SODIUM, ISTAT//mmol/L"
+          },
+          "sodium_3": {
+            "code": "LAB//SODIUM.WHOLE BLD//mmol/L"
+          },
+          "wbc": {
+            "code": "LAB//WHITE BLOOD CELLS (WBC)//K/uL"
+          }
+        }
+      },
+      "readme": "# Multimodal Clinical Monitoring in the Emergency Department (MC-MED)\n\n## Description\n\nMC-MED holds 118,385 adult emergency department (ED) visits by 70,545 patients at Stanford Health Care\nbetween 2020 and 2022. For each visit it contains demographics, triage, the ED course and dispositions, the\nprimary ED diagnoses, orders and medication administrations, laboratory results, radiology report\nimpressions, charted and monitor vital signs, past medical history, and home medications, together with\ncontinuous ECG, photoplethysmography and respiration waveforms.[1][2] MEDS-DEV uses release 1.0.1.\n\n## Access Requirements\n\nTaken from [PhysioNet](https://physionet.org/content/mc-med/1.0.1/):\n\n- **Access Policy**: Only credentialed users who sign the DUA can access the files\n- **License (for files)**: PhysioNet Credentialed Health Data License 1.5.0\n- **Data Use Agreement**: PhysioNet Credentialed Health Data Use Agreement 1.5.0\n- **Required training**: CITI Data or Specimens Only Research\n\nThe ETL downloads the tabular files of the release from PhysioNet (not the waveforms). Set\n`DATASET_DOWNLOAD_USERNAME` and `DATASET_DOWNLOAD_PASSWORD` to the credentials of an account with access\nbefore running it.\n\n## Supported Tasks\n\nNone of the current tasks. Every one of them needs a hospital or ICU stay, and MC-MED records the ED visit\nonly:\n\n- `tasks/mortality/in_icu/first_24h.yaml` and\n    `tasks/abnormal_lab/blood_chemistry/metabolic_acidosis/first_24h.yaml` follow an ICU stay. MC-MED\n    identifies the 2,766 visits (2.3%) admitted from the ED to the ICU, so `icu_admission` is\n    `ED_DISPOSITION//ICU`, the disposition decision. But it records no ICU discharge time and no labs or vital\n    signs after ED departure, so `icu_discharge` is undefined and the tasks cannot be extracted.\n- The other abnormal-lab tasks and `tasks/abnormal_lab/vital/hypotension/first_24h.yaml` start at the hospital\n    admission and label a measurement 24 to 48 hours later. MC-MED's labs and vital signs end at ED\n    departure, so only patients still boarding in the ED more than a day after their admission order\n    qualify. On the full release each of these tasks extracts fewer than 100 samples from about 48,000\n    admissions, too few and too unusual a group to evaluate on.\n\nThe predicates the tasks use are defined anyway, so ED-specific tasks can be added later.\n\n## MEDS Transformation\n\n[`MC-MED-MEDS`](https://github.com/rvandewater/MC_MED_MEDS) is a pure-config\n[MEDS-Extract](https://github.com/mmcdermott/MEDS_extract) pipeline, registered as `spec=MC-MED`. It is\nrun with [suMEDS](https://github.com/rvandewater/SumMEDS)' `suMEDS-extract`, which runs `meds-extract-run`\nand then adds the official ICD-10-CM and ICD-9-CM titles and parents to `metadata/codes.parquet`. MC-MED has\nno public demo, so only `build_full` is provided.[3] Notable properties of the conversion:\n\n- **Dates are shifted** per patient into 2150\u20132350 by the dataset authors, keeping the season, so only\n    time differences within one subject carry meaning.\n- **One visit is one ED encounter**, from `ED_ARRIVAL//<means of arrival>` to `ED_DEPARTURE`, and every\n    visit-scoped event carries the visit's `CSN` in a `csn` column. Triage has no time of its own and is placed\n    at arrival.\n- **Hospital and ICU admission, and discharge.** `HOSPITAL_ADMISSION//<service>` is the admission order of\n    a visit admitted from the ED, and `ED_DISPOSITION//ICU` marks the decision to admit it to the ICU, a median\n    of 2.3 h before the patient leaves the ED. MC-MED has no discharge time, so `HOSPITAL_DISCHARGE//<disposition>` is\n    reconstructed from the whole-day hospital length of stay, never earlier than ED departure. It is\n    accurate to about a day.\n- **Birth and death.** There is no `MEDS_BIRTH`: MC-MED gives only an age perturbed by up to 2 years at each\n    visit, as an `AGE` event. `MEDS_DEATH` marks in-hospital deaths only (a discharge disposition of\n    `Expired`), at the reconstructed discharge time, so a subject without one is not known to be alive.\n- **Labs** are `LAB//<component name>//<unit>`, from the ED visit only, with the parsed value as\n    `numeric_value` and the raw result as `text_value`. Vital signs are `VITAL//<measure>//{Chart,Monitor}`;\n    monitor values are means over the preceding minute.\n- **Diagnoses** are dotted ICD codes: `ED_DIAGNOSIS//ICD10CM//<code>` and `ED_DIAGNOSIS//ICD9CM//<code>`\n    for the visit, and `PMH//ICD10CM//<code>` and `PMH//ICD9CM//<code>` for past medical history.\n\n## Sources\n\n1. [MC-MED 1.0.1 on PhysioNet](https://physionet.org/content/mc-med/1.0.1/)\n    ([doi:10.13026/wvyw-g663](https://doi.org/10.13026/wvyw-g663))\n2. Kansal et al.,\n    [MC-MED, multimodal clinical monitoring in the emergency department](https://doi.org/10.1038/s41597-025-05419-5),\n    Scientific Data 12 (2025)\n3. [MC-MED-MEDS ETL](https://github.com/rvandewater/MC_MED_MEDS)\n",
+      "refs": "@misc{PhysioNet-mc-med-1.0.1,\n  author = {Kansal, Aman and Chen, Emma and Jin, Tom and Rajpurkar, Pranav and Kim, David},\n  title = {{Multimodal Clinical Monitoring in the Emergency Department (MC-MED)}},\n  howpublished = {PhysioNet},\n  year = {2025},\n  month = sep,\n  note = {Version 1.0.1},\n  doi = {10.13026/wvyw-g663},\n  url = {https://doi.org/10.13026/wvyw-g663},\n}\n\n@article{kansalMCMEDMultimodalClinical2025,\n  author = {Kansal, Aman and Chen, Emma and Jin, Boyang Tom and Rajpurkar, Pranav and Kim, David A.},\n  title = {{MC-MED, multimodal clinical monitoring in the emergency department}},\n  journal = {Scientific Data},\n  volume = {12},\n  number = {1},\n  year = {2025},\n  month = jul,\n  doi = {10.1038/s41597-025-05419-5},\n  url = {https://doi.org/10.1038/s41597-025-05419-5},\n}\n\n@software{van_de_Water_MC_MED_MEDS_ETL_2026,\n  author = {van de Water, Robin Philippus},\n  license = {MIT},\n  title = {{MC\\_MED\\_MEDS ETL}},\n  url = {https://github.com/rvandewater/MC_MED_MEDS},\n  year = {2026},\n}\n",
+      "requirements": [
+        "MC-MED-MEDS==0.1.0"
+      ],
+      "type": "dataset"
+    },
+    "name": "MC-MED"
+  },
   "MIMIC-IV": {
     "children": [],
     "data": {
@@ -494,6 +2033,8 @@
           "build_full": "MEDS_extract-MIMIC_IV root_output_dir=\"{output_dir}\" raw_input_dir=\"{raw_input_dir}\" pre_MEDS_dir=\"{temp_dir}/pre_MEDS\" MEDS_output_dir=\"{output_dir}\" log_dir=\"{output_dir}/.pipeline_logs\""
         },
         "metadata": {
+          "access_details": "Requires a credentialed PhysioNet account, completion of the CITI Data or Specimens Only Research training, and signing the PhysioNet Credentialed Health Data Use Agreement 1.5.0. The 100-patient MIMIC-IV demo used by the demo build is open access under the Open Data Commons Open Database License 1.0.",
+          "access_policy": "public_with_approval",
           "contacts": [
             {
               "github_username": "tompollard",
@@ -504,11 +2045,13 @@
               "name": "Matthew McDermott"
             }
           ],
-          "description": "A MEDS version of MIMIC-IV.",
+          "description": "A MEDS version of MIMIC-IV 3.1, the deidentified electronic health records of patients admitted to the emergency department or an intensive care unit at the Beth Israel Deaconess Medical Center in Boston, built with the MIMIC_IV_MEDS ETL.",
           "links": [
-            "https://github.com/mmcdermott/MIMIC_IV_MEDS",
+            "https://github.com/Medical-Event-Data-Standard/MIMIC_IV_MEDS",
             "https://physionet.org/content/mimiciv/3.1/",
-            "https://www.nature.com/articles/s41597-022-01899-x"
+            "https://doi.org/10.13026/kpb9-mt58",
+            "https://doi.org/10.1038/s41597-022-01899-x",
+            "https://physionet.org/content/mimic-iv-demo/2.2/"
           ]
         }
       },
@@ -728,8 +2271,8 @@
           }
         }
       },
-      "readme": "# MIMIC-IV\n\nTODO: Summarize MIMIC-IV\n\nTODO: Add citations properly somehow.\n\n## URLs\n\n1. https://physionet.org/content/mimiciv/\n2. https://www.nature.com/articles/s41597-022-01899-x\n",
-      "refs": "@article{johnson2023mimic,\n  title={MIMIC-IV, a freely accessible electronic health record dataset},\n  author={Johnson, Alistair EW and Bulgarelli, Lucas and Shen, Lu and Gayles, Alvin and Shammout, Ayad and Horng, Steven and Pollard, Tom J and Hao, Sicheng and Moody, Benjamin and Gow, Brian and others},\n  journal={Scientific data},\n  volume={10},\n  number={1},\n  pages={1},\n  year={2023},\n  publisher={Nature Publishing Group UK London}\n}\n",
+      "readme": "# MIMIC-IV: Medical Information Mart for Intensive Care IV\n\n## Description\n\nMIMIC-IV is a large deidentified dataset of patients admitted to the emergency department or an intensive\ncare unit at the Beth Israel Deaconess Medical Center in Boston, MA, between 2008 and 2022. It contains\ndata for over 65,000 patients admitted to an ICU and over 200,000 patients admitted to the emergency\ndepartment.[1][2] Its `hosp` module comes from the hospital-wide EHR and its `icu` module from the\nMetaVision ICU clinical information system. As of v3.0, PhysioNet counts 364,627 unique individuals with\n546,028 hospitalizations and 94,458 ICU stays. MEDS-DEV uses release 3.1 (October 2024), which fixes lab\n`itemid`s that changed unintentionally in 3.0 and removes two `subject_id`s missing from `patients`.\n\n## Access Requirements\n\nTaken from [PhysioNet](https://physionet.org/content/mimiciv/3.1/):\n\n- **Access Policy**: Only credentialed users who sign the DUA can access the files\n- **License (for files)**: PhysioNet Credentialed Health Data License 1.5.0\n- **Data Use Agreement**: PhysioNet Credentialed Health Data Use Agreement 1.5.0\n- **Required training**: CITI Data or Specimens Only Research\n\nThe ETL downloads the release from PhysioNet. Set `DATASET_DOWNLOAD_USERNAME` and\n`DATASET_DOWNLOAD_PASSWORD` to the credentials of an account with access before running it, or pass an\nexisting download as `raw_input_dir`.\n\nThe [MIMIC-IV demo](https://physionet.org/content/mimic-iv-demo/2.2/) (version 2.2, 100 patients) is open\naccess under the Open Data Commons Open Database License 1.0, so the demo build needs no credentials.[3]\n\n## Supported Tasks\n\nEvery current task:\n\n- `tasks/mortality/in_icu/first_24h.yaml`\n- `tasks/abnormal_lab/blood_chemistry/elevated_creatinine/first_24h.yaml`\n- `tasks/abnormal_lab/blood_chemistry/hyponatremia/first_24h.yaml`\n- `tasks/abnormal_lab/blood_chemistry/metabolic_acidosis/first_24h.yaml`\n- `tasks/abnormal_lab/cbc/anemia/first_24h.yaml`\n- `tasks/abnormal_lab/cbc/leukocytosis/first_24h.yaml`\n- `tasks/abnormal_lab/cbc/thrombocytopenia/first_24h.yaml`\n- `tasks/abnormal_lab/vital/hypotension/first_24h.yaml`\n\nThe integration tests and CI run every task and model on the demo build.\n\n## MEDS Transformation\n\n[`MIMIC-IV-MEDS`](https://github.com/Medical-Event-Data-Standard/MIMIC_IV_MEDS) 0.1.0 provides the\n`MEDS_extract-MIMIC_IV` command, which downloads the release, runs a pre-MEDS step over the raw tables and\nthen builds the MEDS dataset with MEDS-Transforms.[4] `build_demo` passes `do_demo=True`, which builds the\nopen demo instead of the full release. Notable properties of the conversion:\n\n- **Visits.** `HOSPITAL_ADMISSION//<admission type>//<admission location>` and\n    `HOSPITAL_DISCHARGE//<discharge location>` mark hospital stays, `ICU_ADMISSION//<first care unit>` and\n    `ICU_DISCHARGE//<last care unit>` mark ICU stays, and `ED_REGISTRATION` and `ED_OUT` mark the emergency\n    department visit before an admission. The admission and discharge predicates match these by prefix.\n- **Measurements** keep MIMIC-IV's `itemid` and unit. Hospital lab results (`hosp/labevents`) are\n    `LAB//RESULT//<itemid>//<unit>`, and values charted in the ICU (`icu/chartevents`), including vital\n    signs, are `LAB//<itemid>//<unit>`. Each lab predicate therefore combines the hospital lab with the\n    matching ICU chart item, and matches only the unit listed. The abnormal thresholds are in the units of\n    the tasks, so none is converted.\n- **Birth and death** are `MEDS_BIRTH` and `MEDS_DEATH`, so the tasks' default predicates apply. The birth\n    year is `anchor_year - anchor_age`, so births have year precision, and patients over 89 have an\n    `anchor_age` of 91. A death is placed at the earliest in-hospital `deathtime`, or else at the date of\n    death in `patients`, which also covers deaths up to one year after hospital or ED discharge from state\n    records.\n- **Dates are shifted** into 2100\u20132200 by one random offset per patient, which keeps the order and spacing\n    of each patient's events.\n\n| Predicate     | Hospital lab (`LAB//RESULT//\u2026`)     | ICU chart (`LAB//\u2026`)                                                 | Abnormal    |\n| ------------- | ----------------------------------- | -------------------------------------------------------------------- | ----------- |\n| `creatinine`  | 50912, 52546 (creatinine, mg/dL)    | none                                                                 | > 1.3 mg/dL |\n| `sodium`      | 50983, 52623 (sodium, mEq/L)        | 220645 (sodium, serum)                                               | < 135 mEq/L |\n| `bicarbonate` | 50882 (bicarbonate, mEq/L)          | 227443 (HCO3, serum)                                                 | < 22 mEq/L  |\n| `hemoglobin`  | 50811 (hemoglobin, blood gas, g/dL) | 220228 (hemoglobin, g/dl)                                            | < 13 g/dL   |\n| `wbc`         | 51300 (WBC count, K/uL)             | 220546 (WBC)                                                         | > 11 K/uL   |\n| `platelets`   | 51265 (platelet count, K/uL)        | 227457 (platelet count)                                              | < 150 K/uL  |\n| `map`         | none                                | 220052 (arterial), 220181 (non-invasive), 225312 (ART) mean BP, mmHg | < 65 mmHg   |\n\nThe item labels are those of the open demo's `d_labitems` and `d_items`.\n\n## Sources\n\n1. [MIMIC-IV 3.1 on PhysioNet](https://physionet.org/content/mimiciv/3.1/)\n    ([doi:10.13026/kpb9-mt58](https://doi.org/10.13026/kpb9-mt58))\n2. Johnson et al.,\n    [MIMIC-IV, a freely accessible electronic health record dataset](https://doi.org/10.1038/s41597-022-01899-x),\n    Scientific Data 10, 1 (2023)\n3. [MIMIC-IV demo 2.2 on PhysioNet](https://physionet.org/content/mimic-iv-demo/2.2/)\n    ([doi:10.13026/dp1f-ex47](https://doi.org/10.13026/dp1f-ex47))\n4. [MIMIC-IV-MEDS ETL](https://github.com/Medical-Event-Data-Standard/MIMIC_IV_MEDS)\n    ([doi:10.5281/zenodo.17535579](https://doi.org/10.5281/zenodo.17535579))\n",
+      "refs": "@article{johnson2023mimic,\n  title={MIMIC-IV, a freely accessible electronic health record dataset},\n  author={Johnson, Alistair EW and Bulgarelli, Lucas and Shen, Lu and Gayles, Alvin and Shammout, Ayad and Horng, Steven and Pollard, Tom J and Hao, Sicheng and Moody, Benjamin and Gow, Brian and others},\n  journal={Scientific data},\n  volume={10},\n  number={1},\n  pages={1},\n  year={2023},\n  publisher={Nature Publishing Group UK London}\n}\n\n@misc{PhysioNet-mimiciv-3.1,\n  author = {Johnson, Alistair and Bulgarelli, Lucas and Pollard, Tom and Gow, Brian and Moody, Benjamin and Horng, Steven and Celi, Leo Anthony and Mark, Roger},\n  title = {{MIMIC-IV}},\n  howpublished = {PhysioNet},\n  year = {2024},\n  month = oct,\n  note = {Version 3.1},\n  doi = {10.13026/kpb9-mt58},\n  url = {https://doi.org/10.13026/kpb9-mt58},\n}\n\n@software{McDermott_MIMIC_IV_MEDS,\n  author = {McDermott, Matthew and Xu, Justin},\n  doi = {10.5281/zenodo.17535579},\n  license = {MIT},\n  title = {{MIMIC-IV MEDS: An ETL pipeline to extract MIMIC-IV data into the MEDS format}},\n  url = {https://github.com/Medical-Event-Data-Standard/MIMIC_IV_MEDS},\n}\n",
       "requirements": [
         "MIMIC-IV-MEDS==0.1.0"
       ],
@@ -1024,6 +2567,545 @@
       "type": "dataset"
     },
     "name": "NWICU"
+  },
+  "PICdb": {
+    "children": [],
+    "data": {
+      "entity": {
+        "commands": {
+          "build_full": "meds-extract-run spec=PICdb download_dest_dir=\"{raw_input_dir}\" output_dir=\"{output_dir}\""
+        },
+        "metadata": {
+          "access_details": "Requires a credentialed PhysioNet account, completion of the required CITI training, and acceptance of the PhysioNet Credentialed Health Data Use Agreement for the PIC database.",
+          "access_policy": "public_with_approval",
+          "contacts": [
+            {
+              "github_username": "rvandewater",
+              "name": "Robin P. van de Water"
+            }
+          ],
+          "description": "A MEDS version of the Paediatric Intensive Care (PIC) database.",
+          "links": [
+            "https://github.com/rvandewater/PICdb_MEDS",
+            "https://physionet.org/content/picdb/1.1.0/",
+            "https://doi.org/10.13026/32x9-wv38"
+          ]
+        }
+      },
+      "predicates": {
+        "predicates": {
+          "hospital_admission": {
+            "code": {
+              "regex": "^HOSPITAL_ADMISSION//.*"
+            }
+          },
+          "hospital_discharge": {
+            "code": {
+              "regex": "^HOSPITAL_DISCHARGE//.*"
+            }
+          },
+          "icu_admission": {
+            "code": {
+              "regex": "^ICU_ADMISSION//.*"
+            }
+          },
+          "icu_discharge": {
+            "code": {
+              "regex": "^ICU_DISCHARGE//.*"
+            }
+          }
+        }
+      },
+      "readme": "# Paediatric Intensive Care (PIC) Database\n\n## Description\n\nThe Paediatric Intensive Care (PIC) database is a de-identified, paediatric-specific critical-care\ndatabase of 12,881 neonatal and paediatric patients and 13,449 hospital admissions at the Children's\nHospital of Zhejiang University School of Medicine (2010\u20132018). It follows the MIMIC structure:\nadmissions, ICU stays, laboratory and chart events, inputs and outputs, prescriptions, microbiology,\ndiagnoses and surgery records.[1][2]\n\n## Access Requirements\n\nTaken from [PhysioNet](https://physionet.org/content/picdb/1.1.0/):\n\n- **Access Policy**: Credentialed access\n- **License (for files)**: PhysioNet Credentialed Health Data License Version 1.5.0\n- **Data Use Agreement**: PhysioNet Credentialed Health Data Use Agreement Version 1.5.0\n- **Required training**: CITI Data or Specimens Only Research\n\nThe ETL downloads the source files from PhysioNet. Set `DATASET_DOWNLOAD_USERNAME` and\n`DATASET_DOWNLOAD_PASSWORD` to the credentials of an account with access before running it.\n\n## Supported Tasks\n\nExtracted on the full 1.1.0 release:\n\n- `tasks/mortality/in_icu/first_24h.yaml`: ICU stays carry their unit (`ICU_ADMISSION//<unit>` for CICU,\n    General ICU, NICU, PICU and SICU), and `MEDS_DEATH` coincides with the last ICU discharge for 968 of the\n    971 deaths. Almost a quarter of the ICU stays start in the NICU; a variant without them may be worth a\n    separate task.\n\nThe `abnormal_lab` tasks are not supported, although they extract without errors. They exclude patients aged\n18 or younger and use adult thresholds, and PIC has no admission at 18 or older. Their only rows come from 68\nadmissions of newborns recorded up to a day before the recorded time of birth, which the age window does not\ncatch. The lab codes for a paediatric variant are creatinine `LAB//5041//\u03bcmol/L` and `LAB//5032//\u03bcmol/L`\n(LOINC 2160-0), sodium `LAB//5230//mmol/L` (whole blood, LOINC 2947-0), bicarbonate `LAB//5248//mmol/L` and\n`LAB//5224//mmol/L` (blood gas), hemoglobin `LAB//5099//g/L` (LOINC 718-7) and `LAB//5257//g/L` (blood gas),\nWBC `LAB//5141//\u00d710^9/L` (LOINC 26464-8) and platelets `LAB//5129//\u00d710^9/L` (LOINC 777-3). There is no ICU\nmean arterial pressure: the chart data has only systolic and diastolic pressure, and MAP is recorded only\nduring surgery (`SURGERY_VITAL//SV5`, `SURGERY_VITAL//SV12`).\n\nPICdb has no demo, so the integration tests do not exercise these pairs.\n\n## MEDS Transformation\n\n[`PICdb-MEDS`](https://github.com/rvandewater/PICdb_MEDS) is a pure-config\n[MEDS-Extract](https://github.com/mmcdermott/MEDS_extract) 0.7 pipeline, registered as `spec=PICdb` for\n`meds-extract-run`. There is no public demo, so only `build_full` is provided.[3] MEDS-DEV uses PICdb-MEDS\n0.0.3, the first release whose wheel ships `event_configs.yaml` (0.0.1 lacks it, so its `spec=PICdb` entry\npoint cannot load). It also describes every code in `metadata/codes.parquet`. Notable properties of the\nconversion:\n\n- **Dates are shifted** 50\u2013100 years into the future per patient, so only time differences within one\n    subject carry meaning.\n- **Admissions and stays.** `HOSPITAL_ADMISSION//<department>` and `HOSPITAL_DISCHARGE//<department>` bound\n    each hospital admission, and `ICU_ADMISSION//<unit>` and `ICU_DISCHARGE//<unit>` each ICU stay.\n- **Birth and death** are `MEDS_BIRTH` and `MEDS_DEATH`, so the tasks' default predicates apply.\n- **Labs** are `LAB//<ITEMID>//<unit>`, named in `metadata/codes.parquet` with the `LOINC/` parents of\n    `D_LABITEMS`. Chart events are `CHART//<ITEMID>//<unit>`.\n\n## Sources\n\n1. [PIC database v1.1.0 on PhysioNet](https://physionet.org/content/picdb/1.1.0/)\n2. [Zeng et al., PIC, a paediatric-specific intensive care database, Scientific Data 2020](https://doi.org/10.1038/s41597-020-0355-4)\n3. [PICdb-MEDS ETL](https://github.com/rvandewater/PICdb_MEDS)\n",
+      "refs": "@article{PhysioNet-picdb-1.1.0,\n  author = {Li, H. and Zeng, X. and Yu, G.},\n  title = {{Paediatric Intensive Care database}},\n  journal = {{PhysioNet}},\n  year = {2020},\n  note = {Version 1.1.0},\n  doi = {10.13026/32x9-wv38},\n  url = {https://doi.org/10.13026/32x9-wv38},\n}\n\n@article{Zeng2020PIC,\n  author = {Zeng, X. and Yu, G. and Lu, Y. and others},\n  title = {{PIC, a paediatric-specific intensive care database}},\n  journal = {Scientific Data},\n  volume = {7},\n  pages = {14},\n  year = {2020},\n  doi = {10.1038/s41597-020-0355-4},\n}\n\n@software{van_de_Water_PICdb_MEDS_ETL_2026,\n  author = {van de Water, Robin Philippus},\n  doi = {10.5281/zenodo.23676597},\n  license = {MIT},\n  month = oct,\n  title = {{PICdb\\_MEDS ETL}},\n  url = {https://github.com/rvandewater/PICdb_MEDS},\n  version = {0.0.3},\n  year = {2026},\n}\n",
+      "requirements": [
+        "PICdb-MEDS==0.0.3"
+      ],
+      "type": "dataset"
+    },
+    "name": "PICdb"
+  },
+  "SICdb": {
+    "children": [],
+    "data": {
+      "entity": {
+        "commands": {
+          "build_full": "meds-extract-run spec=SICdb download_dest_dir=\"{raw_input_dir}\" output_dir=\"{output_dir}\""
+        },
+        "metadata": {
+          "access_details": "Requires a credentialed PhysioNet account, completion of the CITI Data or Specimens Only Research training, and signing the PhysioNet Contributor Review Health Data Use Agreement 1.5.0. Each study must also be reviewed and approved by the SICdb contributors.",
+          "access_policy": "public_with_approval",
+          "contacts": [
+            {
+              "github_username": "rvandewater",
+              "name": "Robin P. van de Water"
+            }
+          ],
+          "description": "A MEDS version of the Salzburg Intensive Care database (SICdb), built with MEDS-Extract from the pure-config SICdb_MEDS pipeline.",
+          "links": [
+            "https://github.com/rvandewater/SICdb_MEDS",
+            "https://physionet.org/content/sicdb/1.0.8/",
+            "https://doi.org/10.13026/8m72-6j83",
+            "https://doi.org/10.1038/s41597-024-03164-9"
+          ]
+        }
+      },
+      "predicates": {
+        "predicates": {
+          "abnormally_high_creatinine": {
+            "expr": "or(abnormally_high_creatinine_1, abnormally_high_creatinine_2)"
+          },
+          "abnormally_high_creatinine_1": {
+            "code": "LAB//367//UNSPEC",
+            "value_max": null,
+            "value_min": 1.3,
+            "value_min_inclusive": false
+          },
+          "abnormally_high_creatinine_2": {
+            "code": "LAB//368//UNSPEC",
+            "value_max": null,
+            "value_min": 1.3,
+            "value_min_inclusive": false
+          },
+          "abnormally_high_wbc": {
+            "code": "LAB//301//UNSPEC",
+            "value_max": null,
+            "value_min": 11,
+            "value_min_inclusive": false
+          },
+          "abnormally_low_bicarbonate": {
+            "expr": "or(abnormally_low_bicarbonate_1, abnormally_low_bicarbonate_2, abnormally_low_bicarbonate_3, abnormally_low_bicarbonate_4)"
+          },
+          "abnormally_low_bicarbonate_1": {
+            "code": "LAB//666//ARTERIAL",
+            "value_max": 22,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_bicarbonate_2": {
+            "code": "LAB//666//UNSPEC",
+            "value_max": 22,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_bicarbonate_3": {
+            "code": "LAB//456//UNSPEC",
+            "value_max": 22,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_bicarbonate_4": {
+            "code": "LAB//667//UNSPEC",
+            "value_max": 22,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_hemoglobin": {
+            "expr": "or(abnormally_low_hemoglobin_1, abnormally_low_hemoglobin_2, abnormally_low_hemoglobin_3)"
+          },
+          "abnormally_low_hemoglobin_1": {
+            "code": "LAB//289//UNSPEC",
+            "value_max": 13,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_hemoglobin_2": {
+            "code": "LAB//658//ARTERIAL",
+            "value_max": 13,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_hemoglobin_3": {
+            "code": "LAB//658//UNSPEC",
+            "value_max": 13,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_map": {
+            "expr": "or(abnormally_low_map_1, abnormally_low_map_2)"
+          },
+          "abnormally_low_map_1": {
+            "code": "VITAL//703",
+            "value_max": 65,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_map_2": {
+            "code": "VITAL//706",
+            "value_max": 65,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_platelets": {
+            "expr": "or(abnormally_low_platelets_1, abnormally_low_platelets_2)"
+          },
+          "abnormally_low_platelets_1": {
+            "code": "LAB//314//UNSPEC",
+            "value_max": 150,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_platelets_2": {
+            "code": "LAB//315//UNSPEC",
+            "value_max": 150,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_sodium": {
+            "expr": "or(abnormally_low_sodium_1, abnormally_low_sodium_2, abnormally_low_sodium_3)"
+          },
+          "abnormally_low_sodium_1": {
+            "code": "LAB//469//UNSPEC",
+            "value_max": 135,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_sodium_2": {
+            "code": "LAB//686//ARTERIAL",
+            "value_max": 135,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_sodium_3": {
+            "code": "LAB//686//UNSPEC",
+            "value_max": 135,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "bicarbonate": {
+            "expr": "or(bicarbonate_1, bicarbonate_2, bicarbonate_3, bicarbonate_4)"
+          },
+          "bicarbonate_1": {
+            "code": "LAB//666//ARTERIAL"
+          },
+          "bicarbonate_2": {
+            "code": "LAB//666//UNSPEC"
+          },
+          "bicarbonate_3": {
+            "code": "LAB//456//UNSPEC"
+          },
+          "bicarbonate_4": {
+            "code": "LAB//667//UNSPEC"
+          },
+          "creatinine": {
+            "expr": "or(creatinine_1, creatinine_2)"
+          },
+          "creatinine_1": {
+            "code": "LAB//367//UNSPEC"
+          },
+          "creatinine_2": {
+            "code": "LAB//368//UNSPEC"
+          },
+          "hemoglobin": {
+            "expr": "or(hemoglobin_1, hemoglobin_2, hemoglobin_3)"
+          },
+          "hemoglobin_1": {
+            "code": "LAB//289//UNSPEC"
+          },
+          "hemoglobin_2": {
+            "code": "LAB//658//ARTERIAL"
+          },
+          "hemoglobin_3": {
+            "code": "LAB//658//UNSPEC"
+          },
+          "hospital_admission": {
+            "code": {
+              "regex": "^ADMISSION//.*"
+            }
+          },
+          "hospital_discharge": {
+            "code": {
+              "regex": "^HOSPITAL_DISCHARGE//.*"
+            }
+          },
+          "icu_admission": {
+            "code": "ICU_ADMISSION"
+          },
+          "icu_discharge": {
+            "code": {
+              "regex": "^DISCHARGE//.*"
+            }
+          },
+          "map": {
+            "expr": "or(map_1, map_2)"
+          },
+          "map_1": {
+            "code": "VITAL//703"
+          },
+          "map_2": {
+            "code": "VITAL//706"
+          },
+          "platelets": {
+            "expr": "or(platelets_1, platelets_2)"
+          },
+          "platelets_1": {
+            "code": "LAB//314//UNSPEC"
+          },
+          "platelets_2": {
+            "code": "LAB//315//UNSPEC"
+          },
+          "sodium": {
+            "expr": "or(sodium_1, sodium_2, sodium_3)"
+          },
+          "sodium_1": {
+            "code": "LAB//469//UNSPEC"
+          },
+          "sodium_2": {
+            "code": "LAB//686//ARTERIAL"
+          },
+          "sodium_3": {
+            "code": "LAB//686//UNSPEC"
+          },
+          "wbc": {
+            "code": "LAB//301//UNSPEC"
+          }
+        }
+      },
+      "readme": "# Salzburg Intensive Care database (SICdb)\n\n## Description\n\nThe Salzburg Intensive Care database (SICdb) holds more than 27,000 intensive care admissions from four\nICUs at the University Hospital Salzburg, collected between 2013 and 2021. It covers general and surgical\nintensive care, including data on the surgery preceding an admission, and contains case information,\ndiagnoses, laboratory results, medications, devices, and vital signs as both hourly aggregates and\nminute-resolution signals.[1][2] MEDS-DEV uses release 1.0.8.\n\n## Access Requirements\n\nTaken from [PhysioNet](https://physionet.org/content/sicdb/1.0.8/):\n\n- **Access Policy**: Only credentialed users who sign the DUA can access the files, and each study must be\n    reviewed by the SICdb contributors\n- **License (for files)**: PhysioNet Contributor Review Health Data License 1.5.0\n- **Data Use Agreement**: PhysioNet Contributor Review Health Data Use Agreement 1.5.0\n- **Required training**: CITI Data or Specimens Only Research\n\nThe ETL downloads the release from PhysioNet. Set `DATASET_DOWNLOAD_USERNAME` and\n`DATASET_DOWNLOAD_PASSWORD` to the credentials of an account with access before running it. To reuse an\nexisting download, pass its directory (the one holding `SHA256SUMS.txt`) as `raw_input_dir`: files whose\nchecksum matches PhysioNet's manifest are not downloaded again, although the credentials are still needed\nto fetch the manifest.\n\n## Supported Tasks\n\nEvery current task, each extracted on the full 1.0.8 release:\n\n- `tasks/mortality/in_icu/first_24h.yaml`\n- `tasks/abnormal_lab/blood_chemistry/elevated_creatinine/first_24h.yaml`\n- `tasks/abnormal_lab/blood_chemistry/hyponatremia/first_24h.yaml`\n- `tasks/abnormal_lab/blood_chemistry/metabolic_acidosis/first_24h.yaml`\n- `tasks/abnormal_lab/cbc/anemia/first_24h.yaml`\n- `tasks/abnormal_lab/cbc/leukocytosis/first_24h.yaml`\n- `tasks/abnormal_lab/cbc/thrombocytopenia/first_24h.yaml`\n- `tasks/abnormal_lab/vital/hypotension/first_24h.yaml`\n\nSICdb has no demo, so the integration tests do not exercise these pairs.\n\n## MEDS Transformation\n\n[`SICdb-MEDS`](https://github.com/rvandewater/SICdb_MEDS) is a pure-config\n[MEDS-Extract](https://github.com/mmcdermott/MEDS_extract) pipeline, registered as `spec=SICdb` for\n`meds-extract-run`. SICdb has no public demo, so only `build_full` is provided.[3] Notable properties of the\nconversion:\n\n- **Dates are not real.** SICdb gives offsets in seconds, not dates. Every patient's first admission is\n    placed on 2017-07-02 and everything else keeps its offset from it, so only time differences within one\n    subject carry meaning. The real admission year is kept as an `ADMISSION_YEAR//<year>` event.\n- **One case is one ICU admission** with its preceding surgery, if any. `ADMISSION//<urgency>` opens the\n    case and is used as the hospital admission, since SICdb records no hospital admission time. `ICU_ADMISSION` marks the first transfer to an intensive or intermediate care\n    ward, and `DISCHARGE//<state>` closes the case on leaving the ICU. `HOSPITAL_DISCHARGE//<type>` is\n    recorded to the day and placed at noon.\n- **Birth and death** are `MEDS_BIRTH` and `MEDS_DEATH`, so the tasks' default predicates apply. The birth\n    is estimated from the age at the first admission, which SICdb records in whole years and caps at 90.\n    SICdb records a death only when it happens within a year of the admission.\n- **Labs** are `LAB//<LaboratoryID>//<specimen>`, with the specimen `ARTERIAL` for blood-gas analyses and\n    `UNSPEC` otherwise. Their names, units, and LOINC parent codes are in `metadata/codes.parquet`. SICdb has\n    no serum bicarbonate, so `bicarbonate` uses blood-gas bicarbonate.\n- **Vital signs** are `VITAL//<DataID>` and are hourly aggregates, so `abnormally_low_map` flags an hour\n    whose mean pressure is below 65 mmHg rather than a single reading.\n\n## Sources\n\n1. [SICdb 1.0.8 on PhysioNet](https://physionet.org/content/sicdb/1.0.8/)\n    ([doi:10.13026/8m72-6j83](https://doi.org/10.13026/8m72-6j83))\n2. Rodemund et al.,\n    [Harnessing Big Data in Critical Care: Exploring a New European Dataset](https://doi.org/10.1038/s41597-024-03164-9),\n    Scientific Data 11, 320 (2024)\n3. [SICdb-MEDS ETL](https://github.com/rvandewater/SICdb_MEDS)\n",
+      "refs": "@misc{PhysioNet-sicdb-1.0.8,\n  author = {Rodemund, Niklas and Kokoefer, Andreas and Wernly, Bernhard and Cozowicz, Crispiana},\n  title = {{Salzburg Intensive Care database (SICdb), a freely accessible intensive care database}},\n  howpublished = {PhysioNet},\n  year = {2024},\n  month = sep,\n  note = {Version 1.0.8},\n  doi = {10.13026/8m72-6j83},\n  url = {https://doi.org/10.13026/8m72-6j83},\n}\n\n@article{rodemundHarnessingBigData2024,\n  author = {Rodemund, Niklas and Wernly, Bernhard and Jung, Christian and Cozowicz, Crispiana and Kok{\\\"o}fer, Andreas},\n  title = {{Harnessing Big Data in Critical Care: Exploring a New European Dataset}},\n  journal = {Scientific Data},\n  volume = {11},\n  number = {1},\n  pages = {320},\n  year = {2024},\n  month = mar,\n  doi = {10.1038/s41597-024-03164-9},\n  url = {https://doi.org/10.1038/s41597-024-03164-9},\n}\n\n@software{van_de_Water_SICdb_MEDS_ETL_2025,\n  author = {van de Water, Robin Philippus},\n  doi = {10.5281/zenodo.14893939},\n  license = {MIT},\n  month = feb,\n  title = {{SICdb\\_MEDS ETL}},\n  url = {https://github.com/rvandewater/SICdb_MEDS},\n  year = {2025},\n}\n",
+      "requirements": [
+        "SICdb-MEDS==0.1.0"
+      ],
+      "type": "dataset"
+    },
+    "name": "SICdb"
+  },
+  "Zigong": {
+    "children": [],
+    "data": {
+      "entity": {
+        "commands": {
+          "build_full": "meds-extract-run spec=Zigong download_dest_dir=\"{raw_input_dir}\" output_dir=\"{output_dir}\""
+        },
+        "metadata": {
+          "access_details": "Requires a credentialed PhysioNet account, completion of the required CITI training, and acceptance of the PhysioNet Credentialed Health Data Use Agreement for the Zigong ICU infection database.",
+          "access_policy": "public_with_approval",
+          "contacts": [
+            {
+              "github_username": "rvandewater",
+              "name": "Robin P. van de Water"
+            }
+          ],
+          "description": "A MEDS version of the Zigong Fourth People's Hospital ICU infection database (PhysioNet release 1.1), built with MEDS-Extract from the pure-config Zigong-MEDS 0.3.0 pipeline.",
+          "links": [
+            "https://github.com/rvandewater/ZIGONG_MEDS",
+            "https://physionet.org/content/icu-infection-zigong-fourth/1.1/",
+            "https://doi.org/10.13026/xpt9-z726"
+          ]
+        }
+      },
+      "predicates": {
+        "predicates": {
+          "abnormally_high_creatinine": {
+            "expr": "or(abnormally_high_creatinine_1, abnormally_high_creatinine_2, abnormally_high_creatinine_3)"
+          },
+          "abnormally_high_creatinine_1": {
+            "code": "LAB//Renal function (hospitalized)//Creatinine (enzymatic method) (CRE)//umol/L",
+            "value_max": null,
+            "value_min": 114.92,
+            "value_min_inclusive": false
+          },
+          "abnormally_high_creatinine_2": {
+            "code": "LAB//Biochemistry 2//Creatinine (enzymatic method) (CRE)//umol/L",
+            "value_max": null,
+            "value_min": 114.92,
+            "value_min_inclusive": false
+          },
+          "abnormally_high_creatinine_3": {
+            "code": "LAB//Biochemical 1//Creatinine (enzymatic method) (CRE)//umol/L",
+            "value_max": null,
+            "value_min": 114.92,
+            "value_min_inclusive": false
+          },
+          "abnormally_high_wbc": {
+            "expr": "or(abnormally_high_wbc_1, abnormally_high_wbc_2)"
+          },
+          "abnormally_high_wbc_1": {
+            "code": "LAB//Blood analysis (five categories)//White blood cell (WBC)//10^9/L",
+            "value_max": null,
+            "value_min": 11,
+            "value_min_inclusive": false
+          },
+          "abnormally_high_wbc_2": {
+            "code": "LAB//Blood analysis + CRP//White blood cell (WBC)//10^9/L",
+            "value_max": null,
+            "value_min": 11,
+            "value_min_inclusive": false
+          },
+          "abnormally_low_bicarbonate": {
+            "expr": "or(abnormally_low_bicarbonate_1, abnormally_low_bicarbonate_2, abnormally_low_bicarbonate_3, abnormally_low_bicarbonate_4, abnormally_low_bicarbonate_5)"
+          },
+          "abnormally_low_bicarbonate_1": {
+            "code": "LAB//Electrolyte 2//Carbon dioxide (CO2)//mmol/L",
+            "value_max": 22,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_bicarbonate_2": {
+            "code": "LAB//Electrolyte 1//Carbon dioxide (CO2)//mmol/L",
+            "value_max": 22,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_bicarbonate_3": {
+            "code": "LAB//Blood gas analysis combination//Measured bicarbonate (hco3act)//mmol/L",
+            "value_max": 22,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_bicarbonate_4": {
+            "code": "LAB//EICU blood gas analysis//HCO3 - measured bicarbonate (HCO3 -)//mmol/L",
+            "value_max": 22,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_bicarbonate_5": {
+            "code": "LAB//Blood gas analysis in emergency department//HCO3 - measured bicarbonate (HCO3 -)//mmol/L",
+            "value_max": 22,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_hemoglobin": {
+            "expr": "or(abnormally_low_hemoglobin_1, abnormally_low_hemoglobin_2)"
+          },
+          "abnormally_low_hemoglobin_1": {
+            "code": "LAB//Blood analysis (five categories)//Hemoglobin (Hgb)//g/L",
+            "value_max": 130,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_hemoglobin_2": {
+            "code": "LAB//Blood analysis + CRP//Hemoglobin (Hgb)//g/L",
+            "value_max": 130,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_platelets": {
+            "expr": "or(abnormally_low_platelets_1, abnormally_low_platelets_2)"
+          },
+          "abnormally_low_platelets_1": {
+            "code": "LAB//Blood analysis (five categories)//Platelet (PLT)//10^9/L",
+            "value_max": 150,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_platelets_2": {
+            "code": "LAB//Blood analysis + CRP//Platelet (PLT)//10^9/L",
+            "value_max": 150,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_sodium": {
+            "expr": "or(abnormally_low_sodium_1, abnormally_low_sodium_2)"
+          },
+          "abnormally_low_sodium_1": {
+            "code": "LAB//Electrolyte 2//Sodium (NA)//mmol/L",
+            "value_max": 135,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "abnormally_low_sodium_2": {
+            "code": "LAB//Electrolyte 1//Sodium (NA)//mmol/L",
+            "value_max": 135,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "bicarbonate": {
+            "expr": "or(bicarbonate_1, bicarbonate_2, bicarbonate_3, bicarbonate_4, bicarbonate_5)"
+          },
+          "bicarbonate_1": {
+            "code": "LAB//Electrolyte 2//Carbon dioxide (CO2)//mmol/L"
+          },
+          "bicarbonate_2": {
+            "code": "LAB//Electrolyte 1//Carbon dioxide (CO2)//mmol/L"
+          },
+          "bicarbonate_3": {
+            "code": "LAB//Blood gas analysis combination//Measured bicarbonate (hco3act)//mmol/L"
+          },
+          "bicarbonate_4": {
+            "code": "LAB//EICU blood gas analysis//HCO3 - measured bicarbonate (HCO3 -)//mmol/L"
+          },
+          "bicarbonate_5": {
+            "code": "LAB//Blood gas analysis in emergency department//HCO3 - measured bicarbonate (HCO3 -)//mmol/L"
+          },
+          "birth": {
+            "code": "AGE_AT_ADMISSION",
+            "value_max": 18,
+            "value_max_inclusive": false,
+            "value_min": null
+          },
+          "creatinine": {
+            "expr": "or(creatinine_1, creatinine_2, creatinine_3)"
+          },
+          "creatinine_1": {
+            "code": "LAB//Renal function (hospitalized)//Creatinine (enzymatic method) (CRE)//umol/L"
+          },
+          "creatinine_2": {
+            "code": "LAB//Biochemistry 2//Creatinine (enzymatic method) (CRE)//umol/L"
+          },
+          "creatinine_3": {
+            "code": "LAB//Biochemical 1//Creatinine (enzymatic method) (CRE)//umol/L"
+          },
+          "hemoglobin": {
+            "expr": "or(hemoglobin_1, hemoglobin_2)"
+          },
+          "hemoglobin_1": {
+            "code": "LAB//Blood analysis (five categories)//Hemoglobin (Hgb)//g/L"
+          },
+          "hemoglobin_2": {
+            "code": "LAB//Blood analysis + CRP//Hemoglobin (Hgb)//g/L"
+          },
+          "hospital_admission": {
+            "code": "HOSPITAL_ADMISSION"
+          },
+          "hospital_discharge": {
+            "code": "HOSPITAL_DISCHARGE"
+          },
+          "icu_admission": {
+            "code": {
+              "regex": "^ADMISSION_DEPARTMENT//(EICU|Emergency department ward \\(EICU\\)|Intensive care unit \\(ICU\\)|Respiratory intensive care unit RICU|SICU|Neurosurgery severe NICU|Department of Neurology critical NICU)$"
+            }
+          },
+          "icu_discharge": {
+            "code": "ICU_DISCHARGE"
+          },
+          "platelets": {
+            "expr": "or(platelets_1, platelets_2)"
+          },
+          "platelets_1": {
+            "code": "LAB//Blood analysis (five categories)//Platelet (PLT)//10^9/L"
+          },
+          "platelets_2": {
+            "code": "LAB//Blood analysis + CRP//Platelet (PLT)//10^9/L"
+          },
+          "sodium": {
+            "expr": "or(sodium_1, sodium_2)"
+          },
+          "sodium_1": {
+            "code": "LAB//Electrolyte 2//Sodium (NA)//mmol/L"
+          },
+          "sodium_2": {
+            "code": "LAB//Electrolyte 1//Sodium (NA)//mmol/L"
+          },
+          "wbc": {
+            "expr": "or(wbc_1, wbc_2)"
+          },
+          "wbc_1": {
+            "code": "LAB//Blood analysis (five categories)//White blood cell (WBC)//10^9/L"
+          },
+          "wbc_2": {
+            "code": "LAB//Blood analysis + CRP//White blood cell (WBC)//10^9/L"
+          }
+        }
+      },
+      "readme": "# Zigong Fourth People's Hospital ICU Infection Database\n\n## Description\n\nThe Zigong database is a de-identified critical-care database of 2,790 ICU patients with infection,\none hospital admission each, from Zigong Fourth People's Hospital in Sichuan, China. It covers\nbaseline characteristics, transfers, laboratory results, prescriptions, nursing charts, diagnoses,\nand outcomes including follow-up vital status.[1][2] MEDS-DEV uses release 1.1.\n\n## Access Requirements\n\nTaken from [PhysioNet](https://physionet.org/content/icu-infection-zigong-fourth/1.1/):\n\n- **Access Policy**: Credentialed access\n- **License (for files)**: PhysioNet Credentialed Health Data License Version 1.5.0\n- **Data Use Agreement**: PhysioNet Credentialed Health Data Use Agreement Version 1.5.0\n- **Required training**: CITI Data or Specimens Only Research\n\nThe ETL downloads the source files from PhysioNet. Set `DATASET_DOWNLOAD_USERNAME` and\n`DATASET_DOWNLOAD_PASSWORD` to the credentials of an account with access before running it.\n\n## Supported Tasks\n\nSeven of the eight current tasks, each extracted on the full 1.1 release:\n\n- `tasks/mortality/in_icu/first_24h.yaml`, for subjects admitted straight into an ICU department only\n    (see below).\n- `tasks/abnormal_lab/blood_chemistry/elevated_creatinine/first_24h.yaml`\n- `tasks/abnormal_lab/blood_chemistry/hyponatremia/first_24h.yaml`\n- `tasks/abnormal_lab/blood_chemistry/metabolic_acidosis/first_24h.yaml`\n- `tasks/abnormal_lab/cbc/anemia/first_24h.yaml`\n- `tasks/abnormal_lab/cbc/leukocytosis/first_24h.yaml`\n- `tasks/abnormal_lab/cbc/thrombocytopenia/first_24h.yaml`\n\n`tasks/abnormal_lab/vital/hypotension/first_24h.yaml` is not supported: the raw MAP column holds only\nunit strings, and ACES cannot derive MAP from systolic and diastolic pressure.\n\nZigong has no demo, so the integration tests do not exercise these pairs.\n\n## MEDS Transformation\n\n[`Zigong-MEDS`](https://github.com/rvandewater/ZIGONG_MEDS) 0.3.0 is a pure-config\n[MEDS-Extract](https://github.com/mmcdermott/MEDS_extract) 0.7 pipeline, registered as `spec=Zigong` for\n`meds-extract-run`. Zigong has no public demo, so only `build_full` is provided.[3] Notable properties of\nthe conversion:\n\n- **Dates are not real.** Every source time is an offset in hours from hospital admission, placed on a\n    shared anchor (1970-01-01 00:00 = admission). Each subject has exactly one admission.\n- **One admission per subject.** `HOSPITAL_ADMISSION` and `HOSPITAL_DISCHARGE` bound the stay, and\n    `ICU_DISCHARGE` marks the end of the ICU stay. The release records no ICU admission time, and its\n    transfer table repeats rows within a stay\n    ([ZIGONG_MEDS#3](https://github.com/rvandewater/ZIGONG_MEDS/issues/3)). `icu_admission` is therefore the\n    admission of subjects whose admission department is an ICU (EICU, ICU, RICU, SICU or one of the two NICUs),\n    about half of the cohort, at hospital admission. Subjects transferred into an ICU later are not in the\n    in-ICU mortality cohort.\n- **Death** is `MEDS_DEATH`, so the tasks' default `death` predicate applies. `Death_Date` has day precision\n    and includes deaths at follow-up after discharge. The in-ICU mortality target ends at ICU discharge, so\n    follow-up deaths do not count, but a death dated on the day of ICU discharge counts as an ICU death.\n- **Age, not birth.** There is no `MEDS_BIRTH`, only `AGE_AT_ADMISSION` in years. `birth` matches that event\n    for subjects younger than 18, so the abnormal-lab tasks' exclusion of children still applies.\n- **Labs** are `LAB//<panel>//<item>//<unit>` in SI units, so the creatinine (umol/L) and hemoglobin (g/L)\n    thresholds are converted from the tasks' US units. Sodium is the serum electrolyte panel. Bicarbonate is\n    serum total CO2 plus measured blood-gas bicarbonate. Blood-gas hemoglobin is left out, because two of its\n    codes are labelled g/L but hold g/dL values.\n\n## Sources\n\n1. [Zigong ICU infection database v1.1 on PhysioNet](https://physionet.org/content/icu-infection-zigong-fourth/1.1/)\n2. [Xu et al., Critical Care Database Comprising Patients With Infection, Frontiers in Public Health 2022](https://doi.org/10.3389/fpubh.2022.852410)\n3. [Zigong-MEDS ETL](https://github.com/rvandewater/ZIGONG_MEDS)\n",
+      "refs": "@article{PhysioNet-icu-infection-zigong-fourth-1.1,\n  author = {Xu, Ping and Chen, Lin and Zhang, Zhongheng},\n  title = {{Critical care database comprising patients with infection at Zigong Fourth People's Hospital}},\n  journal = {{PhysioNet}},\n  year = {2022},\n  note = {Version 1.1},\n  doi = {10.13026/xpt9-z726},\n  url = {https://doi.org/10.13026/xpt9-z726},\n}\n\n@article{Xu2022Zigong,\n  author = {Xu, Ping and Chen, Lin and Zhu, Yuanfang and Yu, Shuai and Chen, Rangui and Huang, Wenbin and Wu, Fuli and Zhang, Zhongheng},\n  title = {{Critical Care Database Comprising Patients With Infection}},\n  journal = {Frontiers in Public Health},\n  volume = {10},\n  year = {2022},\n  doi = {10.3389/fpubh.2022.852410},\n}\n\n@software{van_de_Water_Zigong_MEDS_ETL,\n  author = {van de Water, Robin Philippus},\n  license = {MIT},\n  title = {{Zigong\\_MEDS ETL}},\n  url = {https://github.com/rvandewater/ZIGONG_MEDS},\n  version = {0.3.0},\n  year = {2026},\n}\n",
+      "requirements": [
+        "Zigong-MEDS==0.3.0"
+      ],
+      "type": "dataset"
+    },
+    "name": "Zigong"
   },
   "eICU": {
     "children": [],
