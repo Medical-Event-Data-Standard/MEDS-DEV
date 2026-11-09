@@ -449,36 +449,35 @@ repeated for every task. A version 2 `model.yaml` instead lists the model's step
 
 ```yaml
 schema_version: 2
-metadata: {'...': null}
+metadata:
+  description: My model.
+  contacts:
+    - name: Jane Doe
 profile: probe # optional; enables extra checks (see below)
 steps:
-  preprocess_data:
+  preprocess:
     scope: dataset # task-independent: run once per dataset, shared by every task
-    command: my-model preprocess input={dataset_dir} 
-      predicates={predicates_path} output={step_dir}
+    command: m preprocess {dataset_dir} {predicates_path} {step_dir}
   pretrain:
     scope: dataset
-    needs: [preprocess_data]
-    command: my-model pretrain data={preprocess_data_dir} output={step_dir}
-  infer_embeddings:
+    needs: [preprocess]
+    command: m pretrain {preprocess_dir} {step_dir}
+  embed:
     scope: task # run once per task
-    needs: [preprocess_data, pretrain]
-    command: my-model embed data={preprocess_data_dir} encoder={pretrain_dir} 
-      index={labels_dir} output={step_dir}
-  train_probe:
+    needs: [preprocess, pretrain]
+    command: m embed {preprocess_dir} {pretrain_dir} {labels_dir} {step_dir}
+  fit:
     scope: task
-    needs: [infer_embeddings]
-    command: my-model train_probe embeddings={infer_embeddings_dir} 
-      labels={labels_dir} output={step_dir}
-  predict_probe:
+    needs: [embed]
+    command: m fit {embed_dir} {labels_dir} {step_dir}
+  predict:
     scope: task
-    needs: [infer_embeddings, train_probe]
+    needs: [embed, fit]
     predict: true # exactly one step; its output is evaluated
-    command: my-model predict embeddings={infer_embeddings_dir} 
-      probe={train_probe_dir} split={split} output={step_dir}
+    command: m predict {embed_dir} {fit_dir} {split} {step_dir}
 ```
 
-Each step has a `scope` (`dataset` or `task`), a `command`, optionally `needs` (earlier steps whose outputs
+(`m` stands for the model's own command-line tool.) Each step has a `scope` (`dataset` or `task`), a `command`, optionally `needs` (earlier steps whose outputs
 it reads), and exactly one task-scoped step sets `predict: true`. Commands can use:
 
 | Template variable                                             | Available in       | Value                                      |
@@ -518,7 +517,7 @@ meds-dev-model model=$MODEL_NAME dataset_dir=$DATASET_DIR dataset_name=$DATASET_
 	'tasks=[task_a,task_b]' labels_root=$LABELS_ROOT mode=full dataset_type=full output_dir=$RUN_DIR
 
 # Only some steps (plus the steps they need), reusing an existing output for one of them
-meds-dev-model ... 'steps=[predict_probe]' +step_dirs.pretrain=/path/to/pretrain/output
+meds-dev-model ... 'steps=[predict]' +step_dirs.pretrain=/path/to/pretrain/output
 ```
 
 `dataset_type` and `mode` select steps as in version 1 (`unsupervised` selects the dataset-scoped steps,

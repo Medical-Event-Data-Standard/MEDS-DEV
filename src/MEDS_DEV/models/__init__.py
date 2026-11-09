@@ -16,17 +16,24 @@ CFG_YAML = files("MEDS_DEV.configs") / "_run_model.yaml"
 
 MODELS = {}
 
-for path in model_files.rglob("*/model.yaml"):
-    model_name = path.relative_to(model_files).parent.with_suffix("").as_posix()
-    MODELS[model_name] = OmegaConf.to_object(OmegaConf.load(path))
-    MODELS[model_name]["metadata"] = Metadata(**MODELS[model_name]["metadata"])
+
+def load_model_yaml(model_yaml: Path, model_name: str) -> dict:
+    """Loads and validates a `model.yaml` (either schema version) into a registry entry."""
+    entry = OmegaConf.to_object(OmegaConf.load(model_yaml))
+    entry["metadata"] = Metadata(**entry["metadata"])
     # Version 1 files are run by `model_commands`; version 2 files by `MEDS_DEV.models.steps`. Both are
     # described by a step graph, which also validates version 2 files when the registry is loaded.
-    MODELS[model_name]["schema_version"] = MODELS[model_name].get("schema_version", 1)
+    entry["schema_version"] = entry.get("schema_version", 1)
     try:
-        MODELS[model_name]["step_graph"] = load_step_graph(MODELS[model_name])
+        entry["step_graph"] = load_step_graph(entry)
     except ValueError as e:
-        raise ValueError(f"Invalid model.yaml for model {model_name} ({path}): {e}") from e
+        raise ValueError(f"Invalid model.yaml for model {model_name} ({model_yaml}): {e}") from e
+    return entry
+
+
+for path in model_files.rglob("*/model.yaml"):
+    model_name = path.relative_to(model_files).parent.with_suffix("").as_posix()
+    MODELS[model_name] = load_model_yaml(path, model_name)
     requirements_path = path.parent / "requirements.txt"
     MODELS[model_name]["requirements"] = requirements_path if requirements_path.exists() else None
     MODELS[model_name]["model_dir"] = path.parent

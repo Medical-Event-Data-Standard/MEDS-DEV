@@ -89,7 +89,10 @@ class Scope(StrEnum):
 
 
 class Profile(StrEnum):
-    """Optional model profiles, matching the MEDS algorithm template. Setting one enables extra checks."""
+    """Optional model profiles, matching the MEDS algorithm template.
+
+    Setting one enables extra checks.
+    """
 
     SUPERVISED = "supervised"
     FINETUNE = "finetune"
