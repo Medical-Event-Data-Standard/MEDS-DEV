@@ -46,10 +46,13 @@ hydra:
       of the combinations of these modes, and this is by design!
 
       The assumed (global) flow is:
-        1. unsupervised, train
-        2. [optional, for zero-shot] unsupervised, predict
-        3. supervised, train
-        4. supervised, predict
+        1. unsupervised, train   (task-independent, e.g., pre-training; run once per dataset)
+        2. unsupervised, predict (optional, task-independent inference)
+        3. supervised, train     (task-specific training; null for zero-shot models)
+        4. supervised, predict   (prediction for the task, including zero-shot prediction)
+
+      An "unsupervised" stage does not depend on the task and receives no labels_dir, so its output can be
+      reused across tasks. A "supervised" stage is run for one task and receives that task's labels_dir.
 
       In each of these steps the "model_initialization_dir" parameter is assumed to point to the directory
       specified by the "output_dir" of the prior stage, if such a prior stage is necessary and was run.
@@ -64,6 +67,9 @@ hydra:
       appropriate sub-dirs will be created and used for the sequence. In this case, if prior stage completion
       is flagged (e.g., if you use the same dir twice), the stage will not be re-run. The directory structure
       used for these will depend on dataset_name and task_name, so those must be set if this mode is used.
+      Unsupervised stages are stored under "<output_dir>/<dataset_name>/unsupervised/" and supervised ones
+      under "<output_dir>/<dataset_name>/<task_name>/", so running several tasks with the same output_dir
+      pre-trains only once.
 
       If a model's commands use the "{predicates_path}" template variable (e.g., to bind dataset-specific
       predicates for featurization), point "predicates_path" to the appropriate predicates file (such as the
@@ -75,4 +81,5 @@ hydra:
       with "predicates_path" to give the model the same task that "meds-dev-task" extracted the labels with.
 
       If do_overwrite is set to true, the output dir (except for its ".logs" log directory) will be cleared
-      before anything is run.
+      before anything is run. With a shared output_dir in full mode, this also deletes the shared pre-training
+      stage and other tasks' results.

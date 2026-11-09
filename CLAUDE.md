@@ -196,7 +196,9 @@ models is filtered by compatibility.
 
 1. Create `src/MEDS_DEV/models/<name>/` with: `model.yaml`, `requirements.txt`, `README.md`
 2. `model.yaml` must have `metadata` and `commands` with nested `unsupervised`/`supervised` →
-    `train`/`predict` structure
+    `train`/`predict` structure. `unsupervised` stages are task-independent (run once per dataset and
+    reused across tasks in full mode); `supervised` stages run per task. Zero-shot models use
+    `unsupervised.train` + `supervised.predict` with `supervised.train: null`
 3. Commands use template variables: `{dataset_dir}`, `{labels_dir}`, `{output_dir}`,
     `{model_dir}`, `{model_initialization_dir}`, `{split}`, `{demo}`, and (optionally)
     `{predicates_path}` for models that need a predicates file (populated from the
@@ -204,6 +206,9 @@ models is filtered by compatibility.
     the task's ACES criteria file (the `task_criteria_path` argument, else the registered file of
     `task_name`)
 4. Predictions must output parquet files compatible with `meds-evaluation`
+5. New models may be generated with the
+    [MEDS algorithm template](https://github.com/McDermottHealthAI/MEDS_algorithm_template), which
+    registers each profile as `<name>__<profile>` via `meds-algorithm-add-to-meds-dev`
 
 ### YAML Config Conventions
 
