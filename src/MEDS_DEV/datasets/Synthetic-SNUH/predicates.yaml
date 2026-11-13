@@ -1,0 +1,74 @@
+predicates:
+  # Codes are those OMOP_MEDS writes from Synthetic-SNUH v4's OMOP CDM 5.4 tables: `<vocabulary>//<concept code>`,
+  # with `//start` and `//end` for visits. The export has dates but no times, so every event is at 23:59:59 of
+  # its date, and the tasks' 24-hour windows fall on whole days.
+  hospital_admission:
+    code: Visit//IP//start
+  hospital_discharge:
+    code: Visit//IP//end
+
+  ED_registration:
+    code: Visit//ER//start
+  ED_discharge:
+    code: Visit//ER//end
+
+  # `icu_admission` and `icu_discharge` are deliberately undefined: the export has no visit_detail rows and no
+  # care sites, so ICU stays can't be identified. Nor does it record vital signs, so `map` is undefined too.
+
+  # Units are not recorded (unit_concept_id is empty). Each code below is the serum, plasma or blood measurement
+  # of its analyte, and its values match the task threshold's unit.
+
+  # Creatinine in serum or plasma (mg/dL; median 0.84).
+  creatinine:
+    code: LOINC//2160-0
+  abnormally_high_creatinine:
+    code: LOINC//2160-0
+    value_min: 1.3 # mg/dL
+    value_min_inclusive: False
+    value_max: null
+
+  # Sodium in serum or plasma (mmol/L = mEq/L; median 140).
+  sodium:
+    code: LOINC//2951-2
+  abnormally_low_sodium:
+    code: LOINC//2951-2
+    value_min: null
+    value_max: 135 # mEq/L
+    value_max_inclusive: False
+
+  # Total CO2 in serum or plasma (mmol/L = mEq/L; median 26), the chemistry panel's bicarbonate. Arterial and
+  # venous blood-gas bicarbonate (LOINC 1960-4, 14627-4) are excluded.
+  bicarbonate:
+    code: LOINC//2028-9
+  abnormally_low_bicarbonate:
+    code: LOINC//2028-9
+    value_min: null
+    value_max: 22 # mEq/L
+    value_max_inclusive: False
+
+  # Hemoglobin in blood (g/dL; median 13.3).
+  hemoglobin:
+    code: LOINC//718-7
+  abnormally_low_hemoglobin:
+    code: LOINC//718-7
+    value_min: null
+    value_max: 13 # g/dL
+    value_max_inclusive: False
+
+  # Leukocytes in blood by automated count (10^3/uL = K/uL; median 6.4).
+  wbc:
+    code: LOINC//6690-2
+  abnormally_high_wbc:
+    code: LOINC//6690-2
+    value_min: 11 # K/uL
+    value_min_inclusive: False
+    value_max: null
+
+  # Platelets in blood by automated count (10^3/uL = K/uL; median 231).
+  platelets:
+    code: LOINC//777-3
+  abnormally_low_platelets:
+    code: LOINC//777-3
+    value_min: null
+    value_max: 150 # K/uL
+    value_max_inclusive: False
