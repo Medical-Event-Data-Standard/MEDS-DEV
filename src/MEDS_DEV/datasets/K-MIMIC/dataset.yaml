@@ -1,0 +1,21 @@
+metadata:
+  description: >-
+    A MEDS version of Synthetic K-MIMIC (SYN-ICU), synthetic ICU data generated from the records of Seoul
+    National University Hospital, built with MEDS-Extract from the config-only K-MIMIC-MEDS pipeline.
+  links:
+    - https://github.com/rvandewater/K_MIMIC_MEDS
+    - https://khdp.net/database/data-search-detail/SYN-ICU
+  contacts:
+    - name: "Robin P. van de Water"
+      github_username: "rvandewater"
+  access_policy: public_with_approval
+  access_details: >-
+    Distributed by the Korea Health Data Platform (KHDP) to registered users whose application is approved.
+    KHDP has no download API, so the release (15 .xlsx workbooks) must be downloaded by hand and passed as
+    `raw_input_dir`.
+commands:
+  build_full: >-
+    meds-extract-run spec=K-MIMIC
+    do_download=false
+    input_dir="{raw_input_dir}"
+    output_dir="{output_dir}"
