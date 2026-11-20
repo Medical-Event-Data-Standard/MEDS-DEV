@@ -16,6 +16,7 @@ metadata:
     - MC-MED
     - MIMIC-IV
     - NWICU
+    - eICU
 predicates:
   hospital_admission: ???
   hospital_discharge: ???

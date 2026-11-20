@@ -14,6 +14,7 @@ metadata:
     - INSPIRE
     - MIMIC-IV
     - NWICU
+    - eICU
 predicates:
   icu_admission: ???
   icu_discharge: ???
