@@ -436,3 +436,7 @@ def main() -> None:
     )
     args = parser.parse_args()
     collate_entities(args.repo_dir, args.output_dir, args.do_overwrite)
+
+
+if __name__ == "__main__":  # pragma: no cover
+    main()

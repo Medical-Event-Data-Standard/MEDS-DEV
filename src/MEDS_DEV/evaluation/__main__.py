@@ -28,3 +28,7 @@ def main(cfg: DictConfig):
     )
 
     logger.info(f"Evaluation command {cmd} finished successfully.")
+
+
+if __name__ == "__main__":  # pragma: no cover
+    main()

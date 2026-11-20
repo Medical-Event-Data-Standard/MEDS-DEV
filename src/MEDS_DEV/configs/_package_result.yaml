@@ -17,7 +17,7 @@ hydra:
   run:
     dir: "."
   help:
-    app_name: "MEDS-DEV Task Extractor Helper"
+    app_name: "MEDS-DEV Result Packager"
 
     template: |-
       == ${hydra.help.app_name} ==

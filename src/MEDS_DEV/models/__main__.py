@@ -109,3 +109,7 @@ def main(cfg: DictConfig):
         )
 
     logger.info(f"Model {cfg.model} finished successfully.")
+
+
+if __name__ == "__main__":  # pragma: no cover
+    main()

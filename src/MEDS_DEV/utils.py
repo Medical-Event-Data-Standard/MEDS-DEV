@@ -3,6 +3,7 @@ import dataclasses
 import hashlib
 import logging
 import os
+import shlex
 import shutil
 import subprocess
 import sys
@@ -414,11 +415,15 @@ def run_in_env(
         script_file = output_dir / "cmd.sh"
         script_lines = ["#!/bin/bash", "set -e"]
 
+        # Activate the venv inside the script too, not just via the PATH in `env`: shell startup files
+        # (e.g., an HPC module system's `BASH_ENV`) can reorder PATH before the command runs.
+        if env.get("VIRTUAL_ENV", None) is not None:
+            activate_fp = Path(env["VIRTUAL_ENV"]) / "bin" / "activate"
+            if activate_fp.is_file():
+                script_lines.append(f"source {shlex.quote(str(activate_fp))}")
+
         script_lines.append(cmd)
         script = "\n".join(script_lines)
-
-        if env.get("VIRTUAL_ENV", None) is not None:
-            script_lines.append(f"source {env['VIRTUAL_ENV']}/bin/activate")
 
         if script_file.is_file():
             if script_file.read_text() != script:
