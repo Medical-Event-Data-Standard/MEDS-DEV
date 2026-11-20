@@ -256,27 +256,22 @@ receive the task's registered criteria file; set `task_criteria_path` to use ano
 
 #### Running only some steps
 
-By default every step runs. To run part of a model, select steps in one of two ways; in both cases the steps
-they need are run too, unless they already finished:
+By default every step runs. To run part of a model, name the steps to run; the steps they need are run too,
+unless they already finished:
 
 ```bash
-# By name
-meds-dev-model ... 'steps=[pretrain]'
-
-# By scope and kind: the dataset-scoped steps only (no task needed), e.g. to pre-train
+# Dataset-scoped steps only (no task needed), e.g. to pre-train
 meds-dev-model model=$MODEL_NAME dataset_dir=$DATASET_DIR dataset_name=$DATASET_NAME \
-	dataset_type=unsupervised mode=train output_dir=$RUN_DIR
+	'steps=[pretrain]' output_dir=$RUN_DIR
 
 # Predict another split; the predictions are stored under <task_name>/predict.tuning/
-meds-dev-model ... mode=predict split=tuning
+meds-dev-model ... 'steps=[predict]' split=tuning
 
 # Use an existing output directory for a step instead of running it
 meds-dev-model ... 'steps=[predict]' +step_dirs.pretrain=/path/to/pretrain/output
 ```
 
-`dataset_type` selects by scope (`unsupervised`: dataset-scoped steps; `supervised`: task-scoped steps;
-`full`, the default: both) and `mode` by kind (`train`: every step but the predict step; `predict`: the
-predict step; `full`, the default: all of them).
+The step names are those of the model's `model.yaml`.
 
 #### Overwriting
 
@@ -410,6 +405,22 @@ the supported MEDS-DEV datasets.
 
 ### Adding a model
 
+> [!TIP]
+> The recommended way to create a new model is the
+> [MEDS algorithm template](https://github.com/McDermottHealthAI/MEDS_algorithm_template)
+> ([documentation](https://meds-algorithm.readthedocs.io/en/latest/)). It generates a repository with a
+> standard command-line interface for six profiles (`supervised`, `finetune`, `probe`, `zero_shot_direct`,
+> `zero_shot_materialized`, `predict_only`), conformance tests that run the model through MEDS-DEV, and one
+> `model.yaml` per profile. Register a profile with:
+>
+> ```bash
+> meds-algorithm-add-to-meds-dev --meds-dev /path/to/MEDS-DEV --name my_model --profile probe
+> ```
+>
+> which adds it as the `my_model__probe` model. If the generated `model.yaml` still has a `commands` block,
+> convert it with the [migration table](#migrating-a-modelyaml-with-a-commands-block) below. The template
+> is optional: any `model.yaml` that follows the structure described here can be added.
+
 To add a model, create a new subdirectory of `src/MEDS_DEV/models/` with the name of the model. Then, within
 this subdirectory, create a `requirements.txt`, `README.md`, and `model.yaml` file. The `requirements.txt`
 contains the necessary Python packages to install to run the model, similar to dataset creation, the
@@ -421,7 +432,6 @@ specify a `refs.bib` file here, like with a dataset.
 #### `model.yaml`
 
 ```yaml
-schema_version: 2
 metadata:
   description: My model.
   contacts:
@@ -450,8 +460,7 @@ steps:
     command: m predict {embed_dir} {fit_dir} {split} {step_dir}
 ```
 
-(`m` stands for the model's own command-line tool.) `schema_version: 2` is required. Steps run in the order
-they are listed. Each step has:
+(`m` stands for the model's own command-line tool.) Steps run in the order they are listed. Each step has:
 
 - `scope`: `dataset` or `task`. Put task-independent work (e.g., preprocessing, pre-training) in
     dataset-scoped steps, so it runs once per dataset and is shared by every task, and task-dependent work
@@ -494,27 +503,13 @@ If `profile` is set, MEDS-DEV also checks the steps against it:
 | `zero_shot_materialized` | at least one dataset-scoped step; the predict step uses `{task_criteria_path}`                                               |
 | `predict_only`           | no task-scoped step besides the predict step                                                                                 |
 
-> [!TIP]
-> To start a new model, consider the
-> [MEDS algorithm template](https://github.com/McDermottHealthAI/MEDS_algorithm_template). It generates a
-> repository with a standard command-line interface for six profiles (`supervised`, `finetune`, `probe`,
-> `zero_shot_direct`, `zero_shot_materialized`, `predict_only`), conformance tests that run the model
-> through MEDS-DEV, and one `model.yaml` per profile. Register a profile with:
->
-> ```bash
-> meds-algorithm-add-to-meds-dev --meds-dev /path/to/MEDS-DEV --name my_model --profile probe
-> ```
->
-> which adds it as the `my_model__probe` model. The template is optional: any `model.yaml` that follows the
-> structure above can be added.
-
-#### Migrating a version 1 `model.yaml`
+#### Migrating a `model.yaml` with a `commands` block
 
 Earlier `model.yaml` files had a `commands` block with four slots (`unsupervised`/`supervised` x
 `train`/`predict`). They are no longer supported, and MEDS-DEV fails to load a model that still uses one. To
 migrate:
 
-| Version 1                            | Now                                                                            |
+| `commands` block                     | Now                                                                            |
 | ------------------------------------ | ------------------------------------------------------------------------------ |
 | `commands.unsupervised.train`        | a step with `scope: dataset`                                                   |
 | `commands.supervised.train`          | a step with `scope: task`                                                      |
@@ -524,9 +519,10 @@ migrate:
 | `{model_initialization_dir}`         | `{<step>_dir}` of the step whose output is read, which is listed under `needs` |
 | several commands grouped in one slot | optionally, one step each                                                      |
 
-Then add `schema_version: 2`. In version 1, the single `model_initialization_dir` argument chained each
-stage to the previous one; now a step can read any number of earlier outputs. The predictions of a run are
-now under `<output_dir>/<dataset_name>/<task_name>/predict/`.
+Previously, the single `model_initialization_dir` argument chained each stage to the previous one; now a
+step can read any number of earlier outputs. `meds-dev-model` no longer takes `dataset_type` and `mode`:
+it runs every step by default, and `steps` selects some of them. The predictions of a run are now under
+`<output_dir>/<dataset_name>/<task_name>/predict/`.
 
 ## Efficient Testing
 

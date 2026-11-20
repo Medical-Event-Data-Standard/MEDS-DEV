@@ -71,10 +71,8 @@ def test_all_models_have_metadata():
 
 
 def test_all_models_have_step_graphs():
-    """Every registered model lists explicit steps (schema version 2), one of which is the predict step."""
+    """Every registered model lists explicit steps, one of which is the predict step."""
     for name, model in MODELS.items():
-        assert model["schema_version"] == 2, f"Model {name} must set schema_version: 2"
-        assert "commands" not in model, f"Model {name} uses version 1 `commands` instead of `steps`"
         graph = model["step_graph"]
         assert graph.steps, f"Model {name} has no steps"
         assert graph.predict_step is not None, f"Model {name} has no predict step"

@@ -5,7 +5,7 @@ from omegaconf import OmegaConf
 
 from ..tasks import TASKS
 from ..utils import Metadata
-from .steps import load_step_graph
+from .steps import parse_step_graph
 
 model_files = files("MEDS_DEV.models")
 CFG_YAML = files("MEDS_DEV.configs") / "_run_model.yaml"
@@ -17,12 +17,11 @@ def load_model_yaml(model_yaml: Path, model_name: str) -> dict:
     """Loads and validates a `model.yaml` into a registry entry.
 
     The entry holds the file's contents, with `metadata` parsed and the validated `step_graph` added (see
-    `MEDS_DEV.models.steps`). Invalid files, including version 1 files, fail here, i.e., when the registry is
-    loaded.
+    `MEDS_DEV.models.steps`). Invalid files fail here, i.e., when the registry is loaded.
     """
     entry = OmegaConf.to_object(OmegaConf.load(model_yaml))
     try:
-        entry["step_graph"] = load_step_graph(entry)
+        entry["step_graph"] = parse_step_graph(entry)
     except ValueError as e:
         raise ValueError(f"Invalid model.yaml for model {model_name} ({model_yaml}): {e}") from e
     entry["metadata"] = Metadata(**entry["metadata"])

@@ -1,4 +1,3 @@
-schema_version: 2
 metadata:
   description: >-
     This is a model that simply generates proabilities randomly from a uniform distribution between 0 and 1

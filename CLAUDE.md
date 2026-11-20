@@ -195,7 +195,7 @@ models is filtered by compatibility.
 ### Adding a New Model
 
 1. Create `src/MEDS_DEV/models/<name>/` with: `model.yaml`, `requirements.txt`, `README.md`
-2. `model.yaml` must have `schema_version: 2`, `metadata` and `steps`. Each step has a `scope`
+2. `model.yaml` must have `metadata` and `steps`. Each step has a `scope`
     (`dataset`: task-independent, run once per dataset and shared by every task; `task`: run per
     task), a `command`, and optional `needs` (earlier steps whose outputs it reads). Exactly one
     task-scoped step sets `predict: true`. An optional `profile` adds checks. Zero-shot models use
@@ -207,15 +207,15 @@ models is filtered by compatibility.
     and `{task_criteria_path}` (the task's ACES criteria file: the `task_criteria_path` argument,
     else the registered file of the task); the predict step can use `{split}`
 4. The predict step must write parquet files compatible with `meds-evaluation` to its `{step_dir}`
-5. New models may be generated with the
+5. The recommended way to create a new model is the
     [MEDS algorithm template](https://github.com/McDermottHealthAI/MEDS_algorithm_template), which
     registers each profile as `<name>__<profile>` via `meds-algorithm-add-to-meds-dev`
 6. Parsing, validation, planning and execution of steps live in `src/MEDS_DEV/models/steps.py`.
     Steps are stored under `<output_dir>/<dataset_name>/_shared/<step>/` (dataset-scoped) and
     `<output_dir>/<dataset_name>/<task_name>/<step>/` (task-scoped; the predict step under
-    `.../predict/`). Version 1 files (a `commands` block with `unsupervised`/`supervised` →
-    `train`/`predict` slots) are no longer supported and fail when the registry loads. See the
-    README section "Adding a model"
+    `.../predict/`). `meds-dev-model` runs every step by default; `steps=[...]` selects some.
+    The earlier `commands` block (`unsupervised`/`supervised` → `train`/`predict` slots) is no
+    longer supported and fails when the registry loads. See the README section "Adding a model"
 
 ### YAML Config Conventions
 

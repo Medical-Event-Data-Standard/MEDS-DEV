@@ -15,7 +15,6 @@ from .steps import (
     plan_steps,
     resolve_overwrite,
     run_planned_steps,
-    select_steps,
 )
 
 logger = logging.getLogger(__name__)
@@ -63,14 +62,7 @@ def plan_from_cfg(cfg: DictConfig, graph: StepGraph, model_dir: Path) -> list[Pl
     if isinstance(step_dirs, DictConfig):
         step_dirs = OmegaConf.to_container(step_dirs, resolve=True)
 
-    requested_steps = cfg.get("steps", None)
-    selected = select_steps(
-        graph,
-        steps=list(requested_steps) if requested_steps else None,
-        dataset_type=cfg.get("dataset_type", None),
-        mode=cfg.get("mode", None),
-        provided=set(step_dirs),
-    )
+    selected = graph.closure(cfg.get("steps", None), provided=set(step_dirs))
 
     dataset_name = cfg.get("dataset_name", None)
     shared_root = None

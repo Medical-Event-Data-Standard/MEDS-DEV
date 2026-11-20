@@ -1,4 +1,3 @@
-schema_version: 2
 metadata:
   description: >-
     A tiny, low-cost gradient-boosted tree baseline using the MEDS-Tab framework. It tabularizes the 100 most

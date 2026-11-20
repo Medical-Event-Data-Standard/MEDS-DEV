@@ -16,10 +16,8 @@ from MEDS_DEV.models.steps import (
     Overwrite,
     Profile,
     Scope,
-    load_step_graph,
     parse_step_graph,
     run_planned_steps,
-    select_steps,
     step_lock,
 )
 from MEDS_DEV.utils import run_in_env
@@ -29,7 +27,6 @@ def toy_graph(log_fp: Path):
     """A small model whose steps append their name to `log_fp`, so tests can count executions."""
     return parse_step_graph(
         {
-            "schema_version": 2,
             "steps": {
                 "preprocess": {
                     "scope": "dataset",
@@ -63,8 +60,6 @@ def toy_graph(log_fp: Path):
 
 def make_cfg(tmp_path: Path, **overrides):
     cfg = {
-        "dataset_type": "full",
-        "mode": "full",
         "dataset_dir": str(tmp_path / "data"),
         "dataset_name": "DS",
         "output_dir": str(tmp_path / "runs"),
@@ -117,20 +112,18 @@ def test_tasks_list_runs_every_task_in_one_call(tmp_path: Path):
     assert Path(head.read_text().strip()).as_posix() == "/labels/a/x"
 
 
-def test_unsupervised_then_supervised_reuses_shared_steps(tmp_path: Path):
-    """The flow of the integration fixtures: dataset steps in one run, task steps in another."""
+def test_shared_steps_are_reused_from_an_earlier_run(tmp_path: Path):
+    """The flow of the integration fixtures: dataset steps in one run, the rest in another."""
     log_fp = tmp_path / "log.txt"
     graph = toy_graph(log_fp)
 
     pretrain_root = tmp_path / "pretrain_run"
-    run(make_cfg(tmp_path, dataset_type="unsupervised", mode="train", output_dir=str(pretrain_root)), graph)
+    run(make_cfg(tmp_path, steps=["preprocess", "pretrain"], output_dir=str(pretrain_root)), graph)
     assert executions(log_fp) == ["preprocess", "pretrain"]
 
     run(
         make_cfg(
             tmp_path,
-            dataset_type="supervised",
-            mode="full",
             task_name="t1",
             labels_dir="/labels/t1",
             model_initialization_dir=str(pretrain_root),
@@ -205,7 +198,6 @@ def test_missing_task_fails_before_running(tmp_path: Path):
 
 TEMPLATE_LIKE_MODELS = {
     "probe": """
-schema_version: 2
 profile: probe
 steps:
   preprocess_data:
@@ -230,7 +222,6 @@ steps:
     command: m predict_probe input_embeddings_dir={infer_embeddings_dir} input_probe_algorithm_dir={train_probe_dir} external_index_dir={labels_dir} splits=[{split}] output_predictions_dir={step_dir}
 """,
     "zero_shot_direct": """
-schema_version: 2
 profile: zero_shot_direct
 steps:
   preprocess_data:
@@ -247,7 +238,6 @@ steps:
     command: m predict input_data_dir={preprocess_data_dir} input_pretrained_algorithm_dir={pretrain_dir} external_index_dir={labels_dir} external_task_criteria_file={task_criteria_path} splits=[{split}] output_predictions_dir={step_dir}
 """,
     "supervised": """
-schema_version: 2
 profile: supervised
 steps:
   preprocess_data:
@@ -268,7 +258,7 @@ steps:
 
 @pytest.mark.parametrize("profile", sorted(TEMPLATE_LIKE_MODELS))
 def test_template_like_models_validate(profile: str):
-    graph = load_step_graph(yaml.safe_load(TEMPLATE_LIKE_MODELS[profile]))
+    graph = parse_step_graph(yaml.safe_load(TEMPLATE_LIKE_MODELS[profile]))
     assert graph.profile == Profile(profile)
     assert graph.steps[0].scope == Scope.DATASET
 
@@ -297,21 +287,15 @@ def test_registered_models_plan_for_two_tasks(tmp_path: Path):
             assert "{" not in p.command, f"{name}: unformatted template variable in {p.command}"
 
 
-@pytest.mark.parametrize(
-    ("spec", "message"),
-    [
-        ({"commands": {"supervised": {"predict": "p {output_dir}"}}}, "version 1 model.yaml"),
-        ({"schema_version": 1, "commands": {"supervised": {"predict": "p"}}}, "version 1 model.yaml"),
-        ({"schema_version": 1, "steps": {}}, "Unsupported model.yaml schema_version 1"),
-        (
-            {"steps": {"pred": {"scope": "task", "predict": True, "command": "p"}}},
-            "must set `schema_version: 2`",
-        ),
-    ],
-)
-def test_version_1_model_yaml_is_rejected(spec, message):
-    with pytest.raises(ValueError, match=message):
-        load_step_graph(spec)
+def test_commands_block_is_rejected(tmp_path: Path):
+    """The earlier format fails when the model is loaded, naming the model and how to migrate."""
+    model_yaml = tmp_path / "model.yaml"
+    model_yaml.write_text(
+        "metadata: {description: d, contacts: [{name: n}]}\n"
+        "commands: {supervised: {predict: 'p {output_dir}'}}\n"
+    )
+    with pytest.raises(ValueError, match=r"model old .*`commands` block is no longer supported"):
+        load_model_yaml(model_yaml, "old")
 
 
 @pytest.mark.parametrize(
@@ -332,15 +316,13 @@ def test_version_1_model_yaml_is_rejected(spec, message):
 )
 def test_invalid_steps(steps, message):
     with pytest.raises(ValueError, match=message):
-        parse_step_graph({"schema_version": 2, "steps": steps})
+        parse_step_graph({"steps": steps})
 
 
 def test_selection_and_planning_errors(tmp_path: Path):
     graph = toy_graph(tmp_path / "log.txt")
     with pytest.raises(ValueError, match="Unknown step"):
         graph.closure(["nope"])
-    with pytest.raises(ValueError, match="Invalid dataset_type"):
-        select_steps(graph, dataset_type="semi-supervised", mode="train")
     with pytest.raises(ValueError, match="when running several tasks"):
         plan_from_cfg(
             make_cfg(tmp_path, tasks=["a", "b"], labels_root="/labels", step_dirs={"fit": "/x"}),
@@ -363,7 +345,6 @@ def test_step_lock_waits_then_times_out(tmp_path: Path):
 def test_failing_step_is_reported(tmp_path: Path):
     graph = parse_step_graph(
         {
-            "schema_version": 2,
             "steps": {"pred": {"scope": "task", "predict": True, "command": "exit 3"}},
         }
     )
@@ -373,13 +354,9 @@ def test_failing_step_is_reported(tmp_path: Path):
 
 
 def test_meds_dev_model_main_runs_models(tmp_path: Path, monkeypatch):
-    """`meds-dev-model`'s entry point plans and runs a model (called without the CLI).
-
-    The default `dataset_type` and `mode` run every step.
-    """
+    """`meds-dev-model`'s entry point plans and runs every step of a model (called without the CLI)."""
     log_fp = tmp_path / "log.txt"
     model = {
-        "schema_version": 2,
         "step_graph": toy_graph(log_fp),
         "model_dir": tmp_path / "model",
         "requirements": None,
@@ -406,6 +383,6 @@ def test_meds_dev_model_main_runs_models(tmp_path: Path, monkeypatch):
 
 def test_invalid_model_yaml_names_the_model(tmp_path: Path):
     model_yaml = tmp_path / "model.yaml"
-    model_yaml.write_text("schema_version: 2\nmetadata: {description: d, contacts: [{name: n}]}\nsteps: {}\n")
+    model_yaml.write_text("metadata: {description: d, contacts: [{name: n}]}\nsteps: {}\n")
     with pytest.raises(ValueError, match=r"Invalid model\.yaml for model broken"):
         load_model_yaml(model_yaml, "broken")

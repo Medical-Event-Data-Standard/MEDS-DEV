@@ -6,11 +6,9 @@ dataset_dir: ???
 dataset_name: null # required: steps are stored under output_dir/dataset_name
 output_dir: ???
 
-# Which steps to run: `steps` by name, or else the steps selected by `dataset_type` and `mode`. Either way,
-# every step they need is added, and finished steps are skipped.
-steps: null # e.g. steps=[pretrain]
-dataset_type: full # unsupervised (dataset-scoped steps) | supervised (task-scoped steps) | full
-mode: full # train (every step but the predict step) | predict (the predict step) | full
+# The steps to run, by name (e.g. steps=[pretrain]); defaults to every step. The steps they need are added,
+# and finished steps are skipped.
+steps: null
 
 # The task(s), needed whenever task-scoped steps run: either one task ...
 task_name: null
@@ -69,12 +67,9 @@ hydra:
       required, and "task_name" with "labels_dir" (or "tasks" with "labels_root") whenever task-scoped steps
       run.
 
-      To run only part of a model, select steps with either:
-        - "steps": a list of step names; or
-        - "dataset_type" and "mode": dataset_type=unsupervised selects the dataset-scoped steps,
-          dataset_type=supervised the task-scoped ones and dataset_type=full both; mode=train selects every
-          step but the predict step, mode=predict the predict step and mode=full all of them.
-      The steps that the selected steps need are run too (unless they already finished).
+      To run only part of a model, set "steps" to a list of step names, e.g. "steps=[pretrain]". The steps
+      that the selected steps need are run too (unless they already finished). If only dataset-scoped steps
+      are selected, no task is needed.
 
       "tasks" with "labels_root" runs several tasks in one call; the labels of each task are read from
       "<labels_root>/<task>". "step_dirs" gives existing output directories to use for some steps instead of

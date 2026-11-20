@@ -1,6 +1,6 @@
 """Explicit, scoped model steps: the `model.yaml` schema.
 
-A `model.yaml` sets `schema_version: 2` and lists the model's steps explicitly. Each step declares:
+A `model.yaml` lists the model's steps explicitly. Each step declares:
 
 - `scope`: `dataset` (task-independent; run once per dataset and shared by every task) or `task` (run once
   per task);
@@ -11,7 +11,6 @@ A `model.yaml` sets `schema_version: 2` and lists the model's steps explicitly. 
 For example:
 
 ```yaml
-schema_version: 2
 metadata: {...}
 profile: probe
 steps:
@@ -33,8 +32,8 @@ steps:
     command: my-model predict ... split={split} output={step_dir}
 ```
 
-Version 1 files (a `commands` block with `unsupervised`/`supervised` x `train`/`predict` slots) are no longer
-supported; `load_step_graph` rejects them with a pointer to the README.
+The earlier format (a `commands` block with `unsupervised`/`supervised` x `train`/`predict` slots) is no
+longer supported; `parse_step_graph` rejects it with a pointer to the README.
 """
 
 import contextlib
@@ -54,8 +53,6 @@ from typing import Any
 import meds
 
 logger = logging.getLogger(__name__)
-
-SCHEMA_VERSION = 2
 
 #: Directory (under `<output_dir>/<dataset_name>/`) holding the dataset-scoped steps shared by all tasks.
 SHARED_DIR_NAME = "_shared"
@@ -187,7 +184,6 @@ class StepGraph:
 
     Examples:
         >>> graph = parse_step_graph({
-        ...     "schema_version": 2,
         ...     "steps": {
         ...         "pre": {"scope": "dataset", "command": "pre {dataset_dir} {step_dir}"},
         ...         "fit": {
@@ -207,6 +203,12 @@ class StepGraph:
         ['pre', 'fit']
         >>> [s.name for s in graph.closure(["fit"], provided={"fit"})]
         ['fit']
+        >>> [s.name for s in graph.closure()]
+        ['pre', 'fit', 'pred']
+        >>> graph.closure(["nope"])
+        Traceback (most recent call last):
+            ...
+        ValueError: Unknown step(s) ['nope']. Available steps: ['pre', 'fit', 'pred']
     """
 
     steps: tuple[Step, ...]
@@ -220,13 +222,15 @@ class StepGraph:
     def predict_step(self) -> Step | None:
         return next((step for step in self.steps if step.predict), None)
 
-    def closure(self, names: Sequence[str], provided: Collection[str] = ()) -> list[Step]:
-        """Returns the named steps and every step they transitively need, in declaration order.
+    def closure(self, names: Sequence[str] | None = None, provided: Collection[str] = ()) -> list[Step]:
+        """Returns the named steps (default: all) and every step they need, in declaration order.
 
         The needs of `provided` steps (whose outputs already exist, e.g., through `step_dirs`) are not
         followed.
         """
         by_name = self.by_name
+        if not names:
+            names = list(by_name)
         unknown = [name for name in names if name not in by_name]
         if unknown:
             raise ValueError(f"Unknown step(s) {unknown}. Available steps: {list(by_name)}")
@@ -248,7 +252,7 @@ def parse_step_graph(spec: Mapping[str, Any]) -> StepGraph:
 
     Examples:
         >>> def check(steps, profile=None):
-        ...     spec = {"schema_version": 2, "steps": steps}
+        ...     spec = {"steps": steps}
         ...     if profile:
         ...         spec["profile"] = profile
         ...     try:
@@ -259,6 +263,11 @@ def parse_step_graph(spec: Mapping[str, Any]) -> StepGraph:
         >>> check({"pred": pred})
         >>> check({})
         A model.yaml needs a non-empty `steps` mapping.
+        >>> parse_step_graph({"commands": {"supervised": {"predict": "p {output_dir}"}}})
+        Traceback (most recent call last):
+            ...
+        ValueError: A model.yaml lists `steps`; the `commands` block is no longer supported. See "Adding a
+        model" in the README to migrate.
         >>> check({"Pred": pred})
         Invalid step name 'Pred': use lowercase letters, digits and underscores, starting with a letter.
         >>> check({"labels": pred})
@@ -295,6 +304,11 @@ def parse_step_graph(spec: Mapping[str, Any]) -> StepGraph:
         >>> check({"pred": pred}, profile="few_shot")
         Unknown profile 'few_shot'; expected one of ['supervised', 'finetune', 'probe', 'zero_shot_direct', 'zero_shot_materialized', 'predict_only'].
     """  # noqa: E501
+    if "commands" in spec:
+        raise ValueError(
+            'A model.yaml lists `steps`; the `commands` block is no longer supported. See "Adding a '
+            'model" in the README to migrate.'
+        )
     raw_steps = spec.get("steps")
     if not isinstance(raw_steps, Mapping) or not raw_steps:
         raise ValueError("A model.yaml needs a non-empty `steps` mapping.")
@@ -401,124 +415,6 @@ def _validate_profile(graph: StepGraph) -> None:
         )
 
 
-def load_step_graph(spec: Mapping[str, Any]) -> StepGraph:
-    """Returns the validated step graph of a `model.yaml`.
-
-    Examples:
-        >>> spec = {"schema_version": 2, "steps": {
-        ...     "pred": {"scope": "task", "predict": True, "command": "p {labels_dir} {split} {step_dir}"},
-        ... }}
-        >>> [step.name for step in load_step_graph(spec).steps]
-        ['pred']
-
-    Only schema version 2 is supported, and the version must be stated:
-        >>> load_step_graph({"schema_version": 3, "steps": {}})
-        Traceback (most recent call last):
-            ...
-        ValueError: Unsupported model.yaml schema_version 3; the supported version is 2.
-        >>> load_step_graph({"steps": spec["steps"]})
-        Traceback (most recent call last):
-            ...
-        ValueError: A model.yaml must set `schema_version: 2`.
-
-    Version 1 files, with their `commands` block, are rejected:
-        >>> load_step_graph({"commands": {"supervised": {"predict": "p"}}})
-        Traceback (most recent call last):
-            ...
-        ValueError: This is a version 1 model.yaml (a `commands` block), which is no longer supported. Set
-        `schema_version: 2` and list the model's `steps` instead; see "Adding a model" in the README.
-        >>> load_step_graph({"schema_version": 2, "commands": {}, "steps": {}})
-        Traceback (most recent call last):
-            ...
-        ValueError: A model.yaml uses `steps`, not `commands`.
-    """
-    version = spec.get("schema_version")
-    if "commands" in spec and version in (None, 1):
-        raise ValueError(
-            "This is a version 1 model.yaml (a `commands` block), which is no longer supported. Set "
-            '`schema_version: 2` and list the model\'s `steps` instead; see "Adding a model" in the README.'
-        )
-    if version is None:
-        raise ValueError(f"A model.yaml must set `schema_version: {SCHEMA_VERSION}`.")
-    if version != SCHEMA_VERSION:
-        raise ValueError(
-            f"Unsupported model.yaml schema_version {version}; the supported version is {SCHEMA_VERSION}."
-        )
-    if "commands" in spec:
-        raise ValueError("A model.yaml uses `steps`, not `commands`.")
-    return parse_step_graph(spec)
-
-
-def select_steps(
-    graph: StepGraph,
-    steps: Sequence[str] | None = None,
-    dataset_type: str | None = None,
-    mode: str | None = None,
-    provided: Collection[str] = (),
-) -> list[Step]:
-    """Selects the steps a run executes: the requested ones plus every step they need.
-
-    Steps are requested either by name (`steps`) or by `dataset_type` and `mode`: `unsupervised` selects the
-    dataset-scoped steps (which receive no labels), `supervised` the task-scoped ones and `full` both;
-    `train` selects the steps other than the predict step, `predict` the predict step, and `full` all of
-    them. Steps in `provided` already have outputs (e.g., through `step_dirs`), so the steps they need are
-    not added.
-
-    Examples:
-        >>> graph = parse_step_graph({"schema_version": 2, "steps": {
-        ...     "pre": {"scope": "dataset", "command": "pre"},
-        ...     "fit": {"scope": "task", "needs": ["pre"], "command": "fit"},
-        ...     "pred": {"scope": "task", "needs": ["fit"], "predict": True, "command": "pred"},
-        ... }})
-        >>> def names(**kwargs):
-        ...     return [step.name for step in select_steps(graph, **kwargs)]
-        >>> names(dataset_type="unsupervised", mode="train")
-        ['pre']
-        >>> names(dataset_type="supervised", mode="predict")
-        ['pre', 'fit', 'pred']
-        >>> names(dataset_type="full", mode="full")
-        ['pre', 'fit', 'pred']
-        >>> names(steps=["fit"])
-        ['pre', 'fit']
-        >>> names(steps=["pred"], provided=["fit"])
-        ['fit', 'pred']
-        >>> names(dataset_type="unsupervised", mode="predict")
-        Traceback (most recent call last):
-            ...
-        RuntimeError: Model has no steps for dataset_type=unsupervised and mode=predict.
-        >>> names(dataset_type="supervised", mode="prediction")
-        Traceback (most recent call last):
-            ...
-        ValueError: Invalid mode 'prediction'; expected one of ['train', 'predict', 'full'].
-    """
-    if steps:
-        return graph.closure(list(steps), provided)
-
-    scopes_by_type = {
-        "unsupervised": {Scope.DATASET},
-        "supervised": {Scope.TASK},
-        "full": {Scope.DATASET, Scope.TASK},
-    }
-    if dataset_type not in scopes_by_type:
-        raise ValueError(f"Invalid dataset_type {dataset_type!r}; expected one of {list(scopes_by_type)}.")
-    mode_filters: dict[str, Callable[[Step], bool]] = {
-        "train": lambda step: not step.predict,
-        "predict": lambda step: step.predict,
-        "full": lambda step: True,
-    }
-    if mode not in mode_filters:
-        raise ValueError(f"Invalid mode {mode!r}; expected one of {list(mode_filters)}.")
-
-    names = [
-        step.name
-        for step in graph.steps
-        if step.scope in scopes_by_type[dataset_type] and mode_filters[mode](step)
-    ]
-    if not names:
-        raise RuntimeError(f"Model has no steps for dataset_type={dataset_type} and mode={mode}.")
-    return graph.closure(names, provided)
-
-
 @dataclass(frozen=True)
 class TaskInputs:
     """The task-specific inputs of a run."""
@@ -598,7 +494,7 @@ def plan_steps(
     `predict.<split>/` instead of its name. Each step receives `<run dir>/output/` as `{step_dir}`.
 
     Examples:
-        >>> graph = parse_step_graph({"schema_version": 2, "steps": {
+        >>> graph = parse_step_graph({"steps": {
         ...     "pre": {"scope": "dataset", "command": "pre {dataset_dir} {predicates_path} {step_dir}"},
         ...     "fit": {"scope": "task", "needs": ["pre"], "command": "fit {pre_dir} {labels_dir} {step_dir}"},
         ...     "pred": {"scope": "task", "needs": ["pre", "fit"], "predict": True,
@@ -795,7 +691,7 @@ def run_planned_steps(
 
     Examples:
         >>> import tempfile
-        >>> graph = parse_step_graph({"schema_version": 2, "steps": {
+        >>> graph = parse_step_graph({"steps": {
         ...     "pre": {"scope": "dataset", "command": "pre"},
         ...     "pred": {"scope": "task", "needs": ["pre"], "predict": True, "command": "pred"},
         ... }})
@@ -853,11 +749,9 @@ __all__ = [
     "Step",
     "StepGraph",
     "TaskInputs",
-    "load_step_graph",
     "parse_step_graph",
     "plan_steps",
     "resolve_overwrite",
     "run_planned_steps",
-    "select_steps",
     "step_lock",
 ]

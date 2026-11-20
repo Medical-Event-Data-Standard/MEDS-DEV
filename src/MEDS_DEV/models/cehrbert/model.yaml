@@ -1,4 +1,3 @@
-schema_version: 2
 metadata:
   description: >-
     The CEHR-BERT model. See the referenced paper for full details. This version of the CEHR-BERT model uses
