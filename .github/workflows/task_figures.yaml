@@ -1,0 +1,80 @@
+name: Task Figures Preview
+
+# On a PR that adds or changes a task, render the task figures with Taskviz so reviewers can see what the
+# task looks at, when it predicts, and what it predicts. The figures are uploaded as a run artifact, and the
+# windows and predicates tables of the changed tasks are written to the job summary. On merge,
+# regenerate_entities.yaml publishes the figures of every task to the _web branch.
+on:
+  pull_request:
+    paths:
+      - "src/MEDS_DEV/tasks/**"
+      - "src/MEDS_DEV/web/task_figures.py"
+      - "pyproject.toml"
+      - "uv.lock"
+      - ".github/workflows/task_figures.yaml"
+
+concurrency:
+  group: task-figures-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+
+      - name: Render task figures
+        run: |
+          uv run --locked --no-dev --group web --python 3.11 meds-dev-render-task-figures \
+            --repo_dir . \
+            --output_dir task_figures
+
+      - name: Upload task figures
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: task-figures
+          path: task_figures/
+          if-no-files-found: ignore
+
+      - name: Summarize changed tasks
+        if: ${{ !cancelled() }}
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          {
+            echo "## Task figures"
+            echo
+            echo "Download the \`task-figures\` artifact of this run for the SVG figures of every task."
+            echo
+          } >> "$GITHUB_STEP_SUMMARY"
+          git diff --name-only --diff-filter=AMR "$BASE_SHA"...HEAD -- src/MEDS_DEV/tasks/ | grep '\.yaml$' |
+            while read -r fp; do
+              name="${fp#src/MEDS_DEV/tasks/}"
+              name="${name%.yaml}"
+              {
+                echo "### \`${name}\`"
+                echo
+                if [[ -f "task_figures/${name}/windows.md" ]]; then
+                  echo "**Windows**"
+                  echo
+                  cat "task_figures/${name}/windows.md"
+                  echo
+                  echo "**Predicates**"
+                  echo
+                  cat "task_figures/${name}/predicates.md"
+                else
+                  echo "Taskviz could not render this task; see the step log."
+                fi
+                echo
+              } >> "$GITHUB_STEP_SUMMARY"
+            done
