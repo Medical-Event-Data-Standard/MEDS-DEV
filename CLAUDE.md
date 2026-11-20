@@ -195,17 +195,19 @@ models is filtered by compatibility.
 ### Adding a New Model
 
 1. Create `src/MEDS_DEV/models/<name>/` with: `model.yaml`, `requirements.txt`, `README.md`
-2. `model.yaml` must have `metadata` and `steps`. Each step has a `scope`
-    (`dataset`: task-independent, run once per dataset and shared by every task; `task`: run per
-    task), a `command`, and optional `needs` (earlier steps whose outputs it reads). Exactly one
-    task-scoped step sets `predict: true`. An optional `profile` adds checks. Zero-shot models use
-    dataset-scoped steps plus a predict step, with no task-scoped training step
+2. `model.yaml` must have `metadata`, a `profile` and `steps`: one shell command per step of the
+    profile. Profiles and step names are those of the `meds-algorithm` package (`PROFILE_STEPS` in
+    `src/MEDS_DEV/models/steps.py`), e.g. `finetune`: `preprocess_data`, `pretrain`,
+    `train_finetune`, `predict_finetune`. Every step of the profile is required except
+    `preprocess_data`. `preprocess_data` and `pretrain` are task-independent (run once per dataset and
+    shared by every task); the other steps run per task, and the last one is the predict step
 3. Commands use template variables: `{dataset_dir}`, `{model_dir}`, `{demo}`, `{step_dir}` (the
-    step's output directory), `{<step>_dir}` (the output of a step listed in `needs`), and
-    (optionally) `{predicates_path}` for models that need a predicates file (populated from the
-    `predicates_path` argument to `meds-dev-model`). Task-scoped steps can also use `{labels_dir}`
-    and `{task_criteria_path}` (the task's ACES criteria file: the `task_criteria_path` argument,
-    else the registered file of the task); the predict step can use `{split}`
+    step's output directory), `{<step>_dir}` (the output of an earlier step; using it makes the step
+    need that step), and (optionally) `{predicates_path}` for models that need a predicates file
+    (populated from the `predicates_path` argument to `meds-dev-model`). Task-scoped steps can also
+    use `{labels_dir}` and `{task_criteria_path}` (the task's ACES criteria file: the
+    `task_criteria_path` argument, else the registered file of the task); the predict step can use
+    `{split}`
 4. The predict step must write parquet files compatible with `meds-evaluation` to its `{step_dir}`
 5. The recommended way to create a new model is the
     [MEDS algorithm template](https://github.com/McDermottHealthAI/MEDS_algorithm_template), which
@@ -221,7 +223,7 @@ models is filtered by compatibility.
 
 - Task configs: predicates that vary per-dataset use `???` (Hydra missing marker)
 - Dataset predicates: use `code: { regex: "^PATTERN//.*" }` syntax
-- Model commands: use `|-` for multi-line shell scripts, `>-` for single commands
+- Model step commands: use `|-` for multi-line shell scripts, `>-` for single commands
 
 ## Key Dependencies
 

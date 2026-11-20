@@ -1,36 +1,24 @@
-"""Explicit, scoped model steps: the `model.yaml` schema.
+"""Model steps: the `model.yaml` schema, and how its steps are laid out and run.
 
-A `model.yaml` lists the model's steps explicitly. Each step declares:
-
-- `scope`: `dataset` (task-independent; run once per dataset and shared by every task) or `task` (run once
-  per task);
-- `needs`: the earlier steps whose outputs it reads, made available as `{<step>_dir}` template variables;
-- `predict: true` on exactly one task-scoped step, whose output holds the predictions to evaluate;
-- `command`: the shell command to run.
-
-For example:
+A `model.yaml` names a `profile` and gives one shell command per step of that profile:
 
 ```yaml
 metadata: {...}
-profile: probe
+profile: finetune
 steps:
-  preprocess_data:
-    scope: dataset
-    command: my-model preprocess input={dataset_dir} output={step_dir}
-  pretrain:
-    scope: dataset
-    needs: [preprocess_data]
-    command: my-model pretrain data={preprocess_data_dir} output={step_dir}
-  train_probe:
-    scope: task
-    needs: [preprocess_data, pretrain]
-    command: my-model train encoder={pretrain_dir} labels={labels_dir} output={step_dir}
-  predict_probe:
-    scope: task
-    needs: [preprocess_data, pretrain, train_probe]
-    predict: true
-    command: my-model predict ... split={split} output={step_dir}
+  preprocess_data: my-model preprocess_data input={dataset_dir} output={step_dir}
+  pretrain: my-model pretrain data={preprocess_data_dir} output={step_dir}
+  train_finetune: my-model train_finetune encoder={pretrain_dir} labels={labels_dir} output={step_dir}
+  predict_finetune: my-model predict_finetune model={train_finetune_dir} split={split} output={step_dir}
 ```
+
+The profiles and their steps are those of the `meds-algorithm` package (see `PROFILE_STEPS`), so everything
+else about a step follows from its name:
+
+- its scope: `preprocess_data` and `pretrain` are task-independent, so they run once per dataset and are
+  shared by every task; the other steps run once per task;
+- its order, and which step holds the predictions to evaluate (the last one);
+- the earlier steps it needs: those whose output directory (`{<step>_dir}`) its command uses.
 
 The earlier format (a `commands` block with `unsupervised`/`supervised` x `train`/`predict` slots) is no
 longer supported; `parse_step_graph` rejects it with a pointer to the README.
@@ -54,6 +42,26 @@ import meds
 
 logger = logging.getLogger(__name__)
 
+#: The steps of each profile, in order. The last step of a profile is its predict step. This mirrors the
+#: profile classes of `meds_algorithm.algorithms`, which are the authority for these lifecycles.
+PROFILE_STEPS: dict[str, tuple[str, ...]] = {
+    "supervised": ("preprocess_data", "train_supervised", "predict_supervised"),
+    "finetune": ("preprocess_data", "pretrain", "train_finetune", "predict_finetune"),
+    "probe": ("preprocess_data", "pretrain", "infer_embeddings", "train_probe", "predict_probe"),
+    "zero_shot_direct": ("preprocess_data", "pretrain", "predict_zero_shot_direct"),
+    "zero_shot_materialized": (
+        "preprocess_data",
+        "pretrain",
+        "infer_trajectories",
+        "predict_zero_shot_materialized",
+    ),
+    "predict_only": ("preprocess_data", "predict_only"),
+}
+#: The task-independent steps: they receive no labels, run once per dataset and are shared by every task.
+DATASET_STEPS = frozenset({"preprocess_data", "pretrain"})
+#: A model without task-independent preprocessing may leave this step out. Every other step is required.
+OPTIONAL_STEPS = frozenset({"preprocess_data"})
+
 #: Directory (under `<output_dir>/<dataset_name>/`) holding the dataset-scoped steps shared by all tasks.
 SHARED_DIR_NAME = "_shared"
 #: Directory (under a task's directory) holding the predict step's output for the held-out split.
@@ -61,11 +69,6 @@ PREDICT_DIR_NAME = "predict"
 #: Subdirectory of a step's run directory that is passed to the step as `{step_dir}`. The run directory
 #: itself holds MEDS-DEV's own files (`cmd.sh`, `.done`), so they never mix with the step's artifacts.
 STEP_OUTPUT_SUBDIR = "output"
-
-STEP_NAME_RE = re.compile(r"^[a-z][a-z0-9_]*$")
-#: Step names that would make `{<name>_dir}` collide with another template variable.
-RESERVED_STEP_NAMES = frozenset({"dataset", "model", "labels", "step"})
-STEP_KEYS = frozenset({"scope", "needs", "predict", "command"})
 
 COMMON_VARIABLES = frozenset({"dataset_dir", "model_dir", "demo", "predicates_path", "step_dir"})
 TASK_VARIABLES = frozenset({"labels_dir", "task_criteria_path"})
@@ -82,20 +85,6 @@ class Scope(StrEnum):
 
     DATASET = "dataset"
     TASK = "task"
-
-
-class Profile(StrEnum):
-    """Optional model profiles, matching the MEDS algorithm template.
-
-    Setting one enables extra checks.
-    """
-
-    SUPERVISED = "supervised"
-    FINETUNE = "finetune"
-    PROBE = "probe"
-    ZERO_SHOT_DIRECT = "zero_shot_direct"
-    ZERO_SHOT_MATERIALIZED = "zero_shot_materialized"
-    PREDICT_ONLY = "predict_only"
 
 
 class Overwrite(StrEnum):
@@ -149,13 +138,12 @@ def command_variables(command: str) -> set[str]:
 class Step:
     """One step of a model.
 
-    Examples:
-        >>> step = Step("pretrain", Scope.DATASET, "pretrain {preprocess_data_dir} {step_dir}",
-        ...             needs=("preprocess_data",))
-        >>> sorted(step.variables)
-        ['preprocess_data_dir', 'step_dir']
-        >>> sorted(step.allowed_variables)
-        ['dataset_dir', 'demo', 'model_dir', 'predicates_path', 'preprocess_data_dir', 'step_dir']
+    Args:
+        name: The step's name, one of its profile's steps.
+        scope: Whether it runs once per dataset or once per task.
+        command: The shell command, with template variables.
+        needs: The earlier steps whose output directories the command uses.
+        predict: Whether its output holds the predictions to evaluate.
     """
 
     name: str
@@ -168,62 +156,49 @@ class Step:
     def variables(self) -> set[str]:
         return command_variables(self.command)
 
-    @property
-    def allowed_variables(self) -> set[str]:
-        allowed = set(COMMON_VARIABLES) | {f"{need}_dir" for need in self.needs}
-        if self.scope == Scope.TASK:
-            allowed |= TASK_VARIABLES
-        if self.predict:
-            allowed |= PREDICT_VARIABLES
-        return allowed
-
 
 @dataclass(frozen=True)
 class StepGraph:
-    """The steps of a model, in declaration order (which is always a valid execution order).
+    """The steps of a model, in the order of its profile (which is always a valid execution order).
 
     Examples:
-        >>> graph = parse_step_graph({
-        ...     "steps": {
-        ...         "pre": {"scope": "dataset", "command": "pre {dataset_dir} {step_dir}"},
-        ...         "fit": {
-        ...             "scope": "task", "needs": ["pre"], "command": "fit {pre_dir} {labels_dir} {step_dir}",
-        ...         },
-        ...         "pred": {
-        ...             "scope": "task", "needs": ["pre", "fit"], "predict": True,
-        ...             "command": "pred {pre_dir} {fit_dir} {labels_dir} {split} {step_dir}",
-        ...         },
-        ...     },
-        ... })
-        >>> [s.name for s in graph.steps]
-        ['pre', 'fit', 'pred']
+        >>> graph = parse_step_graph({"profile": "supervised", "steps": {
+        ...     "preprocess_data": "pre {dataset_dir} {step_dir}",
+        ...     "train_supervised": "fit {preprocess_data_dir} {labels_dir} {step_dir}",
+        ...     "predict_supervised": "pred {train_supervised_dir} {labels_dir} {split} {step_dir}",
+        ... }})
+        >>> [(s.name, s.scope.value, s.needs) for s in graph.steps]
+        [('preprocess_data', 'dataset', ()),
+         ('train_supervised', 'task', ('preprocess_data',)),
+         ('predict_supervised', 'task', ('train_supervised',))]
         >>> graph.predict_step.name
-        'pred'
-        >>> [s.name for s in graph.closure(["fit"])]
-        ['pre', 'fit']
-        >>> [s.name for s in graph.closure(["fit"], provided={"fit"})]
-        ['fit']
+        'predict_supervised'
+        >>> [s.name for s in graph.closure(["train_supervised"])]
+        ['preprocess_data', 'train_supervised']
+        >>> [s.name for s in graph.closure(["predict_supervised"], provided={"train_supervised"})]
+        ['train_supervised', 'predict_supervised']
         >>> [s.name for s in graph.closure()]
-        ['pre', 'fit', 'pred']
-        >>> graph.closure(["nope"])
+        ['preprocess_data', 'train_supervised', 'predict_supervised']
+        >>> graph.closure(["fit"])
         Traceback (most recent call last):
             ...
-        ValueError: Unknown step(s) ['nope']. Available steps: ['pre', 'fit', 'pred']
+        ValueError: Unknown step(s) ['fit']. Available steps: ['preprocess_data', 'train_supervised',
+        'predict_supervised']
     """
 
     steps: tuple[Step, ...]
-    profile: Profile | None = None
+    profile: str
 
     @property
     def by_name(self) -> dict[str, Step]:
         return {step.name: step for step in self.steps}
 
     @property
-    def predict_step(self) -> Step | None:
-        return next((step for step in self.steps if step.predict), None)
+    def predict_step(self) -> Step:
+        return self.steps[-1]
 
     def closure(self, names: Sequence[str] | None = None, provided: Collection[str] = ()) -> list[Step]:
-        """Returns the named steps (default: all) and every step they need, in declaration order.
+        """Returns the named steps (default: all) and every step they need, in order.
 
         The needs of `provided` steps (whose outputs already exist, e.g., through `step_dirs`) are not
         followed.
@@ -248,171 +223,100 @@ class StepGraph:
 
 
 def parse_step_graph(spec: Mapping[str, Any]) -> StepGraph:
-    """Parses and validates the `steps` (and optional `profile`) of a `model.yaml`.
+    """Parses and validates the `profile` and `steps` of a `model.yaml`.
 
     Examples:
-        >>> def check(steps, profile=None):
-        ...     spec = {"steps": steps}
-        ...     if profile:
-        ...         spec["profile"] = profile
+        >>> def check(profile, steps):
         ...     try:
-        ...         parse_step_graph(spec)
+        ...         parse_step_graph({"profile": profile, "steps": steps})
         ...     except ValueError as e:
         ...         print(e)
-        >>> pred = {"scope": "task", "predict": True, "command": "p {labels_dir} {split} {step_dir}"}
-        >>> check({"pred": pred})
-        >>> check({})
+        >>> check("predict_only", {"predict_only": "p {labels_dir} {split} {step_dir}"})
+
+    The steps are those of the profile: no others, and none missing except `preprocess_data`.
+        >>> check("few_shot", {"predict_only": "p"})
+        A model.yaml needs a `profile`, one of ['supervised', 'finetune', 'probe', 'zero_shot_direct',
+        'zero_shot_materialized', 'predict_only']; got 'few_shot'.
+        >>> check("supervised", {})
         A model.yaml needs a non-empty `steps` mapping.
+        >>> check("supervised", {"fit": "f", "predict_supervised": "p"})
+        Step(s) ['fit'] are not part of profile 'supervised', whose steps are ['preprocess_data',
+        'train_supervised', 'predict_supervised'].
+        >>> check("finetune", {"pretrain": "p", "predict_finetune": "p"})
+        Profile 'finetune' also needs step(s) ['train_finetune'].
+        >>> check("predict_only", {"predict_only": "  "})
+        Step 'predict_only' needs a non-empty command string.
+
+    A command can only use the variables of its step: the output of an earlier step, the task's inputs in
+    task-scoped steps, and the split in the predict step.
+        >>> check("finetune", {"pretrain": "p {labels_dir}", "train_finetune": "t", "predict_finetune": "p"})
+        Step 'pretrain' uses undefined template variable(s) ['labels_dir'].
+        >>> check("supervised", {"train_supervised": "t {predict_supervised_dir}", "predict_supervised": "p"})
+        Step 'train_supervised' uses undefined template variable(s) ['predict_supervised_dir'].
+        >>> check("supervised", {"train_supervised": "t {split}", "predict_supervised": "p"})
+        Step 'train_supervised' uses undefined template variable(s) ['split'].
+
+    Zero-shot models predict a task from its definition:
+        >>> check("zero_shot_direct", {"pretrain": "p", "predict_zero_shot_direct": "p {pretrain_dir}"})
+        Profile 'zero_shot_direct' needs its predict step to use {task_criteria_path}.
+
+    The earlier format is rejected:
         >>> parse_step_graph({"commands": {"supervised": {"predict": "p {output_dir}"}}})
         Traceback (most recent call last):
             ...
         ValueError: A model.yaml lists `steps`; the `commands` block is no longer supported. See "Adding a
         model" in the README to migrate.
-        >>> check({"Pred": pred})
-        Invalid step name 'Pred': use lowercase letters, digits and underscores, starting with a letter.
-        >>> check({"labels": pred})
-        Step name 'labels' is reserved.
-        >>> check({"x": {"scope": "global", "command": "x"}, "pred": pred})
-        Step 'x' has invalid scope 'global'; expected one of ['dataset', 'task'].
-        >>> check({"x": {"scope": "task", "cmd": "x"}, "pred": pred})
-        Step 'x' has unknown key(s) ['cmd']; allowed keys are ['command', 'needs', 'predict', 'scope'].
-        >>> check({"pred": {**pred, "needs": ["later"]}, "later": {"scope": "dataset", "command": "x"}})
-        Step 'pred' needs 'later', which is not declared before it.
-        >>> check({"t": {"scope": "task", "command": "t"}, "d": {"scope": "dataset", "needs": ["t"], "command": "d"},
-        ...        "pred": pred})
-        Dataset-scoped step 'd' cannot need task-scoped step 't'.
-        >>> check({"x": {"scope": "task", "command": "x {step_dir}"}})
-        Exactly one step must set `predict: true`; found 0.
-        >>> check({"pred": {**pred, "scope": "dataset"}})
-        The predict step 'pred' must be task-scoped.
-        >>> check({"predict": {"scope": "task", "command": "x"}, "pred": pred})
-        Step name 'predict' is reserved for the directory of the predict step.
-        >>> check({"d": {"scope": "dataset", "command": "d {labels_dir}"}, "pred": pred})
-        Step 'd' uses undefined template variable(s) ['labels_dir'].
-        >>> check({"d": {"scope": "dataset", "command": "d {step_dir}"},
-        ...        "pred": {**pred, "command": "p {d_dir} {split}"}})
-        Step 'pred' uses undefined template variable(s) ['d_dir'].
-
-    Profiles add checks on the shape of the graph:
-        >>> check({"pred": pred}, profile="probe")
-        Profile 'probe' needs at least one dataset-scoped (pre-training) step.
-        >>> check({"d": {"scope": "dataset", "command": "d"}, "t": {"scope": "task", "command": "t"}, "pred": pred},
-        ...       profile="zero_shot_direct")
-        Profile 'zero_shot_direct' must not have task-scoped steps other than its predict step; found ['t'].
-        >>> check({"d": {"scope": "dataset", "command": "d"}, "pred": pred}, profile="zero_shot_direct")
-        Profile 'zero_shot_direct' needs its predict step to use {task_criteria_path}.
-        >>> check({"pred": pred}, profile="few_shot")
-        Unknown profile 'few_shot'; expected one of ['supervised', 'finetune', 'probe', 'zero_shot_direct', 'zero_shot_materialized', 'predict_only'].
-    """  # noqa: E501
+    """
     if "commands" in spec:
         raise ValueError(
             'A model.yaml lists `steps`; the `commands` block is no longer supported. See "Adding a '
             'model" in the README to migrate.'
         )
-    raw_steps = spec.get("steps")
-    if not isinstance(raw_steps, Mapping) or not raw_steps:
-        raise ValueError("A model.yaml needs a non-empty `steps` mapping.")
-
-    declared: dict[str, Step] = {}
-    for name, raw in raw_steps.items():
-        declared[name] = _parse_step(name, raw, declared)
-    steps = tuple(declared.values())
-
-    predict_steps = [step for step in steps if step.predict]
-    if len(predict_steps) != 1:
-        raise ValueError(f"Exactly one step must set `predict: true`; found {len(predict_steps)}.")
-    if predict_steps[0].scope != Scope.TASK:
-        raise ValueError(f"The predict step {predict_steps[0].name!r} must be task-scoped.")
-    if PREDICT_DIR_NAME in declared and not declared[PREDICT_DIR_NAME].predict:
-        raise ValueError(f"Step name {PREDICT_DIR_NAME!r} is reserved for the directory of the predict step.")
-
-    for step in steps:
-        undefined = sorted(step.variables - step.allowed_variables)
-        if undefined:
-            raise ValueError(f"Step {step.name!r} uses undefined template variable(s) {undefined}.")
-
     profile = spec.get("profile")
-    if profile is not None and profile not in set(Profile):
-        raise ValueError(f"Unknown profile {profile!r}; expected one of {[p.value for p in Profile]}.")
+    if profile not in PROFILE_STEPS:
+        raise ValueError(f"A model.yaml needs a `profile`, one of {list(PROFILE_STEPS)}; got {profile!r}.")
+    lifecycle = PROFILE_STEPS[profile]
 
-    graph = StepGraph(steps=steps, profile=Profile(profile) if profile else None)
-    _validate_profile(graph)
-    return graph
-
-
-def _parse_step(name: Any, raw: Any, declared: Mapping[str, Step]) -> Step:
-    """Parses one entry of `steps`, given the steps `declared` before it."""
-    if not isinstance(name, str) or not STEP_NAME_RE.match(name):
+    commands = spec.get("steps")
+    if not isinstance(commands, Mapping) or not commands:
+        raise ValueError("A model.yaml needs a non-empty `steps` mapping.")
+    unknown = [name for name in commands if name not in lifecycle]
+    if unknown:
         raise ValueError(
-            f"Invalid step name {name!r}: use lowercase letters, digits and underscores, starting with a "
-            "letter."
+            f"Step(s) {unknown} are not part of profile {profile!r}, whose steps are {list(lifecycle)}."
         )
-    if name in RESERVED_STEP_NAMES:
-        raise ValueError(f"Step name {name!r} is reserved.")
-    if not isinstance(raw, Mapping):
-        raise ValueError(f"Step {name!r} must be a mapping with `scope` and `command` keys.")
+    missing = [name for name in lifecycle if name not in commands and name not in OPTIONAL_STEPS]
+    if missing:
+        raise ValueError(f"Profile {profile!r} also needs step(s) {missing}.")
 
-    unknown_keys = sorted(set(raw) - STEP_KEYS)
-    if unknown_keys:
-        raise ValueError(
-            f"Step {name!r} has unknown key(s) {unknown_keys}; allowed keys are {sorted(STEP_KEYS)}."
-        )
+    steps: list[Step] = []
+    for name in lifecycle:
+        if name not in commands:
+            continue
+        command = commands[name]
+        if not isinstance(command, str) or not command.strip():
+            raise ValueError(f"Step {name!r} needs a non-empty command string.")
 
-    scope = raw.get("scope")
-    if scope not in set(Scope):
-        raise ValueError(
-            f"Step {name!r} has invalid scope {scope!r}; expected one of {[s.value for s in Scope]}."
-        )
+        scope = Scope.DATASET if name in DATASET_STEPS else Scope.TASK
+        predict = name == lifecycle[-1]
+        variables = command_variables(command)
+        needs = tuple(earlier.name for earlier in steps if f"{earlier.name}_dir" in variables)
 
-    command = raw.get("command")
-    if not isinstance(command, str) or not command.strip():
-        raise ValueError(f"Step {name!r} needs a non-empty `command` string.")
+        allowed = COMMON_VARIABLES | {f"{need}_dir" for need in needs}
+        if scope == Scope.TASK:
+            allowed |= TASK_VARIABLES
+        if predict:
+            allowed |= PREDICT_VARIABLES
+        undefined = sorted(variables - allowed)
+        if undefined:
+            raise ValueError(f"Step {name!r} uses undefined template variable(s) {undefined}.")
 
-    needs = raw.get("needs") or []
-    if isinstance(needs, str) or not isinstance(needs, Sequence):
-        raise ValueError(f"Step {name!r} has invalid `needs`; expected a list of step names.")
-    for need in needs:
-        if need not in declared:
-            raise ValueError(f"Step {name!r} needs {need!r}, which is not declared before it.")
-        if scope == Scope.DATASET and declared[need].scope == Scope.TASK:
-            raise ValueError(f"Dataset-scoped step {name!r} cannot need task-scoped step {need!r}.")
-    if len(set(needs)) != len(needs):
-        raise ValueError(f"Step {name!r} lists a step more than once in `needs`.")
+        steps.append(Step(name=name, scope=scope, command=command, needs=needs, predict=predict))
 
-    predict = raw.get("predict", False)
-    if not isinstance(predict, bool):
-        raise ValueError(f"Step {name!r} has invalid `predict`; expected true or false.")
+    if profile.startswith("zero_shot_") and "task_criteria_path" not in steps[-1].variables:
+        raise ValueError(f"Profile {profile!r} needs its predict step to use {{task_criteria_path}}.")
 
-    return Step(name=name, scope=Scope(scope), command=command, needs=tuple(needs), predict=predict)
-
-
-def _validate_profile(graph: StepGraph) -> None:
-    profile = graph.profile
-    if profile is None:
-        return
-
-    dataset_steps = [step.name for step in graph.steps if step.scope == Scope.DATASET]
-    task_fit_steps = [step.name for step in graph.steps if step.scope == Scope.TASK and not step.predict]
-    predict_step = graph.predict_step
-
-    def require(condition: bool, message: str) -> None:
-        if not condition:
-            raise ValueError(f"Profile {profile.value!r} {message}")
-
-    if profile in (Profile.FINETUNE, Profile.PROBE, Profile.ZERO_SHOT_DIRECT, Profile.ZERO_SHOT_MATERIALIZED):
-        require(bool(dataset_steps), "needs at least one dataset-scoped (pre-training) step.")
-    if profile in (Profile.SUPERVISED, Profile.FINETUNE, Profile.PROBE):
-        require(bool(task_fit_steps), "needs at least one task-scoped training step before its predict step.")
-    if profile in (Profile.ZERO_SHOT_DIRECT, Profile.PREDICT_ONLY):
-        require(
-            not task_fit_steps,
-            f"must not have task-scoped steps other than its predict step; found {task_fit_steps}.",
-        )
-    if profile in (Profile.ZERO_SHOT_DIRECT, Profile.ZERO_SHOT_MATERIALIZED):
-        require(
-            "task_criteria_path" in predict_step.variables,
-            "needs its predict step to use {task_criteria_path}.",
-        )
+    return StepGraph(steps=tuple(steps), profile=profile)
 
 
 @dataclass(frozen=True)
@@ -494,58 +398,61 @@ def plan_steps(
     `predict.<split>/` instead of its name. Each step receives `<run dir>/output/` as `{step_dir}`.
 
     Examples:
-        >>> graph = parse_step_graph({"steps": {
-        ...     "pre": {"scope": "dataset", "command": "pre {dataset_dir} {predicates_path} {step_dir}"},
-        ...     "fit": {"scope": "task", "needs": ["pre"], "command": "fit {pre_dir} {labels_dir} {step_dir}"},
-        ...     "pred": {"scope": "task", "needs": ["pre", "fit"], "predict": True,
-        ...              "command": "pred {fit_dir} {task_criteria_path} {split} {step_dir}"},
+        >>> graph = parse_step_graph({"profile": "supervised", "steps": {
+        ...     "preprocess_data": "pre {dataset_dir} {predicates_path} {step_dir}",
+        ...     "train_supervised": "fit {preprocess_data_dir} {labels_dir} {step_dir}",
+        ...     "predict_supervised": "pred {train_supervised_dir} {task_criteria_path} {split} {step_dir}",
         ... }})
         >>> plan = plan_steps(
-        ...     graph, graph.steps, output_dir="/runs", dataset_name="MIMIC", dataset_dir="/data",
+        ...     graph, graph.steps, output_dir="/runs", dataset_name="D", dataset_dir="/data",
         ...     model_dir="/m", predicates_path="/p.yaml",
         ...     tasks=[TaskInputs("t1", "/labels/t1", "/c/t1.yaml"), TaskInputs("t2", "/labels/t2", "/c/t2.yaml")],
         ... )
         >>> for p in plan:
         ...     print(p.task_name, p.run_dir.as_posix(), "|", p.command)
-        None /runs/MIMIC/_shared/pre | pre /data /p.yaml /runs/MIMIC/_shared/pre/output
-        t1 /runs/MIMIC/t1/fit | fit /runs/MIMIC/_shared/pre/output /labels/t1 /runs/MIMIC/t1/fit/output
-        t1 /runs/MIMIC/t1/predict | pred /runs/MIMIC/t1/fit/output /c/t1.yaml held_out /runs/MIMIC/t1/predict/output
-        t2 /runs/MIMIC/t2/fit | fit /runs/MIMIC/_shared/pre/output /labels/t2 /runs/MIMIC/t2/fit/output
-        t2 /runs/MIMIC/t2/predict | pred /runs/MIMIC/t2/fit/output /c/t2.yaml held_out /runs/MIMIC/t2/predict/output
+        None /runs/D/_shared/preprocess_data | pre /data /p.yaml /runs/D/_shared/preprocess_data/output
+        t1 /runs/D/t1/train_supervised | fit /runs/D/_shared/preprocess_data/output /labels/t1 /runs/D/t1/train_supervised/output
+        t1 /runs/D/t1/predict | pred /runs/D/t1/train_supervised/output /c/t1.yaml held_out /runs/D/t1/predict/output
+        t2 /runs/D/t2/train_supervised | fit /runs/D/_shared/preprocess_data/output /labels/t2 /runs/D/t2/train_supervised/output
+        t2 /runs/D/t2/predict | pred /runs/D/t2/train_supervised/output /c/t2.yaml held_out /runs/D/t2/predict/output
 
     Outputs of earlier runs can be reused through `step_dirs` (those steps are not run) or `shared_root`:
         >>> plan = plan_steps(
-        ...     graph, graph.steps, output_dir="/runs", dataset_name="MIMIC", dataset_dir="/data",
+        ...     graph, graph.steps, output_dir="/runs", dataset_name="D", dataset_dir="/data",
         ...     model_dir="/m", predicates_path="/p.yaml", tasks=[TaskInputs("t1", "/l", "/c.yaml")],
-        ...     split="tuning", step_dirs={"pre": "/old/pre"},
+        ...     split="tuning", step_dirs={"preprocess_data": "/old/pre"},
         ... )
         >>> [(p.step.name, p.external, p.run_dir and p.run_dir.as_posix()) for p in plan]
-        [('pre', True, None), ('fit', False, '/runs/MIMIC/t1/fit'), ('pred', False, '/runs/MIMIC/t1/predict.tuning')]
+        [('preprocess_data', True, None),
+         ('train_supervised', False, '/runs/D/t1/train_supervised'),
+         ('predict_supervised', False, '/runs/D/t1/predict.tuning')]
         >>> plan[1].command
-        'fit /old/pre /l /runs/MIMIC/t1/fit/output'
+        'fit /old/pre /l /runs/D/t1/train_supervised/output'
 
     Missing inputs fail before anything runs:
-        >>> plan_steps(graph, graph.steps, output_dir="/runs", dataset_name="MIMIC", dataset_dir="/data",
+        >>> plan_steps(graph, graph.steps, output_dir="/runs", dataset_name="D", dataset_dir="/data",
         ...            model_dir="/m", tasks=[TaskInputs("t1", "/l", "/c.yaml")])
         Traceback (most recent call last):
             ...
-        ValueError: Step 'pre' uses {predicates_path}, which is not set for this run. Set the corresponding
-        meds-dev-model argument (e.g., predicates_path, task_name, labels_dir).
-        >>> plan_steps(graph, graph.steps, output_dir="/runs", dataset_name="MIMIC", dataset_dir="/data",
+        ValueError: Step 'preprocess_data' uses {predicates_path}, which is not set for this run. Set the
+        corresponding meds-dev-model argument (e.g., predicates_path, task_name, labels_dir).
+        >>> plan_steps(graph, graph.steps, output_dir="/runs", dataset_name="D", dataset_dir="/data",
         ...            model_dir="/m", predicates_path="/p.yaml")
         Traceback (most recent call last):
             ...
-        ValueError: This run includes task-scoped steps ['fit', 'pred'], so task_name (or tasks) must be set.
+        ValueError: This run includes task-scoped steps ['train_supervised', 'predict_supervised'], so
+        task_name (or tasks) must be set.
         >>> plan_steps(graph, graph.steps, output_dir="/runs", dataset_name=None, dataset_dir="/data",
         ...            model_dir="/m")
         Traceback (most recent call last):
             ...
         ValueError: dataset_name must be set to run a model.
-        >>> plan_steps(graph, graph.steps, output_dir="/runs", dataset_name="MIMIC", dataset_dir="/data",
+        >>> plan_steps(graph, graph.steps, output_dir="/runs", dataset_name="D", dataset_dir="/data",
         ...            model_dir="/m", step_dirs={"nope": "/x"})
         Traceback (most recent call last):
             ...
-        ValueError: step_dirs names unknown step(s) ['nope']. Available steps: ['pre', 'fit', 'pred']
+        ValueError: step_dirs names unknown step(s) ['nope']. Available steps: ['preprocess_data',
+        'train_supervised', 'predict_supervised']
     """  # noqa: E501
     if not dataset_name:
         raise ValueError("dataset_name must be set to run a model.")
@@ -691,9 +598,8 @@ def run_planned_steps(
 
     Examples:
         >>> import tempfile
-        >>> graph = parse_step_graph({"steps": {
-        ...     "pre": {"scope": "dataset", "command": "pre"},
-        ...     "pred": {"scope": "task", "needs": ["pre"], "predict": True, "command": "pred"},
+        >>> graph = parse_step_graph({"profile": "predict_only", "steps": {
+        ...     "preprocess_data": "pre", "predict_only": "pred",
         ... }})
         >>> def fake_runner(command, run_dir, env=None):
         ...     if (run_dir / ".done").exists():
@@ -742,9 +648,9 @@ def run_planned_steps(
 
 
 __all__ = [
+    "PROFILE_STEPS",
     "Overwrite",
     "PlannedStep",
-    "Profile",
     "Scope",
     "Step",
     "StepGraph",

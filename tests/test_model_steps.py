@@ -5,7 +5,6 @@
 from pathlib import Path
 
 import pytest
-import yaml
 from omegaconf import OmegaConf
 
 from MEDS_DEV import MODELS, TASKS
@@ -13,8 +12,8 @@ from MEDS_DEV.models import CFG_YAML, load_model_yaml
 from MEDS_DEV.models.__main__ import main as meds_dev_model_main
 from MEDS_DEV.models.__main__ import plan_from_cfg, task_inputs
 from MEDS_DEV.models.steps import (
+    PROFILE_STEPS,
     Overwrite,
-    Profile,
     Scope,
     parse_step_graph,
     run_planned_steps,
@@ -24,35 +23,23 @@ from MEDS_DEV.utils import run_in_env
 
 
 def toy_graph(log_fp: Path):
-    """A small model whose steps append their name to `log_fp`, so tests can count executions."""
+    """A small `finetune` model whose steps append a word to `log_fp`, so tests can count executions."""
     return parse_step_graph(
         {
+            "profile": "finetune",
             "steps": {
-                "preprocess": {
-                    "scope": "dataset",
-                    "command": f"echo preprocess >> {log_fp} && echo data > {{step_dir}}/data.txt",
-                },
-                "pretrain": {
-                    "scope": "dataset",
-                    "needs": ["preprocess"],
-                    "command": (
-                        f"echo pretrain >> {log_fp} && cat {{preprocess_dir}}/data.txt > {{step_dir}}/weights.txt"
-                    ),
-                },
-                "fit": {
-                    "scope": "task",
-                    "needs": ["pretrain"],
-                    "command": f"echo fit >> {log_fp} && echo {{labels_dir}} > {{step_dir}}/head.txt",
-                },
-                "predict_task": {
-                    "scope": "task",
-                    "needs": ["pretrain", "fit"],
-                    "predict": True,
-                    "command": (
-                        f"echo predict >> {log_fp} && cat {{pretrain_dir}}/weights.txt {{fit_dir}}/head.txt "
-                        "> {step_dir}/predictions_{split}.txt"
-                    ),
-                },
+                "preprocess_data": f"echo preprocess >> {log_fp} && echo data > {{step_dir}}/data.txt",
+                "pretrain": (
+                    f"echo pretrain >> {log_fp} && cat {{preprocess_data_dir}}/data.txt > {{step_dir}}/weights.txt"
+                ),
+                "train_finetune": (
+                    f"echo fit >> {log_fp} && test -f {{pretrain_dir}}/weights.txt "
+                    "&& echo {labels_dir} > {step_dir}/head.txt"
+                ),
+                "predict_finetune": (
+                    f"echo predict >> {log_fp} && cat {{pretrain_dir}}/weights.txt {{train_finetune_dir}}/head.txt "
+                    "> {step_dir}/predictions_{split}.txt"
+                ),
             },
         }
     )
@@ -108,7 +95,7 @@ def test_tasks_list_runs_every_task_in_one_call(tmp_path: Path):
     run(make_cfg(tmp_path, tasks=["a/x", "b"], labels_root="/labels"), toy_graph(log_fp))
 
     assert executions(log_fp) == ["preprocess", "pretrain", "fit", "predict", "fit", "predict"]
-    head = tmp_path / "runs" / "DS" / "a" / "x" / "fit" / "output" / "head.txt"
+    head = tmp_path / "runs" / "DS" / "a" / "x" / "train_finetune" / "output" / "head.txt"
     assert Path(head.read_text().strip()).as_posix() == "/labels/a/x"
 
 
@@ -118,7 +105,7 @@ def test_shared_steps_are_reused_from_an_earlier_run(tmp_path: Path):
     graph = toy_graph(log_fp)
 
     pretrain_root = tmp_path / "pretrain_run"
-    run(make_cfg(tmp_path, steps=["preprocess", "pretrain"], output_dir=str(pretrain_root)), graph)
+    run(make_cfg(tmp_path, steps=["pretrain"], output_dir=str(pretrain_root)), graph)
     assert executions(log_fp) == ["preprocess", "pretrain"]
 
     run(
@@ -157,7 +144,7 @@ def test_steps_and_step_dirs(tmp_path: Path):
 
     cfg = make_cfg(
         tmp_path,
-        steps=["predict_task"],
+        steps=["predict_finetune"],
         task_name="t1",
         labels_dir="/labels/t1",
         split="tuning",
@@ -165,7 +152,7 @@ def test_steps_and_step_dirs(tmp_path: Path):
     )
     run(cfg, graph)
 
-    # preprocess is only needed by pretrain, whose output is provided, so it does not run.
+    # preprocess_data is only needed by pretrain, whose output is provided, so it does not run.
     assert executions(log_fp) == ["fit", "predict"]
     out = tmp_path / "runs" / "DS" / "t1" / "predict.tuning" / "output" / "predictions_tuning.txt"
     assert out.read_text().split() == ["external", "/labels/t1"]
@@ -196,71 +183,49 @@ def test_missing_task_fails_before_running(tmp_path: Path):
     assert not log_fp.exists()
 
 
-TEMPLATE_LIKE_MODELS = {
-    "probe": """
-profile: probe
-steps:
-  preprocess_data:
-    scope: dataset
-    command: m preprocess_data external_meds_dir={dataset_dir} external_predicates_file={predicates_path} output_data_dir={step_dir}
-  pretrain:
-    scope: dataset
-    needs: [preprocess_data]
-    command: m pretrain input_data_dir={preprocess_data_dir} output_pretrained_algorithm_dir={step_dir}
-  infer_embeddings:
-    scope: task
-    needs: [preprocess_data, pretrain]
-    command: m infer_embeddings input_data_dir={preprocess_data_dir} input_pretrained_algorithm_dir={pretrain_dir} external_index_dir={labels_dir} output_embeddings_dir={step_dir}
-  train_probe:
-    scope: task
-    needs: [infer_embeddings]
-    command: m train_probe external_labels_dir={labels_dir} input_embeddings_dir={infer_embeddings_dir} output_probe_algorithm_dir={step_dir}
-  predict_probe:
-    scope: task
-    needs: [infer_embeddings, train_probe]
-    predict: true
-    command: m predict_probe input_embeddings_dir={infer_embeddings_dir} input_probe_algorithm_dir={train_probe_dir} external_index_dir={labels_dir} splits=[{split}] output_predictions_dir={step_dir}
-""",
-    "zero_shot_direct": """
-profile: zero_shot_direct
-steps:
-  preprocess_data:
-    scope: dataset
-    command: m preprocess_data external_meds_dir={dataset_dir} output_data_dir={step_dir}
-  pretrain:
-    scope: dataset
-    needs: [preprocess_data]
-    command: m pretrain input_data_dir={preprocess_data_dir} output_pretrained_algorithm_dir={step_dir}
-  predict_zero_shot_direct:
-    scope: task
-    needs: [preprocess_data, pretrain]
-    predict: true
-    command: m predict input_data_dir={preprocess_data_dir} input_pretrained_algorithm_dir={pretrain_dir} external_index_dir={labels_dir} external_task_criteria_file={task_criteria_path} splits=[{split}] output_predictions_dir={step_dir}
-""",
-    "supervised": """
-profile: supervised
-steps:
-  preprocess_data:
-    scope: dataset
-    command: m preprocess_data external_meds_dir={dataset_dir} output_data_dir={step_dir}
-  train_supervised:
-    scope: task
-    needs: [preprocess_data]
-    command: m train_supervised input_data_dir={preprocess_data_dir} external_labels_dir={labels_dir} output_supervised_algorithm_dir={step_dir}
-  predict_supervised:
-    scope: task
-    needs: [preprocess_data, train_supervised]
-    predict: true
-    command: m predict_supervised input_data_dir={preprocess_data_dir} input_supervised_algorithm_dir={train_supervised_dir} external_index_dir={labels_dir} splits=[{split}] output_predictions_dir={step_dir}
-""",
+TEMPLATE_COMMANDS = {
+    "preprocess_data": "m preprocess_data external_meds_dir={dataset_dir} external_predicates_file={predicates_path} output_data_dir={step_dir}",
+    "pretrain": "m pretrain input_data_dir={preprocess_data_dir} output_pretrained_algorithm_dir={step_dir}",
+    "train_supervised": "m train_supervised input_data_dir={preprocess_data_dir} external_labels_dir={labels_dir} output_supervised_algorithm_dir={step_dir}",
+    "predict_supervised": "m predict_supervised input_data_dir={preprocess_data_dir} input_supervised_algorithm_dir={train_supervised_dir} external_index_dir={labels_dir} splits=[{split}] output_predictions_dir={step_dir}",
+    "train_finetune": "m train_finetune input_data_dir={preprocess_data_dir} input_pretrained_algorithm_dir={pretrain_dir} external_labels_dir={labels_dir} output_finetuned_algorithm_dir={step_dir}",
+    "predict_finetune": "m predict_finetune input_data_dir={preprocess_data_dir} input_finetuned_algorithm_dir={train_finetune_dir} external_index_dir={labels_dir} splits=[{split}] output_predictions_dir={step_dir}",
+    "infer_embeddings": "m infer_embeddings input_data_dir={preprocess_data_dir} input_pretrained_algorithm_dir={pretrain_dir} external_index_dir={labels_dir} output_embeddings_dir={step_dir}",
+    "train_probe": "m train_probe external_labels_dir={labels_dir} input_embeddings_dir={infer_embeddings_dir} output_probe_algorithm_dir={step_dir}",
+    "predict_probe": "m predict_probe input_embeddings_dir={infer_embeddings_dir} input_probe_algorithm_dir={train_probe_dir} external_index_dir={labels_dir} splits=[{split}] output_predictions_dir={step_dir}",
+    "predict_zero_shot_direct": "m predict_zero_shot_direct input_data_dir={preprocess_data_dir} input_pretrained_algorithm_dir={pretrain_dir} external_index_dir={labels_dir} external_task_criteria_file={task_criteria_path} splits=[{split}] output_predictions_dir={step_dir}",
+    "infer_trajectories": "m infer_trajectories input_data_dir={preprocess_data_dir} input_pretrained_algorithm_dir={pretrain_dir} external_index_dir={labels_dir} output_trajectories_dir={step_dir}",
+    "predict_zero_shot_materialized": "m predict_zero_shot_materialized input_data_dir={preprocess_data_dir} input_trajectories_dir={infer_trajectories_dir} external_index_dir={labels_dir} external_task_criteria_file={task_criteria_path} splits=[{split}] output_predictions_dir={step_dir}",
+    "predict_only": "m predict_only input_data_dir={preprocess_data_dir} external_index_dir={labels_dir} splits=[{split}] output_predictions_dir={step_dir}",
 }
 
 
-@pytest.mark.parametrize("profile", sorted(TEMPLATE_LIKE_MODELS))
-def test_template_like_models_validate(profile: str):
-    graph = parse_step_graph(yaml.safe_load(TEMPLATE_LIKE_MODELS[profile]))
-    assert graph.profile == Profile(profile)
-    assert graph.steps[0].scope == Scope.DATASET
+@pytest.mark.parametrize("profile", sorted(PROFILE_STEPS))
+def test_every_profile_parses_with_its_template_commands(profile: str):
+    """Each profile of the MEDS algorithm template is a valid model, with scopes and needs derived."""
+    lifecycle = PROFILE_STEPS[profile]
+    graph = parse_step_graph(
+        {"profile": profile, "steps": {name: TEMPLATE_COMMANDS[name] for name in lifecycle}}
+    )
+
+    assert [step.name for step in graph.steps] == list(lifecycle)
+    assert graph.predict_step.name == lifecycle[-1]
+    assert [step.predict for step in graph.steps] == [False] * (len(lifecycle) - 1) + [True]
+    for step in graph.steps:
+        expected = Scope.DATASET if step.name in ("preprocess_data", "pretrain") else Scope.TASK
+        assert step.scope == expected, step.name
+    assert graph.by_name[lifecycle[1]].needs == ("preprocess_data",)
+
+
+def test_steps_follow_the_profile_order_whatever_the_file_order():
+    graph = parse_step_graph(
+        {
+            "profile": "supervised",
+            "steps": {"predict_supervised": "p {train_supervised_dir}", "train_supervised": "t"},
+        }
+    )
+    assert [step.name for step in graph.steps] == ["train_supervised", "predict_supervised"]
+    assert graph.predict_step.needs == ("train_supervised",)
 
 
 def test_registered_models_plan_for_two_tasks(tmp_path: Path):
@@ -299,24 +264,21 @@ def test_commands_block_is_rejected(tmp_path: Path):
 
 
 @pytest.mark.parametrize(
-    ("steps", "message"),
+    ("spec", "message"),
     [
-        ({"x": "echo"}, "must be a mapping"),
-        ({"x": {"scope": "task", "command": "  "}}, "non-empty `command`"),
-        ({"x": {"scope": "task", "command": "x", "needs": "y"}}, "invalid `needs`"),
+        ({"steps": {"predict_only": "p"}}, "needs a `profile`"),
+        ({"profile": "predict_only", "steps": ["predict_only"]}, "non-empty `steps` mapping"),
         (
-            {
-                "y": {"scope": "dataset", "command": "y"},
-                "x": {"scope": "task", "command": "x", "needs": ["y", "y"]},
-            },
-            "more than once",
+            {"profile": "predict_only", "steps": {"predict_only": {"command": "p"}}},
+            "non-empty command string",
         ),
-        ({"x": {"scope": "task", "command": "x", "predict": "yes"}}, "invalid `predict`"),
+        ({"profile": "predict_only", "steps": {"predict": "p"}}, "not part of profile 'predict_only'"),
+        ({"profile": "probe", "steps": {"pretrain": "p", "predict_probe": "p"}}, "also needs step"),
     ],
 )
-def test_invalid_steps(steps, message):
+def test_invalid_model_yaml(spec, message):
     with pytest.raises(ValueError, match=message):
-        parse_step_graph({"steps": steps})
+        parse_step_graph(spec)
 
 
 def test_selection_and_planning_errors(tmp_path: Path):
@@ -325,7 +287,7 @@ def test_selection_and_planning_errors(tmp_path: Path):
         graph.closure(["nope"])
     with pytest.raises(ValueError, match="when running several tasks"):
         plan_from_cfg(
-            make_cfg(tmp_path, tasks=["a", "b"], labels_root="/labels", step_dirs={"fit": "/x"}),
+            make_cfg(tmp_path, tasks=["a", "b"], labels_root="/labels", step_dirs={"train_finetune": "/x"}),
             graph,
             Path("model_dir"),
         )
@@ -343,13 +305,9 @@ def test_step_lock_waits_then_times_out(tmp_path: Path):
 
 
 def test_failing_step_is_reported(tmp_path: Path):
-    graph = parse_step_graph(
-        {
-            "steps": {"pred": {"scope": "task", "predict": True, "command": "exit 3"}},
-        }
-    )
+    graph = parse_step_graph({"profile": "predict_only", "steps": {"predict_only": "exit 3"}})
     cfg = make_cfg(tmp_path, task_name="t1")
-    with pytest.raises(ValueError, match="Failed to run step pred: exit 3"):
+    with pytest.raises(ValueError, match="Failed to run step predict_only: exit 3"):
         run(cfg, graph)
 
 
@@ -383,6 +341,6 @@ def test_meds_dev_model_main_runs_models(tmp_path: Path, monkeypatch):
 
 def test_invalid_model_yaml_names_the_model(tmp_path: Path):
     model_yaml = tmp_path / "model.yaml"
-    model_yaml.write_text("metadata: {description: d, contacts: [{name: n}]}\nsteps: {}\n")
+    model_yaml.write_text("metadata: {description: d, contacts: [{name: n}]}\nprofile: probe\nsteps: {}\n")
     with pytest.raises(ValueError, match=r"Invalid model\.yaml for model broken"):
         load_model_yaml(model_yaml, "broken")

@@ -6,7 +6,7 @@ dataset_dir: ???
 dataset_name: null # required: steps are stored under output_dir/dataset_name
 output_dir: ???
 
-# The steps to run, by name (e.g. steps=[pretrain]); defaults to every step. The steps they need are added,
+# The steps to run, by name (e.g. steps=[pretrain]); defaults to every step of the model's profile. The steps they need are added,
 # and finished steps are skipped.
 steps: null
 
@@ -49,14 +49,16 @@ hydra:
       their models over local health datasets and local data owners trivially train and evaluate MEDS-DEV
       models over their data.
 
-      A model is a list of steps, defined in its model.yaml. Each step is either:
-        - dataset-scoped: task-independent (e.g., preprocessing or pre-training). It receives no labels, runs
-          once per dataset and is shared by every task. It is stored under
+      A model is a list of steps, defined in its model.yaml: the steps of the model's profile (for example
+      preprocess_data, pretrain, train_finetune and predict_finetune for the "finetune" profile). A step is
+      either:
+        - dataset-scoped (preprocess_data and pretrain): task-independent. It receives no labels, runs once
+          per dataset and is shared by every task. It is stored under
           "<output_dir>/<dataset_name>/_shared/<step>/".
-        - task-scoped: run once per task (e.g., fine-tuning, and prediction, including zero-shot prediction).
-          It receives the task's labels_dir. It is stored under
+        - task-scoped (every other step, e.g. fine-tuning and prediction, including zero-shot prediction):
+          run once per task. It receives the task's labels_dir. It is stored under
           "<output_dir>/<dataset_name>/<task_name>/<step>/".
-      Exactly one task-scoped step is the predict step. Its predictions for the held-out split are stored
+      The last step of a profile is the predict step. Its predictions for the held-out split are stored
       under "<output_dir>/<dataset_name>/<task_name>/predict/" (or ".../predict.<split>/" for another split),
       which is the directory to pass to "meds-dev-evaluation" as predictions_dir.
 

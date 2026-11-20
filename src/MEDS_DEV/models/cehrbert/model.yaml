@@ -9,23 +9,15 @@ metadata:
       github_username: "ChaoPang"
 profile: finetune
 steps:
-  pretrain:
-    scope: dataset
-    command: >-
-      python {model_dir}/pretrain_cehrbert.py output_dir={step_dir}
-      dataset_dir={dataset_dir} demo={demo}
-  finetune:
-    scope: task
-    needs: [pretrain]
-    command: >-
-      python {model_dir}/finetune_cehrbert.py output_dir={step_dir}
-      model_initialization_dir={pretrain_dir}
-      dataset_dir={dataset_dir} labels_dir={labels_dir} demo={demo}
-  predict:
-    scope: task
-    needs: [finetune]
-    predict: true
-    command: >-
-      python {model_dir}/generate_cehrbert_predictions.py labels_dir={labels_dir}
-      output_dir={step_dir} split={split} dataset_dir={dataset_dir}
-      model_initialization_dir={finetune_dir}
+  # Also converts the dataset for meds_reader, so there is no separate preprocess_data step.
+  pretrain: >-
+    python {model_dir}/pretrain_cehrbert.py output_dir={step_dir}
+    dataset_dir={dataset_dir} demo={demo}
+  train_finetune: >-
+    python {model_dir}/finetune_cehrbert.py output_dir={step_dir}
+    model_initialization_dir={pretrain_dir}
+    dataset_dir={dataset_dir} labels_dir={labels_dir} demo={demo}
+  predict_finetune: >-
+    python {model_dir}/generate_cehrbert_predictions.py labels_dir={labels_dir}
+    output_dir={step_dir} split={split} dataset_dir={dataset_dir}
+    model_initialization_dir={train_finetune_dir}

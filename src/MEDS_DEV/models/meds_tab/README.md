@@ -36,12 +36,12 @@ tabularized data.
 | [`meds_tab/tiny`](tiny/)   | the 100 most frequent             | 7d, 30d                    | `code/count`, `value/sum`                                                             | 20-trial hyperparameter sweep      |
 | [`meds_tab/large`](large/) | every code seen at least 10 times | 2h, 12h, 1d, 7d, 30d, full | `static/present`, `code/count`, `code/recency`, `value/sum`, `value/min`, `value/max` | one model, default hyperparameters |
 
-Both have four steps:
+Both use the `supervised` profile, with three steps:
 
-1. `describe` (run once per dataset and shared by every task): the code frequencies over the training split;
-2. `tabularize` (per task): the features at the task's prediction times;
-3. `train` (per task): the `medsboost` model;
-4. `predict` (per task): the model's predictions for the requested split.
+1. `preprocess_data` (run once per dataset and shared by every task): the code frequencies over the training
+    split;
+2. `train_supervised` (per task): the features at the task's prediction times, then the `medsboost` model;
+3. `predict_supervised` (per task): the model's predictions for the requested split.
 
 ## Citation
 

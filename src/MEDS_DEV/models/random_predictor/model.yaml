@@ -9,9 +9,6 @@ metadata:
       github_username: "mmcdermott"
 profile: predict_only
 steps:
-  predict:
-    scope: task
-    predict: true
-    command: >-
-      python -m MEDS_DEV.models.random_predictor.generate_random_predictions labels_dir={labels_dir}
-      output_dir={step_dir} split={split} dataset_dir={dataset_dir} predicates_path={predicates_path}
+  predict_only: >-
+    python -m MEDS_DEV.models.random_predictor.generate_random_predictions labels_dir={labels_dir}
+    output_dir={step_dir} split={split} dataset_dir={dataset_dir} predicates_path={predicates_path}

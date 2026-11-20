@@ -2,10 +2,10 @@ metadata:
   description: >-
     The GenHPF model. See the referenced paper for full details. This version of the GenHPF model uses
     default hyperparameters. Note that we need to preprocess MEDS dataset to match the input
-    format for the GenHPF model, so the `preprocess` step runs before training the model, and can
-    take quite a long time. The processed data will be saved in the `data` directory of the
-    `preprocess` step, and the trained model checkpoint will be saved in the `checkpoints`
-    directory of the `train` step. The `predict` step will load the trained checkpoint
+    format for the GenHPF model, so the `train_supervised` step preprocesses the data before
+    training the model, which makes it take quite a long time. The processed data will be saved in
+    the `data` directory of that step, and the trained model checkpoint in its `checkpoints`
+    directory. The `predict_supervised` step will load the trained checkpoint
     `checkpoints/checkpoint_best.pt` and output predictions for the test subset (specified by
     `split`; e.g., `held_out`) in its `predictions.parquet` file, which should be compatible with
     the meds-evaluation pipeline.
@@ -16,48 +16,39 @@ metadata:
       github_username: "jwoo5"
 profile: supervised
 steps:
-  # Preprocessing is restricted to the task's cohort (`--cohort`), so it is task-scoped.
-  preprocess:
-    scope: task
-    command: |-
-      python {model_dir}/prepare_codes_metadata.py "{dataset_dir}/metadata" "{step_dir}/metadata"
+  # GenHPF preprocesses the task's cohort (`--cohort`), which depends on the task, so preprocessing is part
+  # of train_supervised and there is no (task-independent) preprocess_data step.
+  train_supervised: |-
+    python {model_dir}/prepare_codes_metadata.py "{dataset_dir}/metadata" "{step_dir}/metadata"
 
-      genhpf-preprocess-meds \
-        "{dataset_dir}/data" \
-        "--cohort={labels_dir}" \
-        "--metadata_dir={step_dir}/metadata" \
-        "--output_dir={step_dir}/data" \
-        "--workers=32" \
-        "--debug={demo}" \
-        "--skip-if-exists"
+    genhpf-preprocess-meds \
+      "{dataset_dir}/data" \
+      "--cohort={labels_dir}" \
+      "--metadata_dir={step_dir}/metadata" \
+      "--output_dir={step_dir}/data" \
+      "--workers=32" \
+      "--debug={demo}" \
+      "--skip-if-exists"
 
-  train:
-    scope: task
-    needs: [preprocess]
-    command: |-
-      genhpf-train \
-        "hydra.run.dir={step_dir}" \
-        "dataset.data={preprocess_dir}/data" \
-        "checkpoint.save_dir={step_dir}/checkpoints" \
-        "common.debug={demo}" \
-        "--config-dir={model_dir}" \
-        "--config-name=genhpf_train"
+    genhpf-train \
+      "hydra.run.dir={step_dir}" \
+      "dataset.data={step_dir}/data" \
+      "checkpoint.save_dir={step_dir}/checkpoints" \
+      "common.debug={demo}" \
+      "--config-dir={model_dir}" \
+      "--config-name=genhpf_train"
 
-  predict:
-    scope: task
-    needs: [preprocess, train]
-    predict: true
-    command: |-
-      genhpf-test \
-        "hydra.run.dir={step_dir}" \
-        "dataset.data={preprocess_dir}/data" \
-        "meds.output_predictions=true" \
-        "meds.labels_dir={labels_dir}" \
-        "meds.output_dir={step_dir}" \
-        "checkpoint.load_checkpoint={train_dir}/checkpoints/checkpoint_best.pt" \
-        "dataset.test_subset={split}" \
-        "common.debug={demo}" \
-        "--config-dir={model_dir}" \
-        "--config-name=genhpf_predict"
+  predict_supervised: |-
+    genhpf-test \
+      "hydra.run.dir={step_dir}" \
+      "dataset.data={train_supervised_dir}/data" \
+      "meds.output_predictions=true" \
+      "meds.labels_dir={labels_dir}" \
+      "meds.output_dir={step_dir}" \
+      "checkpoint.load_checkpoint={train_supervised_dir}/checkpoints/checkpoint_best.pt" \
+      "dataset.test_subset={split}" \
+      "common.debug={demo}" \
+      "--config-dir={model_dir}" \
+      "--config-name=genhpf_predict"
 
-      mv {step_dir}/{split}.parquet {step_dir}/predictions.parquet
+    mv {step_dir}/{split}.parquet {step_dir}/predictions.parquet
