@@ -184,3 +184,7 @@ predicates:
     expr: or(map_1, map_2)
   abnormally_low_map:
     expr: or(abnormally_low_map_1, abnormally_low_map_2)
+
+  # Diagnosis groups by ICD root. Generated from the dataset's suMEDS code catalog (TaskWiki task_templates).
+  essential_hypertension:
+    code: { regex: "^(DIAGNOSIS//ICD10GM//I10)" }

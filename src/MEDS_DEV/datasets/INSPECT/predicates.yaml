@@ -125,3 +125,21 @@ predicates:
     value_min: null
     value_max: 65 # mmHg
     value_max_inclusive: False
+
+  # Diagnosis groups by ICD root. Generated from the dataset's suMEDS code catalog (TaskWiki task_templates).
+  heart_failure:
+    code: { regex: "^(ICD10CM/I50|ICD9CM/428)" }
+  essential_hypertension:
+    code: { regex: "^(ICD9CM/401)" }
+  acute_myocardial_infarction:
+    code: { regex: "^(ICD10CM/(I21|I22)|ICD9CM/410)" }
+  atrial_fibrillation:
+    code: { regex: "^(ICD10CM/I48|ICD9CM/427[.]3)" }
+  ischemic_stroke:
+    code: { regex: "^(ICD10CM/I63|ICD9CM/434)" }
+  acute_kidney_failure:
+    code: { regex: "^(ICD10CM/N17|ICD9CM/584)" }
+  septicemia:
+    code: { regex: "^(ICD10CM/(A40|A41)|ICD9CM/038)" }
+  pulmonary_embolism:
+    code: { regex: "^(ICD10CM/I26)" }

@@ -1,0 +1,48 @@
+metadata:
+  description:
+    "Hospital readmission within 30 days of a hospital discharge, predicted at discharge. Discharges at which the
+    patient is already dead are excluded. Any later hospital admission counts, planned or not, and a transfer recorded as
+    a discharge followed by an admission counts as a readmission. A record that ends before the 30 days are over is labelled
+    negative. Source literature: Wornow et al. (2023). EHRSHOT: An EHR Benchmark for Few-Shot Evaluation of Foundation Models.
+    Jeanselme et al. (2025). FoMoH: A clinically meaningful foundation model evaluation for structured electronic health records.
+    Pollet and McDermott (2026). Rethinking How We Evaluate Methodological Progress in Health AI. Steinberg et al. (2021).
+    Language models are an effective representation learning technique for electronic health record data."
+  links:
+    - https://github.com/som-shahlab/ehrshot-benchmark/blob/main/ehrshot/labelers/ehrshot.py#L68
+    - https://arxiv.org/html/2505.16941v4#S4.SS2
+    - https://arxiv.org/html/2609.18134v2#A4.T6
+    - https://pmc.ncbi.nlm.nih.gov/articles/PMC7863633/#T1
+  contacts:
+    - name: Robin van de Water
+      github_username: rvandewater
+  supported_datasets:
+    - ALOTT
+    - AUMCdb
+    - INSPIRE
+    - MC-MED
+    - MIMIC-IV
+    - NWICU
+    - PICdb
+    - SICdb
+predicates:
+  hospital_discharge: ???
+  hospital_admission: ???
+  death:
+    code:
+      regex: MEDS_DEATH.*
+trigger: hospital_discharge
+windows:
+  input:
+    start: null
+    end: trigger
+    start_inclusive: true
+    end_inclusive: true
+    index_timestamp: end
+    has:
+      death: (None, 0)
+  target:
+    start: input.end
+    end: start + 30d
+    start_inclusive: false
+    end_inclusive: true
+    label: hospital_admission

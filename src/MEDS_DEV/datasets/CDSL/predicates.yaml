@@ -174,3 +174,23 @@ predicates:
     expr: or(platelets_1, platelets_2)
   abnormally_low_platelets:
     expr: or(abnormally_low_platelets_1, abnormally_low_platelets_2)
+
+  # Diagnosis groups by ICD root. Generated from the dataset's suMEDS code catalog (TaskWiki task_templates).
+  heart_failure:
+    code: { regex: "^(DIAGNOSIS_ICD10//I50)" }
+  essential_hypertension:
+    code: { regex: "^(DIAGNOSIS_ICD10//I10)" }
+  acute_myocardial_infarction:
+    code: { regex: "^(DIAGNOSIS_ICD10//I21)" }
+  atrial_fibrillation:
+    code: { regex: "^(DIAGNOSIS_ICD10//I48)" }
+  ischemic_stroke:
+    code: { regex: "^(DIAGNOSIS_ICD10//I63)" }
+  acute_kidney_failure:
+    code: { regex: "^(DIAGNOSIS_ICD10//N17)" }
+  septicemia:
+    code: { regex: "^(DIAGNOSIS_ICD10//A41)" }
+  pulmonary_embolism:
+    code: { regex: "^(DIAGNOSIS_ICD10//I26)" }
+  end_stage_renal_disease:
+    code: { regex: "^(DIAGNOSIS_ICD10//N18[.]6)" }

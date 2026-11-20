@@ -97,3 +97,21 @@ predicates:
     value_max_inclusive: False
   abnormally_low_map:
     expr: or(abnormally_low_map_1, abnormally_low_map_2, abnormally_low_map_3)
+
+  # Diagnosis groups by ICD root. Generated from the dataset's suMEDS code catalog (TaskWiki task_templates).
+  heart_failure:
+    code: { regex: "^(DIAGNOSIS//ICD//10//I50)" }
+  essential_hypertension:
+    code: { regex: "^(DIAGNOSIS//ICD//10//I10)" }
+  acute_myocardial_infarction:
+    code: { regex: "^(DIAGNOSIS//ICD//10//I21)" }
+  atrial_fibrillation:
+    code: { regex: "^(DIAGNOSIS//ICD//10//I48)" }
+  ischemic_stroke:
+    code: { regex: "^(DIAGNOSIS//ICD//10//I63)" }
+  acute_kidney_failure:
+    code: { regex: "^(DIAGNOSIS//ICD//10//N17)" }
+  septicemia:
+    code: { regex: "^(DIAGNOSIS//ICD//10//(A40|A41))" }
+  pulmonary_embolism:
+    code: { regex: "^(DIAGNOSIS//ICD//10//I26)" }

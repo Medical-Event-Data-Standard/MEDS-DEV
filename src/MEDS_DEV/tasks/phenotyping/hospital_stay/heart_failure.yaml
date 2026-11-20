@@ -1,0 +1,31 @@
+metadata:
+  description:
+    "Whether heart failure was diagnosed during the hospital stay that just ended. The label lies before the prediction
+    time (the discharge), so the diagnosis codes of the stay must be removed from the model's inputs. Source literature:
+    Harutyunyan et al. (2019). Multitask learning and benchmarking with clinical time series data. Susetzky et al. (2026).
+    NOAH: Learning the Full Patient Journey. A Longitudinal Multimodal Time-Aware Model for Representation and Forecasting."
+  links:
+    - https://github.com/YerevaNN/mimic3-benchmarks/blob/master/mimic3benchmark/resources/hcup_ccs_2015_definitions.yaml
+    - https://arxiv.org/pdf/2609.09140v1#page=42
+  contacts:
+    - name: Robin van de Water
+      github_username: rvandewater
+  supported_datasets:
+    - ALOTT
+    - INSPIRE
+    - MC-MED
+    - MIMIC-IV
+    - NWICU
+predicates:
+  hospital_admission: ???
+  hospital_discharge: ???
+  heart_failure: ???
+trigger: hospital_discharge
+windows:
+  episode:
+    start: end <- hospital_admission
+    end: trigger
+    start_inclusive: true
+    end_inclusive: true
+    index_timestamp: end
+    label: heart_failure

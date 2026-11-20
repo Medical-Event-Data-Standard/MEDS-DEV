@@ -1,0 +1,47 @@
+metadata:
+  description:
+    "First-ever diagnosis of acute myocardial infarction between day 1 and day 365 after a hospital discharge,
+    predicted at discharge. Patients with an earlier diagnosis, or one on the first day after discharge, are excluded. A record
+    that ends before the target window is over is labelled negative. Source literature: Wornow et al. (2023). EHRSHOT: An
+    EHR Benchmark for Few-Shot Evaluation of Foundation Models."
+  links:
+    - https://github.com/som-shahlab/ehrshot-benchmark/blob/main/ehrshot/labelers/ehrshot.py#L697
+  contacts:
+    - name: Robin van de Water
+      github_username: rvandewater
+  supported_datasets:
+    - ALOTT
+    - INSPIRE
+    - MC-MED
+    - MIMIC-IV
+    - NWICU
+predicates:
+  hospital_discharge: ???
+  acute_myocardial_infarction: ???
+  death:
+    code:
+      regex: MEDS_DEATH.*
+trigger: hospital_discharge
+windows:
+  input:
+    start: null
+    end: trigger
+    start_inclusive: true
+    end_inclusive: true
+    index_timestamp: end
+    has:
+      acute_myocardial_infarction: (None, 0)
+      death: (None, 0)
+  gap:
+    start: trigger
+    end: start + 1d
+    start_inclusive: false
+    end_inclusive: true
+    has:
+      acute_myocardial_infarction: (None, 0)
+  target:
+    start: gap.end
+    end: start + 364d
+    start_inclusive: false
+    end_inclusive: true
+    label: acute_myocardial_infarction
