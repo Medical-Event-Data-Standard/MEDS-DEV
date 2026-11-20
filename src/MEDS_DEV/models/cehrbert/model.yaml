@@ -1,3 +1,4 @@
+schema_version: 2
 metadata:
   description: >-
     The CEHR-BERT model. See the referenced paper for full details. This version of the CEHR-BERT model uses
@@ -7,17 +8,25 @@ metadata:
   contacts:
     - name: "Chao Pang"
       github_username: "ChaoPang"
-commands:
-  unsupervised:
-    train: >-
-      python {model_dir}/pretrain_cehrbert.py output_dir={output_dir}
+profile: finetune
+steps:
+  pretrain:
+    scope: dataset
+    command: >-
+      python {model_dir}/pretrain_cehrbert.py output_dir={step_dir}
       dataset_dir={dataset_dir} demo={demo}
-  supervised:
-    train: >-
-      python {model_dir}/finetune_cehrbert.py output_dir={output_dir}
-      model_initialization_dir={model_initialization_dir}
+  finetune:
+    scope: task
+    needs: [pretrain]
+    command: >-
+      python {model_dir}/finetune_cehrbert.py output_dir={step_dir}
+      model_initialization_dir={pretrain_dir}
       dataset_dir={dataset_dir} labels_dir={labels_dir} demo={demo}
-    predict: >-
+  predict:
+    scope: task
+    needs: [finetune]
+    predict: true
+    command: >-
       python {model_dir}/generate_cehrbert_predictions.py labels_dir={labels_dir}
-      output_dir={output_dir} split={split} dataset_dir={dataset_dir}
-      model_initialization_dir={model_initialization_dir}
+      output_dir={step_dir} split={split} dataset_dir={dataset_dir}
+      model_initialization_dir={finetune_dir}

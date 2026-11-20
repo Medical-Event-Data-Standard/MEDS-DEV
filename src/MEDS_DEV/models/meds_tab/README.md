@@ -17,13 +17,31 @@ MEDS-Tab generates features by computing the cross product of three elements:
 3. The following aggregation functions for the subset of observations that fall within the time window:
 
 - `code/count`: Number of times a `code` was observed
+- `code/recency`: 1 / (1 + days since the last observation of a `code`), over the full history only
 - `value/count`: Number of times a `code` had a `numeric_value`
 - `value/sum`: Sum of `numeric_value` for a `code`
 - `value/sum_sqd`: Sum of squared `numeric_value` for a `code`
 - `value/min`: Minimum `numeric_value` for a `code`
 - `value/max`: Maximum `numeric_value` for a `code`
 - `static/present`: Binary indicator for presence of a `code` with null `time`
-- `static/first`: `numeric_value` of a `code` with null `time`
+- `static/mean`: Mean `numeric_value` of a `code` with null `time`
+
+## Models
+
+Both models pin `meds-tab==0.5.1` and train `medsboost`, MEDS-Tab's gradient-boosted trees for wide, sparse
+tabularized data.
+
+| Model                      | Codes                             | Windows                    | Aggregations                                                                          | Training                           |
+| -------------------------- | --------------------------------- | -------------------------- | ------------------------------------------------------------------------------------- | ---------------------------------- |
+| [`meds_tab/tiny`](tiny/)   | the 100 most frequent             | 7d, 30d                    | `code/count`, `value/sum`                                                             | 20-trial hyperparameter sweep      |
+| [`meds_tab/large`](large/) | every code seen at least 10 times | 2h, 12h, 1d, 7d, 30d, full | `static/present`, `code/count`, `code/recency`, `value/sum`, `value/min`, `value/max` | one model, default hyperparameters |
+
+Both have four steps:
+
+1. `describe` (run once per dataset and shared by every task): the code frequencies over the training split;
+2. `tabularize` (per task): the features at the task's prediction times;
+3. `train` (per task): the `medsboost` model;
+4. `predict` (per task): the model's predictions for the requested split.
 
 ## Citation
 

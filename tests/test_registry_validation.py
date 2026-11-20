@@ -70,15 +70,14 @@ def test_all_models_have_metadata():
         assert model["metadata"].description, f"Model {name} missing description"
 
 
-def test_all_models_have_commands():
+def test_all_models_have_step_graphs():
+    """Every registered model lists explicit steps (schema version 2), one of which is the predict step."""
     for name, model in MODELS.items():
-        commands = model.get("commands")
-        assert commands is not None, f"Model {name} missing commands"
-        has_unsupervised = "unsupervised" in commands
-        has_supervised = "supervised" in commands
-        assert has_unsupervised or has_supervised, (
-            f"Model {name} must have at least one of unsupervised/supervised commands"
-        )
+        assert model["schema_version"] == 2, f"Model {name} must set schema_version: 2"
+        assert "commands" not in model, f"Model {name} uses version 1 `commands` instead of `steps`"
+        graph = model["step_graph"]
+        assert graph.steps, f"Model {name} has no steps"
+        assert graph.predict_step is not None, f"Model {name} has no predict step"
 
 
 def test_all_models_requirements_exist_if_declared():

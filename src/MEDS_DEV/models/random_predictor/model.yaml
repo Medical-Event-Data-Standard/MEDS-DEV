@@ -1,3 +1,4 @@
+schema_version: 2
 metadata:
   description: >-
     This is a model that simply generates proabilities randomly from a uniform distribution between 0 and 1
@@ -7,10 +8,11 @@ metadata:
   contacts:
     - name: "Matthew McDermott"
       github_username: "mmcdermott"
-commands:
-  unsupervised: null
-  supervised:
-    train: null
-    predict: >-
+profile: predict_only
+steps:
+  predict:
+    scope: task
+    predict: true
+    command: >-
       python -m MEDS_DEV.models.random_predictor.generate_random_predictions labels_dir={labels_dir}
-      output_dir={output_dir} split={split} dataset_dir={dataset_dir} predicates_path={predicates_path}
+      output_dir={step_dir} split={split} dataset_dir={dataset_dir} predicates_path={predicates_path}

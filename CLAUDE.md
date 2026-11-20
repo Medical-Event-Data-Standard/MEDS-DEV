@@ -152,8 +152,8 @@ The test suite uses **session-scoped parametrized fixtures** that chain together
 ```
 demo_dataset (builds MEDS data via meds-dev-dataset)
     → task_labels (extracts labels via meds-dev-task)
-        → unsupervised_model (optional pretrain via meds-dev-model)
-            → supervised_model (train + predict via meds-dev-model)
+        → unsupervised_model (the model's dataset-scoped steps, if any, via meds-dev-model)
+            → supervised_model (the task-scoped steps, incl. predict, via meds-dev-model)
                 → evaluated_model (evaluate via meds-dev-evaluation)
                     → packaged_result (pack via meds-dev-pack-result)
 ```
@@ -195,15 +195,27 @@ models is filtered by compatibility.
 ### Adding a New Model
 
 1. Create `src/MEDS_DEV/models/<name>/` with: `model.yaml`, `requirements.txt`, `README.md`
-2. `model.yaml` must have `metadata` and `commands` with nested `unsupervised`/`supervised` →
-    `train`/`predict` structure
-3. Commands use template variables: `{dataset_dir}`, `{labels_dir}`, `{output_dir}`,
-    `{model_dir}`, `{model_initialization_dir}`, `{split}`, `{demo}`, and (optionally)
-    `{predicates_path}` for models that need a predicates file (populated from the
-    `predicates_path` argument to `meds-dev-model`), and `{task_criteria_path}` for models that need
-    the task's ACES criteria file (the `task_criteria_path` argument, else the registered file of
-    `task_name`)
-4. Predictions must output parquet files compatible with `meds-evaluation`
+2. `model.yaml` must have `schema_version: 2`, `metadata` and `steps`. Each step has a `scope`
+    (`dataset`: task-independent, run once per dataset and shared by every task; `task`: run per
+    task), a `command`, and optional `needs` (earlier steps whose outputs it reads). Exactly one
+    task-scoped step sets `predict: true`. An optional `profile` adds checks. Zero-shot models use
+    dataset-scoped steps plus a predict step, with no task-scoped training step
+3. Commands use template variables: `{dataset_dir}`, `{model_dir}`, `{demo}`, `{step_dir}` (the
+    step's output directory), `{<step>_dir}` (the output of a step listed in `needs`), and
+    (optionally) `{predicates_path}` for models that need a predicates file (populated from the
+    `predicates_path` argument to `meds-dev-model`). Task-scoped steps can also use `{labels_dir}`
+    and `{task_criteria_path}` (the task's ACES criteria file: the `task_criteria_path` argument,
+    else the registered file of the task); the predict step can use `{split}`
+4. The predict step must write parquet files compatible with `meds-evaluation` to its `{step_dir}`
+5. New models may be generated with the
+    [MEDS algorithm template](https://github.com/McDermottHealthAI/MEDS_algorithm_template), which
+    registers each profile as `<name>__<profile>` via `meds-algorithm-add-to-meds-dev`
+6. Parsing, validation, planning and execution of steps live in `src/MEDS_DEV/models/steps.py`.
+    Steps are stored under `<output_dir>/<dataset_name>/_shared/<step>/` (dataset-scoped) and
+    `<output_dir>/<dataset_name>/<task_name>/<step>/` (task-scoped; the predict step under
+    `.../predict/`). Version 1 files (a `commands` block with `unsupervised`/`supervised` →
+    `train`/`predict` slots) are no longer supported and fail when the registry loads. See the
+    README section "Adding a model"
 
 ### YAML Config Conventions
 
@@ -233,7 +245,8 @@ models is filtered by compatibility.
     If you add a task referencing a dataset that doesn't exist yet, import will fail.
 - **The `.done` sentinel file in `run_in_env` means commands are idempotent.** If a command
     succeeded before, it won't re-run. Delete the `.done` file (or pass `do_overwrite=True`) to
-    force a re-run.
+    force a re-run. For `meds-dev-model`, each step has its own `.done` file, and `do_overwrite=True`
+    means `overwrite=all` (clear the steps that run); `overwrite=task` keeps shared steps.
 - **`pytest_collection_modifyitems` reorders tests.** Test file numbering (test_0, test_1, etc.)
     is a hint, but the actual execution order is determined by the sort key in conftest.py.
 - **Hydra changes the working directory by default.** Entry points using `@hydra.main` will
