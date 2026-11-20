@@ -11,6 +11,7 @@ metadata:
       github_username: rvandewater
   supported_datasets:
     - ALOTT
+    - EHRShot
     - INSPECT
     - INSPIRE
     - MIMIC-IV

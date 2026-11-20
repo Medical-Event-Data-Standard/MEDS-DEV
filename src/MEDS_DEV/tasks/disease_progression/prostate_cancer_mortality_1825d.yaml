@@ -10,6 +10,7 @@ metadata:
     - name: Robin van de Water
       github_username: rvandewater
   supported_datasets:
+    - EHRShot
     - INSPIRE
     - MC-MED
     - NWICU

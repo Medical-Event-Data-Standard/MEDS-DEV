@@ -1,0 +1,49 @@
+metadata:
+  description:
+    "Psoriatic arthritis (ICD-10 L40.5) within 1825 days of a patient's first diagnosis of psoriasis (ICD-10 L40),
+    predicted at that diagnosis. Patients with the outcome before the diagnosis or in the 30 days after it are excluded. A
+    record that ends before the target window is over is labelled negative. Source literature: Zhang et al. (2026). A multimodal
+    and temporal foundation model for virtual patient representations at healthcare system scale."
+  links:
+    - https://arxiv.org/pdf/2604.18570v2#page=67
+  contacts:
+    - name: Robin van de Water
+      github_username: rvandewater
+  supported_datasets:
+    - CDSL
+    - INSPECT
+    - MC-MED
+    - NWICU
+predicates:
+  psoriasis: ???
+  psoriatic_arthritis: ???
+trigger: psoriasis
+windows:
+  first:
+    start: null
+    end: trigger
+    start_inclusive: true
+    end_inclusive: false
+    has:
+      psoriasis: (None, 0)
+  input:
+    start: null
+    end: trigger
+    start_inclusive: true
+    end_inclusive: true
+    index_timestamp: end
+    has:
+      psoriatic_arthritis: (None, 0)
+  blackout:
+    start: trigger
+    end: start + 30d
+    start_inclusive: false
+    end_inclusive: true
+    has:
+      psoriatic_arthritis: (None, 0)
+  target:
+    start: blackout.end
+    end: start + 1795d
+    start_inclusive: false
+    end_inclusive: true
+    label: psoriatic_arthritis

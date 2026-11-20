@@ -12,6 +12,7 @@ metadata:
       github_username: rvandewater
   supported_datasets:
     - ALOTT
+    - EHRShot
     - MC-MED
     - MIMIC-IV
     - NWICU

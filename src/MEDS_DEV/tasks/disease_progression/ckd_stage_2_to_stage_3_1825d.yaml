@@ -11,6 +11,7 @@ metadata:
     - name: Robin van de Water
       github_username: rvandewater
   supported_datasets:
+    - EHRShot
     - NWICU
 predicates:
   chronic_kidney_disease_stage_2: ???

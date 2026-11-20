@@ -13,6 +13,7 @@ metadata:
   supported_datasets:
     - AUMCdb
     - CDSL
+    - EHRShot
     - HIRID
     - INSPECT
     - INSPIRE
