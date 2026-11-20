@@ -18,10 +18,16 @@ def load_model_yaml(model_yaml: Path, model_name: str) -> dict:
 
     The entry holds the file's contents, with `metadata` parsed and the validated `step_graph` added (see
     `MEDS_DEV.models.steps`). Invalid files fail here, i.e., when the registry is loaded.
+
+    The optional `python` key is the Python version of the model's environment (e.g., `"3.12"`), for models
+    whose requirements do not support the interpreter MEDS-DEV runs on. It is `None` when absent.
     """
     entry = OmegaConf.to_object(OmegaConf.load(model_yaml))
     try:
         entry["step_graph"] = parse_step_graph(entry)
+        python = entry.setdefault("python", None)
+        if python is not None and not (isinstance(python, str) and python.strip()):
+            raise ValueError(f'`python` must be a version string such as "3.12"; got {python!r}.')
     except ValueError as e:
         raise ValueError(f"Invalid model.yaml for model {model_name} ({model_yaml}): {e}") from e
     entry["metadata"] = Metadata(**entry["metadata"])
