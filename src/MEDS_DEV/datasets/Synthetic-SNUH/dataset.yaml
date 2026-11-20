@@ -1,0 +1,25 @@
+metadata:
+  description: >-
+    A MEDS version of Synthetic-SNUH v4, synthetic OMOP CDM 5.4 records for 10,000 virtual patients modelled on
+    Seoul National University Hospital, 2021-2025, converted with the OMOP_MEDS ETL (MEDS-Extract).
+  links:
+    - https://doi.org/10.23421/2026.03183
+    - https://khdp.net/database/data-search-detail/synthetic-snuh?version=4.0.0
+    - https://github.com/rvandewater/OMOP_MEDS
+  contacts:
+    - name: "Robin P. van de Water"
+      github_username: "rvandewater"
+  access_policy: public_unrestricted
+  access_details: >-
+    Open access on KHDP, the Korean Health Data Platform, under CC BY-NC 4.0 (non-commercial use; the OMOP
+    vocabulary concepts remain subject to their own licences). Download the OMOP CDM Parquet tables from KHDP and
+    pass their directory as raw_input_dir.
+
+commands:
+  build_full: >-
+    meds-extract-run spec=OMOP
+    output_dir="{output_dir}"
+    do_download=false
+    input_dir="{raw_input_dir}"
+    dataset_version=4.0.0
+    "overrides=['etl_metadata.dataset_name=Synthetic-SNUH','++stage_cfg.omop_version=5.4']"
