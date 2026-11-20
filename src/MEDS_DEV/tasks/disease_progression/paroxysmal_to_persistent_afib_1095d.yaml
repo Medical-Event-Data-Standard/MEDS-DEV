@@ -1,0 +1,49 @@
+metadata:
+  description:
+    "Persistent atrial fibrillation (ICD-10 I48.1) within 1095 days of a patient's first diagnosis of paroxysmal
+    atrial fibrillation (ICD-10 I48.0), predicted at that diagnosis. Patients with the outcome before the diagnosis or in
+    the 30 days after it are excluded. A record that ends before the target window is over is labelled negative. Source literature:
+    Zhang et al. (2026). A multimodal and temporal foundation model for virtual patient representations at healthcare system
+    scale."
+  links:
+    - https://arxiv.org/pdf/2604.18570v2#page=67
+  contacts:
+    - name: Robin van de Water
+      github_username: rvandewater
+  supported_datasets:
+    - ALOTT
+    - MIMIC-IV
+    - NWICU
+predicates:
+  paroxysmal_atrial_fibrillation: ???
+  persistent_atrial_fibrillation: ???
+trigger: paroxysmal_atrial_fibrillation
+windows:
+  first:
+    start: null
+    end: trigger
+    start_inclusive: true
+    end_inclusive: false
+    has:
+      paroxysmal_atrial_fibrillation: (None, 0)
+  input:
+    start: null
+    end: trigger
+    start_inclusive: true
+    end_inclusive: true
+    index_timestamp: end
+    has:
+      persistent_atrial_fibrillation: (None, 0)
+  blackout:
+    start: trigger
+    end: start + 30d
+    start_inclusive: false
+    end_inclusive: true
+    has:
+      persistent_atrial_fibrillation: (None, 0)
+  target:
+    start: blackout.end
+    end: start + 1065d
+    start_inclusive: false
+    end_inclusive: true
+    label: persistent_atrial_fibrillation

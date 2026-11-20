@@ -224,6 +224,7 @@ predicates:
         - "DIAGNOSIS//cardiovascular|shock / hypotension|septic shock|organism identified"
         - "DIAGNOSIS//cardiovascular|shock / hypotension|septic shock|organism identified|gram negative organism"
         - "DIAGNOSIS//cardiovascular|shock / hypotension|septic shock|organism identified|gram positive organism"
+        - "DIAGNOSIS//cardiovascular|shock / hypotension|signs and symptoms of sepsis (SIRS)|due to infectious process without organ dysfunction"
         - "DIAGNOSIS//infectious diseases|systemic/other infections|bacteremia"
         - "DIAGNOSIS//infectious diseases|systemic/other infections|bacteremia|abdominal source"
         - "DIAGNOSIS//infectious diseases|systemic/other infections|bacteremia|genitourinary source"
@@ -241,6 +242,7 @@ predicates:
         - "DIAGNOSIS//infectious diseases|systemic/other infections|septic shock|gram negative organism"
         - "DIAGNOSIS//infectious diseases|systemic/other infections|septic shock|gram positive organism"
         - "DIAGNOSIS//infectious diseases|systemic/other infections|septic shock|organism identified"
+        - "DIAGNOSIS//infectious diseases|systemic/other infections|signs and symptoms of sepsis (SIRS)|due to infectious process without organ dysfunction"
         - "DIAGNOSIS//surgery|infections|sepsis"
   pulmonary_embolism:
     code:

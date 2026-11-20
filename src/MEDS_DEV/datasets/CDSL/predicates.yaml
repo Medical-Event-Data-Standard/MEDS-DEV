@@ -194,3 +194,251 @@ predicates:
     code: { regex: "^(DIAGNOSIS_ICD10//I26)" }
   end_stage_renal_disease:
     code: { regex: "^(DIAGNOSIS_ICD10//N18[.]6)" }
+  coronary_artery_disease:
+    code: { regex: "^(DIAGNOSIS_ICD10//I25)" }
+  type_2_diabetes:
+    code: { regex: "^(DIAGNOSIS_ICD10//E11)" }
+  pancreatic_cancer:
+    code: { regex: "^(DIAGNOSIS_ICD10//C25)" }
+  acute_lymphocytic_leukemia:
+    code: { regex: "^(DIAGNOSIS_ICD10//C91[.]0)" }
+  acute_myeloid_leukemia:
+    code: { regex: "^(DIAGNOSIS_ICD10//C92[.]0)" }
+  acute_myocardial_infarction_i21:
+    code: { regex: "^(DIAGNOSIS_ICD10//I21)" }
+  acute_pancreatitis:
+    code: { regex: "^(DIAGNOSIS_ICD10//K85)" }
+  all_leukemia:
+    code: { regex: "^(DIAGNOSIS_ICD10//(C91|C92|C93|C95))" }
+  alzheimer_disease:
+    code: { regex: "^(DIAGNOSIS_ICD10//G30)" }
+  ankylosing_spondylitis:
+    code: { regex: "^(DIAGNOSIS_ICD10//M45)" }
+  aortic_aneurysm:
+    code: { regex: "^(DIAGNOSIS_ICD10//I71)" }
+  aortic_stenosis:
+    code: { regex: "^(DIAGNOSIS_ICD10//(I35[.]0|I35[.]2))" }
+  aplastic_anemia:
+    code: { regex: "^(DIAGNOSIS_ICD10//D61[.]0)" }
+  asthma:
+    code: { regex: "^(DIAGNOSIS_ICD10//J45)" }
+  barrett_esophagus:
+    code: { regex: "^(DIAGNOSIS_ICD10//K22[.]7)" }
+  benign_prostatic_hyperplasia:
+    code: { regex: "^(DIAGNOSIS_ICD10//N40)" }
+  bipolar_disorder:
+    code: { regex: "^(DIAGNOSIS_ICD10//F31)" }
+  bladder_cancer:
+    code: { regex: "^(DIAGNOSIS_ICD10//C67)" }
+  blindness:
+    code: { regex: "^(DIAGNOSIS_ICD10//H54)" }
+  bone_fracture:
+    code: { regex: "^(DIAGNOSIS_ICD10//(M80|M84))" }
+  breast_cancer:
+    code: { regex: "^(DIAGNOSIS_ICD10//C50)" }
+  celiac_disease_k900:
+    code: { regex: "^(DIAGNOSIS_ICD10//K90[.]0)" }
+  chronic_hepatitis_or_fatty_liver:
+    code: { regex: "^(DIAGNOSIS_ICD10//(B18|K70[.]1|K71[.]6|K75|K76[.]0))" }
+  chronic_kidney_disease:
+    code: { regex: "^(DIAGNOSIS_ICD10//N18)" }
+  chronic_kidney_disease_stage_2:
+    code: { regex: "^(DIAGNOSIS_ICD10//N18[.]2)" }
+  chronic_kidney_disease_stage_3:
+    code: { regex: "^(DIAGNOSIS_ICD10//N18[.]3)" }
+  chronic_kidney_disease_stage_3_or_higher:
+    code: { regex: "^(DIAGNOSIS_ICD10//(N18[.]3|N18[.]4|N18[.]5|N18[.]6))" }
+  chronic_kidney_disease_stage_4_or_higher:
+    code: { regex: "^(DIAGNOSIS_ICD10//(N18[.]4|N18[.]5|N18[.]6))" }
+  chronic_lymphocytic_leukemia:
+    code: { regex: "^(DIAGNOSIS_ICD10//C91[.]1)" }
+  chronic_myeloid_leukemia:
+    code: { regex: "^(DIAGNOSIS_ICD10//C92[.]1)" }
+  chronic_obstructive_pulmonary_disease:
+    code: { regex: "^(DIAGNOSIS_ICD10//J44)" }
+  chronic_otitis_media:
+    code: { regex: "^(DIAGNOSIS_ICD10//(H65|H66))" }
+  chronic_respiratory_failure:
+    code: { regex: "^(DIAGNOSIS_ICD10//J96[.]1)" }
+  cirrhosis:
+    code: { regex: "^(DIAGNOSIS_ICD10//(K70[.]3|K74))" }
+  colorectal_cancer:
+    code: { regex: "^(DIAGNOSIS_ICD10//(C18|C19|C20))" }
+  covid_19:
+    code: { regex: "^(DIAGNOSIS_ICD10//U07[.]1)" }
+  crohn_disease:
+    code: { regex: "^(DIAGNOSIS_ICD10//K50)" }
+  cushing_syndrome:
+    code: { regex: "^(DIAGNOSIS_ICD10//E24)" }
+  dementia:
+    code: { regex: "^(DIAGNOSIS_ICD10//(F01|F03|G30|G31[.]0|G31[.]83))" }
+  depression:
+    code: { regex: "^(DIAGNOSIS_ICD10//(F32|F33))" }
+  diabetes_mellitus:
+    code: { regex: "^(DIAGNOSIS_ICD10//(E09|E10|E11|E13))" }
+  diabetic_foot_ulcer:
+    code: { regex: "^(DIAGNOSIS_ICD10//E11[.]621)" }
+  diabetic_nephropathy:
+    code: { regex: "^(DIAGNOSIS_ICD10//E11[.]21)" }
+  diabetic_neuropathy:
+    code: { regex: "^(DIAGNOSIS_ICD10//E11[.]4)" }
+  diabetic_retinopathy:
+    code: { regex: "^(DIAGNOSIS_ICD10//(E10[.]31|E11[.]31|E11[.]35))" }
+  dyslipidemia:
+    code: { regex: "^(DIAGNOSIS_ICD10//E78)" }
+  endometrial_cancer:
+    code: { regex: "^(DIAGNOSIS_ICD10//C54[.]1)" }
+  endometriosis:
+    code: { regex: "^(DIAGNOSIS_ICD10//N80)" }
+  epilepsy:
+    code: { regex: "^(DIAGNOSIS_ICD10//G40)" }
+  esophageal_cancer:
+    code: { regex: "^(DIAGNOSIS_ICD10//C15)" }
+  esophageal_varices:
+    code: { regex: "^(DIAGNOSIS_ICD10//I85)" }
+  exacerbation:
+    code: { regex: "^(DIAGNOSIS_ICD10//(J44[.]0|J44[.]1))" }
+  generalized_anxiety_disorder:
+    code: { regex: "^(DIAGNOSIS_ICD10//F41[.]1)" }
+  gerd:
+    code: { regex: "^(DIAGNOSIS_ICD10//K21)" }
+  gestational_diabetes:
+    code: { regex: "^(DIAGNOSIS_ICD10//O24[.]4)" }
+  glaucoma:
+    code: { regex: "^(DIAGNOSIS_ICD10//H40)" }
+  glioblastoma:
+    code: { regex: "^(DIAGNOSIS_ICD10//C71)" }
+  gout:
+    code: { regex: "^(DIAGNOSIS_ICD10//M10)" }
+  hepatitis_b:
+    code: { regex: "^(DIAGNOSIS_ICD10//B18[.]1)" }
+  hepatitis_c:
+    code: { regex: "^(DIAGNOSIS_ICD10//(B18[.]2|B19[.]2))" }
+  hip_fracture:
+    code: { regex: "^(DIAGNOSIS_ICD10//S72)" }
+  hyperprolactinemia:
+    code: { regex: "^(DIAGNOSIS_ICD10//E22[.]1)" }
+  hyperthyroidism:
+    code: { regex: "^(DIAGNOSIS_ICD10//E05)" }
+  hypothyroidism:
+    code: { regex: "^(DIAGNOSIS_ICD10//(E02|E03))" }
+  immune_thrombocytopenia:
+    code: { regex: "^(DIAGNOSIS_ICD10//D69[.]3)" }
+  inflammatory_bowel_disease:
+    code: { regex: "^(DIAGNOSIS_ICD10//(K50|K51|K52[.]3))" }
+  interstitial_lung_disease:
+    code: { regex: "^(DIAGNOSIS_ICD10//J84)" }
+  intracranial_hemorrhage:
+    code: { regex: "^(DIAGNOSIS_ICD10//(I60|I61|I62))" }
+  iron_deficiency_anemia:
+    code: { regex: "^(DIAGNOSIS_ICD10//D50)" }
+  kidney_cancer:
+    code: { regex: "^(DIAGNOSIS_ICD10//C64)" }
+  liver_cancer:
+    code: { regex: "^(DIAGNOSIS_ICD10//C22)" }
+  lung_cancer:
+    code: { regex: "^(DIAGNOSIS_ICD10//C34)" }
+  macular_degeneration:
+    code: { regex: "^(DIAGNOSIS_ICD10//H35[.]3)" }
+  melanoma:
+    code: { regex: "^(DIAGNOSIS_ICD10//C43)" }
+  meniere_disease:
+    code: { regex: "^(DIAGNOSIS_ICD10//H81[.]0)" }
+  migraine:
+    code: { regex: "^(DIAGNOSIS_ICD10//G43)" }
+  mild_cognitive_impairment:
+    code: { regex: "^(DIAGNOSIS_ICD10//G31[.]84)" }
+  multiple_myeloma:
+    code: { regex: "^(DIAGNOSIS_ICD10//C90[.]0)" }
+  multiple_sclerosis:
+    code: { regex: "^(DIAGNOSIS_ICD10//G35)" }
+  myasthenia_gravis:
+    code: { regex: "^(DIAGNOSIS_ICD10//G70[.]0)" }
+  myelodysplastic_syndrome:
+    code: { regex: "^(DIAGNOSIS_ICD10//D46)" }
+  nash:
+    code: { regex: "^(DIAGNOSIS_ICD10//K75[.]81)" }
+  nephrotic_syndrome:
+    code: { regex: "^(DIAGNOSIS_ICD10//N04)" }
+  non_alcoholic_fatty_liver_disease:
+    code: { regex: "^(DIAGNOSIS_ICD10//K76[.]0)" }
+  non_hodgkin_lymphoma:
+    code: { regex: "^(DIAGNOSIS_ICD10//(C82|C83|C85))" }
+  non_melanoma_skin_cancer:
+    code: { regex: "^(DIAGNOSIS_ICD10//C44)" }
+  obesity:
+    code: { regex: "^(DIAGNOSIS_ICD10//(E66[.]0|E66[.]2|E66[.]8|E66[.]9))" }
+  oropharyngeal_cancer:
+    code: { regex: "^(DIAGNOSIS_ICD10//C10)" }
+  osteoarthritis:
+    code: { regex: "^(DIAGNOSIS_ICD10//(M15|M16|M17|M19))" }
+  osteoporosis:
+    code: { regex: "^(DIAGNOSIS_ICD10//(M80|M81))" }
+  osteoporosis_m81:
+    code: { regex: "^(DIAGNOSIS_ICD10//M81)" }
+  ovarian_cancer:
+    code: { regex: "^(DIAGNOSIS_ICD10//C56)" }
+  palliative_care_encounter:
+    code: { regex: "^(DIAGNOSIS_ICD10//Z51[.]5)" }
+  parkinson_disease:
+    code: { regex: "^(DIAGNOSIS_ICD10//(G20|G21))" }
+  paroxysmal_atrial_fibrillation:
+    code: { regex: "^(DIAGNOSIS_ICD10//I48[.]0)" }
+  peripheral_artery_disease:
+    code: { regex: "^(DIAGNOSIS_ICD10//(I70[.]2|I73[.]9))" }
+  peripheral_neuropathy:
+    code: { regex: "^(DIAGNOSIS_ICD10//G62[.]9)" }
+  persistent_atrial_fibrillation:
+    code: { regex: "^(DIAGNOSIS_ICD10//I48[.]1)" }
+  pneumonia:
+    code: { regex: "^(DIAGNOSIS_ICD10//J18)" }
+  polycystic_ovary_syndrome:
+    code: { regex: "^(DIAGNOSIS_ICD10//E28[.]2)" }
+  prediabetes:
+    code: { regex: "^(DIAGNOSIS_ICD10//R73[.]03)" }
+  primary_hyperparathyroidism:
+    code: { regex: "^(DIAGNOSIS_ICD10//E21[.]0)" }
+  proliferative_diabetic_retinopathy:
+    code: { regex: "^(DIAGNOSIS_ICD10//E11[.]35)" }
+  prostate_cancer:
+    code: { regex: "^(DIAGNOSIS_ICD10//C61)" }
+  psoriasis:
+    code: { regex: "^(DIAGNOSIS_ICD10//L40)" }
+  psoriatic_arthritis:
+    code: { regex: "^(DIAGNOSIS_ICD10//L40[.]5)" }
+  pulmonary_fibrosis:
+    code: { regex: "^(DIAGNOSIS_ICD10//J84[.]1)" }
+  pulmonary_hypertension:
+    code: { regex: "^(DIAGNOSIS_ICD10//I27[.]2)" }
+  pyelonephritis:
+    code: { regex: "^(DIAGNOSIS_ICD10//(N10|N11))" }
+  retinal_detachment:
+    code: { regex: "^(DIAGNOSIS_ICD10//H33[.]2)" }
+  rheumatoid_arthritis:
+    code: { regex: "^(DIAGNOSIS_ICD10//(M05|M06))" }
+  sarcoidosis:
+    code: { regex: "^(DIAGNOSIS_ICD10//D86)" }
+  schizophrenia:
+    code: { regex: "^(DIAGNOSIS_ICD10//F20)" }
+  secondary_malignant_neoplasm:
+    code: { regex: "^(DIAGNOSIS_ICD10//(C77|C78|C79))" }
+  sensorineural_hearing_loss:
+    code: { regex: "^(DIAGNOSIS_ICD10//(H90[.]3|H90[.]5|H90[.]6|H90[.]8))" }
+  sleep_apnea:
+    code: { regex: "^(DIAGNOSIS_ICD10//G47[.]3)" }
+  steatotic_liver_disease:
+    code: { regex: "^(DIAGNOSIS_ICD10//(K75[.]81|K76[.]0|K76[.]9))" }
+  stroke:
+    code: { regex: "^(DIAGNOSIS_ICD10//(I60|I61|I62|I63))" }
+  systemic_lupus_erythematosus_m32:
+    code: { regex: "^(DIAGNOSIS_ICD10//M32)" }
+  systemic_sclerosis:
+    code: { regex: "^(DIAGNOSIS_ICD10//M34)" }
+  ulcerative_colitis:
+    code: { regex: "^(DIAGNOSIS_ICD10//K51)" }
+  urinary_retention:
+    code: { regex: "^(DIAGNOSIS_ICD10//R33)" }
+  venous_thromboembolism_i26_i81_i82:
+    code: { regex: "^(DIAGNOSIS_ICD10//(I26|I81|I82))" }
+  vitamin_b12_deficiency_anemia:
+    code: { regex: "^(DIAGNOSIS_ICD10//D51)" }

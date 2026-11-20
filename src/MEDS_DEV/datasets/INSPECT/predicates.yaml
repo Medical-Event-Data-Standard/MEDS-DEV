@@ -143,3 +143,226 @@ predicates:
     code: { regex: "^(ICD10CM/(A40|A41)|ICD9CM/038)" }
   pulmonary_embolism:
     code: { regex: "^(ICD10CM/I26)" }
+  coronary_artery_disease:
+    code: { regex: "^(ICD10CM/I25|ICD9CM/414)" }
+  type_2_diabetes:
+    code: { regex: "^(ICD10CM/E11|ICD9CM/(250|362[.]0))" }
+  pancreatic_cancer:
+    code: { regex: "^(ICD10CM/C25|ICD9CM/157)" }
+  acute_lymphocytic_leukemia:
+    code: { regex: "^(ICD10CM/C91[.]0|ICD9CM/204[.]0)" }
+  acute_myeloid_leukemia:
+    code: { regex: "^(ICD10CM/C92[.]0)" }
+  acute_myocardial_infarction_i21:
+    code: { regex: "^(ICD10CM/I21|ICD9CM/410)" }
+  acute_pancreatitis:
+    code: { regex: "^(ICD10CM/K85)" }
+  all_leukemia:
+    code:
+      {
+        regex: "^(ICD10CM/(C91|C92|C93|C94|C95)|ICD9CM/(202[.]4|204|205|206|208))",
+      }
+  alzheimer_disease:
+    code: { regex: "^(ICD10CM/G30)" }
+  ankylosing_spondylitis:
+    code: { regex: "^(ICD10CM/M45)" }
+  aortic_aneurysm:
+    code: { regex: "^(ICD10CM/I71|ICD9CM/441)" }
+  aplastic_anemia:
+    code: { regex: "^(ICD10CM/D61[.]0|ICD9CM/284[.]0)" }
+  asthma:
+    code: { regex: "^(ICD10CM/J45|ICD9CM/(493[.]0|493[.]1|493[.]8|493[.]9))" }
+  barrett_esophagus:
+    code: { regex: "^(ICD10CM/K22[.]7)" }
+  benign_prostatic_hyperplasia:
+    code: { regex: "^(ICD10CM/N40|ICD9CM/(600[.]0|600[.]1|600[.]2|600[.]9))" }
+  bipolar_disorder:
+    code: { regex: "^(ICD10CM/F31|ICD9CM/(296[.]4|296[.]5|296[.]6))" }
+  bladder_cancer:
+    code: { regex: "^(ICD10CM/C67|ICD9CM/188)" }
+  blindness:
+    code: { regex: "^(ICD10CM/H54|ICD9CM/369)" }
+  bone_fracture:
+    code: { regex: "^(ICD10CM/(M80|M84)|ICD9CM/(733[.]1|V54[.]2))" }
+  breast_cancer:
+    code: { regex: "^(ICD10CM/C50|ICD9CM/(174|175))" }
+  chronic_hepatitis_or_fatty_liver:
+    code: { regex: "^(ICD10CM/(B18|K70[.]1|K71[.]5|K73|K75)|ICD9CM/571[.]4)" }
+  chronic_kidney_disease:
+    code: { regex: "^(ICD10CM/N18|ICD9CM/585)" }
+  chronic_lymphocytic_leukemia:
+    code: { regex: "^(ICD10CM/C91[.]1|ICD9CM/204[.]1)" }
+  chronic_migraine:
+    code: { regex: "^(ICD10CM/G43[.]7|ICD9CM/346[.]7)" }
+  chronic_myeloid_leukemia:
+    code: { regex: "^(ICD10CM/(C92[.]1|C92[.]2)|ICD9CM/205[.]1)" }
+  chronic_obstructive_pulmonary_disease:
+    code: { regex: "^(ICD10CM/J44|ICD9CM/(491[.]2|493[.]2))" }
+  chronic_otitis_media:
+    code: { regex: "^(ICD10CM/(H65|H66)|ICD9CM/(381[.]0|381[.]1))" }
+  chronic_respiratory_failure:
+    code: { regex: "^(ICD10CM/J96[.]1)" }
+  cirrhosis:
+    code: { regex: "^(ICD10CM/(K70[.]3|K74))" }
+  colorectal_cancer:
+    code: { regex: "^(ICD10CM/C18|ICD9CM/153)" }
+  crohn_disease:
+    code: { regex: "^(ICD10CM/K50|ICD9CM/555)" }
+  cushing_syndrome:
+    code: { regex: "^(ICD10CM/E24)" }
+  dementia:
+    code:
+      { regex: "^(ICD10CM/(F01|F03|G30|G31[.]0)|ICD9CM/(290|294[.]2|331[.]1))" }
+  depression:
+    code: { regex: "^(ICD10CM/(F32|F33)|ICD9CM/(296[.]2|296[.]3))" }
+  diabetes_mellitus:
+    code: { regex: "^(ICD10CM/(E08|E09|E10|E11|E13)|ICD9CM/(250|362[.]0))" }
+  diabetic_neuropathy:
+    code: { regex: "^(ICD10CM/(E10[.]4|E11[.]4|E13[.]4)|ICD9CM/250[.]6)" }
+  diabetic_retinopathy:
+    code:
+      {
+        regex: "^(ICD10CM/(E08[.]31|E08[.]32|E08[.]33|E08[.]34|E08[.]35|E09[.]31|E09[.]32|E09[.]33|E09[.]35|E10[.]31|E10[.]32|E10[.]33|E10[.]34|E10[.]35|E11[.]31|E11[.]32|E11[.]33|E11[.]34|E11[.]35|E13[.]31|E13[.]32|E13[.]33|E13[.]35)|ICD9CM/362[.]0)",
+      }
+  dyslipidemia:
+    code: { regex: "^(ICD10CM/E78)" }
+  endometriosis:
+    code: { regex: "^(ICD10CM/N80|ICD9CM/617)" }
+  epilepsy:
+    code: { regex: "^(ICD10CM/G40|ICD9CM/345)" }
+  esophageal_cancer:
+    code: { regex: "^(ICD10CM/C15|ICD9CM/150)" }
+  esophageal_varices:
+    code: { regex: "^(ICD10CM/I85|ICD9CM/456[.]2)" }
+  gerd:
+    code: { regex: "^(ICD10CM/K21)" }
+  gestational_diabetes:
+    code: { regex: "^(ICD10CM/O24[.]4)" }
+  glaucoma:
+    code:
+      {
+        regex: "^(ICD10CM/H40|ICD9CM/(365[.]0|365[.]2|365[.]5|365[.]6|365[.]8))",
+      }
+  glioblastoma:
+    code: { regex: "^(ICD10CM/C71|ICD9CM/191)" }
+  gout:
+    code: { regex: "^(ICD10CM/M10|ICD9CM/274[.]8)" }
+  hepatitis_b:
+    code: { regex: "^(ICD10CM/B16|ICD9CM/(070[.]2|070[.]3))" }
+  hepatitis_c:
+    code: { regex: "^(ICD10CM/(B17[.]1|B19[.]2)|ICD9CM/070[.]7)" }
+  hip_fracture:
+    code: { regex: "^(ICD10CM/S72|ICD9CM/(820|821))" }
+  hyperthyroidism:
+    code: { regex: "^(ICD10CM/E05|ICD9CM/242)" }
+  hypothyroidism:
+    code: { regex: "^(ICD10CM/E03)" }
+  inflammatory_bowel_disease:
+    code: { regex: "^(ICD10CM/(K50|K51)|ICD9CM/(555|556))" }
+  interstitial_lung_disease:
+    code: { regex: "^(ICD10CM/J84|ICD9CM/516)" }
+  intracranial_hemorrhage:
+    code: { regex: "^(ICD10CM/(I60|I61|I62)|ICD9CM/432)" }
+  iron_deficiency_anemia:
+    code: { regex: "^(ICD10CM/D50|ICD9CM/280)" }
+  kidney_cancer:
+    code: { regex: "^(ICD10CM/(C64|C65))" }
+  liver_cancer:
+    code: { regex: "^(ICD10CM/C22|ICD9CM/155)" }
+  lung_cancer:
+    code: { regex: "^(ICD10CM/C34)" }
+  macular_degeneration:
+    code: { regex: "^(ICD10CM/H35[.]3|ICD9CM/362[.]5)" }
+  melanoma:
+    code: { regex: "^(ICD10CM/C43)" }
+  meniere_disease:
+    code: { regex: "^(ICD10CM/H81[.]0|ICD9CM/386[.]0)" }
+  migraine:
+    code: { regex: "^(ICD10CM/G43|ICD9CM/346)" }
+  multiple_myeloma:
+    code: { regex: "^(ICD10CM/C90[.]0|ICD9CM/203[.]0)" }
+  myasthenia_gravis:
+    code: { regex: "^(ICD10CM/G70[.]0|ICD9CM/358[.]0)" }
+  myelodysplastic_syndrome:
+    code: { regex: "^(ICD10CM/D46)" }
+  nephrotic_syndrome:
+    code: { regex: "^(ICD10CM/N04)" }
+  non_hodgkin_lymphoma:
+    code:
+      {
+        regex: "^(ICD10CM/(C82|C83|C84|C85)|ICD9CM/(200|202[.]0|202[.]1|202[.]2|202[.]7|202[.]8))",
+      }
+  non_melanoma_skin_cancer:
+    code: { regex: "^(ICD10CM/C44|ICD9CM/173)" }
+  non_proliferative_diabetic_retinopathy:
+    code:
+      {
+        regex: "^(ICD10CM/(E08[.]32|E08[.]33|E08[.]34|E09[.]32|E09[.]33|E10[.]32|E10[.]33|E10[.]34|E11[.]32|E11[.]33|E11[.]34|E13[.]32|E13[.]33))",
+      }
+  obesity:
+    code: { regex: "^(ICD10CM/E66[.]0)" }
+  oropharyngeal_cancer:
+    code: { regex: "^(ICD10CM/C10)" }
+  osteoarthritis:
+    code: { regex: "^(ICD10CM/(M15|M16|M17|M18|M19)|ICD9CM/715)" }
+  osteoporosis:
+    code: { regex: "^(ICD10CM/(M80|M81)|ICD9CM/733[.]0)" }
+  osteoporosis_m81:
+    code: { regex: "^(ICD10CM/M81|ICD9CM/733[.]0)" }
+  ovarian_cancer:
+    code: { regex: "^(ICD10CM/C56)" }
+  parkinson_disease:
+    code: { regex: "^(ICD10CM/G21|ICD9CM/332)" }
+  peripheral_artery_disease:
+    code:
+      {
+        regex: "^(ICD10CM/(I70[.]2|I70[.]3|I70[.]4|I70[.]6|I70[.]7)|ICD9CM/(440[.]2|440[.]3))",
+      }
+  pneumonia:
+    code: { regex: "^(ICD10CM/J18)" }
+  proliferative_diabetic_retinopathy:
+    code: { regex: "^(ICD10CM/(E08[.]35|E09[.]35|E10[.]35|E11[.]35|E13[.]35))" }
+  psoriasis:
+    code: { regex: "^(ICD10CM/L40)" }
+  psoriatic_arthritis:
+    code: { regex: "^(ICD10CM/L40[.]5)" }
+  pulmonary_fibrosis:
+    code: { regex: "^(ICD10CM/J84[.]1)" }
+  pulmonary_hypertension:
+    code: { regex: "^(ICD10CM/I27[.]2)" }
+  pyelonephritis:
+    code: { regex: "^(ICD10CM/N11|ICD9CM/(590[.]0|590[.]1))" }
+  retinal_detachment:
+    code: { regex: "^(ICD10CM/(H33[.]0|H33[.]2))" }
+  rheumatoid_arthritis:
+    code: { regex: "^(ICD10CM/(M05|M06)|ICD9CM/714[.]8)" }
+  sarcoidosis:
+    code: { regex: "^(ICD10CM/D86)" }
+  schizophrenia:
+    code:
+      {
+        regex: "^(ICD10CM/F20|ICD9CM/(295[.]0|295[.]1|295[.]2|295[.]3|295[.]4|295[.]6|295[.]8|295[.]9))",
+      }
+  secondary_malignant_neoplasm:
+    code: { regex: "^(ICD10CM/(C77|C78|C79)|ICD9CM/(196|197|198))" }
+  sensorineural_hearing_loss:
+    code:
+      {
+        regex: "^(ICD10CM/(H90[.]4|H90[.]7|H90[.]A2|H90[.]A3)|ICD9CM/(389[.]1|389[.]2))",
+      }
+  sleep_apnea:
+    code: { regex: "^(ICD10CM/G47[.]3|ICD9CM/327[.]2)" }
+  stroke:
+    code: { regex: "^(ICD10CM/(I60|I61|I62|I63)|ICD9CM/432)" }
+  systemic_lupus_erythematosus_m32:
+    code: { regex: "^(ICD10CM/M32)" }
+  systemic_sclerosis:
+    code: { regex: "^(ICD10CM/M34)" }
+  ulcerative_colitis:
+    code: { regex: "^(ICD10CM/K51|ICD9CM/556)" }
+  urinary_retention:
+    code: { regex: "^(ICD10CM/R33)" }
+  venous_thromboembolism_i26_i81_i82:
+    code: { regex: "^(ICD10CM/(I26|I82)|ICD9CM/453)" }
+  vitamin_b12_deficiency_anemia:
+    code: { regex: "^(ICD10CM/D51)" }

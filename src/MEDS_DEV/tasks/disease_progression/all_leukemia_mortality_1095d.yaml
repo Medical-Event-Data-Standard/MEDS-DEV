@@ -1,0 +1,52 @@
+metadata:
+  description:
+    "Death within 1095 days of a patient's first diagnosis of all leukemia (ICD-10 C91, C92, C93, C94, C95), predicted
+    at that diagnosis. Patients with the outcome before the diagnosis or in the 30 days after it are excluded. A record that
+    ends before the target window is over is labelled negative. Source literature: Zhang et al. (2026). A multimodal and temporal
+    foundation model for virtual patient representations at healthcare system scale."
+  links:
+    - https://arxiv.org/pdf/2604.18570v2#page=67
+  contacts:
+    - name: Robin van de Water
+      github_username: rvandewater
+  supported_datasets:
+    - INSPECT
+    - INSPIRE
+    - MC-MED
+    - MIMIC-IV
+    - NWICU
+predicates:
+  all_leukemia: ???
+  death:
+    code:
+      regex: MEDS_DEATH.*
+trigger: all_leukemia
+windows:
+  first:
+    start: null
+    end: trigger
+    start_inclusive: true
+    end_inclusive: false
+    has:
+      all_leukemia: (None, 0)
+  input:
+    start: null
+    end: trigger
+    start_inclusive: true
+    end_inclusive: true
+    index_timestamp: end
+    has:
+      death: (None, 0)
+  blackout:
+    start: trigger
+    end: start + 30d
+    start_inclusive: false
+    end_inclusive: true
+    has:
+      death: (None, 0)
+  target:
+    start: blackout.end
+    end: start + 1065d
+    start_inclusive: false
+    end_inclusive: true
+    label: death
