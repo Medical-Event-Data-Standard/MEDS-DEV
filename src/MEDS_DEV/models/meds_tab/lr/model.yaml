@@ -1,0 +1,50 @@
+metadata:
+  description: >-
+    A logistic regression on the features of `meds_tab/large`: every code seen at least 10 times in the
+    training split is tabularized over MEDS-Tab's default windows (2h, 12h, 1d, 7d, 30d, and the full history)
+    and aggregations (static presence, code counts and recency, and value sums, minimums and maximums), and a
+    single l2-regularized scikit-learn `LogisticRegression` (C=1, `lbfgs`, up to 1000 iterations) is fitted.
+  links:
+    - https://arxiv.org/abs/2411.00200
+    - https://github.com/mmcdermott/MEDS_Tabular_AutoML
+  contacts:
+    - name: "Nassim Oufattole"
+      github_username: "Oufattole"
+    - name: "Teya Bergamaschi"
+      github_username: "teyaberg"
+    - name: "Matthew McDermott"
+      github_username: "mmcdermott"
+    - name: "Florent Pollet"
+      github_username: "florian6973"
+profile: supervised
+steps:
+  # Code frequencies over the training split: independent of the task, so shared by every task.
+  preprocess_data: >-
+    meds-tab-describe "input_dir={dataset_dir}/data" "output_dir={step_dir}"
+
+  # Tabularizes the features at the task's prediction times, then fits the model on them. This is the
+  # train_supervised step of meds_tab/large with `model_launcher=logistic_regression`, and:
+  # - one fit, not a sweep: without --multirun, C and the solver keep the launcher's own values (1, lbfgs);
+  # - `max_iter=1000`: the features are not scaled, and with the launcher's 100 iterations the solver
+  #   usually stops before it has converged;
+  # - one BLAS thread: the solver gains little from more, and would otherwise use every core.
+  train_supervised: |-
+    meds-tab-tabularize \
+        "input_dir={dataset_dir}/data" "output_dir={step_dir}" \
+        do_overwrite=False "input_label_dir={labels_dir}" \
+        "input_code_metadata_fp={preprocess_data_dir}/metadata/codes.parquet"
+
+    export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1
+    meds-tab-model \
+        model_launcher=logistic_regression model_launcher.model.max_iter=1000 \
+        "input_dir={dataset_dir}/data" "output_dir={step_dir}" \
+        "output_model_dir={step_dir}/results" "task_name=null" do_overwrite=False \
+        "input_label_dir={labels_dir}" \
+        "input_tabularized_dir={step_dir}/tabularize" \
+        "tabularization.filtered_code_metadata_fp={step_dir}/metadata/codes.parquet"
+
+  # meds-tab does not store the predictions of scikit-learn models, so predict.py scores the split with the
+  # pickled model. A single run has no best_trial directory: its model is in sweep_results/<trial>/.
+  predict_supervised: |-
+    LATEST_TRAIN_DIR=$(ls -td {train_supervised_dir}/results/*/ | head -n 1)
+    python {model_dir}/predict.py $LATEST_TRAIN_DIR/sweep_results/*/ {split} {step_dir}/predictions.parquet
