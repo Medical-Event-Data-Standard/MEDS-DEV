@@ -1,3 +1,4 @@
+schema_version: 2
 metadata:
   description: >-
     A tiny, low-cost gradient-boosted tree baseline using the MEDS-Tab framework. It tabularizes the 100 most
@@ -15,31 +16,48 @@ metadata:
       github_username: "mmcdermott"
     - name: "Florent Pollet"
       github_username: "florian6973"
-commands:
-  unsupervised: null
-  supervised:
-    train: |-
-      meds-tab-describe \
-          "input_dir={dataset_dir}/data" "output_dir={output_dir}/meds_tab"
+profile: supervised
+steps:
+  # Code frequencies over the training split: independent of the task, so shared by every task.
+  describe:
+    scope: dataset
+    command: >-
+      meds-tab-describe "input_dir={dataset_dir}/data" "output_dir={step_dir}"
 
+  # Features at the task's prediction times, for the codes kept by the code filter.
+  tabularize:
+    scope: task
+    needs: [describe]
+    command: |-
       meds-tab-tabularize \
-          "input_dir={dataset_dir}/data" "output_dir={output_dir}/meds_tab" \
+          "input_dir={dataset_dir}/data" "output_dir={step_dir}" \
           do_overwrite=False "input_label_dir={labels_dir}" \
+          "input_code_metadata_fp={describe_dir}/metadata/codes.parquet" \
           "tabularization.aggs=[code/count,value/sum]" \
           "tabularization.window_sizes=[7d,30d]" \
           "tabularization.max_included_codes=100"
 
+  train:
+    scope: task
+    needs: [tabularize]
+    command: |-
       meds-tab-model \
           --multirun \
-          "input_dir={dataset_dir}/data" "output_dir={output_dir}/meds_tab" \
-          "output_model_dir={output_dir}/results" "task_name=null" do_overwrite=False \
+          "input_dir={dataset_dir}/data" "output_dir={step_dir}" \
+          "output_model_dir={step_dir}/results" "task_name=null" do_overwrite=False \
           "hydra.sweeper.n_trials=20" "hydra.sweeper.n_jobs=1" \
           "input_label_dir={labels_dir}" \
+          "input_tabularized_dir={tabularize_dir}/tabularize" \
+          "tabularization.filtered_code_metadata_fp={tabularize_dir}/metadata/codes.parquet" \
           "tabularization.aggs=[code/count,value/sum]" \
           "tabularization.window_sizes=[7d,30d]" \
           "tabularization.max_included_codes=100" tabularization.min_code_inclusion_count=null
 
-    predict: |-
-      mkdir -p "{output_dir}"
-      LATEST_TRAIN_DIR=$(ls -td {model_initialization_dir}/results/*/ | head -n 1)
-      cp $LATEST_TRAIN_DIR/best_trial/{split}_predictions.parquet {output_dir}/predictions.parquet
+  predict:
+    scope: task
+    needs: [train]
+    predict: true
+    command: |-
+      mkdir -p "{step_dir}"
+      LATEST_TRAIN_DIR=$(ls -td {train_dir}/results/*/ | head -n 1)
+      cp $LATEST_TRAIN_DIR/best_trial/{split}_predictions.parquet {step_dir}/predictions.parquet
