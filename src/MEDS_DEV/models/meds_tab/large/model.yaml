@@ -1,0 +1,38 @@
+metadata:
+  description: >-
+    The default MEDS-Tab baseline: every code seen at least 10 times in the training split is tabularized
+    over MEDS-Tab's default windows (2h, 12h, 1d, 7d, 30d, and the full history) and aggregations (static
+    presence, code counts and recency, and value sums, minimums and maximums), and a single `medsboost` model
+    (MEDS-Tab's gradient-boosted trees for wide, sparse matrices) is trained with its default hyperparameters.
+  links:
+    - https://arxiv.org/abs/2411.00200
+    - https://github.com/mmcdermott/MEDS_Tabular_AutoML
+  contacts:
+    - name: "Nassim Oufattole"
+      github_username: "Oufattole"
+    - name: "Teya Bergamaschi"
+      github_username: "teyaberg"
+    - name: "Matthew McDermott"
+      github_username: "mmcdermott"
+    - name: "Florent Pollet"
+      github_username: "florian6973"
+commands:
+  unsupervised: null
+  supervised:
+    train: |-
+      meds-tab-describe \
+          "input_dir={dataset_dir}/data" "output_dir={output_dir}/meds_tab"
+
+      meds-tab-tabularize \
+          "input_dir={dataset_dir}/data" "output_dir={output_dir}/meds_tab" \
+          do_overwrite=False "input_label_dir={labels_dir}"
+
+      meds-tab-model \
+          "input_dir={dataset_dir}/data" "output_dir={output_dir}/meds_tab" \
+          "output_model_dir={output_dir}/results" "task_name=null" do_overwrite=False \
+          "input_label_dir={labels_dir}"
+
+    predict: |-
+      mkdir -p "{output_dir}"
+      LATEST_TRAIN_DIR=$(ls -td {model_initialization_dir}/results/*/ | head -n 1)
+      cp $LATEST_TRAIN_DIR/sweep_results/*/{split}_predictions.parquet {output_dir}/predictions.parquet
