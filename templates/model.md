@@ -4,6 +4,11 @@
 > MEDS-DEV currently only supports binary classification tasks and therefore only accepts binary
 > classification models for now.
 
+> [!TIP]
+> To create a new model, start from the [MEDS algorithm template](https://github.com/McDermottHealthAI/MEDS_algorithm_template): it
+> generates a model repository with a standard command-line interface, conformance tests and the `model.yaml`
+> that MEDS-DEV needs. See "Adding a model" in the [MEDS-DEV README](../README.md).
+
 ## Description
 
 Provide a brief description of your model, including:

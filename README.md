@@ -183,38 +183,106 @@ you want to store the extracted task labels. The output will be a set of parquet
 > This section reflects that by giving instructions on how you can use MEDS-DEV to train a model from scratch
 > on an included or your custom dataset.
 
-To train a model on a task, you can use the `meds-dev-model` helper. This helper is a bit more complicated
-than the other helpers, because there are a few different modes in which you could use a model. Namely, you
-could either: (a) train a model or (b) make predictions with a model (controlled via the `mode` parameter);
-and you could additionally use a model either over (a) unsupervised (e.g., pre-training) or (b) supervised
-(e.g., fine-tuning) data (controlled via the `dataset_type` parameter). Let's see each of these modes in
-action with a hypothetical sequence of uses of the command to pre-train a model, then fine-tune it, then make
-predictions.
+To train a model on a task and make predictions, use the `meds-dev-model` helper:
 
 ```bash
-# 1. Pre-train a model on unsupervised data
-meds-dev-model model=$MODEL_NAME dataset_dir=$DATASET_DIR mode=train dataset_type=unsupervised output_dir=$PRETRAINED_MODEL_DIR
-
-# 2. Fine-tune a model on supervised data
-meds-dev-model model=$MODEL_NAME dataset_dir=$DATASET_DIR labels_dir=$LABELS_DIR mode=train dataset_type=supervised output_dir=$FINETUNED_MODEL_DIR model_initialization_dir=$PRETRAINED_MODEL_DIR
-
-# 3. Make predictions with a model for the held-out set:
-meds-dev-model model=$MODEL_NAME dataset_dir=$DATASET_DIR labels_dir=$LABELS_DIR mode=predict dataset_type=supervised split=held_out output_dir=$PREDICTIONS_DIR model_initialization_dir=$FINETUNED_MODEL_DIR
+meds-dev-model model=$MODEL_NAME dataset_dir=$DATASET_DIR dataset_name=$DATASET_NAME \
+	task_name=$TASK_NAME labels_dir=$LABELS_DIR output_dir=$RUN_DIR
 ```
 
-Here, `$MODEL_NAME` is the name of the model you want to train within the MEDS-DEV ecosystem. You can see that
-the pre-trained model weights are passed to the fine-tuning stage via the `model_initialization_dir`
-parameter, and likewise for the fine-tuned model weights to the prediction stage.
+Here, `$MODEL_NAME` is the name of the model you want to train within the MEDS-DEV ecosystem, and `$RUN_DIR`
+is an experiment directory that can be shared by many runs. Some models also need the dataset's predicates
+file, passed as `predicates_path=$PREDICATES`.
+
+A model is a list of _steps_, for example `preprocess_data`, `pretrain`, `train_finetune` and
+`predict_finetune`. The command above runs all of them in order; each step reads the outputs of the earlier
+steps it needs. The step names are those of the model's [profile](#modelyaml), and they determine a step's
+scope:
+
+| Scope     | Steps                         | Receives the task's labels? | Runs                                   |
+| --------- | ----------------------------- | --------------------------- | -------------------------------------- |
+| `dataset` | `preprocess_data`, `pretrain` | no                          | once per dataset, shared by every task |
+| `task`    | every other step              | yes                         | once per task                          |
+
+The last step of a profile is the model's _predict step_. Steps are stored under
+`$RUN_DIR/$DATASET_NAME/`:
+
+```
+_shared/<step>/output/        # dataset-scoped steps, shared by every task
+<task_name>/<step>/output/    # task-scoped steps
+<task_name>/predict/output/   # the predict step (held-out split)
+```
+
+so the predictions to evaluate are in `$RUN_DIR/$DATASET_NAME/$TASK_NAME/predict/`. MEDS-DEV keeps its own
+files (`cmd.sh` and the `.done` marker of a finished step) in `<step>/`, next to the step's `output/`.
+`dataset_name` must always be set, and `task_name` with `labels_dir` (or `tasks` with `labels_root`, see
+below) whenever task-scoped steps run.
 
 > [!NOTE]
 > If you're a model creator, don't worry that you'll have to conform to this API -- this is just the API for
 > model users, and internally MEDS-DEV wraps this API into whatever custom scripts and calls you need your
 > model to take to train and predict. See the section below about "Contributing" for more details!
 
-> [!NOTE]
-> You can also run the full suite of supported commands for a model in the right order, chaining directories
-> as needed, using the `mode=full` and `dataset_type=full` options. This will run the full sequence of
-> commands in 1-3 above, and store the intermediate results in subdirectories of the output directory.
+#### Reusing task-independent steps across several tasks
+
+Dataset-scoped steps (e.g., pre-training) do not depend on the task, and a step that already finished in
+`output_dir` is not run again. To run a model on several tasks, use the same `output_dir` for all of them:
+the dataset-scoped steps run for the first task only.
+
+```bash
+for TASK_NAME in $TASKS; do
+	meds-dev-task task=$TASK_NAME dataset=$DATASET_NAME dataset_dir=$DATASET_DIR output_dir=$LABELS_ROOT/$TASK_NAME
+
+	meds-dev-model model=$MODEL_NAME dataset_dir=$DATASET_DIR dataset_name=$DATASET_NAME \
+		task_name=$TASK_NAME labels_dir=$LABELS_ROOT/$TASK_NAME output_dir=$RUN_DIR
+
+	meds-dev-evaluation predictions_dir=$RUN_DIR/$DATASET_NAME/$TASK_NAME/predict \
+		output_dir=$RUN_DIR/$DATASET_NAME/$TASK_NAME/evaluation
+done
+```
+
+You can also run several tasks in one call; the labels of each task are read from `labels_root/<task>`:
+
+```bash
+meds-dev-model model=$MODEL_NAME dataset_dir=$DATASET_DIR dataset_name=$DATASET_NAME \
+	'tasks=[task_a,task_b]' labels_root=$LABELS_ROOT output_dir=$RUN_DIR
+```
+
+Shared steps are locked while they run, so tasks can also run at the same time on the same `output_dir`:
+the second run waits for the first to finish the shared step, then reuses it. To reuse the dataset-scoped
+steps of a run that lives in _another_ directory, set `model_initialization_dir` to that run's `output_dir`.
+
+Passing `task_name` (or `tasks`) also lets models that use `{task_criteria_path}` (e.g., zero-shot models)
+receive the task's registered criteria file; set `task_criteria_path` to use another file.
+
+#### Running only some steps
+
+By default every step runs. To run part of a model, name the steps to run; the steps they need are run too,
+unless they already finished:
+
+```bash
+# Dataset-scoped steps only (no task needed), e.g. to pre-train
+meds-dev-model model=$MODEL_NAME dataset_dir=$DATASET_DIR dataset_name=$DATASET_NAME \
+	'steps=[pretrain]' output_dir=$RUN_DIR
+
+# Predict another split; the predictions are stored under <task_name>/predict.tuning/
+meds-dev-model ... 'steps=[predict_finetune]' split=tuning
+
+# Use an existing output directory for a step instead of running it
+meds-dev-model ... 'steps=[predict_finetune]' +step_dirs.pretrain=/path/to/pretrain/output
+```
+
+#### Overwriting
+
+`overwrite` chooses which step directories are cleared before the steps run:
+
+- `overwrite=none` (the default) clears nothing; finished steps are skipped.
+- `overwrite=task` clears this run's task-scoped steps and keeps the shared dataset-scoped steps.
+- `overwrite=all` (or `do_overwrite=true`) clears every step this run executes, including shared ones, which
+    other tasks' results were computed from.
+
+Nothing else in `output_dir` is deleted: other tasks' steps, the logs and the model's virtual environment
+are kept.
 
 ### Evaluating predictions
 
@@ -222,7 +290,8 @@ To evaluate the predictions of a model on a task, you can use the `meds-dev-eval
 at your predictions in one of two ways:
 
 ```bash
-# A directory of predictions, such as the output_dir of a `meds-dev-model` predict run:
+# A directory of predictions, such as the predict directory of a `meds-dev-model` run
+# ($RUN_DIR/$DATASET_NAME/$TASK_NAME/predict):
 meds-dev-evaluation predictions_dir=$PREDICTIONS_DIR output_dir=$EVALUATION_DIR
 
 # A single predictions parquet file:
@@ -242,14 +311,17 @@ which is the primary metric for MEDS-DEV at this time.
 `meds-dev-dataset`, `meds-dev-task`, `meds-dev-model`, and `meds-dev-evaluation` are all safe to re-run:
 
 - When a command succeeds, it writes an empty `.done` file to its `output_dir`. A later run with the same
-    `output_dir` sees that file and skips the work, _even if you changed other arguments_. With `mode=full`,
-    `meds-dev-model` tracks this per stage, so a re-run resumes at the first stage that has not finished.
+    `output_dir` sees that file and skips the work, _even if you changed other arguments_. `meds-dev-model`
+    tracks this per step (in each step's directory), so a re-run resumes at the first step that has not
+    finished.
 - If an earlier run did not finish, `meds-dev-dataset` and `meds-dev-model` refuse to run a different
-    command than the one saved in `output_dir/cmd.sh`, so outputs from two configurations never get mixed.
-- `do_overwrite=True` deletes everything in `output_dir` before running, so the command starts from
-    scratch. The `.logs` directory, which holds the current run's logs, is kept. For `meds-dev-model`, this
-    also deletes the model's virtual environment, which lives in `output_dir/.venv` unless you set
-    `venv_dir`. `meds-dev-dataset` never deletes `raw_input_dir`.
+    command than the one saved in `cmd.sh` (in `output_dir`, or in the step's directory for
+    `meds-dev-model`), so outputs from two configurations never get mixed.
+- For `meds-dev-dataset`, `meds-dev-task` and `meds-dev-evaluation`, `do_overwrite=True` deletes everything
+    in `output_dir` before running, so the command starts from scratch. The `.logs` directory, which holds
+    the current run's logs, is kept. `meds-dev-dataset` never deletes `raw_input_dir`.
+- For `meds-dev-model`, `do_overwrite=True` means `overwrite=all`: it clears the directories of the steps
+    that run, and nothing else in `output_dir`. See [Overwriting](#overwriting).
 
 ### Adding your result to MEDS-DEV
 
@@ -332,29 +404,112 @@ the supported MEDS-DEV datasets.
 
 ### Adding a model
 
+> [!TIP]
+> The recommended way to create a new model is the
+> [MEDS algorithm template](https://github.com/McDermottHealthAI/MEDS_algorithm_template)
+> ([documentation](https://meds-algorithm.readthedocs.io/en/latest/)). It generates a repository with a
+> standard command-line interface for six profiles (`supervised`, `finetune`, `probe`, `zero_shot_direct`,
+> `zero_shot_materialized`, `predict_only`), conformance tests that run the model through MEDS-DEV, and one
+> `model.yaml` per profile. Register a profile with:
+>
+> ```bash
+> meds-algorithm-add-to-meds-dev --meds-dev /path/to/MEDS-DEV --name my_model --profile probe
+> ```
+>
+> which adds it as the `my_model__probe` model. If the generated `model.yaml` still has a `commands` block,
+> convert it with the [migration table](#migrating-a-modelyaml-with-a-commands-block) below. The template
+> is optional, but MEDS-DEV uses its profiles and step names: any `model.yaml` that follows the structure
+> described here can be added.
+
 To add a model, create a new subdirectory of `src/MEDS_DEV/models/` with the name of the model. Then, within
 this subdirectory, create a `requirements.txt`, `README.md`, and `model.yaml` file. The `requirements.txt`
 contains the necessary Python packages to install to run the model, similar to dataset creation, the
 `README.md` contains a description of the model, and the `model.yaml` file contains some programmatic
-information about the model, including most critically a `commands` key with a dictionary of commands needed
-to run to train the model from scratch on a MEDS dataset. It also must include a `metadata` key with some
-example of the metadata. See the existing models for examples. Note you can also specify a `refs.bib` file
-here, like with a dataset.
+information about the model: a `metadata` key (see the existing models for examples), and most critically
+the `steps` needed to train the model from scratch on a MEDS dataset and predict with it. Note you can also
+specify a `refs.bib` file here, like with a dataset.
 
-A full description of these commands is coming soon, but for now, note that:
+#### `model.yaml`
 
-1. Commands can use the template variables `{output_dir}`, `{dataset_dir}`, `{labels_dir}`, and `{demo}`.
-    Models that need a dataset's predicates file (e.g., for featurization) can also use the optional
-    `{predicates_path}` template variable, populated from the `predicates_path` argument to `meds-dev-model`.
-    Models that predict a task from its definition rather than its labels (e.g., zero-shot models) can use
-    the optional `{task_criteria_path}` template variable: the task's ACES criteria file, from the
-    `task_criteria_path` argument or, by default, the registered criteria file of `task_name`.
-2. Commands should be added in a nested manner for running either over `unsupervised` or `supervised`
-    datasets, in either `train` or `predict` modes. See the random predictors example for an example.
+A `model.yaml` names the model's `profile` and gives one shell command per step of that profile:
 
-See the help string for `meds-dev-model` for more information. Note the final output predictions should be
-stored as a set of parquet files in the final output directory specified by the `output_dir` variable in the
-format expected by `meds-evaluation`.
+```yaml
+metadata:
+  description: My model.
+  contacts:
+    - name: Jane Doe
+profile: finetune
+steps:
+  preprocess_data: m preprocess {dataset_dir} {predicates_path} {step_dir}
+  pretrain: m pretrain {preprocess_data_dir} {step_dir}
+  train_finetune: m finetune {pretrain_dir} {labels_dir} {step_dir}
+  predict_finetune: m predict {train_finetune_dir} {split} {step_dir}
+```
+
+(`m` stands for the model's own command-line tool.) The profiles and their steps are those of the
+[`meds-algorithm`](https://meds-algorithm.readthedocs.io/en/latest/) package, which the MEDS algorithm
+template builds on:
+
+| `profile`                | Steps, in order                                                                       | Use when                                                          |
+| ------------------------ | ------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| `supervised`             | `preprocess_data`, `train_supervised`, `predict_supervised`                           | learning a task-specific model directly from the training labels  |
+| `finetune`               | `preprocess_data`, `pretrain`, `train_finetune`, `predict_finetune`                   | updating a pre-trained encoder together with a task-specific head |
+| `probe`                  | `preprocess_data`, `pretrain`, `infer_embeddings`, `train_probe`, `predict_probe`     | fitting a task-specific head on frozen representations            |
+| `zero_shot_direct`       | `preprocess_data`, `pretrain`, `predict_zero_shot_direct`                             | predicting a task from its definition, without labels             |
+| `zero_shot_materialized` | `preprocess_data`, `pretrain`, `infer_trajectories`, `predict_zero_shot_materialized` | generating futures, then evaluating the task's definition on them |
+| `predict_only`           | `preprocess_data`, `predict_only`                                                     | applying a fixed model or an in-context learner, without training |
+
+MEDS-DEV checks a `model.yaml` against its profile when it loads the model:
+
+- Every step must be one of the profile's steps, and every step of the profile must be given. The only
+    exception is `preprocess_data`, which a model without task-independent preprocessing may leave out.
+- Steps run in the profile's order. `preprocess_data` and `pretrain` are task-independent: they receive no
+    labels, run once per dataset and are shared by every task. The other steps run once per task.
+- The last step is the predict step. It must store its predictions as a set of parquet files in its
+    `{step_dir}`, in the format expected by `meds-evaluation`.
+- For the zero-shot profiles, the predict step must use `{task_criteria_path}`.
+
+Commands run with the model's requirements installed, and can use these template variables:
+
+| Template variable      | Available in      | Value                                                                                   |
+| ---------------------- | ----------------- | --------------------------------------------------------------------------------------- |
+| `{dataset_dir}`        | every step        | the MEDS dataset                                                                        |
+| `{model_dir}`          | every step        | the model's directory in MEDS-DEV (for its scripts and configuration files)             |
+| `{demo}`               | every step        | whether this is a demo run (`True` or `False`)                                          |
+| `{predicates_path}`    | every step        | the dataset's predicates file, from the `predicates_path` argument (e.g., to featurize) |
+| `{step_dir}`           | every step        | this step's output directory                                                            |
+| `{<step>_dir}`         | every later step  | the output directory of an earlier step, e.g. `{pretrain_dir}`                          |
+| `{labels_dir}`         | task-scoped steps | the task's labels                                                                       |
+| `{task_criteria_path}` | task-scoped steps | the task's ACES criteria file, for models that predict a task from its definition       |
+| `{split}`              | the predict step  | the split to predict (default: `held_out`)                                              |
+
+A step _needs_ the earlier steps whose `{<step>_dir}` its command uses: they are run first (or reused if
+they already finished), and nothing else has to be declared. `{task_criteria_path}` is the
+`task_criteria_path` argument or, by default, the registered criteria file of the task. See
+[Using a model](#using-a-model) for where steps are stored and how they are run, and the help string of
+`meds-dev-model` for more information. The existing models are examples: `random_predictor`
+(`predict_only`), `meds_tab/tiny` and `genhpf` (`supervised`), and `cehrbert` (`finetune`).
+
+#### Migrating a `model.yaml` with a `commands` block
+
+Earlier `model.yaml` files had a `commands` block with four slots (`unsupervised`/`supervised` x
+`train`/`predict`). They are no longer supported, and MEDS-DEV fails to load a model that still uses one. To
+migrate:
+
+| `commands` block              | Now                                                                    |
+| ----------------------------- | ---------------------------------------------------------------------- |
+| (none)                        | `profile`: the profile whose steps the model has                       |
+| `commands.unsupervised.train` | `preprocess_data` and `pretrain`                                       |
+| `commands.supervised.train`   | the profile's training steps, e.g. `train_finetune`                    |
+| `commands.supervised.predict` | the profile's predict step, e.g. `predict_finetune`                    |
+| a slot set to `null`          | no step                                                                |
+| `{output_dir}`                | `{step_dir}`                                                           |
+| `{model_initialization_dir}`  | `{<step>_dir}` of the step whose output is read, e.g. `{pretrain_dir}` |
+
+Previously, the single `model_initialization_dir` argument chained each stage to the previous one; now a
+step can read any number of earlier outputs. `meds-dev-model` no longer takes `dataset_type` and `mode`:
+it runs every step by default, and `steps` selects some of them. The predictions of a run are now under
+`<output_dir>/<dataset_name>/<task_name>/predict/`.
 
 ## Efficient Testing
 

@@ -1,0 +1,42 @@
+metadata:
+  description: >-
+    The default MEDS-Tab baseline: every code seen at least 10 times in the training split is tabularized
+    over MEDS-Tab's default windows (2h, 12h, 1d, 7d, 30d, and the full history) and aggregations (static
+    presence, code counts and recency, and value sums, minimums and maximums), and a single `medsboost` model
+    (MEDS-Tab's gradient-boosted trees for wide, sparse matrices) is trained with its default hyperparameters.
+  links:
+    - https://arxiv.org/abs/2411.00200
+    - https://github.com/mmcdermott/MEDS_Tabular_AutoML
+  contacts:
+    - name: "Nassim Oufattole"
+      github_username: "Oufattole"
+    - name: "Teya Bergamaschi"
+      github_username: "teyaberg"
+    - name: "Matthew McDermott"
+      github_username: "mmcdermott"
+    - name: "Florent Pollet"
+      github_username: "florian6973"
+profile: supervised
+steps:
+  # Code frequencies over the training split: independent of the task, so shared by every task.
+  preprocess_data: >-
+    meds-tab-describe "input_dir={dataset_dir}/data" "output_dir={step_dir}"
+
+  # Tabularizes the features at the task's prediction times, then trains the model on them.
+  train_supervised: |-
+    meds-tab-tabularize \
+        "input_dir={dataset_dir}/data" "output_dir={step_dir}" \
+        do_overwrite=False "input_label_dir={labels_dir}" \
+        "input_code_metadata_fp={preprocess_data_dir}/metadata/codes.parquet"
+
+    meds-tab-model \
+        "input_dir={dataset_dir}/data" "output_dir={step_dir}" \
+        "output_model_dir={step_dir}/results" "task_name=null" do_overwrite=False \
+        "input_label_dir={labels_dir}" \
+        "input_tabularized_dir={step_dir}/tabularize" \
+        "tabularization.filtered_code_metadata_fp={step_dir}/metadata/codes.parquet"
+
+  # A single run has no best_trial directory: its predictions are next to the model, in sweep_results/<trial>/.
+  predict_supervised: |-
+    LATEST_TRAIN_DIR=$(ls -td {train_supervised_dir}/results/*/ | head -n 1)
+    cp $LATEST_TRAIN_DIR/sweep_results/*/{split}_predictions.parquet {step_dir}/predictions.parquet

@@ -1,8 +1,11 @@
 metadata:
   description: >-
-    A tiny, low-cost XGBoost baseline using the MEDS-Tab framework. TODO(@Oufattole): Add more details here.
+    A tiny, low-cost gradient-boosted tree baseline using the MEDS-Tab framework. It tabularizes the 100 most
+    frequent codes over 7-day and 30-day windows with two aggregations (code counts and value sums), then
+    tunes a `medsboost` model (MEDS-Tab's gradient-boosted trees for wide, sparse matrices) over 20 trials.
   links:
     - https://arxiv.org/abs/2411.00200
+    - https://github.com/mmcdermott/MEDS_Tabular_AutoML
   contacts:
     - name: "Nassim Oufattole"
       github_username: "Oufattole"
@@ -10,42 +13,36 @@ metadata:
       github_username: "teyaberg"
     - name: "Matthew McDermott"
       github_username: "mmcdermott"
-commands:
-  unsupervised: null
-  supervised:
-    train: |-
-      meds-tab-describe \
-          "input_dir={dataset_dir}/data" "output_dir={output_dir}/meds_tab"
+    - name: "Florent Pollet"
+      github_username: "florian6973"
+profile: supervised
+steps:
+  # Code frequencies over the training split: independent of the task, so shared by every task.
+  preprocess_data: >-
+    meds-tab-describe "input_dir={dataset_dir}/data" "output_dir={step_dir}"
 
-      meds-tab-tabularize-static \
-          "input_dir={dataset_dir}/data" "output_dir={output_dir}/meds_tab" \
-          do_overwrite=False "input_label_dir={labels_dir}" \
-          "tabularization.aggs=[code/count,value/sum]" \
-          "tabularization.window_sizes=[7d,30d]" \
-          "tabularization.max_included_codes=100"
+  # Tabularizes the features at the task's prediction times, then tunes the model on them.
+  train_supervised: |-
+    meds-tab-tabularize \
+        "input_dir={dataset_dir}/data" "output_dir={step_dir}" \
+        do_overwrite=False "input_label_dir={labels_dir}" \
+        "input_code_metadata_fp={preprocess_data_dir}/metadata/codes.parquet" \
+        "tabularization.aggs=[code/count,value/sum]" \
+        "tabularization.window_sizes=[7d,30d]" \
+        "tabularization.max_included_codes=100"
 
-      meds-tab-tabularize-time-series \
-          --multirun \
-          worker="range(0,1)" \
-          hydra/launcher=joblib \
-          "input_dir={dataset_dir}/data" "output_dir={output_dir}/meds_tab" \
-          do_overwrite=False "input_label_dir={labels_dir}" \
-          "tabularization.aggs=[code/count,value/sum]" \
-          "tabularization.window_sizes=[7d,30d]" \
-          "tabularization.max_included_codes=100"
+    meds-tab-model \
+        --multirun \
+        "input_dir={dataset_dir}/data" "output_dir={step_dir}" \
+        "output_model_dir={step_dir}/results" "task_name=null" do_overwrite=False \
+        "hydra.sweeper.n_trials=20" "hydra.sweeper.n_jobs=1" \
+        "input_label_dir={labels_dir}" \
+        "input_tabularized_dir={step_dir}/tabularize" \
+        "tabularization.filtered_code_metadata_fp={step_dir}/metadata/codes.parquet" \
+        "tabularization.aggs=[code/count,value/sum]" \
+        "tabularization.window_sizes=[7d,30d]" \
+        "tabularization.max_included_codes=100" tabularization.min_code_inclusion_count=null
 
-      meds-tab-xgboost \
-          --multirun \
-          "input_dir={dataset_dir}/data" "output_dir={output_dir}/meds_tab" \
-          "output_model_dir={output_dir}/results" "task_name=null" do_overwrite=False \
-          "hydra.sweeper.n_trials=20" "hydra.sweeper.n_jobs=1" \
-          "input_tabularized_cache_dir={output_dir}/meds_tab/tabularize/" \
-          "input_label_cache_dir={labels_dir}" \
-          "tabularization.aggs=[code/count,value/sum]" \
-          "tabularization.window_sizes=[7d,30d]" \
-          "tabularization.max_included_codes=100" tabularization.min_code_inclusion_count=null
-
-    predict: |-
-      mkdir -p "{output_dir}"
-      LATEST_TRAIN_DIR=$(ls -td {model_initialization_dir}/results/*/ | head -n 1)
-      cp $LATEST_TRAIN_DIR/best_trial/{split}_predictions.parquet {output_dir}/predictions.parquet
+  predict_supervised: |-
+    LATEST_TRAIN_DIR=$(ls -td {train_supervised_dir}/results/*/ | head -n 1)
+    cp $LATEST_TRAIN_DIR/best_trial/{split}_predictions.parquet {step_dir}/predictions.parquet

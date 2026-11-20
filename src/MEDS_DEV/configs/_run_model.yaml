@@ -1,29 +1,37 @@
 defaults:
   - _self_
 
-dataset_type: supervised
+model: ???
 dataset_dir: ???
-labels_dir: null
-dataset_name: null
+dataset_name: null # required: steps are stored under output_dir/dataset_name
+output_dir: ???
+
+# The steps to run, by name (e.g. steps=[pretrain]); defaults to every step of the model's profile. The steps they need are added,
+# and finished steps are skipped.
+steps: null
+
+# The task(s), needed whenever task-scoped steps run: either one task ...
 task_name: null
+labels_dir: null
+task_criteria_path: null # optional ACES task criteria file; defaults to the registered file of task_name
+# ... or several, with shared dataset-scoped steps run once. Labels are read from labels_root/<task>.
+tasks: null
+labels_root: null
+
+split: null # the split the predict step predicts; defaults to held_out
+
+predicates_path: null # optional path to a predicates file, for models that need one (e.g., for featurization)
+
+model_initialization_dir: null # output_dir of an earlier run whose shared (dataset-scoped) steps to reuse
+step_dirs: {} # existing outputs to use for these steps instead of running them, e.g. +step_dirs.pretrain=/path
+overwrite: null # none | task | all; which step directories to clear first (defaults to all if do_overwrite)
+do_overwrite: false # same as overwrite=all
+lock_timeout: 86400 # seconds to wait for another run that holds the lock of a shared step
 
 venv_dir: ${output_dir}/.venv
 temp_dir: null
 
 demo: false
-mode: prediction
-model: ???
-do_overwrite: false
-
-split: null # this is only used for training.
-
-model_initialization_dir: null
-
-predicates_path: null # optional path to a predicates file, for models that need one (e.g., for featurization)
-
-task_criteria_path: null # optional ACES task criteria file; defaults to the registered file of task_name
-
-output_dir: ???
 
 hydra:
   job:
@@ -41,38 +49,44 @@ hydra:
       their models over local health datasets and local data owners trivially train and evaluate MEDS-DEV
       models over their data.
 
-      Models can either be run over either (a) unsupervised data or (b) supervised data, and can be run in any
-      of (1) hyperparameter tuning, (2) training, or (3) prediction modes. Various models need not define all
-      of the combinations of these modes, and this is by design!
+      A model is a list of steps, defined in its model.yaml: the steps of the model's profile (for example
+      preprocess_data, pretrain, train_finetune and predict_finetune for the "finetune" profile). A step is
+      either:
+        - dataset-scoped (preprocess_data and pretrain): task-independent. It receives no labels, runs once
+          per dataset and is shared by every task. It is stored under
+          "<output_dir>/<dataset_name>/_shared/<step>/".
+        - task-scoped (every other step, e.g. fine-tuning and prediction, including zero-shot prediction):
+          run once per task. It receives the task's labels_dir. It is stored under
+          "<output_dir>/<dataset_name>/<task_name>/<step>/".
+      The last step of a profile is the predict step. Its predictions for the held-out split are stored
+      under "<output_dir>/<dataset_name>/<task_name>/predict/" (or ".../predict.<split>/" for another split),
+      which is the directory to pass to "meds-dev-evaluation" as predictions_dir.
 
-      The assumed (global) flow is:
-        1. unsupervised, train
-        2. [optional, for zero-shot] unsupervised, predict
-        3. supervised, train
-        4. supervised, predict
+      By default, every step is run, in order, and each step reads the outputs of the earlier steps it needs.
+      "output_dir" is an experiment directory that can be shared by many runs: a step that already finished
+      there is not run again, so running a second task with the same output_dir reuses the dataset-scoped
+      steps. Shared steps are locked while they run, so tasks can also run concurrently. "dataset_name" is
+      required, and "task_name" with "labels_dir" (or "tasks" with "labels_root") whenever task-scoped steps
+      run.
 
-      In each of these steps the "model_initialization_dir" parameter is assumed to point to the directory
-      specified by the "output_dir" of the prior stage, if such a prior stage is necessary and was run.
+      To run only part of a model, set "steps" to a list of step names, e.g. "steps=[pretrain]". The steps
+      that the selected steps need are run too (unless they already finished). If only dataset-scoped steps
+      are selected, no task is needed.
 
-      It is fully acceptable to have no prior stages having been run, and keep model_initialization_dir as
-      null. These parameters are merely used as inputs to the customized model run scripts in the model.yaml
-      files. The only mandatory stage for participating in MEDS-DEV is supervised, prediction.
+      "tasks" with "labels_root" runs several tasks in one call; the labels of each task are read from
+      "<labels_root>/<task>". "step_dirs" gives existing output directories to use for some steps instead of
+      running them. "model_initialization_dir" points at the output_dir of an earlier run whose dataset-scoped
+      steps should be reused.
 
-      You can also run in mode=`full` to run all 4 applicable steps in order (with applicability determined by
-      what commands are present in the model), with the model_initialization_dir appropriately set in between.
-      In this case, `output_dir` should be set to a global "experiment directory" for the series of runs, and
-      appropriate sub-dirs will be created and used for the sequence. In this case, if prior stage completion
-      is flagged (e.g., if you use the same dir twice), the stage will not be re-run. The directory structure
-      used for these will depend on dataset_name and task_name, so those must be set if this mode is used.
-
-      If a model's commands use the "{predicates_path}" template variable (e.g., to bind dataset-specific
+      If a model's steps use the "{predicates_path}" template variable (e.g., to bind dataset-specific
       predicates for featurization), point "predicates_path" to the appropriate predicates file (such as the
       dataset's predicates.yaml). It can be left as null for models that do not use it.
 
-      If a model's commands use the "{task_criteria_path}" template variable (e.g., zero-shot models, which
+      If a model's steps use the "{task_criteria_path}" template variable (e.g., zero-shot models, which
       predict a task from its definition rather than from its labels), it is the ACES criteria file of the
-      task: "task_criteria_path" when set, otherwise the registered criteria file of "task_name". Pair it
-      with "predicates_path" to give the model the same task that "meds-dev-task" extracted the labels with.
+      task: "task_criteria_path" when set, otherwise the registered criteria file of the task. Pair it with
+      "predicates_path" to give the model the same task that "meds-dev-task" extracted the labels with.
 
-      If do_overwrite is set to true, the output dir (except for its ".logs" log directory) will be cleared
-      before anything is run.
+      "overwrite" chooses which step directories are cleared before the steps run: "none" (the default),
+      "task" (this run's task-scoped steps; shared dataset-scoped steps are kept) or "all" (every step this
+      run executes). "do_overwrite=true" means "overwrite=all". Nothing else in output_dir is deleted.
