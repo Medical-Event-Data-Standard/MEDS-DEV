@@ -1,6 +1,6 @@
 predicates:
   # Codes are those of MC-MED-MEDS 0.1.0. MC-MED holds adult emergency department (ED) visits; each visit
-  # carries its CSN in the `csn` column.
+  # carries its CSN in the `hadm_id` column (`csn` up to MC-MED-MEDS 0.2.0).
   #
   # `HOSPITAL_ADMISSION//<admit service>` is the admission order of a visit that is admitted from the ED.
   # MC-MED records no discharge time, so `HOSPITAL_DISCHARGE//<disposition>` is reconstructed as arrival

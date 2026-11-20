@@ -50,7 +50,8 @@ no public demo, so only `build_full` is provided.[3] Notable properties of the c
 - **Dates are shifted** per patient into 2150–2350 by the dataset authors, keeping the season, so only
     time differences within one subject carry meaning.
 - **One visit is one ED encounter**, from `ED_ARRIVAL//<means of arrival>` to `ED_DEPARTURE`, and every
-    visit-scoped event carries the visit's `CSN` in a `csn` column. Triage has no time of its own and is placed
+    visit-scoped event carries the visit's `CSN` in an `hadm_id` column (`csn` up to MC-MED-MEDS 0.2.0),
+    the ED visit together with any admission that follows it. Triage has no time of its own and is placed
     at arrival.
 - **Hospital and ICU admission, and discharge.** `HOSPITAL_ADMISSION//<service>` is the admission order of
     a visit admitted from the ED, and `ED_DISPOSITION//ICU` marks the decision to admit it to the ICU, a median
