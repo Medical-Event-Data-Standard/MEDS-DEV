@@ -1,0 +1,33 @@
+metadata:
+  description: >-
+    RETAIN (Choi et al., NeurIPS 2016): a reverse-time attention model over a subject's sequence of visits,
+    where a visit is the set of codes recorded in one day. It is run from the `meds-algorithm-retain`
+    package, a PyTorch reimplementation of the official code with the official default hyperparameters.
+  links:
+    - https://proceedings.neurips.cc/paper/2016/hash/231141b34c82aa95e48810a9d1b33a79-Abstract.html
+    - https://github.com/mp2893/retain
+    - https://github.com/florian6973/meds-algorithm-retain
+    - https://pypi.org/project/meds-algorithm-retain/
+  contacts:
+    - name: "Florent Pollet"
+      github_username: "florian6973"
+profile: supervised
+steps:
+  # The code vocabulary (fitted on the train split) and the tokenized events: independent of the task, so
+  # shared by every task.
+  preprocess_data: >-
+    retain-meds preprocess_data --profile supervised
+    external_meds_dir={dataset_dir} output_data_dir={step_dir}/data
+
+  # Fits the model on the labels of the train split; the labels of the tuning split select the epoch.
+  train_supervised: >-
+    retain-meds train_supervised --profile supervised
+    input_data_dir={preprocess_data_dir}/data external_labels_dir={labels_dir}
+    output_supervised_algorithm_dir={step_dir}/algorithm
+
+  # Scores the keys of the requested split, then attaches their labels.
+  predict_supervised: >-
+    retain-meds predict_supervised --profile supervised
+    input_data_dir={preprocess_data_dir}/data input_supervised_algorithm_dir={train_supervised_dir}/algorithm
+    external_index_dir={labels_dir} splits=[{split}] external_evaluation_labels_dir={labels_dir}
+    output_predictions_dir={step_dir}/predictions
