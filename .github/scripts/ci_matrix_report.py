@@ -22,6 +22,41 @@ CONCLUSIONS = {
 }
 
 
+# GitHub Actions allows at most 256 jobs per matrix; a job whose matrix is larger never starts.
+MAX_MATRIX_JOBS = 250
+
+
+def batch_combos(combos: list[dict], max_jobs: int = MAX_MATRIX_JOBS) -> list[dict]:
+    """Group model/dataset/task combinations into at most ``max_jobs`` matrix entries.
+
+    While the combinations fit, every entry is one combination and its ``label`` is the task, so job names
+    are what they were before batching existed. Beyond that, an entry holds several tasks of one model and
+    dataset, space-separated in ``task``, and its ``label`` names the first task and how many follow.
+
+    >>> combos = [{"model": "m", "dataset": "d", "task": t} for t in ("a", "b", "c")]
+    >>> batch_combos(combos)
+    [{'model': 'm', 'dataset': 'd', 'task': 'a', 'label': 'a'},
+     {'model': 'm', 'dataset': 'd', 'task': 'b', 'label': 'b'},
+     {'model': 'm', 'dataset': 'd', 'task': 'c', 'label': 'c'}]
+    >>> batch_combos(combos, max_jobs=2)
+    [{'model': 'm', 'dataset': 'd', 'task': 'a b', 'label': 'a + 1 more'},
+     {'model': 'm', 'dataset': 'd', 'task': 'c', 'label': 'c'}]
+    """
+    groups: dict[tuple[str, str], list[str]] = {}
+    for combo in combos:
+        groups.setdefault((combo["model"], combo["dataset"]), []).append(combo["task"])
+    size = 1
+    while sum(-(-len(tasks) // size) for tasks in groups.values()) > max_jobs:
+        size += 1
+    batches = []
+    for (model, dataset), tasks in groups.items():
+        for i in range(0, len(tasks), size):
+            chunk = tasks[i : i + size]
+            label = chunk[0] if len(chunk) == 1 else f"{chunk[0]} + {len(chunk) - 1} more"
+            batches.append({"model": model, "dataset": dataset, "task": " ".join(chunk), "label": label})
+    return batches
+
+
 def fetch_jobs(repository: str, run_id: int, attempts: int = 4, backoff_seconds: float = 15) -> list[dict]:
     """Fetch *all* jobs, not just GitHub's default 30 or first 100.
 
@@ -68,10 +103,17 @@ def build_report(
         if name.startswith("full-integration (") and (name not in by_name or job["id"] > by_name[name]["id"]):
             by_name[name] = job
 
+    # A matrix entry may hold several space-separated tasks (see batch_combos). Every task gets its own row;
+    # tasks of one entry ran in one job and share its result.
+    expanded = [
+        (combo["model"], combo["dataset"], task, combo.get("label", combo["task"]))
+        for combo in combos
+        for task in combo["task"].split()
+    ]
+
     results = []
-    for combo in combos:
-        model, dataset, task = (combo[k] for k in ("model", "dataset", "task"))
-        name = f"full-integration ({model}, {dataset}, {task})"
+    for model, dataset, task, label in expanded:
+        name = f"full-integration ({model}, {dataset}, {label})"
         job = by_name.get(name)
         conclusion = job.get("conclusion") if job else None
         status = CONCLUSIONS.get(conclusion, "other") if job else "not_run"

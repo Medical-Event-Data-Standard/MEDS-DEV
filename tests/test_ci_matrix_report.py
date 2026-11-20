@@ -64,6 +64,34 @@ def test_failed_upload_is_distinguished_from_successful_pytest():
     assert report["results"][0]["test_conclusion"] == "success"
 
 
+def test_combinations_are_batched_only_when_the_matrix_is_too_large():
+    combos = [combo(model, task=f"task/{i}") for model in ("a", "b") for i in range(5)]
+    assert reporter.batch_combos(combos) == [{**c, "label": c["task"]} for c in combos]
+
+    batches = reporter.batch_combos(combos, max_jobs=4)
+    assert len(batches) == 4
+    assert [b["task"] for b in batches if b["model"] == "a"] == ["task/0 task/1 task/2", "task/3 task/4"]
+    assert batches[0]["label"] == "task/0 + 2 more"
+    assert sorted(t for b in batches for t in b["task"].split()) == sorted(c["task"] for c in combos)
+    assert len({(b["model"], b["dataset"], b["label"]) for b in batches}) == len(batches)
+
+
+def test_batched_job_reports_one_row_per_task():
+    combos = [combo(task=f"task/{i}") for i in range(3)]
+    batches = reporter.batch_combos(combos, max_jobs=2)
+    jobs = [
+        {**job(combo(task=batches[0]["label"]), "failure", 5)},
+        {**job(combo(task=batches[1]["label"]), "success", 6)},
+    ]
+    report = make_report(batches, jobs)
+    assert [(x["task"], x["status"], x["job_id"]) for x in report["results"]] == [
+        ("task/0", "failed", 5),
+        ("task/1", "failed", 5),
+        ("task/2", "passed", 6),
+    ]
+    assert report["summary"]["total"] == 3
+
+
 def test_fetch_jobs_retries_transient_api_errors(monkeypatch):
     pages = [{"jobs": [{"id": 1}]}, {"jobs": [{"id": 2}]}]
     responses = [subprocess.CalledProcessError(1, "gh"), json.dumps(pages)]
