@@ -299,20 +299,25 @@ jobs:
 
       # One matrix entry per model × dataset × task that the suite would test, read from pytest's own
       # collection, so new datasets, tasks, and models (and the tasks' `supported_datasets`) are picked up
-      # automatically.
+      # automatically. If that is more than a matrix may hold, an entry holds several tasks (`task` is then a
+      # space-separated list and `label` names the entry).
       - name: List model × dataset × task combinations
         id: combos
         run: |
           uv run pytest --collect-only -q -m integration > collected.txt
           uv run python - >> "$GITHUB_OUTPUT" <<'EOF'
-          import itertools, json
+          import itertools, json, sys
           from MEDS_DEV import DATASETS, MODELS, TASKS
+          sys.path.insert(0, ".github/scripts")
+          from ci_matrix_report import batch_combos
           collected = set(open("collected.txt").read().split())
           combos = [
               {"model": m, "dataset": d, "task": t}
               for m, d, t in itertools.product(sorted(MODELS), sorted(DATASETS), sorted(TASKS))
               if f"tests/test_2_supervised_models.py::test_supervised[{t}-{d}-{m}]" in collected
           ]
+          # GitHub allows 256 jobs per matrix. Beyond that, one job runs several tasks of a model and dataset.
+          combos = batch_combos(combos)
           print(f"combos={json.dumps(combos)}")
           print(f"datasets={json.dumps(sorted({c['dataset'] for c in combos}))}")
           EOF
@@ -445,6 +450,8 @@ jobs:
   # model × dataset × task
   # ---------------------------------------------------------------------------
   full-integration:
+    # The same name GitHub derives from a one-task matrix entry; the CI report finds jobs by it.
+    name: full-integration (${{ matrix.model }}, ${{ matrix.dataset }}, ${{ matrix.label }})
     runs-on: ubuntu-latest
     needs: [determine-scope, full-integration-setup, demo-datasets]
     # Runs even if one dataset failed to build, so the other datasets' combinations are still tested (the
@@ -481,14 +488,16 @@ jobs:
       # --reuse_cached_dataset uses the downloaded build instead of rebuilding it. Each job also runs the
       # dataset's and task's tests and the non-integration tests alongside the model's tests, so every job is
       # a complete suite for its combination.
-      - name: Run full test suite for ${{ matrix.model }} on ${{ matrix.dataset }} / ${{ matrix.task }}
+      - name: Run full test suite for ${{ matrix.model }} on ${{ matrix.dataset }} / ${{ matrix.label }}
         env:
           MODEL: ${{ matrix.model }}
           DATASET: ${{ matrix.dataset }}
-          TASK: ${{ matrix.task }}
+          TASKS: ${{ matrix.task }}
         run: |
+          task_args=()
+          for task in $TASKS; do task_args+=("--test_task=$task"); done
           uv run pytest -v --doctest-modules --cov=src --cov-report=xml --junitxml=junit.xml -s -x \
-            --test_model="$MODEL" --test_dataset="$DATASET" --test_task="$TASK" \
+            --test_model="$MODEL" --test_dataset="$DATASET" "${task_args[@]}" \
             --persistent_cache_dir="$MEDS_DEV_CACHE_DIR" --cache_dataset=all --reuse_cached_dataset=all
 
       # Preserve the underlying pytest report as well as the job's pass/fail status.
