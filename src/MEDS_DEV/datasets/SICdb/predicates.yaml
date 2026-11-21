@@ -1,6 +1,6 @@
 predicates:
-  # Codes are those of SICdb-MEDS 0.1.0. Each SICdb case is one ICU admission with its preceding surgery,
-  # if any.
+  # Codes are those of SICdb-MEDS 0.3.0 (unchanged since 0.1.0). Each SICdb case is one ICU admission with
+  # its preceding surgery, if any.
   #
   # `ADMISSION//<urgency>` opens the case. SICdb records no hospital admission time, so the start of the
   # case is used for `hospital_admission`. `HOSPITAL_DISCHARGE//<type>` is recorded to the day; the ETL

@@ -23,9 +23,13 @@ The ETL downloads the source files from PhysioNet. Set `DATASET_DOWNLOAD_USERNAM
 
 ## MEDS Transformation
 
-[`NWICU-MEDS`](https://github.com/rvandewater/NWICU_MEDS) transforms the credentialed PhysioNet
-release into MEDS. The MEDS-DEV recipe intentionally exposes only the full-data pipeline because NWICU
-does not provide a public demo dataset.[2]
+[`NWICU-MEDS`](https://github.com/rvandewater/NWICU_MEDS) 1.2.0, a
+[MEDS-Extract](https://github.com/mmcdermott/MEDS_extract) pipeline registered as `spec=NWICU` for
+`meds-extract-run`, transforms the credentialed PhysioNet release into MEDS. Since 1.0.0 the ETL renamed
+diagnoses (`ICD//<edition>//<code>`) and prescription ends (`END` instead of `STOP`), as listed under
+"Breaking changes" in its README; the predicates use neither, and every predicate code has events in a full
+1.2.0 build. The MEDS-DEV recipe intentionally exposes only the full-data pipeline because NWICU does not
+provide a public demo dataset.[2]
 
 ## Sources
 
