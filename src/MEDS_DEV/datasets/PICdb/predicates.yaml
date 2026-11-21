@@ -17,94 +17,96 @@ predicates:
   # MEDS_DEATH (task default) coincides with the last ICU discharge for 968 of the 971 deaths.
 
   # Diagnosis groups by ICD root. Generated from the dataset's suMEDS code catalog (TaskWiki task_templates).
+  # Each ICD prefix accepts the code layout before and after the 2026-11 ETL releases, e.g. DIAGNOSIS//ICD//(10|10CM)//;
+  # the old alternative can be dropped once the dataset's pin is on the new release.
   essential_hypertension:
     code:
       {
-        regex: "^(ADMISSION_DIAGNOSIS//ICD10_CN//I10|DIAGNOSIS//ICD10_CN//I10)",
+        regex: "^(ADMISSION_DIAGNOSIS//(ICD10_CN|ICD//10CN)//I10|DIAGNOSIS//(ICD10_CN|ICD//10CN)//I10)",
       }
   acute_lymphocytic_leukemia:
     code:
       {
-        regex: "^(ADMISSION_DIAGNOSIS//ICD10_CN//C91[.]0|DIAGNOSIS//ICD10_CN//C91[.]0)",
+        regex: "^(ADMISSION_DIAGNOSIS//(ICD10_CN|ICD//10CN)//C91[.]0|DIAGNOSIS//(ICD10_CN|ICD//10CN)//C91[.]0)",
       }
   acute_myeloid_leukemia:
     code:
       {
-        regex: "^(ADMISSION_DIAGNOSIS//ICD10_CN//C92[.]0|DIAGNOSIS//ICD10_CN//C92[.]0)",
+        regex: "^(ADMISSION_DIAGNOSIS//(ICD10_CN|ICD//10CN)//C92[.]0|DIAGNOSIS//(ICD10_CN|ICD//10CN)//C92[.]0)",
       }
   addison_disease:
-    code: { regex: "^(DIAGNOSIS//ICD10_CN//E27[.]1)" }
+    code: { regex: "^(DIAGNOSIS//(ICD10_CN|ICD//10CN)//E27[.]1)" }
   aortic_stenosis:
     code:
       {
-        regex: "^(ADMISSION_DIAGNOSIS//ICD10_CN//I35[.]0|DIAGNOSIS//ICD10_CN//(I35[.]0|I35[.]2|Q23[.]0))",
+        regex: "^(ADMISSION_DIAGNOSIS//(ICD10_CN|ICD//10CN)//I35[.]0|DIAGNOSIS//(ICD10_CN|ICD//10CN)//(I35[.]0|I35[.]2|Q23[.]0))",
       }
   aplastic_anemia:
     code:
       {
-        regex: "^(ADMISSION_DIAGNOSIS//ICD10_CN//(D61[.]1|D61[.]9)|DIAGNOSIS//ICD10_CN//(D61[.]1|D61[.]9))",
+        regex: "^(ADMISSION_DIAGNOSIS//(ICD10_CN|ICD//10CN)//(D61[.]1|D61[.]9)|DIAGNOSIS//(ICD10_CN|ICD//10CN)//(D61[.]1|D61[.]9))",
       }
   chronic_hepatitis_or_fatty_liver:
     code:
       {
-        regex: "^(ADMISSION_DIAGNOSIS//ICD10_CN//K71[.]6|DIAGNOSIS//ICD10_CN//K76[.]0)",
+        regex: "^(ADMISSION_DIAGNOSIS//(ICD10_CN|ICD//10CN)//K71[.]6|DIAGNOSIS//(ICD10_CN|ICD//10CN)//K76[.]0)",
       }
   chronic_myeloid_leukemia:
-    code: { regex: "^(DIAGNOSIS//ICD10_CN//C92[.]1)" }
+    code: { regex: "^(DIAGNOSIS//(ICD10_CN|ICD//10CN)//C92[.]1)" }
   diabetes_mellitus:
     code:
       {
-        regex: "^(ADMISSION_DIAGNOSIS//ICD10_CN//E10|DIAGNOSIS//ICD10_CN//(E10|E13))",
+        regex: "^(ADMISSION_DIAGNOSIS//(ICD10_CN|ICD//10CN)//E10|DIAGNOSIS//(ICD10_CN|ICD//10CN)//(E10|E13))",
       }
   generalized_anxiety_disorder:
-    code: { regex: "^(DIAGNOSIS//ICD10_CN//F41[.]1)" }
+    code: { regex: "^(DIAGNOSIS//(ICD10_CN|ICD//10CN)//F41[.]1)" }
   immune_thrombocytopenia:
     code:
       {
-        regex: "^(ADMISSION_DIAGNOSIS//ICD10_CN//D69[.]3|DIAGNOSIS//ICD10_CN//D69[.]3)",
+        regex: "^(ADMISSION_DIAGNOSIS//(ICD10_CN|ICD//10CN)//D69[.]3|DIAGNOSIS//(ICD10_CN|ICD//10CN)//D69[.]3)",
       }
   kidney_cancer:
     code:
       {
-        regex: "^(ADMISSION_DIAGNOSIS//ICD10_CN//C64|DIAGNOSIS//ICD10_CN//C64)",
+        regex: "^(ADMISSION_DIAGNOSIS//(ICD10_CN|ICD//10CN)//C64|DIAGNOSIS//(ICD10_CN|ICD//10CN)//C64)",
       }
   multiple_sclerosis:
-    code: { regex: "^(DIAGNOSIS//ICD10_CN//G35)" }
+    code: { regex: "^(DIAGNOSIS//(ICD10_CN|ICD//10CN)//G35)" }
   myasthenia_gravis:
     code:
       {
-        regex: "^(ADMISSION_DIAGNOSIS//ICD10_CN//G70[.]0|DIAGNOSIS//ICD10_CN//G70[.]0)",
+        regex: "^(ADMISSION_DIAGNOSIS//(ICD10_CN|ICD//10CN)//G70[.]0|DIAGNOSIS//(ICD10_CN|ICD//10CN)//G70[.]0)",
       }
   nephrotic_syndrome:
     code:
       {
-        regex: "^(ADMISSION_DIAGNOSIS//ICD10_CN//N04|DIAGNOSIS//ICD10_CN//N04)",
+        regex: "^(ADMISSION_DIAGNOSIS//(ICD10_CN|ICD//10CN)//N04|DIAGNOSIS//(ICD10_CN|ICD//10CN)//N04)",
       }
   non_alcoholic_fatty_liver_disease:
-    code: { regex: "^(DIAGNOSIS//ICD10_CN//K76[.]0)" }
+    code: { regex: "^(DIAGNOSIS//(ICD10_CN|ICD//10CN)//K76[.]0)" }
   obesity:
-    code: { regex: "^(DIAGNOSIS//ICD10_CN//E66[.]9)" }
+    code: { regex: "^(DIAGNOSIS//(ICD10_CN|ICD//10CN)//E66[.]9)" }
   ovarian_cancer:
     code:
       {
-        regex: "^(ADMISSION_DIAGNOSIS//ICD10_CN//C56|DIAGNOSIS//ICD10_CN//C56)",
+        regex: "^(ADMISSION_DIAGNOSIS//(ICD10_CN|ICD//10CN)//C56|DIAGNOSIS//(ICD10_CN|ICD//10CN)//C56)",
       }
   pulmonary_fibrosis:
-    code: { regex: "^(DIAGNOSIS//ICD10_CN//J84[.]1)" }
+    code: { regex: "^(DIAGNOSIS//(ICD10_CN|ICD//10CN)//J84[.]1)" }
   sensorineural_hearing_loss:
     code:
       {
-        regex: "^(ADMISSION_DIAGNOSIS//ICD10_CN//(H90[.]3|H90[.]5)|DIAGNOSIS//ICD10_CN//(H90[.]3|H90[.]5))",
+        regex: "^(ADMISSION_DIAGNOSIS//(ICD10_CN|ICD//10CN)//(H90[.]3|H90[.]5)|DIAGNOSIS//(ICD10_CN|ICD//10CN)//(H90[.]3|H90[.]5))",
       }
   sleep_apnea:
     code:
       {
-        regex: "^(ADMISSION_DIAGNOSIS//ICD10_CN//G47[.]3|DIAGNOSIS//ICD10_CN//G47[.]3)",
+        regex: "^(ADMISSION_DIAGNOSIS//(ICD10_CN|ICD//10CN)//G47[.]3|DIAGNOSIS//(ICD10_CN|ICD//10CN)//G47[.]3)",
       }
   steatotic_liver_disease:
     code:
       {
-        regex: "^(ADMISSION_DIAGNOSIS//ICD10_CN//K76[.]9|DIAGNOSIS//ICD10_CN//(K76[.]0|K76[.]9))",
+        regex: "^(ADMISSION_DIAGNOSIS//(ICD10_CN|ICD//10CN)//K76[.]9|DIAGNOSIS//(ICD10_CN|ICD//10CN)//(K76[.]0|K76[.]9))",
       }
   thyroid_cancer:
-    code: { regex: "^(DIAGNOSIS//ICD10_CN//C73)" }
+    code: { regex: "^(DIAGNOSIS//(ICD10_CN|ICD//10CN)//C73)" }
