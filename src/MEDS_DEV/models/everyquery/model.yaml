@@ -19,8 +19,11 @@ steps:
   # A demo run uses demo_config.yaml (a small model, trained briefly); otherwise EveryQuery's own defaults.
 
   # Tensorizes the dataset and builds the code ontology. The vocabulary is fitted on the train split.
+  # A demo run uses one polars thread: with more, EveryQuery's preprocessing needs about 15 GB of memory on
+  # the eICU demo (5 GB with one), which is more than a standard CI machine has.
   preprocess_data: |-
     CONFIG=$([ "{demo}" = "True" ] && echo "config_file={model_dir}/demo_config.yaml" || true)
+    if [ "{demo}" = "True" ]; then export POLARS_MAX_THREADS=1; fi
     everyquery preprocess_data --profile zero_shot_direct \
         "external_meds_dir={dataset_dir}" "external_predicates_file={predicates_path}" \
         "output_data_dir={step_dir}/data" $CONFIG

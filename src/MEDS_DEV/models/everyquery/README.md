@@ -44,6 +44,10 @@ Running several tasks with the same `output_dir` therefore pretrains the model o
 - A demo run (`demo=True`) uses [`demo_config.yaml`](demo_config.yaml): a small model trained for 5 epochs
     on CPU, with the code and subject filters lowered for demo-sized datasets. Its predictions only show
     that the pipeline runs.
+- A demo run also limits preprocessing to one polars thread (`POLARS_MAX_THREADS=1`). EveryQuery's
+    preprocessing is memory-hungry with several threads: on the eICU demo (54 MB of data) it peaks at about
+    15 GB with two or more threads, and at about 5 GB with one. A full run does not set this limit, so plan
+    its memory accordingly, or set `POLARS_MAX_THREADS` yourself.
 
 ## Known limitations
 
