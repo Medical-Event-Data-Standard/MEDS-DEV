@@ -20,6 +20,14 @@ Taken from [PhysioNet](https://physionet.org/content/inspire/1.4.2/):
 
 The [`INSPIRE_MEDS`](https://github.com/rvandewater/INSPIRE_MEDS) ETL transforms the original INSPIRE data from PhysioNet into the Medical Event Data Standard (MEDS).
 
+MEDS-DEV pins `INSPIRE-MEDS==1.2.0`, which registers the `INSPIRE` spec for MEDS-Extract's
+`meds-extract-run`; `MEDS_extract-INSPIRE`, the complete build up to 1.0.0, is deprecated. Since 1.0.0 the
+ETL renamed diagnoses (`ICD//<edition>//<code>`) and operation and anaesthesia intervals
+(`OPERATION//START`, `OPERATION//END`, `ANESTHESIA//START`, `ANESTHESIA//END`), strips lab and vital units of
+surrounding whitespace and adds `hadm_id` and `operation_id` columns, as listed under "Breaking changes" in
+its README. The predicates use none of the renamed codes, and every predicate code has events in a full
+1.2.0 build.
+
 ## Sources
 
 1. [INSPIRE PhysioNet Website](https://physionet.org/content/inspire/1.4.2/)
