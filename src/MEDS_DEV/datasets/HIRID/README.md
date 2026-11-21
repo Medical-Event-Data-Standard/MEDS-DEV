@@ -44,7 +44,7 @@ HiRID has no demo, so the integration tests do not exercise these pairs.
 
 ## MEDS Transformation
 
-[`HIRID-MEDS`](https://github.com/rvandewater/HIRID_MEDS) is a pure-config
+[`HIRID-MEDS`](https://github.com/rvandewater/HIRID_MEDS) 0.3.0 is a pure-config
 [MEDS-Extract](https://github.com/mmcdermott/MEDS_extract) pipeline, registered as `spec=HIRID` for
 `meds-extract-run`.[3] HiRID has no public demo, so only `build_full` is provided. The build sets
 `POLARS_ENGINE_AFFINITY=streaming`, which keeps it under 10 GB of memory; without it, subject sharding runs out

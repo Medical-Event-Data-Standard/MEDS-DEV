@@ -41,11 +41,12 @@ The predicates the tasks use are defined anyway, so ED-specific tasks can be add
 
 ## MEDS Transformation
 
-[`MC-MED-MEDS`](https://github.com/rvandewater/MC_MED_MEDS) is a pure-config
-[MEDS-Extract](https://github.com/mmcdermott/MEDS_extract) pipeline, registered as `spec=MC-MED`. It is
-run with [suMEDS](https://github.com/rvandewater/SumMEDS)' `suMEDS-extract`, which runs `meds-extract-run`
-and then adds the official ICD-10-CM and ICD-9-CM titles and parents to `metadata/codes.parquet`. MC-MED has
-no public demo, so only `build_full` is provided.[3] Notable properties of the conversion:
+[`MC-MED-MEDS`](https://github.com/rvandewater/MC_MED_MEDS) 0.3.0 is a pure-config
+[MEDS-Extract](https://github.com/mmcdermott/MEDS_extract) pipeline, registered as `spec=MC-MED` for
+`meds-extract-run`. Its spec ends with suMEDS's enrichment stage, which adds the official ICD-10-CM and
+ICD-9-CM titles and parents to `metadata/codes.parquet`, so the build no longer goes through suMEDS'
+`suMEDS-extract`. Every predicate code has events in a full 0.3.0 build. MC-MED has no public demo, so only
+`build_full` is provided.[3] Notable properties of the conversion:
 
 - **Dates are shifted** per patient into 2150–2350 by the dataset authors, keeping the season, so only
     time differences within one subject carry meaning.
