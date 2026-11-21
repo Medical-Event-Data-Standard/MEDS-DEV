@@ -348,7 +348,14 @@ def clear_output_dir(output_dir: Path, keep: tuple[str, ...] = (".logs",)) -> No
 
 
 @contextlib.contextmanager
-def temp_env(cfg: DictConfig, requirements: str | Path | None) -> tuple[Path, dict]:
+def temp_env(
+    cfg: DictConfig, requirements: str | Path | None, python: str | None = None
+) -> tuple[Path, dict]:
+    """Yields a temporary build directory and an environment with `requirements` installed.
+
+    `python` is the Python version (or interpreter path) of the virtual environment; by default it is
+    the current interpreter. See `install_venv`.
+    """
     with tempdir_ctx(cfg) as build_temp_dir:
         env = os.environ.copy()
         if requirements is not None:
@@ -374,7 +381,7 @@ def temp_env(cfg: DictConfig, requirements: str | Path | None) -> tuple[Path, di
                 shutil.rmtree(venv_dir)
 
             if not check_fp.exists():
-                install_venv(venv_dir, requirements)
+                install_venv(venv_dir, requirements, python)
                 check_fp.touch()
 
             env["VIRTUAL_ENV"] = str(venv_dir.resolve())
