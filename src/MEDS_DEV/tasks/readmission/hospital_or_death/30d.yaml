@@ -1,0 +1,45 @@
+metadata:
+  description:
+    "Death or hospital readmission within 30 days of a hospital discharge, predicted at discharge (the outcome
+    of the LACE+ index). Discharges at which the patient is already dead are excluded. Any later hospital admission counts,
+    planned or not. Source literature: van Walraven et al. (2012). LACE+ index: extension of a validated index to predict
+    early death or urgent readmission after hospital discharge using administrative data."
+  links:
+    - https://pmc.ncbi.nlm.nih.gov/articles/PMC3659212/
+  contacts:
+    - name: Robin van de Water
+      github_username: rvandewater
+  supported_datasets:
+    - ALOTT
+    - AUMCdb
+    - INSPIRE
+    - MC-MED
+    - MIMIC-IV
+    - NWICU
+    - PICdb
+    - SICdb
+    - Zigong
+predicates:
+  hospital_discharge: ???
+  hospital_admission: ???
+  death:
+    code:
+      regex: MEDS_DEATH.*
+  outcome:
+    expr: or(death, hospital_admission)
+trigger: hospital_discharge
+windows:
+  input:
+    start: null
+    end: trigger
+    start_inclusive: true
+    end_inclusive: true
+    index_timestamp: end
+    has:
+      death: (None, 0)
+  target:
+    start: input.end
+    end: start + 30d
+    start_inclusive: false
+    end_inclusive: true
+    label: outcome

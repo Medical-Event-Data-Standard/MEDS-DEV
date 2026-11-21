@@ -1,0 +1,39 @@
+metadata:
+  description:
+    "Acute myocardial infarction within 1 year of a hospital discharge, for patients whose record starts at least
+    2 years before the discharge. Earlier infarctions do not exclude a patient, so recurrent events count. A record that ends
+    before the target window is over is labelled negative. Source literature: Jeanselme et al. (2025). FoMoH: A clinically
+    meaningful foundation model evaluation for structured electronic health records."
+  links:
+    - https://arxiv.org/html/2505.16941v4#A2.SS2
+  contacts:
+    - name: Robin van de Water
+      github_username: rvandewater
+  supported_datasets:
+    - INSPIRE
+    - MC-MED
+    - MIMIC-IV
+predicates:
+  hospital_discharge: ???
+  acute_myocardial_infarction: ???
+trigger: hospital_discharge
+windows:
+  history:
+    start: null
+    end: trigger - 730d
+    start_inclusive: true
+    end_inclusive: true
+    has:
+      _ANY_EVENT: (1, None)
+  input:
+    start: null
+    end: trigger
+    start_inclusive: true
+    end_inclusive: true
+    index_timestamp: end
+  target:
+    start: trigger
+    end: start + 365d
+    start_inclusive: false
+    end_inclusive: true
+    label: acute_myocardial_infarction

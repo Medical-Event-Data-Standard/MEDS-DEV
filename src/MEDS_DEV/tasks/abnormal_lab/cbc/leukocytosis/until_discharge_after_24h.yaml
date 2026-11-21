@@ -1,0 +1,56 @@
+metadata:
+  description:
+    "A high white blood cell count at any time between hour 24 of a hospital admission and its end, predicted at
+    hour 24. Admissions with such a result in the first 24 hours, and admissions that end in the first 24 hours, are excluded.
+    The threshold is the one in each dataset's `abnormally_high_wbc` predicate. The sources predict at the end of the day
+    of admission and use site-specific reference ranges. Source literature: Guo et al. (2026). PORTER: Language-Grounded Event
+    Representations for Portable Structured EHR Foundation Models."
+  links:
+    - https://arxiv.org/pdf/2606.24102v1#page=22
+  contacts:
+    - name: Robin van de Water
+      github_username: rvandewater
+  supported_datasets:
+    - ALOTT
+    - AUMCdb
+    - CDSL
+    - HIRID
+    - INSPIRE
+    - MC-MED
+    - MIMIC-IV
+    - NWICU
+    - SICdb
+    - Zigong
+    - eICU
+predicates:
+  hospital_admission: ???
+  hospital_discharge: ???
+  abnormally_high_wbc: ???
+  death:
+    code:
+      regex: MEDS_DEATH.*
+  discharge_or_death:
+    expr: or(hospital_discharge, death)
+trigger: hospital_admission
+windows:
+  input:
+    start: null
+    end: trigger + 24h
+    start_inclusive: true
+    end_inclusive: true
+    index_timestamp: end
+  in_stay:
+    start: trigger
+    end: start + 24h
+    start_inclusive: true
+    end_inclusive: true
+    has:
+      hospital_discharge: (None, 0)
+      death: (None, 0)
+      abnormally_high_wbc: (None, 0)
+  target:
+    start: in_stay.end
+    end: start -> discharge_or_death
+    start_inclusive: false
+    end_inclusive: true
+    label: abnormally_high_wbc

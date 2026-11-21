@@ -1,0 +1,51 @@
+metadata:
+  description:
+    "Chronic kidney disease stage 4 or higher (ICD-10 N18.4, N18.5, N18.6) within 1095 days of a patient's first
+    diagnosis of chronic kidney disease stage 3 (ICD-10 N18.3), predicted at that diagnosis. Patients with the outcome before
+    the diagnosis or in the 30 days after it are excluded. A record that ends before the target window is over is labelled
+    negative. Source literature: Zhang et al. (2026). A multimodal and temporal foundation model for virtual patient representations
+    at healthcare system scale."
+  links:
+    - https://arxiv.org/pdf/2604.18570v2#page=67
+  contacts:
+    - name: Robin van de Water
+      github_username: rvandewater
+  supported_datasets:
+    - ALOTT
+    - EHRShot
+    - MC-MED
+    - MIMIC-IV
+    - NWICU
+predicates:
+  chronic_kidney_disease_stage_3: ???
+  chronic_kidney_disease_stage_4_or_higher: ???
+trigger: chronic_kidney_disease_stage_3
+windows:
+  first:
+    start: null
+    end: trigger
+    start_inclusive: true
+    end_inclusive: false
+    has:
+      chronic_kidney_disease_stage_3: (None, 0)
+  input:
+    start: null
+    end: trigger
+    start_inclusive: true
+    end_inclusive: true
+    index_timestamp: end
+    has:
+      chronic_kidney_disease_stage_4_or_higher: (None, 0)
+  blackout:
+    start: trigger
+    end: start + 30d
+    start_inclusive: false
+    end_inclusive: true
+    has:
+      chronic_kidney_disease_stage_4_or_higher: (None, 0)
+  target:
+    start: blackout.end
+    end: start + 1065d
+    start_inclusive: false
+    end_inclusive: true
+    label: chronic_kidney_disease_stage_4_or_higher

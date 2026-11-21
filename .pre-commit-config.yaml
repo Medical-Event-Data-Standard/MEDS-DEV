@@ -83,7 +83,7 @@ repos:
       - id: codespell
         args:
           - --skip=*.ipynb,*.bib,*.svg,pyproject.toml
-          - --ignore-words-list=ehr,crate
+          - --ignore-words-list=ehr,crate,infarction,infarctions,postive,demostrated
 
   # jupyter notebook cell output clearing
   - repo: https://github.com/kynan/nbstripout

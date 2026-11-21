@@ -1,0 +1,30 @@
+metadata:
+  description:
+    "Whether acute kidney failure was diagnosed during the ICU stay that just ended. The label lies before the
+    prediction time (the ICU discharge), so the diagnosis codes of the stay must be removed from the model's inputs. On datasets
+    that timestamp diagnoses at hospital discharge the label is always negative. Source literature: Sheikhalishahi et al.
+    (2020). Benchmarking machine learning models on multi-centre eICU critical care dataset."
+  links:
+    - https://github.com/mostafaalishahi/eICU_Benchmark/blob/82dcd1e511c616a18a2f97f71dec84939c5a6abf/data_extraction/data_extraction_phenotyping.py#L11-L64
+  contacts:
+    - name: Robin van de Water
+      github_username: rvandewater
+  supported_datasets:
+    - ALOTT
+    - INSPIRE
+    - MIMIC-IV
+    - NWICU
+    - eICU
+predicates:
+  icu_admission: ???
+  icu_discharge: ???
+  acute_kidney_failure: ???
+trigger: icu_discharge
+windows:
+  episode:
+    start: end <- icu_admission
+    end: trigger
+    start_inclusive: true
+    end_inclusive: true
+    index_timestamp: end
+    label: acute_kidney_failure

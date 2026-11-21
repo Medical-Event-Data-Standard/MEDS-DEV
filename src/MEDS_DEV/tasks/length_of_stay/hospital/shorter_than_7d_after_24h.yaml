@@ -1,0 +1,56 @@
+metadata:
+  description:
+    "Length of stay below 7 days, predicted 24 hours after hospital admission. The label is a hospital discharge
+    between hour 24 and day 7. It is the complement of the common 'long length of stay (7 days or more)' task: ACES labels
+    the occurrence of an event, so the short stay is the positive class. Flip the label for the long stay. Source literature:
+    Wornow et al. (2023). EHRSHOT: An EHR Benchmark for Few-Shot Evaluation of Foundation Models. Rajkomar et al. (2018).
+    Scalable and accurate deep learning with electronic health records. Zhang et al. (2026). A multimodal and temporal foundation
+    model for virtual patient representations at healthcare system scale."
+  links:
+    - https://github.com/som-shahlab/ehrshot-benchmark/blob/main/ehrshot/labelers/ehrshot.py#L35
+    - https://www.nature.com/articles/s41746-018-0029-1#Sec13
+    - https://arxiv.org/pdf/2604.18570v2#page=90
+  contacts:
+    - name: Robin van de Water
+      github_username: rvandewater
+  supported_datasets:
+    - ALOTT
+    - AUMCdb
+    - CDSL
+    - HIRID
+    - INSPIRE
+    - MC-MED
+    - MIMIC-IV
+    - NWICU
+    - PICdb
+    - SICdb
+    - Zigong
+    - eICU
+predicates:
+  hospital_admission: ???
+  hospital_discharge: ???
+  death:
+    code:
+      regex: MEDS_DEATH.*
+trigger: hospital_admission
+windows:
+  input:
+    start: null
+    end: trigger + 24h
+    start_inclusive: true
+    end_inclusive: true
+    index_timestamp: end
+  in_stay:
+    start: trigger
+    end: start + 24h
+    start_inclusive: false
+    end_inclusive: true
+    has:
+      hospital_discharge: (None, 0)
+      death: (None, 0)
+  target:
+    start: in_stay.end
+    end: start + 6d
+    start_inclusive: false
+    end_inclusive: true
+    label: hospital_discharge

@@ -1,0 +1,50 @@
+metadata:
+  description:
+    "New onset of end-stage renal disease in a 12 month window, predicted at a time point that slides through the
+    record in 30 day steps from its first event. The window runs from month 3 to month 15 after the time point. Time points
+    with a diagnosis up to month 3 are excluded, and so are time points whose 15 months are not fully observed. One row per
+    patient and time point. Needs ACES 0.8 or later (`trigger` with `every`). Source literature: Razavian et al. (2016). Multi-task
+    Prediction of Disease Onsets from Longitudinal Laboratory Tests."
+  links:
+    - http://proceedings.mlr.press/v56/Razavian16.pdf#page=8
+    - http://proceedings.mlr.press/v56/Razavian16.pdf#page=2
+  contacts:
+    - name: Robin van de Water
+      github_username: rvandewater
+  supported_datasets:
+    - ALOTT
+    - MC-MED
+    - MIMIC-IV
+    - NWICU
+predicates:
+  end_stage_renal_disease: ???
+trigger:
+  predicate: _RECORD_START
+  every: 30d
+windows:
+  input:
+    start: null
+    end: trigger
+    start_inclusive: true
+    end_inclusive: true
+    index_timestamp: end
+  no_prior:
+    start: null
+    end: trigger + 90d
+    start_inclusive: true
+    end_inclusive: true
+    has:
+      end_stage_renal_disease: (None, 0)
+  target:
+    start: no_prior.end
+    end: start + 365d
+    start_inclusive: false
+    end_inclusive: true
+    label: end_stage_renal_disease
+  followup:
+    start: target.end
+    end: null
+    start_inclusive: false
+    end_inclusive: true
+    has:
+      _ANY_EVENT: (1, None)

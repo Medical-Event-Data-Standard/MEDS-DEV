@@ -1,0 +1,60 @@
+metadata:
+  description:
+    "In-ICU mortality from the first 24 hours of the ICU stay, with a 2 hour gap between the prediction time and
+    the target window. Stays that end, by discharge or death, in the first 24 hours or in the gap are excluded. It differs
+    from `mortality/in_icu/first_24h` only in the length of the gap (2 hours here, 24 hours there). Source literature: Gupta
+    et al. (2022). An Extensive Data Processing Pipeline for MIMIC-IV."
+  links:
+    - https://github.com/healthylaife/MIMIC-IV-Data-Pipeline/blob/4679a0a647ab789728466a04bc84bebfc9c3ddbf/preprocessing/day_intervals_preproc/day_intervals_cohort.py#L180-L213
+  contacts:
+    - name: Robin van de Water
+      github_username: rvandewater
+  supported_datasets:
+    - AUMCdb
+    - CDSL
+    - HIRID
+    - INSPIRE
+    - MIMIC-IV
+    - NWICU
+    - PICdb
+    - SICdb
+    - Zigong
+    - eICU
+predicates:
+  icu_admission: ???
+  icu_discharge: ???
+  death:
+    code:
+      regex: MEDS_DEATH.*
+  discharge_or_death:
+    expr: or(icu_discharge, death)
+trigger: icu_admission
+windows:
+  input:
+    start: null
+    end: trigger + 24h
+    start_inclusive: true
+    end_inclusive: true
+    index_timestamp: end
+  in_stay:
+    start: trigger
+    end: start + 24h
+    start_inclusive: false
+    end_inclusive: true
+    has:
+      icu_discharge: (None, 0)
+      death: (None, 0)
+  gap:
+    start: input.end
+    end: start + 2h
+    start_inclusive: false
+    end_inclusive: true
+    has:
+      icu_discharge: (None, 0)
+      death: (None, 0)
+  target:
+    start: gap.end
+    end: start -> discharge_or_death
+    start_inclusive: false
+    end_inclusive: true
+    label: death

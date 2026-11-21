@@ -1,0 +1,49 @@
+metadata:
+  description:
+    "Death within 365 days of the prediction time, which is 24 hours after ICU admission. Patients who die in the
+    first 24 hours are excluded. The target window is not limited to the stay, so the label depends on deaths after discharge
+    being recorded in the dataset. A record that ends before the 365 days are over is labelled negative; this task does not
+    handle censoring. Other horizons (1, 2, 3, 7, 28, 90 days) differ only in the end of the target window. Source literature:
+    Chandak et al. (2026). EveryQuery: A Promptable Foundation Model for Clinical Prediction Tasks over Electronic Health
+    Records."
+  links:
+    - https://arxiv.org/html/2603.07900v3#A3.T7
+    - https://arxiv.org/html/2603.07900v3#A4.T9
+  contacts:
+    - name: Robin van de Water
+      github_username: rvandewater
+  supported_datasets:
+    - AUMCdb
+    - CDSL
+    - EHRShot
+    - HIRID
+    - INSPECT
+    - INSPIRE
+    - MC-MED
+    - MIMIC-IV
+    - NWICU
+    - PICdb
+    - SICdb
+    - Zigong
+    - eICU
+predicates:
+  icu_admission: ???
+  death:
+    code:
+      regex: MEDS_DEATH.*
+trigger: icu_admission
+windows:
+  input:
+    start: null
+    end: trigger + 24h
+    start_inclusive: true
+    end_inclusive: true
+    index_timestamp: end
+    has:
+      death: (None, 0)
+  target:
+    start: input.end
+    end: start + 365d
+    start_inclusive: false
+    end_inclusive: true
+    label: death

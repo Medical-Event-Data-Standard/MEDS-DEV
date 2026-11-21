@@ -1,0 +1,40 @@
+metadata:
+  description:
+    "Death within 32 days of a hospital discharge, predicted at discharge. Discharges at which the patient is already
+    dead are excluded. A record that ends before the 32 days are over is labelled negative. Source literature: Fallahpour
+    et al. (2025). EHRMamba: Towards Generalizable and Scalable Foundation Models for Electronic Health Records."
+  links:
+    - https://github.com/VectorInstitute/odyssey/blob/a45fc62693ab011be119f7830c03196447204752/odyssey/data/processor.py#L233-L255
+  contacts:
+    - name: Robin van de Water
+      github_username: rvandewater
+  supported_datasets:
+    - AUMCdb
+    - INSPIRE
+    - MC-MED
+    - MIMIC-IV
+    - NWICU
+    - PICdb
+    - SICdb
+    - Zigong
+predicates:
+  hospital_discharge: ???
+  death:
+    code:
+      regex: MEDS_DEATH.*
+trigger: hospital_discharge
+windows:
+  input:
+    start: null
+    end: trigger
+    start_inclusive: true
+    end_inclusive: true
+    index_timestamp: end
+    has:
+      death: (None, 0)
+  target:
+    start: input.end
+    end: start + 32d
+    start_inclusive: false
+    end_inclusive: true
+    label: death

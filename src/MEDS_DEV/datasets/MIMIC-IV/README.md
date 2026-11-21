@@ -54,7 +54,8 @@ open demo instead of the full release. Notable properties of the conversion:
     department visit before an admission. The admission and discharge predicates match these by prefix.
 - **Measurements** keep MIMIC-IV's `itemid` and unit. Hospital lab results (`hosp/labevents`) are
     `LAB//RESULT//<itemid>//<unit>`, and values charted in the ICU (`icu/chartevents`), including vital
-    signs, are `LAB//<itemid>//<unit>`. Each lab predicate therefore combines the hospital lab with the
+    signs, are `LAB//<itemid>//<unit>` (`ICU_CHART//<itemid>//<unit>` from MIMIC-IV-MEDS 0.4.0; the
+    predicates accept both). Each lab predicate therefore combines the hospital lab with the
     matching ICU chart item, and matches only the unit listed. The abnormal thresholds are in the units of
     the tasks, so none is converted.
 - **Birth and death** are `MEDS_BIRTH` and `MEDS_DEATH`, so the tasks' default predicates apply. The birth
@@ -65,7 +66,7 @@ open demo instead of the full release. Notable properties of the conversion:
 - **Dates are shifted** into 2100–2200 by one random offset per patient, which keeps the order and spacing
     of each patient's events.
 
-| Predicate     | Hospital lab (`LAB//RESULT//…`)     | ICU chart (`LAB//…`)                                                 | Abnormal    |
+| Predicate     | Hospital lab (`LAB//RESULT//…`)     | ICU chart (`LAB//…` or `ICU_CHART//…`)                               | Abnormal    |
 | ------------- | ----------------------------------- | -------------------------------------------------------------------- | ----------- |
 | `creatinine`  | 50912, 52546 (creatinine, mg/dL)    | none                                                                 | > 1.3 mg/dL |
 | `sodium`      | 50983, 52623 (sodium, mEq/L)        | 220645 (sodium, serum)                                               | < 135 mEq/L |

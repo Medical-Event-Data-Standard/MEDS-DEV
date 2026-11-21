@@ -1,0 +1,53 @@
+metadata:
+  description:
+    "In-hospital mortality, predicted 48 hours after hospital admission from all data up to then. The label is
+    death before the hospital discharge that ends this admission. Admissions that end, by discharge or death, within the first
+    48 hours are excluded. Source literature: Jeanselme et al. (2025). FoMoH: A clinically meaningful foundation model evaluation
+    for structured electronic health records."
+  links:
+    - https://github.com/ChaoPang/femr/blob/85af3ad3600d2c5bc4abe5e44c0176fca5246bd6/src/femr/omop_meds_tutorial/generate_labels.py#L25-L64
+  contacts:
+    - name: Robin van de Water
+      github_username: rvandewater
+  supported_datasets:
+    - AUMCdb
+    - CDSL
+    - HIRID
+    - INSPIRE
+    - MC-MED
+    - MIMIC-IV
+    - NWICU
+    - PICdb
+    - SICdb
+    - Zigong
+    - eICU
+predicates:
+  hospital_admission: ???
+  hospital_discharge: ???
+  death:
+    code:
+      regex: MEDS_DEATH.*
+  discharge_or_death:
+    expr: or(hospital_discharge, death)
+trigger: hospital_admission
+windows:
+  input:
+    start: null
+    end: trigger + 48h
+    start_inclusive: true
+    end_inclusive: true
+    index_timestamp: end
+  in_stay:
+    start: trigger
+    end: start + 48h
+    start_inclusive: false
+    end_inclusive: true
+    has:
+      hospital_discharge: (None, 0)
+      death: (None, 0)
+  target:
+    start: in_stay.end
+    end: start -> discharge_or_death
+    start_inclusive: false
+    end_inclusive: true
+    label: death
