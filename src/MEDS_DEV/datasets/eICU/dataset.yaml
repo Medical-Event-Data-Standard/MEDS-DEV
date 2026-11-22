@@ -13,15 +13,11 @@ metadata:
     of the PhysioNet Credentialed Health Data Use Agreement for eICU.
 commands:
   build_full: >-
-    MEDS_extract-eICU
-    root_output_dir="{temp_dir}"
-    raw_input_dir="{raw_input_dir}"
-    MEDS_output_dir="{output_dir}"
-    log_dir="{output_dir}/.pipeline_logs"
+    meds-extract-run spec=eICU
+    download_dest_dir="{raw_input_dir}"
+    output_dir="{output_dir}"
   build_demo: >-
-    MEDS_extract-eICU
-    do_demo=True
-    root_output_dir="{temp_dir}"
-    raw_input_dir="{raw_input_dir}"
-    MEDS_output_dir="{output_dir}"
-    log_dir="{output_dir}/.pipeline_logs"
+    meds-extract-run spec=eICU
+    dataset_key=demo
+    download_dest_dir="{raw_input_dir}"
+    output_dir="{output_dir}"

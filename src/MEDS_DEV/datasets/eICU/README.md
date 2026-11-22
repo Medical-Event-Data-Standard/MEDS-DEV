@@ -20,6 +20,14 @@ Taken from [PhysioNet](https://physionet.org/content/eicu-crd/2.0/):
 
 The [`eICU_MEDS`](https://github.com/Medical-Event-Data-Standard/eICU_MEDS) ETL downloads the original eICU-CRD data from PhysioNet and transforms it into the Medical Event Data Standard (MEDS).
 
+MEDS-DEV pins `eICU-MEDS==0.4.0`, which registers the `eICU` spec for MEDS-Extract's `meds-extract-run`;
+`build_demo` passes `dataset_key=demo`, which builds the open demo instead of the full release. The
+`MEDS_extract-eICU` runner of releases up to 0.2.0 is gone. Since 0.1.0 the ETL renamed medication orders
+(`MEDICATION//START//<drug>` and `MEDICATION//END//<drug>`), made `hadm_id` the hospital stay (the hospital
+moved to `hospital_id`) and strips lab units of surrounding whitespace, as listed under "Breaking changes"
+in its README. The predicates use none of the renamed codes, and every predicate code has events in a
+full 0.4.0 build.
+
 ## Sources
 
 1. [eICU PhysioNet Repository](https://physionet.org/content/eicu-crd/2.0/)

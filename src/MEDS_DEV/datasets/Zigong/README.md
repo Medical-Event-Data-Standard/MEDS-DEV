@@ -39,10 +39,13 @@ Zigong has no demo, so the integration tests do not exercise these pairs.
 
 ## MEDS Transformation
 
-[`Zigong-MEDS`](https://github.com/rvandewater/ZIGONG_MEDS) 0.3.0 is a pure-config
-[MEDS-Extract](https://github.com/mmcdermott/MEDS_extract) 0.7 pipeline, registered as `spec=Zigong` for
-`meds-extract-run`. Zigong has no public demo, so only `build_full` is provided.[3] Notable properties of
-the conversion:
+[`Zigong-MEDS`](https://github.com/rvandewater/ZIGONG_MEDS) 0.5.0 is a pure-config
+[MEDS-Extract](https://github.com/mmcdermott/MEDS_extract) pipeline, registered as `spec=Zigong` for
+`meds-extract-run`. Since 0.3.0 the events have no `unit` column (a code's unit is in
+`metadata/codes.parquet`), lab units in codes are stripped of surrounding whitespace, and
+`inpatient_stay_id` is renamed `hadm_id`, as listed under "Breaking changes" in the ETL's README. The
+predicates below match on codes only, and every predicate code has events in a full 0.5.0 build. Zigong has
+no public demo, so only `build_full` is provided.[3] Notable properties of the conversion:
 
 - **Dates are not real.** Every source time is an offset in hours from hospital admission, placed on a
     shared anchor (1970-01-01 00:00 = admission). Each subject has exactly one admission.

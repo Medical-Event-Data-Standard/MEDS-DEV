@@ -41,10 +41,13 @@ SICdb has no demo, so the integration tests do not exercise these pairs.
 
 ## MEDS Transformation
 
-[`SICdb-MEDS`](https://github.com/rvandewater/SICdb_MEDS) is a pure-config
+[`SICdb-MEDS`](https://github.com/rvandewater/SICdb_MEDS) 0.3.0 is a pure-config
 [MEDS-Extract](https://github.com/mmcdermott/MEDS_extract) pipeline, registered as `spec=SICdb` for
-`meds-extract-run`. SICdb has no public demo, so only `build_full` is provided.[3] Notable properties of the
-conversion:
+`meds-extract-run`. Since 0.1.0 the ETL renamed diagnoses (`ICD//<edition>//<code>`), interval codes
+(`<FAMILY>//START//…` and `<FAMILY>//END//…`) and the stay column (`CaseID` is now `icustay_id`), as listed
+under "Breaking changes" in its README. The predicates below use none of these, and every predicate code
+has events in a full 0.3.0 build. SICdb has no public demo, so only `build_full` is provided.[3] Notable
+properties of the conversion:
 
 - **Dates are not real.** SICdb gives offsets in seconds, not dates. Every patient's first admission is
     placed on 2017-07-02 and everything else keeps its offset from it, so only time differences within one
