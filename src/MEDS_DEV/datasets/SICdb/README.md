@@ -68,11 +68,11 @@ properties of the conversion:
 ## Known issues (audit, Nov 2026)
 
 - Case attributes 3113/3114 (KDIGO AKI outcome) and `SURVIVAL_OBSERVATION_WINDOW` describe the outcome; they were top
-  features of the abnormal-lab tasks until excluded from the inputs.
+    features of the abnormal-lab tasks until excluded from the inputs.
 - Case attributes 3109/3112 (SARS-CoV-2 pneumonia / post-COVID) exist only for later admissions and act as an era
-  marker.
+    marker.
 - SICdb records ICU care only. On hospital-stay tasks, patients who leave the ICU alive have no later data and are
-  trivial negatives ("ICU discharge alive" became the top feature); using the ICU stay as the unit removed this.
+    trivial negatives ("ICU discharge alive" became the top feature); using the ICU stay as the unit removed this.
 - "Transfer to the ICU" tasks are not meaningful (every admission is an ICU admission).
 
 ## Sources

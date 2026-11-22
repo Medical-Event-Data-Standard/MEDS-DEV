@@ -71,8 +71,8 @@ ICD-9-CM titles and parents to `metadata/codes.parquet`, so the build no longer 
 ## Known issues (audit, Nov 2026)
 
 - Past medical history is recorded as `PMH//` codes at the visit. They are not part of the diagnosis predicates, so
-  "new" diagnoses are not checked against them unless a task adds a history predicate (done for pulmonary embolism
-  and the cancers): 67% of hospital-associated PE positives had a PE in their past medical history.
+    "new" diagnoses are not checked against them unless a task adds a history predicate (done for pulmonary embolism
+    and the cancers): 67% of hospital-associated PE positives had a PE in their past medical history.
 - MC-MED has no follow-up after the visit, so deaths after discharge are not recorded.
 
 ## Sources

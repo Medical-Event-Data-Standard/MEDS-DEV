@@ -266,7 +266,8 @@ predicates:
   # Audit 2026-11: Same fix as on MIMIC-IV (measured there; not rerun on this dataset): injury-chapter fracture sites
   # S22/S32/S42/S52/S72 added.
   bone_fracture:
-    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//(M80|M84|S22|S32|S42|S52|S72))" }
+    code:
+      { regex: "^(DIAGNOSIS//ICD//(10|10CM)//(M80|M84|S22|S32|S42|S52|S72))" }
   breast_cancer:
     code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//C50)" }
   celiac_disease_k900:
@@ -314,10 +315,16 @@ predicates:
     code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//(E08|E09|E10|E11|E13))" }
   # Audit 2026-11: Same fix as on MIMIC-IV (measured there; not rerun on this dataset): L97.4/L97.5 added.
   diabetic_foot_ulcer:
-    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//(E10621|E11621|E13621|L974|L975))" }
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//(E10621|E11621|E13621|L974|L975))",
+      }
   # Audit 2026-11: Same fix as on MIMIC-IV (measured there; not rerun on this dataset): E1x.22 and E1x.29 added.
   diabetic_nephropathy:
-    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//(E1021|E1121|E1321|E1022|E1122|E1322|E1029|E1129|E1329))" }
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//(E1021|E1121|E1321|E1022|E1122|E1322|E1029|E1129|E1329))",
+      }
   diabetic_neuropathy:
     code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//(E104|E114|E134))" }
   diabetic_retinopathy:
@@ -436,7 +443,10 @@ predicates:
   # Audit 2026-11: Same fix as on MIMIC-IV (measured there; not rerun on this dataset): diabetic peripheral angiopathy
   # E08-E13 .51/.52 added.
   peripheral_artery_disease:
-    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//(I702|I703|I704|I739|E(08|09|10|11|13)5[12]))" }
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//(I702|I703|I704|I739|E(08|09|10|11|13)5[12]))",
+      }
   peripheral_neuropathy:
     code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//G629)" }
   persistent_atrial_fibrillation:

@@ -62,8 +62,8 @@ so only `build_full` is provided. Notable properties of the conversion:
 ## Known issues (audit, Nov 2026)
 
 - `MECHANICAL_VENTILATION` is a stay-level flag placed at the hospital admission, not at the start of ventilation,
-  and `INPATIENT_DIAGNOSIS` is the admission's final COVID status. Both were top features of early-stay tasks and
-  should be excluded from model inputs.
+    and `INPATIENT_DIAGNOSIS` is the admission's final COVID status. Both were top features of early-stay tasks and
+    should be excluded from model inputs.
 
 ## Sources
 

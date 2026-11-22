@@ -70,9 +70,9 @@ properties of the conversion:
 ## Known issues (audit, Nov 2026)
 
 - ICU stays are split into segments at bed moves, so one stay produces "ICU readmissions" minutes apart: 38% of ICU
-  discharges were followed by an ICU admission within 30 days, 35% of those within 12 hours. Merging contiguous ICU
-  segments in the conversion would fix this; `readmission/icu/30d` now ignores the first 12 hours. Even then the rate
-  (24.6%) is 2-5 times the published range, so the ICU segments probably also include step-down units.
+    discharges were followed by an ICU admission within 30 days, 35% of those within 12 hours. Merging contiguous ICU
+    segments in the conversion would fix this; `readmission/icu/30d` now ignores the first 12 hours. Even then the rate
+    (24.6%) is 2-5 times the published range, so the ICU segments probably also include step-down units.
 
 ## Sources
 

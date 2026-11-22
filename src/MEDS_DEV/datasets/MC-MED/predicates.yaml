@@ -787,37 +787,70 @@ predicates:
   # Added by the Nov 2026 audit of #375 tasks (see the task files for the evidence).
   # Audit 2026-11: personal history of this cancer (excluded from the 'new cancer' task, see the task file).
   breast_cancer_history:
-    code: { regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//Z85[.]3|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//V10[.]3|PMH//ICD//10CM//Z85[.]3)" }
+    code:
+      {
+        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//Z85[.]3|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//V10[.]3|PMH//ICD//10CM//Z85[.]3)",
+      }
   # Audit 2026-11: personal history of this cancer (excluded from the 'new cancer' task, see the task file).
   colorectal_cancer_history:
-    code: { regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//Z85[.]0[34]|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//V10[.]0[56]|PMH//ICD//10CM//Z85[.]0[34])" }
+    code:
+      {
+        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//Z85[.]0[34]|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//V10[.]0[56]|PMH//ICD//10CM//Z85[.]0[34])",
+      }
   # Audit 2026-11: personal history of this cancer (excluded from the 'new cancer' task, see the task file).
   kidney_cancer_history:
-    code: { regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//Z85[.]52|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//V10[.]5[23]|PMH//ICD//10CM//Z85[.]52)" }
+    code:
+      {
+        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//Z85[.]52|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//V10[.]5[23]|PMH//ICD//10CM//Z85[.]52)",
+      }
   # Audit 2026-11: personal history of this cancer (excluded from the 'new cancer' task, see the task file).
   liver_cancer_history:
-    code: { regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//Z85[.]05|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//V10[.]07|PMH//ICD//10CM//Z85[.]05)" }
+    code:
+      {
+        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//Z85[.]05|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//V10[.]07|PMH//ICD//10CM//Z85[.]05)",
+      }
   # Audit 2026-11: personal history of this cancer (excluded from the 'new cancer' task, see the task file).
   lung_cancer_history:
-    code: { regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//Z85[.]11|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//V10[.]11|PMH//ICD//10CM//Z85[.]11)" }
+    code:
+      {
+        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//Z85[.]11|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//V10[.]11|PMH//ICD//10CM//Z85[.]11)",
+      }
   # Audit 2026-11: personal history of this cancer (excluded from the 'new cancer' task, see the task file).
   melanoma_history:
-    code: { regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//Z85[.]820|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//V10[.]82|PMH//ICD//10CM//Z85[.]820)" }
+    code:
+      {
+        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//Z85[.]820|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//V10[.]82|PMH//ICD//10CM//Z85[.]820)",
+      }
   # Audit 2026-11: personal history of this cancer (excluded from the 'new cancer' task, see the task file).
   non_melanoma_skin_cancer_history:
-    code: { regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//Z85[.]828|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//V10[.]83|PMH//ICD//10CM//Z85[.]828)" }
+    code:
+      {
+        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//Z85[.]828|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//V10[.]83|PMH//ICD//10CM//Z85[.]828)",
+      }
   # Audit 2026-11: personal history of this cancer (excluded from the 'new cancer' task, see the task file).
   ovarian_cancer_history:
-    code: { regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//Z85[.]43|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//V10[.]43|PMH//ICD//10CM//Z85[.]43)" }
+    code:
+      {
+        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//Z85[.]43|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//V10[.]43|PMH//ICD//10CM//Z85[.]43)",
+      }
   # Audit 2026-11: personal history of this cancer (excluded from the 'new cancer' task, see the task file).
   pancreatic_cancer_history:
-    code: { regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//Z85[.]07|PMH//ICD//10CM//Z85[.]07)" }
+    code:
+      {
+        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//Z85[.]07|PMH//ICD//10CM//Z85[.]07)",
+      }
   # Audit 2026-11: personal history of this cancer (excluded from the 'new cancer' task, see the task file).
   prostate_cancer_history:
-    code: { regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//Z85[.]46|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//V10[.]46|PMH//ICD//10CM//Z85[.]46)" }
+    code:
+      {
+        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//Z85[.]46|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//V10[.]46|PMH//ICD//10CM//Z85[.]46)",
+      }
   # Audit 2026-11: personal history of this cancer (excluded from the 'new cancer' task, see the task file).
   thyroid_cancer_history:
-    code: { regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//Z85[.]850|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//V10[.]87|PMH//ICD//10CM//Z85[.]850)" }
+    code:
+      {
+        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//Z85[.]850|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//V10[.]87|PMH//ICD//10CM//Z85[.]850)",
+      }
   # Audit 2026-11: serum creatinine at CKD level (>= 1.5 mg/dL), excluded before 'new CKD' labels (see the CKD task
   # files).
   ckd_level_creatinine:
@@ -827,4 +860,7 @@ predicates:
   # Audit 2026-11: an earlier pulmonary embolism (diagnosis, or past medical history on MC-MED), excluded from the
   # hospital-associated PE task.
   pulmonary_embolism_history:
-    code: { regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//I26|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(415[.]0|415[.]12|415[.]13|415[.]19)|PMH//ICD//10CM//I26)" }
+    code:
+      {
+        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//I26|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(415[.]0|415[.]12|415[.]13|415[.]19)|PMH//ICD//10CM//I26)",
+      }

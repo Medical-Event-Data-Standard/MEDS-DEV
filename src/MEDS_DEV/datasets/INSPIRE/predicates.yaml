@@ -149,7 +149,8 @@ predicates:
   # Audit 2026-11: Same fix as on MIMIC-IV (measured there; not rerun on this dataset): injury-chapter fracture sites
   # S22/S32/S42/S52/S72 added (3-character codes).
   bone_fracture:
-    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//(M80|M84|S22|S32|S42|S52|S72))" }
+    code:
+      { regex: "^(DIAGNOSIS//ICD//(10|10CM)//(M80|M84|S22|S32|S42|S52|S72))" }
   breast_cancer:
     code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//C50)" }
   chronic_hepatitis_or_fatty_liver:

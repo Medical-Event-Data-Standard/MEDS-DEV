@@ -72,11 +72,11 @@ should be rebuilt. Notable properties of the conversion:
 ## Known issues (audit, Nov 2026)
 
 - HiRID records deaths in the ICU only. On ICU-anchored mortality tasks, a patient discharged from the ICU before the
-  prediction time is a guaranteed negative, and the ICU discharge event (placed at the stay's last observation) was the
-  top feature. Requiring the patient to still be in the ICU at the prediction time (no `ICU_DISCHARGE` between ICU
-  admission and the end of the input window) halved the cohort (33,195 -> 16,767 stays), left the positives unchanged
-  and lowered the 28-day AUROC from 0.959 to 0.913. This cannot be set in the shared task files, since on other
-  datasets a patient leaving the ICU can still die in hospital.
+    prediction time is a guaranteed negative, and the ICU discharge event (placed at the stay's last observation) was the
+    top feature. Requiring the patient to still be in the ICU at the prediction time (no `ICU_DISCHARGE` between ICU
+    admission and the end of the input window) halved the cohort (33,195 -> 16,767 stays), left the positives unchanged
+    and lowered the 28-day AUROC from 0.959 to 0.913. This cannot be set in the shared task files, since on other
+    datasets a patient leaving the ICU can still die in hospital.
 - For the same reason, 28-day, 90-day and 365-day mortality give the same label on HiRID (death in the ICU).
 - Variable 30000140 is not mapped to a name, and some adult tests carry a cord-blood LOINC code.
 

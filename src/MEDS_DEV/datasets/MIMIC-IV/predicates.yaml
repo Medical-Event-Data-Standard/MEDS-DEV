@@ -233,7 +233,10 @@ predicates:
   # 308 to 507 patients (deaths 136 -> 227, now reportable: AUROC 0.739), and the new-AML task now excludes 197
   # patients with an earlier ICD-9 AML code.
   acute_myeloid_leukemia:
-    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//C920|DIAGNOSIS//ICD//(9|9CM)//2050)" }
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//C920|DIAGNOSIS//ICD//(9|9CM)//2050)",
+      }
   acute_myocardial_infarction_i21:
     code:
       {
@@ -386,7 +389,10 @@ predicates:
   # excluded, and before 2015 no ulcer could be labelled. On MIMIC-IV: positives 375 -> 995, 1,008 patients with an
   # existing ulcer excluded, AUROC 0.893 -> 0.815.
   diabetic_foot_ulcer:
-    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//(E10621|E11621|E13621|L974|L975)|DIAGNOSIS//ICD//(9|9CM)//(70714|70715))" }
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//(E10621|E11621|E13621|L974|L975)|DIAGNOSIS//ICD//(9|9CM)//(70714|70715))",
+      }
   # Audit 2026-11: the group missed E1x.22 (diabetic CKD, the commonest diabetic kidney code) and E1x.29, and on the
   # ICD-9 side kept only 250.42. On MIMIC-IV: positives 868 -> 2,635 and 4,857 patients with known diabetic CKD
   # excluded; AUROC 0.809 -> 0.830.
@@ -582,7 +588,10 @@ predicates:
   # ICD-10-only version was inflated). Remaining gap, not changed here: diabetic polyneuropathy (E11.42, ICD-9 357.2)
   # is outside G62.9.
   peripheral_neuropathy:
-    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//G629|DIAGNOSIS//ICD//(9|9CM)//3569)" }
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//G629|DIAGNOSIS//ICD//(9|9CM)//3569)",
+      }
   persistent_atrial_fibrillation:
     code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//I481)" }
   pneumonia:
@@ -674,22 +683,37 @@ predicates:
   # Added by the Nov 2026 audit of #375 tasks (see the task files for the evidence).
   # Audit 2026-11: personal history of this cancer (excluded from the 'new cancer' task, see the task file).
   breast_cancer_history:
-    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//Z853|DIAGNOSIS//ICD//(9|9CM)//V103)" }
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//Z853|DIAGNOSIS//ICD//(9|9CM)//V103)",
+      }
   # Audit 2026-11: personal history of this cancer (excluded from the 'new cancer' task, see the task file).
   colorectal_cancer_history:
-    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//Z850[34]|DIAGNOSIS//ICD//(9|9CM)//V100[56])" }
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//Z850[34]|DIAGNOSIS//ICD//(9|9CM)//V100[56])",
+      }
   # Audit 2026-11: personal history of this cancer (excluded from the 'new cancer' task, see the task file).
   liver_cancer_history:
-    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//Z8505|DIAGNOSIS//ICD//(9|9CM)//V1007)" }
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//Z8505|DIAGNOSIS//ICD//(9|9CM)//V1007)",
+      }
   # Audit 2026-11: personal history of this cancer (excluded from the 'new cancer' task, see the task file).
   lung_cancer_history:
-    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//Z8511|DIAGNOSIS//ICD//(9|9CM)//V1011)" }
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//Z8511|DIAGNOSIS//ICD//(9|9CM)//V1011)",
+      }
   # Audit 2026-11: personal history of this cancer (excluded from the 'new cancer' task, see the task file).
   pancreatic_cancer_history:
     code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//Z8507)" }
   # Audit 2026-11: personal history of this cancer (excluded from the 'new cancer' task, see the task file).
   thyroid_cancer_history:
-    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//Z85850|DIAGNOSIS//ICD//(9|9CM)//V1087)" }
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//Z85850|DIAGNOSIS//ICD//(9|9CM)//V1087)",
+      }
   # Audit 2026-11: serum creatinine at CKD level (>= 1.5 mg/dL), excluded before 'new CKD' labels (see the CKD task
   # files).
   ckd_level_creatinine:
@@ -703,4 +727,7 @@ predicates:
     value_min_inclusive: True
   # Audit 2026-11: an earlier pulmonary embolism (diagnosis), excluded from the hospital-associated PE task.
   pulmonary_embolism_history:
-    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//I26|DIAGNOSIS//ICD//(9|9CM)//(4150|41512|41513|41519))" }
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//I26|DIAGNOSIS//ICD//(9|9CM)//(4150|41512|41513|41519))",
+      }
