@@ -12,15 +12,14 @@ metadata:
     - name: Robin van de Water
       github_username: rvandewater
   supported_datasets:
+    # Audit 2026-11: removed eICU, PICdb and SICdb: they contain only patients with an ICU stay, so 'transfer to the
+    # ICU' had 75-100% prevalence (eICU 96.4%, PICdb 74.8%, SICdb 42 of 42 admissions) and AUROC near 1.
     - ALOTT
     - CDSL
     - INSPIRE
     - MC-MED
     - MIMIC-IV
     - NWICU
-    - PICdb
-    - SICdb
-    - eICU
 predicates:
   hospital_admission: ???
   hospital_discharge: ???

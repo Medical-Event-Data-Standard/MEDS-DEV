@@ -3,7 +3,8 @@ metadata:
     "Type 2 diabetes (ICD-10 E11) within 1825 days of a patient's first diagnosis of gestational diabetes (ICD-10
     O24.4), predicted at that diagnosis. Patients with the outcome before the diagnosis or in the 30 days after it are excluded.
     A record that ends before the target window is over is labelled negative. Source literature: Zhang et al. (2026). A multimodal
-    and temporal foundation model for virtual patient representations at healthcare system scale."
+    and temporal foundation model for virtual patient representations at healthcare system scale.
+    Patients who die before the end of the blackout are excluded."
   links:
     - https://arxiv.org/pdf/2604.18570v2#page=67
   contacts:
@@ -14,6 +15,9 @@ metadata:
 predicates:
   gestational_diabetes: ???
   type_2_diabetes: ???
+  death:
+    code:
+      regex: MEDS_DEATH.*
 trigger: gestational_diabetes
 windows:
   first:
@@ -31,6 +35,12 @@ windows:
     index_timestamp: end
     has:
       type_2_diabetes: (None, 0)
+      # Audit 2026-11: patients who die in the index admission or the 30-day blackout used to stay in the cohort;
+      # diagnoses are stamped at discharge, so they were predicted at their death and were guaranteed negatives
+      # (HOSPITAL_DISCHARGE//DIED was a top SHAP feature). Excluding them removed 4-15% of the cohorts on MIMIC-IV; on
+      # atrial fibrillation -> stroke the AUROC fell from 0.704 to 0.574, so the original signal was mostly these
+      # guaranteed negatives. Applied to this task's runs before they ran.
+      death: (None, 0)
   blackout:
     start: trigger
     end: start + 30d
@@ -38,6 +48,7 @@ windows:
     end_inclusive: true
     has:
       type_2_diabetes: (None, 0)
+      death: (None, 0)
   target:
     start: blackout.end
     end: start + 1795d

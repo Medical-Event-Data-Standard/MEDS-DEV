@@ -3,7 +3,8 @@ metadata:
     "Acute myocardial infarction within 1 year of a hospital discharge, for patients whose record starts at least
     2 years before the discharge. Earlier infarctions do not exclude a patient, so recurrent events count. A record that ends
     before the target window is over is labelled negative. Source literature: Jeanselme et al. (2025). FoMoH: A clinically
-    meaningful foundation model evaluation for structured electronic health records."
+    meaningful foundation model evaluation for structured electronic health records.
+    Discharges by death are excluded."
   links:
     - https://arxiv.org/html/2505.16941v4#A2.SS2
   contacts:
@@ -16,6 +17,9 @@ metadata:
 predicates:
   hospital_discharge: ???
   acute_myocardial_infarction: ???
+  death:
+    code:
+      regex: MEDS_DEATH.*
 trigger: hospital_discharge
 windows:
   history:
@@ -31,6 +35,12 @@ windows:
     start_inclusive: true
     end_inclusive: true
     index_timestamp: end
+    has:
+      # Audit 2026-11: discharges by death were kept and predicted at the death (guaranteed negatives). Measured: M110
+      # on mimic-iv, v2: Death exclusion removes 3,553 discharges by death; positives unchanged (5,947); AUROC 0.862
+      # -> 0.863 [0.85-0.88]. Troponin, BUN, age lead: the task counts recurrent infarctions by design (FoMoH), so
+      # recent cardiac injury predicts a new event; 'new_diagnosis' is a misleading folder for it.
+      death: (None, 0)
   target:
     start: trigger
     end: start + 365d

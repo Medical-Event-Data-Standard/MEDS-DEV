@@ -4,7 +4,10 @@ metadata:
     first diagnosis of essential hypertension (ICD-10 I10), predicted at that diagnosis. Patients with the outcome before
     the diagnosis or in the 30 days after it are excluded. A record that ends before the target window is over is labelled
     negative. Source literature: Zhang et al. (2026). A multimodal and temporal foundation model for virtual patient representations
-    at healthcare system scale."
+    at healthcare system scale.
+    Patients who die before the end of the blackout are excluded.
+    Patients with a creatinine of 1.5 mg/dL or more in the 30 days before the prediction time are excluded
+    (kidney disease already present)."
   links:
     - https://arxiv.org/pdf/2604.18570v2#page=67
   contacts:
@@ -19,6 +22,10 @@ metadata:
 predicates:
   essential_hypertension: ???
   chronic_kidney_disease_stage_3_or_higher: ???
+  death:
+    code:
+      regex: MEDS_DEATH.*
+  ckd_level_creatinine: ???
 trigger: essential_hypertension
 windows:
   first:
@@ -36,6 +43,25 @@ windows:
     index_timestamp: end
     has:
       chronic_kidney_disease_stage_3_or_higher: (None, 0)
+      # Audit 2026-11: patients who die in the index admission or the 30-day blackout used to stay in the cohort;
+      # diagnoses are stamped at discharge, so they were predicted at their death and were guaranteed negatives
+      # (HOSPITAL_DISCHARGE//DIED was a top SHAP feature). Excluding them removed 4-15% of the cohorts on MIMIC-IV; on
+      # atrial fibrillation -> stroke the AUROC fell from 0.704 to 0.574, so the original signal was mostly these
+      # guaranteed negatives. Applied to this task's runs before they ran.
+      death: (None, 0)
+  baseline:
+    # Audit 2026-11: a creatinine >= 1.5 mg/dL (eGFR roughly < 60 for most adults) in the 30 days up to the prediction
+    # time means kidney disease is already present but not yet coded, so the label marks when CKD gets coded.
+    # Excluding it removed 33-51% of the positives on MIMIC-IV: hypertension -> CKD stage 3 42% (2,646 -> 1,528), type
+    # 2 diabetes -> nephropathy 20%, new CKD 33% (16,456 -> 11,028). Rerun on the other datasets with this change: new
+    # CKD lost 51% of its positives on INSPIRE (AUROC 0.951 -> 0.900), 72% on NWICU (0.870 -> 0.751), 79% on ALOTT and
+    # 88% on MC-MED; hypertension -> CKD stage 3 on NWICU 132 -> 34.
+    start: end - 30d
+    end: trigger
+    start_inclusive: true
+    end_inclusive: true
+    has:
+      ckd_level_creatinine: (None, 0)
   blackout:
     start: trigger
     end: start + 30d
@@ -43,6 +69,7 @@ windows:
     end_inclusive: true
     has:
       chronic_kidney_disease_stage_3_or_higher: (None, 0)
+      death: (None, 0)
   target:
     start: blackout.end
     end: start + 1795d

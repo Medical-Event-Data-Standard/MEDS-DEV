@@ -4,7 +4,8 @@ metadata:
     or fatty liver (ICD-10 B18, K70.1, K71.3, K71.4, K71.5, K71.6, K73, K75, K70.0, K70.2, K76.0), predicted at that diagnosis.
     Patients with the outcome before the diagnosis or in the 30 days after it are excluded. A record that ends before the
     target window is over is labelled negative. Source literature: Zhang et al. (2026). A multimodal and temporal foundation
-    model for virtual patient representations at healthcare system scale."
+    model for virtual patient representations at healthcare system scale.
+    Patients who die before the end of the blackout are excluded."
   links:
     - https://arxiv.org/pdf/2604.18570v2#page=67
   contacts:
@@ -18,6 +19,9 @@ metadata:
 predicates:
   chronic_hepatitis_or_fatty_liver: ???
   cirrhosis: ???
+  death:
+    code:
+      regex: MEDS_DEATH.*
 trigger: chronic_hepatitis_or_fatty_liver
 windows:
   first:
@@ -35,6 +39,11 @@ windows:
     index_timestamp: end
     has:
       cirrhosis: (None, 0)
+      # Audit 2026-11: patients who die in the index admission or the blackout were kept; diagnoses are stamped at
+      # discharge, so they were predicted at their death and were guaranteed negatives. Measured on this task: M019 on
+      # mimic-iv, v2: Death exclusion removes 359 patients (3.8%); AUROC unchanged at 0.801 [0.72-0.87]; AST,
+      # platelets, AFP (FIB-4 components), hepatitis C.
+      death: (None, 0)
   blackout:
     start: trigger
     end: start + 30d
@@ -42,6 +51,7 @@ windows:
     end_inclusive: true
     has:
       cirrhosis: (None, 0)
+      death: (None, 0)
   target:
     start: blackout.end
     end: start + 1795d

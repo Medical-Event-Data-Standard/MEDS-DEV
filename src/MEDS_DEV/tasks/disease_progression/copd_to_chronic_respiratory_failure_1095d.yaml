@@ -4,7 +4,8 @@ metadata:
     pulmonary disease (ICD-10 J44), predicted at that diagnosis. Patients with the outcome before the diagnosis or in the
     30 days after it are excluded. A record that ends before the target window is over is labelled negative. Source literature:
     Zhang et al. (2026). A multimodal and temporal foundation model for virtual patient representations at healthcare system
-    scale."
+    scale.
+    Patients who die before the end of the blackout are excluded."
   links:
     - https://arxiv.org/pdf/2604.18570v2#page=67
   contacts:
@@ -17,6 +18,9 @@ metadata:
 predicates:
   chronic_obstructive_pulmonary_disease: ???
   chronic_respiratory_failure: ???
+  death:
+    code:
+      regex: MEDS_DEATH.*
 trigger: chronic_obstructive_pulmonary_disease
 windows:
   first:
@@ -34,6 +38,12 @@ windows:
     index_timestamp: end
     has:
       chronic_respiratory_failure: (None, 0)
+      # Audit 2026-11: patients who die in the index admission or the blackout were kept; diagnoses are stamped at
+      # discharge, so they were predicted at their death and were guaranteed negatives. Measured on this task: M030 on
+      # mimic-iv, v2: Death exclusion removes 1,791 patients (9.4%); AUROC 0.732 -> 0.710 [0.58-0.82], 23 held-out
+      # positives; bicarbonate (CO2 retention) and 'dependence on supplemental oxygen' at the index admission: label-
+      # adjacent (oxygen dependence is close to chronic respiratory failure) but recorded before the prediction time.
+      death: (None, 0)
   blackout:
     start: trigger
     end: start + 30d
@@ -41,6 +51,7 @@ windows:
     end_inclusive: true
     has:
       chronic_respiratory_failure: (None, 0)
+      death: (None, 0)
   target:
     start: blackout.end
     end: start + 1065d

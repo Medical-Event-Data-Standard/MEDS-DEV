@@ -4,7 +4,8 @@ metadata:
     cancer (ICD-10 C18, C19, C20), predicted at that diagnosis. Patients with the outcome before the diagnosis or in the 30
     days after it are excluded. A record that ends before the target window is over is labelled negative. Source literature:
     Zhang et al. (2026). A multimodal and temporal foundation model for virtual patient representations at healthcare system
-    scale."
+    scale.
+    Patients who die before the end of the blackout are excluded."
   links:
     - https://arxiv.org/pdf/2604.18570v2#page=67
   contacts:
@@ -20,6 +21,9 @@ metadata:
 predicates:
   colorectal_cancer: ???
   secondary_malignant_neoplasm: ???
+  death:
+    code:
+      regex: MEDS_DEATH.*
 trigger: colorectal_cancer
 windows:
   first:
@@ -37,6 +41,11 @@ windows:
     index_timestamp: end
     has:
       secondary_malignant_neoplasm: (None, 0)
+      # Audit 2026-11: patients who die in the index admission or the blackout were kept; diagnoses are stamped at
+      # discharge, so they were predicted at their death and were guaranteed negatives. Measured on this task: M028 on
+      # inspire, v2: Death exclusion removes 12 patients; AUROC 0.712 -> 0.692 [0.61-0.77], 30 held-out positives;
+      # age, creatinine, rectal primary.
+      death: (None, 0)
   blackout:
     start: trigger
     end: start + 30d
@@ -44,6 +53,7 @@ windows:
     end_inclusive: true
     has:
       secondary_malignant_neoplasm: (None, 0)
+      death: (None, 0)
   target:
     start: blackout.end
     end: start + 1065d

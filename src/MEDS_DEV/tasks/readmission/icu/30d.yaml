@@ -2,7 +2,9 @@ metadata:
   description:
     "ICU readmission within 30 days of an ICU discharge, predicted at ICU discharge. Discharges at which the patient
     is already dead are excluded. Readmissions during the same hospital stay count. Source literature: McDermott et al. (2021).
-    A comprehensive EHR timeseries pre-training benchmark."
+    A comprehensive EHR timeseries pre-training benchmark.
+    ICU admissions in the first 12 hours after discharge are not counted, so a stay split into segments is not a
+    readmission; the target window ends 30 days after discharge."
   links:
     - https://github.com/mmcdermott/comprehensive_MTL_EHR/blob/95bf1f6cea37299f6275df3a9066e19031173b3e/latent_patient_trajectories/representation_learner/extractors.py#L444-L464
   contacts:
@@ -33,9 +35,19 @@ windows:
     index_timestamp: end
     has:
       death: (None, 0)
-  target:
+  gap:
+    # Audit 2026-11: with no minimum gap, an ICU stay split into segments (ALOTT splits stays at bed moves) counted as
+    # a readmission minutes later: ALOTT prevalence 38% against published ICU readmission rates of 5-10%. Ignoring ICU
+    # admissions in the 12 h after discharge removed 35% of ALOTT's positives (9,400 -> 6,066) and AUROC fell from
+    # 0.915 to 0.804. On the other datasets the gap removes 4-21% of the positives (MIMIC-IV 15%, eICU 19%, NWICU 21%)
+    # with AUROC changes of 0.02 or less: early bounce-backs under 12 h are no longer counted.
     start: input.end
-    end: start + 30d
+    end: start + 12h
+    start_inclusive: false
+    end_inclusive: true
+  target:
+    start: gap.end
+    end: start + 708h
     start_inclusive: false
     end_inclusive: true
     label: icu_admission

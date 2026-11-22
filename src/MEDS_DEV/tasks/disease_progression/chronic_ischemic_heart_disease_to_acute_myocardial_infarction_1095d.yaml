@@ -4,7 +4,8 @@ metadata:
     artery disease (ICD-10 I25), predicted at that diagnosis. Patients with the outcome before the diagnosis or in the 30
     days after it are excluded. A record that ends before the target window is over is labelled negative. Source literature:
     Zhang et al. (2026). A multimodal and temporal foundation model for virtual patient representations at healthcare system
-    scale."
+    scale.
+    Patients who die before the end of the blackout are excluded."
   links:
     - https://arxiv.org/pdf/2604.18570v2#page=67
   contacts:
@@ -20,6 +21,9 @@ metadata:
 predicates:
   coronary_artery_disease: ???
   acute_myocardial_infarction_i21: ???
+  death:
+    code:
+      regex: MEDS_DEATH.*
 trigger: coronary_artery_disease
 windows:
   first:
@@ -37,6 +41,11 @@ windows:
     index_timestamp: end
     has:
       acute_myocardial_infarction_i21: (None, 0)
+      # Audit 2026-11: patients who die in the index admission or the blackout were kept; diagnoses are stamped at
+      # discharge, so they were predicted at their death and were guaranteed negatives. Measured on this task: M020 on
+      # mimic-iv, v2: Death exclusion removes 1,931 patients (5.7%); positives unchanged (1,212); AUROC 0.750 -> 0.727
+      # [0.67-0.78]; BUN, creatinine, troponin T. 3-year horizon censored at ~1 year in MIMIC-IV.
+      death: (None, 0)
   blackout:
     start: trigger
     end: start + 30d
@@ -44,6 +53,7 @@ windows:
     end_inclusive: true
     has:
       acute_myocardial_infarction_i21: (None, 0)
+      death: (None, 0)
   target:
     start: blackout.end
     end: start + 1065d

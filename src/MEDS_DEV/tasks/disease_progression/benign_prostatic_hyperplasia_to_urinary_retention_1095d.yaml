@@ -3,7 +3,8 @@ metadata:
     "Urinary retention (ICD-10 R33) within 1095 days of a patient's first diagnosis of benign prostatic hyperplasia
     (ICD-10 N40), predicted at that diagnosis. Patients with the outcome before the diagnosis or in the 30 days after it are
     excluded. A record that ends before the target window is over is labelled negative. Source literature: Zhang et al. (2026).
-    A multimodal and temporal foundation model for virtual patient representations at healthcare system scale."
+    A multimodal and temporal foundation model for virtual patient representations at healthcare system scale.
+    Patients who die before the end of the blackout are excluded."
   links:
     - https://arxiv.org/pdf/2604.18570v2#page=67
   contacts:
@@ -19,6 +20,9 @@ metadata:
 predicates:
   benign_prostatic_hyperplasia: ???
   urinary_retention: ???
+  death:
+    code:
+      regex: MEDS_DEATH.*
 trigger: benign_prostatic_hyperplasia
 windows:
   first:
@@ -36,6 +40,13 @@ windows:
     index_timestamp: end
     has:
       urinary_retention: (None, 0)
+      # Audit 2026-11: patients who die in the index admission or the blackout were kept; diagnoses are stamped at
+      # discharge, so they were predicted at their death and were guaranteed negatives. Measured on this task: M013 on
+      # mimic-iv, v2: Death exclusion removes 736 patients (6.4%) who died in the index admission or the 30-day
+      # blackout and were guaranteed negatives; positives unchanged (692); AUROC 0.610 -> 0.632 [0.57-0.69]. Weak
+      # signal: urinary retention after BPH is mostly driven by what the EHR does not hold (symptom scores, prostate
+      # volume). Note: MCHC appears under two units (g/dL and %) in MIMIC-IV 0.4.0.
+      death: (None, 0)
   blackout:
     start: trigger
     end: start + 30d
@@ -43,6 +54,7 @@ windows:
     end_inclusive: true
     has:
       urinary_retention: (None, 0)
+      death: (None, 0)
   target:
     start: blackout.end
     end: start + 1065d
