@@ -80,15 +80,18 @@ predicates:
 
   hemoglobin_1:
     code: ICU_CHART//220228//g/dl
+  # Audit 2026-11: hemoglobin_2 was only the blood-gas code 50811 (about 46 k patients); the full blood count 51222
+  # (about 299 k) was missing, so the anaemia label fired almost only for ICU patients (prevalence 6.5%, ICU-charted
+  # weight as top feature). With 51222: prevalence 41.2%, in line with eICU, INSPIRE, NWICU and HiRID.
   hemoglobin_2:
-    code: LAB//RESULT//50811//g/dL
+    code: { any: [LAB//RESULT//50811//g/dL, LAB//RESULT//51222//g/dL] }
   abnormally_low_hemoglobin_1:
     code: ICU_CHART//220228//g/dl
     value_min: null
     value_max: 13 # g/dL
     value_max_inclusive: False
   abnormally_low_hemoglobin_2:
-    code: LAB//RESULT//50811//g/dL
+    code: { any: [LAB//RESULT//50811//g/dL, LAB//RESULT//51222//g/dL] }
     value_min: null
     value_max: 13 # g/dL
     value_max_inclusive: False
@@ -99,15 +102,17 @@ predicates:
 
   wbc_1:
     code: ICU_CHART//220546//K/uL
+  # Audit 2026-11: wbc_2 was 51300 (about 5 k patients) instead of the blood-count leukocytes 51301 (about 299 k):
+  # prevalence 4.8% -> 15.4% with 51301.
   wbc_2:
-    code: LAB//RESULT//51300//K/uL
+    code: { any: [LAB//RESULT//51300//K/uL, LAB//RESULT//51301//K/uL] }
   abnormally_high_wbc_1:
     code: ICU_CHART//220546//K/uL
     value_min: 11 # K/uL
     value_min_inclusive: False
     value_max: null
   abnormally_high_wbc_2:
-    code: LAB//RESULT//51300//K/uL
+    code: { any: [LAB//RESULT//51300//K/uL, LAB//RESULT//51301//K/uL] }
     value_min: 11 # K/uL
     value_min_inclusive: False
     value_max: null
@@ -224,8 +229,11 @@ predicates:
       {
         regex: "^(DIAGNOSIS//ICD//(10|10CM)//C25|DIAGNOSIS//ICD//(9|9CM)//157)",
       }
+  # Audit 2026-11: MIMIC-IV coded in ICD-9 before October 2015; ICD-9 205.0x added. The AML mortality cohort grew from
+  # 308 to 507 patients (deaths 136 -> 227, now reportable: AUROC 0.739), and the new-AML task now excludes 197
+  # patients with an earlier ICD-9 AML code.
   acute_myeloid_leukemia:
-    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//C920)" }
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//C920|DIAGNOSIS//ICD//(9|9CM)//2050)" }
   acute_myocardial_infarction_i21:
     code:
       {
@@ -291,10 +299,13 @@ predicates:
       {
         regex: "^(DIAGNOSIS//ICD//(10|10CM)//H54|DIAGNOSIS//ICD//(9|9CM)//369)",
       }
+  # Audit 2026-11: most osteoporotic fractures (spine, hip, wrist, humerus, ribs, pelvis) are coded as injuries (S22,
+  # S32, S42, S52, S72; ICD-9 805-820), which M80/M84 miss. On MIMIC-IV: positives 201 -> 462, 1,614 patients with an
+  # earlier fracture now excluded, AUROC 0.591 -> 0.686.
   bone_fracture:
     code:
       {
-        regex: "^(DIAGNOSIS//ICD//(10|10CM)//(M80|M84)|DIAGNOSIS//ICD//(9|9CM)//(7331|73393|73394|73396|73397|73398|9053|9055|V542))",
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//(M80|M84|S22|S32|S42|S52|S72)|DIAGNOSIS//ICD//(9|9CM)//(805|807|808|810|811|812|813|820|7331|73393|73394|73396|73397|73398|9053|9055|V542))",
       }
   breast_cancer:
     code:
@@ -371,12 +382,18 @@ predicates:
       {
         regex: "^(DIAGNOSIS//ICD//(10|10CM)//(E08|E09|E10|E11|E13)|DIAGNOSIS//ICD//(9|9CM)//(250|3620))",
       }
+  # Audit 2026-11: an existing foot ulcer coded in the skin chapter (L97.4/L97.5, ICD-9 707.14/707.15) was not
+  # excluded, and before 2015 no ulcer could be labelled. On MIMIC-IV: positives 375 -> 995, 1,008 patients with an
+  # existing ulcer excluded, AUROC 0.893 -> 0.815.
   diabetic_foot_ulcer:
-    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//(E10621|E11621|E13621))" }
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//(E10621|E11621|E13621|L974|L975)|DIAGNOSIS//ICD//(9|9CM)//(70714|70715))" }
+  # Audit 2026-11: the group missed E1x.22 (diabetic CKD, the commonest diabetic kidney code) and E1x.29, and on the
+  # ICD-9 side kept only 250.42. On MIMIC-IV: positives 868 -> 2,635 and 4,857 patients with known diabetic CKD
+  # excluded; AUROC 0.809 -> 0.830.
   diabetic_nephropathy:
     code:
       {
-        regex: "^(DIAGNOSIS//ICD//(10|10CM)//(E1021|E1121|E1321)|DIAGNOSIS//ICD//(9|9CM)//25042)",
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//(E1021|E1121|E1321|E1022|E1122|E1322|E1029|E1129|E1329)|DIAGNOSIS//ICD//(9|9CM)//2504[0-3])",
       }
   diabetic_neuropathy:
     code:
@@ -552,13 +569,20 @@ predicates:
       }
   paroxysmal_atrial_fibrillation:
     code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//I480)" }
+  # Audit 2026-11: peripheral artery disease in diabetics is often coded in the diabetes chapter (E08-E13 .51/.52,
+  # ICD-9 250.7x), which the group missed: known PAD was not excluded and E11.51 was a top-5 feature. Widened on
+  # MIMIC-IV with the death exclusion: positives 1,283 -> 1,469, AUROC 0.828 -> 0.757.
   peripheral_artery_disease:
     code:
       {
-        regex: "^(DIAGNOSIS//ICD//(10|10CM)//(I702|I703|I704|I705|I706|I707|I739)|DIAGNOSIS//ICD//(9|9CM)//(4402|4403|4439))",
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//(I702|I703|I704|I705|I706|I707|I739|E(08|09|10|11|13)5[12])|DIAGNOSIS//ICD//(9|9CM)//(4402|4403|4439|2507))",
       }
+  # Audit 2026-11: ICD-9 356.9 added (MIMIC-IV coded in ICD-9 before October 2015): 1,104 patients with an existing
+  # neuropathy are now excluded and positives rose 6,214 -> 8,503; AUROC 0.884 -> 0.799 (CIs do not overlap: the
+  # ICD-10-only version was inflated). Remaining gap, not changed here: diabetic polyneuropathy (E11.42, ICD-9 357.2)
+  # is outside G62.9.
   peripheral_neuropathy:
-    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//G629)" }
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//G629|DIAGNOSIS//ICD//(9|9CM)//3569)" }
   persistent_atrial_fibrillation:
     code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//I481)" }
   pneumonia:
@@ -646,3 +670,37 @@ predicates:
       {
         regex: "^(DIAGNOSIS//ICD//(10|10CM)//D51|DIAGNOSIS//ICD//(9|9CM)//(2810|2811))",
       }
+
+  # Added by the Nov 2026 audit of #375 tasks (see the task files for the evidence).
+  # Audit 2026-11: personal history of this cancer (excluded from the 'new cancer' task, see the task file).
+  breast_cancer_history:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//Z853|DIAGNOSIS//ICD//(9|9CM)//V103)" }
+  # Audit 2026-11: personal history of this cancer (excluded from the 'new cancer' task, see the task file).
+  colorectal_cancer_history:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//Z850[34]|DIAGNOSIS//ICD//(9|9CM)//V100[56])" }
+  # Audit 2026-11: personal history of this cancer (excluded from the 'new cancer' task, see the task file).
+  liver_cancer_history:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//Z8505|DIAGNOSIS//ICD//(9|9CM)//V1007)" }
+  # Audit 2026-11: personal history of this cancer (excluded from the 'new cancer' task, see the task file).
+  lung_cancer_history:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//Z8511|DIAGNOSIS//ICD//(9|9CM)//V1011)" }
+  # Audit 2026-11: personal history of this cancer (excluded from the 'new cancer' task, see the task file).
+  pancreatic_cancer_history:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//Z8507)" }
+  # Audit 2026-11: personal history of this cancer (excluded from the 'new cancer' task, see the task file).
+  thyroid_cancer_history:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//Z85850|DIAGNOSIS//ICD//(9|9CM)//V1087)" }
+  # Audit 2026-11: serum creatinine at CKD level (>= 1.5 mg/dL), excluded before 'new CKD' labels (see the CKD task
+  # files).
+  ckd_level_creatinine:
+    code: { regex: "^LAB//RESULT//(50912|52546)//mg/dL$" }
+    value_min: 1.5 # mg/dL
+    value_min_inclusive: True
+  # Audit 2026-11: HbA1c in the diabetic range (>= 6.5%), excluded before 'new type 2 diabetes' labels.
+  diabetic_range_hba1c:
+    code: LAB//RESULT//50852//%
+    value_min: 6.5 # %
+    value_min_inclusive: True
+  # Audit 2026-11: an earlier pulmonary embolism (diagnosis), excluded from the hospital-associated PE task.
+  pulmonary_embolism_history:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//I26|DIAGNOSIS//ICD//(9|9CM)//(4150|41512|41513|41519))" }

@@ -277,3 +277,17 @@ predicates:
     code: { regex: "^(DIAGNOSIS//(ICD10GM|ICD//10GM)//R33)" }
   venous_thromboembolism_i26_i81_i82:
     code: { regex: "^(DIAGNOSIS//(ICD10GM|ICD//10GM)//I81)" }
+
+  # Added by the Nov 2026 audit of #375 tasks (see the task files for the evidence).
+  # Audit 2026-11: no site-specific history code: SICdb has no personal-history (Z85) codes. Matches nothing, so the
+  # task is unchanged here.
+  kidney_cancer_history:
+    code: { regex: "^NO_SUCH_CODE$" }
+  # Audit 2026-11: no site-specific history code: SICdb has no personal-history (Z85) codes. Matches nothing, so the
+  # task is unchanged here.
+  ovarian_cancer_history:
+    code: { regex: "^NO_SUCH_CODE$" }
+  # Audit 2026-11: no site-specific history code: SICdb has no personal-history (Z85) codes. Matches nothing, so the
+  # task is unchanged here.
+  thyroid_cancer_history:
+    code: { regex: "^NO_SUCH_CODE$" }

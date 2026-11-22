@@ -276,10 +276,12 @@ predicates:
       {
         regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//H54|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(369|V41[.]0))",
       }
+  # Audit 2026-11: Same fix as on MIMIC-IV (measured there; not rerun on this dataset): injury-chapter fracture sites
+  # (S22/S32/S42/S52/S72, ICD-9 805-820) added.
   bone_fracture:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//(M80|M84)|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(733[.]1|905[.]3|V54[.]2))",
+        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//(M80|M84|S22|S32|S42|S52|S72)|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(733[.]1|905[.]3|V54[.]2|805|807|808|810|811|812|813|820))",
       }
   breast_cancer:
     code:
@@ -383,13 +385,16 @@ predicates:
       {
         regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//(E08|E09|E10|E11|E13)|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(250|362[.]0))",
       }
+  # Audit 2026-11: Same fix as on MIMIC-IV (measured there; not rerun on this dataset): L97.4/L97.5 and ICD-9
+  # 707.14/707.15 added.
   diabetic_foot_ulcer:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//(E10[.]621|E11[.]621|E13[.]621))",
+        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//(E10[.]621|E11[.]621|E13[.]621|L97[.][45])|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//707[.]1[45])",
       }
+  # Audit 2026-11: Same fix as on MIMIC-IV (measured there; not rerun on this dataset): E1x.22 and E1x.29 added.
   diabetic_nephropathy:
-    code: { regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//(E10[.]21|E11[.]21))" }
+    code: { regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//(E1[013][.]2[129]))" }
   diabetic_neuropathy:
     code:
       {
@@ -635,10 +640,12 @@ predicates:
       }
   paroxysmal_atrial_fibrillation:
     code: { regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//I48[.]0)" }
+  # Audit 2026-11: Same fix as on MIMIC-IV (measured there; not rerun on this dataset): diabetic peripheral angiopathy
+  # (E08-E13 .51/.52, ICD-9 250.7x) added.
   peripheral_artery_disease:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//(I70[.]2|I73[.]9)|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(440[.]2|443[.]9))",
+        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//(I70[.]2|I73[.]9|E(08|09|10|11|13)[.]5[12])|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(440[.]2|443[.]9|250[.]7))",
       }
   peripheral_neuropathy:
     code: { regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//G62[.]9)" }
@@ -776,3 +783,48 @@ predicates:
       {
         regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//D51|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//281[.]1)",
       }
+
+  # Added by the Nov 2026 audit of #375 tasks (see the task files for the evidence).
+  # Audit 2026-11: personal history of this cancer (excluded from the 'new cancer' task, see the task file).
+  breast_cancer_history:
+    code: { regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//Z85[.]3|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//V10[.]3|PMH//ICD//10CM//Z85[.]3)" }
+  # Audit 2026-11: personal history of this cancer (excluded from the 'new cancer' task, see the task file).
+  colorectal_cancer_history:
+    code: { regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//Z85[.]0[34]|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//V10[.]0[56]|PMH//ICD//10CM//Z85[.]0[34])" }
+  # Audit 2026-11: personal history of this cancer (excluded from the 'new cancer' task, see the task file).
+  kidney_cancer_history:
+    code: { regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//Z85[.]52|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//V10[.]5[23]|PMH//ICD//10CM//Z85[.]52)" }
+  # Audit 2026-11: personal history of this cancer (excluded from the 'new cancer' task, see the task file).
+  liver_cancer_history:
+    code: { regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//Z85[.]05|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//V10[.]07|PMH//ICD//10CM//Z85[.]05)" }
+  # Audit 2026-11: personal history of this cancer (excluded from the 'new cancer' task, see the task file).
+  lung_cancer_history:
+    code: { regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//Z85[.]11|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//V10[.]11|PMH//ICD//10CM//Z85[.]11)" }
+  # Audit 2026-11: personal history of this cancer (excluded from the 'new cancer' task, see the task file).
+  melanoma_history:
+    code: { regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//Z85[.]820|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//V10[.]82|PMH//ICD//10CM//Z85[.]820)" }
+  # Audit 2026-11: personal history of this cancer (excluded from the 'new cancer' task, see the task file).
+  non_melanoma_skin_cancer_history:
+    code: { regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//Z85[.]828|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//V10[.]83|PMH//ICD//10CM//Z85[.]828)" }
+  # Audit 2026-11: personal history of this cancer (excluded from the 'new cancer' task, see the task file).
+  ovarian_cancer_history:
+    code: { regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//Z85[.]43|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//V10[.]43|PMH//ICD//10CM//Z85[.]43)" }
+  # Audit 2026-11: personal history of this cancer (excluded from the 'new cancer' task, see the task file).
+  pancreatic_cancer_history:
+    code: { regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//Z85[.]07|PMH//ICD//10CM//Z85[.]07)" }
+  # Audit 2026-11: personal history of this cancer (excluded from the 'new cancer' task, see the task file).
+  prostate_cancer_history:
+    code: { regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//Z85[.]46|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//V10[.]46|PMH//ICD//10CM//Z85[.]46)" }
+  # Audit 2026-11: personal history of this cancer (excluded from the 'new cancer' task, see the task file).
+  thyroid_cancer_history:
+    code: { regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//Z85[.]850|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//V10[.]87|PMH//ICD//10CM//Z85[.]850)" }
+  # Audit 2026-11: serum creatinine at CKD level (>= 1.5 mg/dL), excluded before 'new CKD' labels (see the CKD task
+  # files).
+  ckd_level_creatinine:
+    code: { regex: "^LAB//(CREATININE|POC:CREATININE,ISTAT)//mg/dL$" }
+    value_min: 1.5 # mg/dL
+    value_min_inclusive: True
+  # Audit 2026-11: an earlier pulmonary embolism (diagnosis, or past medical history on MC-MED), excluded from the
+  # hospital-associated PE task.
+  pulmonary_embolism_history:
+    code: { regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//I26|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(415[.]0|415[.]12|415[.]13|415[.]19)|PMH//ICD//10CM//I26)" }

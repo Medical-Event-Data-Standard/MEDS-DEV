@@ -584,3 +584,11 @@ predicates:
     code:
       any:
         - "SNOMED/267064002"
+
+  # Added by the Nov 2026 audit of #375 tasks (see the task files for the evidence).
+  # Audit 2026-11: serum creatinine at CKD level (>= 1.5 mg/dL), excluded before 'new CKD' labels (see the CKD task
+  # files).
+  ckd_level_creatinine:
+    code: LOINC/2160-0
+    value_min: 1.5 # mg/dL (LOINC code as in INSPECT; not verified on EHRShot)
+    value_min_inclusive: True

@@ -583,8 +583,10 @@ predicates:
     code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//C67)" }
   blindness:
     code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//H54)" }
+  # Audit 2026-11: Same fix as on MIMIC-IV (measured there; not rerun on this dataset): injury-chapter fracture sites
+  # S22/S32/S42/S52/S72 added.
   bone_fracture:
-    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//(M80|M84))" }
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//(M80|M84|S22|S32|S42|S52|S72))" }
   breast_cancer:
     code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//C50)" }
   celiac_disease_k900:
@@ -632,10 +634,12 @@ predicates:
     code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//(F32|F33))" }
   diabetes_mellitus:
     code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//(E08|E09|E10|E11|E13))" }
+  # Audit 2026-11: Same fix as on MIMIC-IV (measured there; not rerun on this dataset): L97.4/L97.5 added.
   diabetic_foot_ulcer:
-    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//(E11[.]621|E13[.]621))" }
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//(E11[.]621|E13[.]621|L97[.][45]))" }
+  # Audit 2026-11: Same fix as on MIMIC-IV (measured there; not rerun on this dataset): E1x.22 and E1x.29 added.
   diabetic_nephropathy:
-    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//E11[.]21)" }
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//(E1[013][.]2[129]))" }
   diabetic_neuropathy:
     code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//(E10[.]4|E11[.]4))" }
   diabetic_retinopathy:
@@ -734,10 +738,12 @@ predicates:
     code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//G20)" }
   paroxysmal_atrial_fibrillation:
     code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//I48[.]0)" }
+  # Audit 2026-11: Same fix as on MIMIC-IV (measured there; not rerun on this dataset): diabetic peripheral angiopathy
+  # E08-E13 .51/.52 added.
   peripheral_artery_disease:
     code:
       {
-        regex: "^(DIAGNOSIS//ICD//(10|10CM)//(I70[.]2|I70[.]3|I70[.]4|I70[.]7|I73[.]9))",
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//(I70[.]2|I70[.]3|I70[.]4|I70[.]7|I73[.]9|E(08|09|10|11|13)[.]5[12]))",
       }
   peripheral_neuropathy:
     code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//G62[.]9)" }
@@ -785,3 +791,52 @@ predicates:
     code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//(I26|I81|I82))" }
   vitamin_b12_deficiency_anemia:
     code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//D51)" }
+
+  # Added by the Nov 2026 audit of #375 tasks (see the task files for the evidence).
+  # Audit 2026-11: personal history of this cancer (excluded from the 'new cancer' task, see the task file).
+  breast_cancer_history:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//Z85[.]3)" }
+  # Audit 2026-11: personal history of this cancer (excluded from the 'new cancer' task, see the task file).
+  colorectal_cancer_history:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//Z85[.]0[34])" }
+  # Audit 2026-11: personal history of this cancer (excluded from the 'new cancer' task, see the task file).
+  kidney_cancer_history:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//Z85[.]52)" }
+  # Audit 2026-11: personal history of this cancer (excluded from the 'new cancer' task, see the task file).
+  liver_cancer_history:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//Z85[.]05)" }
+  # Audit 2026-11: personal history of this cancer (excluded from the 'new cancer' task, see the task file).
+  lung_cancer_history:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//Z85[.]11)" }
+  # Audit 2026-11: personal history of this cancer (excluded from the 'new cancer' task, see the task file).
+  melanoma_history:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//Z85[.]820)" }
+  # Audit 2026-11: personal history of this cancer (excluded from the 'new cancer' task, see the task file).
+  non_melanoma_skin_cancer_history:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//Z85[.]828)" }
+  # Audit 2026-11: personal history of this cancer (excluded from the 'new cancer' task, see the task file).
+  ovarian_cancer_history:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//Z85[.]43)" }
+  # Audit 2026-11: personal history of this cancer (excluded from the 'new cancer' task, see the task file).
+  pancreatic_cancer_history:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//Z85[.]07)" }
+  # Audit 2026-11: personal history of this cancer (excluded from the 'new cancer' task, see the task file).
+  prostate_cancer_history:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//Z85[.]46)" }
+  # Audit 2026-11: personal history of this cancer (excluded from the 'new cancer' task, see the task file).
+  thyroid_cancer_history:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//Z85[.]850)" }
+  # Audit 2026-11: serum creatinine at CKD level (>= 1.5 mg/dL), excluded before 'new CKD' labels (see the CKD task
+  # files).
+  ckd_level_creatinine:
+    code: { regex: "^LAB//RESULT//[0-9]+//(BKR CREATININE|CREATININE SERUM)$" }
+    value_min: 1.5 # mg/dL
+    value_min_inclusive: True
+  # Audit 2026-11: HbA1c in the diabetic range (>= 6.5%), excluded before 'new type 2 diabetes' labels.
+  diabetic_range_hba1c:
+    code: "LAB//RESULT//828//HEMOGLOBIN A1C"
+    value_min: 6.5 # %
+    value_min_inclusive: True
+  # Audit 2026-11: an earlier pulmonary embolism (diagnosis), excluded from the hospital-associated PE task.
+  pulmonary_embolism_history:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//I26)" }

@@ -366,3 +366,13 @@ predicates:
     code: { regex: "^(ICD10CM/(I26|I82)|ICD9CM/453)" }
   vitamin_b12_deficiency_anemia:
     code: { regex: "^(ICD10CM/D51)" }
+
+  # Added by the Nov 2026 audit of #375 tasks (see the task files for the evidence).
+  # Audit 2026-11: HbA1c in the diabetic range (>= 6.5%), excluded before 'new type 2 diabetes' labels.
+  diabetic_range_hba1c:
+    code: LOINC/4548-4
+    value_min: 6.5 # % (LOINC code; not verified on INSPECT)
+    value_min_inclusive: True
+  # Audit 2026-11: an earlier pulmonary embolism (diagnosis), excluded from the hospital-associated PE task.
+  pulmonary_embolism_history:
+    code: { regex: "^(ICD10CM/I26)" }

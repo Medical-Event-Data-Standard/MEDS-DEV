@@ -110,3 +110,9 @@ predicates:
       }
   thyroid_cancer:
     code: { regex: "^(DIAGNOSIS//(ICD10_CN|ICD//10CN)//C73)" }
+
+  # Added by the Nov 2026 audit of #375 tasks (see the task files for the evidence).
+  # Audit 2026-11: no site-specific history code: PICdb (paediatric ICU) has no personal-history (Z85) codes. Matches
+  # nothing, so the task is unchanged here.
+  kidney_cancer_history:
+    code: { regex: "^NO_SUCH_CODE$" }
