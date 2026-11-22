@@ -66,6 +66,10 @@ no public demo, so only `build_full` is provided.[3] Notable properties of the c
     serum total CO2 plus measured blood-gas bicarbonate. Blood-gas hemoglobin is left out, because two of its
     codes are labelled g/L but hold g/dL values.
 
+## Known issues (audit, Nov 2026)
+
+- `FOLLOW_UP_VITAL_STATUS` is the follow-up outcome and should be excluded from model inputs.
+
 ## Sources
 
 1. [Zigong ICU infection database v1.1 on PhysioNet](https://physionet.org/content/icu-infection-zigong-fourth/1.1/)

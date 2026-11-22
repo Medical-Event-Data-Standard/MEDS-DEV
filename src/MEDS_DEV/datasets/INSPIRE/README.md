@@ -28,6 +28,16 @@ surrounding whitespace and adds `hadm_id` and `operation_id` columns, as listed 
 its README. The predicates use none of the renamed codes, and every predicate code has events in a full
 1.2.0 build.
 
+## Known issues (audit, Nov 2026)
+
+- Diagnoses keep 3-character ICD-10 codes, so personal-history codes (Z85) cannot be split by cancer site and
+  diabetes is often coded E14 (unspecified diabetes, now included in the diabetes predicates).
+- The hospital discharge is sometimes stamped before the ICU discharge, and ICU-anchored mortality scores about 0.98
+  against 0.90-0.93 on eight other datasets, with no single dominant feature: worth checking the discharge and death
+  timestamps.
+- As a surgical registry, most ICU transfers, short stays and many readmissions follow the surgical plan (planned
+  post-operative ICU stays, second-eye cataract surgery within 30 days).
+
 ## Sources
 
 1. [INSPIRE PhysioNet Website](https://physionet.org/content/inspire/1.4.2/)

@@ -65,6 +65,16 @@ properties of the conversion:
 - **Vital signs** are `VITAL//<DataID>` and are hourly aggregates, so `abnormally_low_map` flags an hour
     whose mean pressure is below 65 mmHg rather than a single reading.
 
+## Known issues (audit, Nov 2026)
+
+- Case attributes 3113/3114 (KDIGO AKI outcome) and `SURVIVAL_OBSERVATION_WINDOW` describe the outcome; they were top
+  features of the abnormal-lab tasks until excluded from the inputs.
+- Case attributes 3109/3112 (SARS-CoV-2 pneumonia / post-COVID) exist only for later admissions and act as an era
+  marker.
+- SICdb records ICU care only. On hospital-stay tasks, patients who leave the ICU alive have no later data and are
+  trivial negatives ("ICU discharge alive" became the top feature); using the ICU stay as the unit removed this.
+- "Transfer to the ICU" tasks are not meaningful (every admission is an ICU admission).
+
 ## Sources
 
 1. [SICdb 1.0.8 on PhysioNet](https://physionet.org/content/sicdb/1.0.8/)

@@ -68,6 +68,13 @@ ICD-9-CM titles and parents to `metadata/codes.parquet`, so the build no longer 
 - **Diagnoses** are dotted ICD codes: `ED_DIAGNOSIS//ICD10CM//<code>` and `ED_DIAGNOSIS//ICD9CM//<code>`
     for the visit, and `PMH//ICD10CM//<code>` and `PMH//ICD9CM//<code>` for past medical history.
 
+## Known issues (audit, Nov 2026)
+
+- Past medical history is recorded as `PMH//` codes at the visit. They are not part of the diagnosis predicates, so
+  "new" diagnoses are not checked against them unless a task adds a history predicate (done for pulmonary embolism
+  and the cancers): 67% of hospital-associated PE positives had a PE in their past medical history.
+- MC-MED has no follow-up after the visit, so deaths after discharge are not recorded.
+
 ## Sources
 
 1. [MC-MED 1.0.1 on PhysioNet](https://physionet.org/content/mc-med/1.0.1/)

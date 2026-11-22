@@ -59,6 +59,12 @@ so only `build_full` is provided. Notable properties of the conversion:
 - **Labs** are `LAB//<item> -- <name>//<unit>` and are already in the tasks' units. Bicarbonate and total
     CO2 are reported only in blood-gas panels, so `bicarbonate` uses blood-gas HCO3.
 
+## Known issues (audit, Nov 2026)
+
+- `MECHANICAL_VENTILATION` is a stay-level flag placed at the hospital admission, not at the start of ventilation,
+  and `INPATIENT_DIAGNOSIS` is the admission's final COVID status. Both were top features of early-stay tasks and
+  should be excluded from model inputs.
+
 ## Sources
 
 1. [CDSL v1.0.0 on PhysioNet](https://physionet.org/content/covid-data-shared-learning/1.0.0/)
