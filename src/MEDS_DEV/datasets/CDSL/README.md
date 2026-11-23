@@ -38,11 +38,13 @@ these pairs.
 ## MEDS Transformation
 
 [`CDSL-MEDS`](https://github.com/rvandewater/CDSL_MEDS) is a configuration-only
-[MEDS-Extract](https://github.com/mmcdermott/MEDS_extract) 0.7 pipeline, registered as `spec=CDSL`.[2]
-`requirements.txt` pins `CDSL-MEDS==0.0.1`, the newest code on PyPI: it was published from the `0.0.3` tag
-after `0.0.2`, which is older code. Three CDSL files are Latin-1 encoded, so the build downloads first and
-then runs `MEDS_extract-CDSL`, which stages a UTF-8 view of the download before extraction. There is no
-public demo, so only `build_full` is provided. Notable properties of the conversion:
+[MEDS-Extract](https://github.com/mmcdermott/MEDS_extract) pipeline, registered as `spec=CDSL` for
+`meds-extract-run`, which downloads the release into `raw_input_dir`, builds the MEDS dataset and, as a last
+step, enriches `metadata/codes.parquet` with suMEDS.[2] `requirements.txt` pins `CDSL-MEDS==0.2.0`. The
+three Latin-1 encoded CDSL files are now read with their encoding declared in the spec, so the
+`MEDS_extract-CDSL` runner the previous build used is gone. The predicates below use no code
+the ETL renamed since, and every predicate code has events in a full 0.2.0 build. There is no public demo,
+so only `build_full` is provided. Notable properties of the conversion:
 
 - **One hospital stay per subject.** `HOSPITAL_ADMISSION` and `HOSPITAL_DISCHARGE//<destination>` are
     recorded to the day and placed at midnight, so "the first 24 hours" of the abnormal-lab tasks is the
