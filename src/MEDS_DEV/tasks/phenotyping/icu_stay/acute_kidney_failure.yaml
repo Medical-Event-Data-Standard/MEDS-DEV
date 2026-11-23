@@ -36,7 +36,7 @@ windows:
     # discharge that ends the admission gives 30.4% (published ICU AKI rates are 20-30%), AUROC 0.943 on creatinine
     # and BUN; NWICU 3.6% -> 11.0%. eICU stamps diagnoses during the stay, which this window also covers. Rerun in
     # this form: MIMIC-IV prevalence 32.0% (AUROC 0.948), NWICU 11.0% (0.913), eICU 9.7% (0.943; positives 17,311 ->
-    # 19,407, since codes recorded after the ICU stay now count), ALOTT now reportable (0.890). AKI first coded after
+    # 19,407, since codes recorded after the ICU stay now count), ALOTT now reportable (0.808 with the diagnosis codes removed from the inputs). AKI first coded after
     # the ICU stay counts as positive.
     start: episode.start
     end: start -> hospital_discharge
