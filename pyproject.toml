@@ -32,7 +32,7 @@ classifiers = [
     "Operating System :: POSIX :: Linux",
     "Operating System :: MacOS",
 ]
-dependencies = ["meds==0.4.1", "es-aces==0.8.1", "hydra-core", "meds-evaluation==0.0.3", "validators", "uv"]
+dependencies = ["meds==0.4.1", "es-aces==0.8.2", "hydra-core", "meds-evaluation==0.0.3", "validators", "uv"]
 
 [dependency-groups]
 dev = [
