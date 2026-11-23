@@ -1,4 +1,4 @@
-cehrbert==1.4.9
+cehrbert==1.5.1
 meds_reader==0.1.9
 meds-evaluation==0.0.2
 pyyaml
