@@ -1,0 +1,60 @@
+metadata:
+  description:
+    "Another ICU admission later in the same hospital stay, predicted 12 hours after ICU admission, with a 12 hour
+    gap. The target window runs from hour 24 of the ICU stay to the hospital discharge or death. Patients who leave hospital,
+    die, or are readmitted to the ICU in the first 24 hours are excluded. Source literature: Hur et al. (2024). GenHPF: General
+    Healthcare Predictive Framework for Multi-Task Multi-Source Learning."
+  links:
+    - https://github.com/hoon9405/GenHPF/blob/07c2068baf771db44f3cabde4a8372c8b80a00c3/src/genhpf/scripts/preprocess/genhpf/ehrs/ehr.py#L194-L200
+  contacts:
+    - name: Robin van de Water
+      github_username: rvandewater
+  supported_datasets:
+    - ALOTT
+    - AUMCdb
+    - INSPIRE
+    - MC-MED
+    - MIMIC-IV
+    - NWICU
+    - PICdb
+    - SICdb
+    - eICU
+predicates:
+  icu_admission: ???
+  hospital_discharge: ???
+  death:
+    code:
+      regex: MEDS_DEATH.*
+  discharge_or_death:
+    expr: or(hospital_discharge, death)
+trigger: icu_admission
+windows:
+  input:
+    start: null
+    end: trigger + 12h
+    start_inclusive: true
+    end_inclusive: true
+    index_timestamp: end
+  in_stay:
+    start: trigger
+    end: start + 12h
+    start_inclusive: false
+    end_inclusive: true
+    has:
+      hospital_discharge: (None, 0)
+      death: (None, 0)
+  gap:
+    start: input.end
+    end: start + 12h
+    start_inclusive: false
+    end_inclusive: true
+    has:
+      hospital_discharge: (None, 0)
+      death: (None, 0)
+      icu_admission: (None, 0)
+  target:
+    start: gap.end
+    end: start -> discharge_or_death
+    start_inclusive: false
+    end_inclusive: true
+    label: icu_admission

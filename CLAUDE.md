@@ -232,7 +232,7 @@ models is filtered by compatibility.
 | Package                  | Purpose                                |
 | ------------------------ | -------------------------------------- |
 | `meds==0.4.1`            | MEDS data schema and split constants   |
-| `es-aces==0.7.3`         | ACES task extraction engine            |
+| `es-aces==0.8.2`         | ACES task extraction engine            |
 | `hydra-core`             | CLI configuration management           |
 | `meds-evaluation==0.0.3` | Prediction evaluation (AUROC, etc.)    |
 | `validators`             | Email/URL validation for metadata      |

@@ -1,0 +1,49 @@
+metadata:
+  description:
+    "All-cause hospital readmission after a hospital stay with a diagnosis of chronic kidney disease (ICD-10 N18),
+    predicted at discharge. The target window runs from day 1 to day 30 after discharge; discharges followed by an admission
+    within the first day are excluded. The source counts only readmissions that carry the same diagnosis. A record that ends
+    before the target window is over is labelled negative. Source literature: Gupta et al. (2022). An Extensive Data Processing
+    Pipeline for MIMIC-IV."
+  links:
+    - https://github.com/healthylaife/MIMIC-IV-Data-Pipeline/blob/4679a0a647ab789728466a04bc84bebfc9c3ddbf/mainPipeline.ipynb
+  contacts:
+    - name: Robin van de Water
+      github_username: rvandewater
+  supported_datasets:
+    - ALOTT
+    - INSPIRE
+    - MC-MED
+    - MIMIC-IV
+    - NWICU
+predicates:
+  hospital_admission: ???
+  hospital_discharge: ???
+  chronic_kidney_disease: ???
+  death:
+    code:
+      regex: MEDS_DEATH.*
+trigger: hospital_discharge
+windows:
+  stay:
+    start: end <- hospital_admission
+    end: trigger
+    start_inclusive: true
+    end_inclusive: true
+    index_timestamp: end
+    has:
+      chronic_kidney_disease: (1, None)
+      death: (None, 0)
+  gap:
+    start: trigger
+    end: start + 1d
+    start_inclusive: false
+    end_inclusive: true
+    has:
+      hospital_admission: (None, 0)
+  target:
+    start: gap.end
+    end: start + 29d
+    start_inclusive: false
+    end_inclusive: true
+    label: hospital_admission

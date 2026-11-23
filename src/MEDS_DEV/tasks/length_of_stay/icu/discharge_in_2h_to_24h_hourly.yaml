@@ -1,0 +1,55 @@
+metadata:
+  description:
+    "Imminent ICU discharge: an ICU discharge between 2 and 24 hours from now, predicted every hour of the ICU
+    stay. One row per hour. Needs ACES 0.8 or later (`trigger` with `every` and `until`). Source literature: McDermott et
+    al. (2021). A comprehensive EHR timeseries pre-training benchmark."
+  links:
+    - https://github.com/mmcdermott/comprehensive_MTL_EHR/blob/95bf1f6cea37299f6275df3a9066e19031173b3e/latent_patient_trajectories/representation_learner/extractors.py#L511-L539
+  contacts:
+    - name: Robin van de Water
+      github_username: rvandewater
+  supported_datasets:
+    - ALOTT
+    - AUMCdb
+    - CDSL
+    - HIRID
+    - INSPIRE
+    - MIMIC-IV
+    - NWICU
+    - PICdb
+    - SICdb
+    - Zigong
+    - eICU
+predicates:
+  icu_admission: ???
+  icu_discharge: ???
+  death:
+    code:
+      regex: MEDS_DEATH.*
+trigger:
+  predicate: icu_admission
+  every: 1h
+  until: icu_discharge
+windows:
+  input:
+    start: null
+    end: trigger
+    start_inclusive: true
+    end_inclusive: true
+    index_timestamp: end
+    has:
+      icu_discharge: (None, 0)
+  gap:
+    start: trigger
+    end: start + 2h
+    start_inclusive: false
+    end_inclusive: true
+    has:
+      icu_discharge: (None, 0)
+      death: (None, 0)
+  target:
+    start: gap.end
+    end: start + 22h
+    start_inclusive: false
+    end_inclusive: true
+    label: icu_discharge

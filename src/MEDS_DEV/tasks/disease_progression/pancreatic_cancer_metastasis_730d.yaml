@@ -1,0 +1,49 @@
+metadata:
+  description:
+    "Secondary malignant neoplasm (ICD-10 C77, C78, C79) within 730 days of a patient's first diagnosis of pancreatic
+    cancer (ICD-10 C25), predicted at that diagnosis. Patients with the outcome before the diagnosis or in the 30 days after
+    it are excluded. A record that ends before the target window is over is labelled negative. Source literature: Zhang et
+    al. (2026). A multimodal and temporal foundation model for virtual patient representations at healthcare system scale."
+  links:
+    - https://arxiv.org/pdf/2604.18570v2#page=67
+  contacts:
+    - name: Robin van de Water
+      github_username: rvandewater
+  supported_datasets:
+    - INSPECT
+    - INSPIRE
+    - MIMIC-IV
+    - NWICU
+predicates:
+  pancreatic_cancer: ???
+  secondary_malignant_neoplasm: ???
+trigger: pancreatic_cancer
+windows:
+  first:
+    start: null
+    end: trigger
+    start_inclusive: true
+    end_inclusive: false
+    has:
+      pancreatic_cancer: (None, 0)
+  input:
+    start: null
+    end: trigger
+    start_inclusive: true
+    end_inclusive: true
+    index_timestamp: end
+    has:
+      secondary_malignant_neoplasm: (None, 0)
+  blackout:
+    start: trigger
+    end: start + 30d
+    start_inclusive: false
+    end_inclusive: true
+    has:
+      secondary_malignant_neoplasm: (None, 0)
+  target:
+    start: blackout.end
+    end: start + 700d
+    start_inclusive: false
+    end_inclusive: true
+    label: secondary_malignant_neoplasm

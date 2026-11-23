@@ -14,6 +14,6 @@ metadata:
 
 commands:
   build_full: >-
-    MEDS_extract-INSPIRE "{temp_dir}"
-    --raw-input-dir "{raw_input_dir}"
-    --output-dir "{output_dir}"
+    meds-extract-run spec=INSPIRE
+    download_dest_dir="{raw_input_dir}"
+    output_dir="{output_dir}"

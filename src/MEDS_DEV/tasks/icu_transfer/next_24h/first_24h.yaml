@@ -1,0 +1,49 @@
+metadata:
+  description:
+    "First ICU admission in hours 24 to 48 of a hospital admission, predicted at hour 24. Admissions with an ICU
+    admission in the first 24 hours, and admissions that end in the first 24 hours, are excluded. Source literature: Lee et
+    al. (2026). Representation Before Training: A Practical Benchmark for Generative Medical Event Model Tokenization."
+  links:
+    - https://arxiv.org/html/2604.16775v3#A1.T1
+  contacts:
+    - name: Robin van de Water
+      github_username: rvandewater
+  supported_datasets:
+    - ALOTT
+    - CDSL
+    - INSPIRE
+    - MIMIC-IV
+    - NWICU
+    - PICdb
+    - SICdb
+    - eICU
+predicates:
+  hospital_admission: ???
+  hospital_discharge: ???
+  icu_admission: ???
+  death:
+    code:
+      regex: MEDS_DEATH.*
+trigger: hospital_admission
+windows:
+  input:
+    start: null
+    end: trigger + 24h
+    start_inclusive: true
+    end_inclusive: true
+    index_timestamp: end
+  in_stay:
+    start: trigger
+    end: start + 24h
+    start_inclusive: true
+    end_inclusive: true
+    has:
+      hospital_discharge: (None, 0)
+      death: (None, 0)
+      icu_admission: (None, 0)
+  target:
+    start: in_stay.end
+    end: start + 24h
+    start_inclusive: false
+    end_inclusive: true
+    label: icu_admission

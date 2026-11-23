@@ -156,7 +156,7 @@ wheels = [
 
 [[package]]
 name = "es-aces"
-version = "0.7.3"
+version = "0.8.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "bigtree" },
@@ -169,9 +169,9 @@ dependencies = [
     { name = "pytimeparse" },
     { name = "ruamel-yaml" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/69/25/c434866e9de99bb9560d435e4db8137592b5f68f6c58780fd7e5e5befaaf/es_aces-0.7.3.tar.gz", hash = "sha256:180099dda1a35737245804253a62f81dd93f575159e04da539b464b3b1527d2f", size = 2654607, upload-time = "2026-04-21T21:19:51.049Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/23/50/75fcaf20397d2468b44c53c7bb30ff5c7d3bc6e3ce9557d2e11b37ab8406/es_aces-0.8.2.tar.gz", hash = "sha256:2db328f609ebbd28b5f4a2eeae0eeb833914d9734428f22ba465bf0092800a6e", size = 2693076, upload-time = "2026-11-20T21:47:16.698Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/e3/b1/6e2dbec4ec004c30500fd83865101b083f9449c0310e6ddc5579a9a529c0/es_aces-0.7.3-py3-none-any.whl", hash = "sha256:4bd48c5558379a8b3c22c6b600f1c3e1582ef465b3ad8f0f72a6ce4b12f244d7", size = 61766, upload-time = "2026-04-21T21:19:49.505Z" },
+    { url = "https://files.pythonhosted.org/packages/eb/77/5c8603417280d7effb056b4ef9b92e54f49a82363f1bf3c3ec1da053e3f3/es_aces-0.8.2-py3-none-any.whl", hash = "sha256:13219b2f12a637d7f1e87786c3135903621a2f04e57b011f01339ff8257d7f3f", size = 85658, upload-time = "2026-11-20T21:47:15.556Z" },
 ]
 
 [[package]]
@@ -295,7 +295,7 @@ wheels = [
 
 [[package]]
 name = "meds-dev"
-version = "0.1.0"
+version = "0.2.0"
 source = { editable = "." }
 dependencies = [
     { name = "es-aces" },
@@ -319,7 +319,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "es-aces", specifier = "==0.7.3" },
+    { name = "es-aces", specifier = "==0.8.2" },
     { name = "hydra-core" },
     { name = "meds", specifier = "==0.4.1" },
     { name = "meds-evaluation", specifier = "==0.0.3" },

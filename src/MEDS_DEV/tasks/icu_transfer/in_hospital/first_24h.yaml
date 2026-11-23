@@ -1,0 +1,55 @@
+metadata:
+  description:
+    "Transfer to the ICU during a hospital admission, predicted 24 hours after admission. The label is an ICU admission
+    between hour 24 and the hospital discharge or death. Admissions with an ICU admission in the first 24 hours, and admissions
+    that end in the first 24 hours, are excluded. Source literature: Wornow et al. (2023). EHRSHOT: An EHR Benchmark for Few-Shot
+    Evaluation of Foundation Models. Solo et al. (2026). Efficient Generative Prediction for EHR Foundation Models: The SCOPE
+    and REACH Estimators."
+  links:
+    - https://github.com/som-shahlab/ehrshot-benchmark/blob/main/ehrshot/labelers/ehrshot.py#L112
+    - https://github.com/lukesolo-ml/SCOPE-REACH-Codebase-Companion/blob/a43b30e2ca5706aa3e4e9dce33c518cf313f5474/cocoa_inference_testing/pipeline_config/cocoa_config/winnowing/clif-21.yaml#L4
+  contacts:
+    - name: Robin van de Water
+      github_username: rvandewater
+  supported_datasets:
+    - ALOTT
+    - CDSL
+    - INSPIRE
+    - MC-MED
+    - MIMIC-IV
+    - NWICU
+    - PICdb
+    - SICdb
+    - eICU
+predicates:
+  hospital_admission: ???
+  hospital_discharge: ???
+  icu_admission: ???
+  death:
+    code:
+      regex: MEDS_DEATH.*
+  discharge_or_death:
+    expr: or(hospital_discharge, death)
+trigger: hospital_admission
+windows:
+  input:
+    start: null
+    end: trigger + 24h
+    start_inclusive: true
+    end_inclusive: true
+    index_timestamp: end
+  in_stay:
+    start: trigger
+    end: start + 24h
+    start_inclusive: true
+    end_inclusive: true
+    has:
+      hospital_discharge: (None, 0)
+      death: (None, 0)
+      icu_admission: (None, 0)
+  target:
+    start: in_stay.end
+    end: start -> discharge_or_death
+    start_inclusive: false
+    end_inclusive: true
+    label: icu_admission
