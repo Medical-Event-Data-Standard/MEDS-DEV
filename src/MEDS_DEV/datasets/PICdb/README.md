@@ -44,11 +44,13 @@ PICdb has no demo, so the integration tests do not exercise these pairs.
 ## MEDS Transformation
 
 [`PICdb-MEDS`](https://github.com/rvandewater/PICdb_MEDS) is a pure-config
-[MEDS-Extract](https://github.com/mmcdermott/MEDS_extract) 0.7 pipeline, registered as `spec=PICdb` for
+[MEDS-Extract](https://github.com/mmcdermott/MEDS_extract) pipeline, registered as `spec=PICdb` for
 `meds-extract-run`. There is no public demo, so only `build_full` is provided.[3] MEDS-DEV uses PICdb-MEDS
-0.0.3, the first release whose wheel ships `event_configs.yaml` (0.0.1 lacks it, so its `spec=PICdb` entry
-point cannot load). It also describes every code in `metadata/codes.parquet`. Notable properties of the
-conversion:
+0.2.0, which describes every code in `metadata/codes.parquet` and enriches it with suMEDS. Since 0.0.3 the
+ETL renamed diagnoses (`DIAGNOSIS//ICD//10CN//<code>` and `ADMISSION_DIAGNOSIS//ICD//10CN//<code>`) and
+strips units in codes of surrounding whitespace, as listed under "Breaking changes" in its README; the
+predicates use neither, and every predicate code has events in a full 0.2.0 build. Notable properties of
+the conversion:
 
 - **Dates are shifted** 50–100 years into the future per patient, so only time differences within one
     subject carry meaning.

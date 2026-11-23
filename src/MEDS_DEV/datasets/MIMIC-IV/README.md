@@ -43,10 +43,11 @@ The integration tests and CI run every task and model on the demo build.
 
 ## MEDS Transformation
 
-[`MIMIC-IV-MEDS`](https://github.com/Medical-Event-Data-Standard/MIMIC_IV_MEDS) 0.1.0 provides the
-`MEDS_extract-MIMIC_IV` command, which downloads the release, runs a pre-MEDS step over the raw tables and
-then builds the MEDS dataset with MEDS-Transforms.[4] `build_demo` passes `do_demo=True`, which builds the
-open demo instead of the full release. Notable properties of the conversion:
+[`MIMIC-IV-MEDS`](https://github.com/Medical-Event-Data-Standard/MIMIC_IV_MEDS) 0.4.0 registers the
+`MIMIC-IV` spec for MEDS-Extract's `meds-extract-run`, which downloads the release (kept in
+`raw_input_dir`), builds the MEDS dataset and, as a last step, adds external-ontology parents to
+`metadata/codes.parquet` with suMEDS.[4] `build_demo` passes `dataset_key=demo`, which builds the open
+demo instead of the full release. Notable properties of the conversion:
 
 - **Visits.** `HOSPITAL_ADMISSION//<admission type>//<admission location>` and
     `HOSPITAL_DISCHARGE//<discharge location>` mark hospital stays, `ICU_ADMISSION//<first care unit>` and
@@ -54,10 +55,9 @@ open demo instead of the full release. Notable properties of the conversion:
     department visit before an admission. The admission and discharge predicates match these by prefix.
 - **Measurements** keep MIMIC-IV's `itemid` and unit. Hospital lab results (`hosp/labevents`) are
     `LAB//RESULT//<itemid>//<unit>`, and values charted in the ICU (`icu/chartevents`), including vital
-    signs, are `LAB//<itemid>//<unit>` (`ICU_CHART//<itemid>//<unit>` from MIMIC-IV-MEDS 0.4.0; the
-    predicates accept both). Each lab predicate therefore combines the hospital lab with the
-    matching ICU chart item, and matches only the unit listed. The abnormal thresholds are in the units of
-    the tasks, so none is converted.
+    signs, are `ICU_CHART//<itemid>//<unit>` (`LAB//<itemid>//<unit>` before MIMIC-IV-MEDS 0.4.0). Each
+    lab predicate therefore combines the hospital lab with the matching ICU chart item, and matches only
+    the unit listed. The abnormal thresholds are in the units of the tasks, so none is converted.
 - **Birth and death** are `MEDS_BIRTH` and `MEDS_DEATH`, so the tasks' default predicates apply. The birth
     year is `anchor_year - anchor_age`, so births have year precision, and patients over 89 have an
     `anchor_age` of 91. A death is placed at the earliest in-hospital `deathtime`, or else at the date of
@@ -66,7 +66,7 @@ open demo instead of the full release. Notable properties of the conversion:
 - **Dates are shifted** into 2100–2200 by one random offset per patient, which keeps the order and spacing
     of each patient's events.
 
-| Predicate     | Hospital lab (`LAB//RESULT//…`)     | ICU chart (`LAB//…` or `ICU_CHART//…`)                               | Abnormal    |
+| Predicate     | Hospital lab (`LAB//RESULT//…`)     | ICU chart (`ICU_CHART//…`)                                           | Abnormal    |
 | ------------- | ----------------------------------- | -------------------------------------------------------------------- | ----------- |
 | `creatinine`  | 50912, 52546 (creatinine, mg/dL)    | none                                                                 | > 1.3 mg/dL |
 | `sodium`      | 50983, 52623 (sodium, mEq/L)        | 220645 (sodium, serum)                                               | < 135 mEq/L |

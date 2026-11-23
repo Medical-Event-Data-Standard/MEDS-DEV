@@ -9,26 +9,15 @@ predicates:
   hospital_discharge:
     code: { regex: "^ICU_DISCHARGE//.*" }
 
-  # Elevated creatinine task predicates
-  creatinine_1:
-    code: MEASURE//Kreatinine (bloed)//�mol/l
-  creatinine_2:
-    code: MEASURE//Kreatinine//�mol/l
-  # Todo: convert to mg/dL
-  abnormally_high_creatinine_1_umol_l:
-    code: MEASURE//Kreatinine (bloed)//�mol/l
-    value_min: 115 # 1.3 mg/dL
-    value_min_inclusive: False
-    value_max: null
-  abnormally_high_creatinine_2_umol_l:
-    code: MEASURE//Kreatinine//�mol/l
-    value_min: 115 # 1.3 mg/dL
-    value_min_inclusive: False
-    value_max: null
+  # Elevated creatinine task predicates. Creatinine is in µmol/l (U+00B5), so the 1.3 mg/dL threshold is
+  # converted to 115 µmol/l. The release has no plain `MEASURE//Kreatinine//µmol/l` code.
   creatinine:
-    expr: or(creatinine_1, creatinine_2)
-  abnormally_high_creatinine_umol_L:
-    expr: or(abnormally_high_creatinine_1_umol_l, abnormally_high_creatinine_2_umol_l)
+    code: MEASURE//Kreatinine (bloed)//µmol/l
+  abnormally_high_creatinine:
+    code: MEASURE//Kreatinine (bloed)//µmol/l
+    value_min: 115 # 1.3 mg/dL
+    value_min_inclusive: False
+    value_max: null
 
   # Hyponatremia task predicates
   sodium:

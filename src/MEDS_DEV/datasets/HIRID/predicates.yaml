@@ -1,20 +1,20 @@
 predicates:
-  # Codes are those of HIRID-MEDS 0.1.0. HiRID covers ICU stays only: each subject is one admission to the
+  # Codes are those of HIRID-MEDS 0.3.0. HiRID covers ICU stays only: each subject is one admission to the
   # Bern University Hospital ICU, and nothing before or after it is recorded.
   #
-  # `HOSPITAL_ADMISSION` is the ICU admission time and `HOSPITAL_DISCHARGE` the time of the subject's last
-  # observation (HiRID records no discharge time). The ETL keeps these names from its earlier releases. They are
-  # used for both the ICU and the hospital predicates: HiRID records no hospital admission or discharge, so the
+  # `ICU_ADMISSION` is the ICU admission time and `ICU_DISCHARGE` the time of the subject's last observation
+  # (HiRID records no discharge time); HIRID-MEDS up to 0.2.0 named them `HOSPITAL_ADMISSION` and
+  # `HOSPITAL_DISCHARGE` (rvandewater/HIRID_MEDS#23). They are used for both the ICU and the hospital predicates: HiRID records no hospital admission or discharge, so the
   # hospital-level tasks are anchored on the ICU stay, as for SICdb. `MEDS_BIRTH` and `MEDS_DEATH` are present, so
   # the tasks' default `birth` and `death` predicates apply.
   hospital_admission:
-    code: HOSPITAL_ADMISSION
+    code: ICU_ADMISSION
   hospital_discharge:
-    code: HOSPITAL_DISCHARGE
+    code: ICU_DISCHARGE
   icu_admission:
-    code: HOSPITAL_ADMISSION
+    code: ICU_ADMISSION
   icu_discharge:
-    code: HOSPITAL_DISCHARGE
+    code: ICU_DISCHARGE
 
   # Observations are `OBSERVATION//<variable name>//<unit>`, with the name and unit from HiRID's variable
   # reference. A code is used when its LOINC (from the suMEDS crosswalk shipped with HIRID-MEDS) measures the

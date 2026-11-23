@@ -1,4 +1,5 @@
-# Predicates for CDSL, built with CDSL-MEDS 0.0.1. Reasoning: README.md.
+# Predicates for CDSL, built with CDSL-MEDS 0.2.0 (these codes are unchanged since 0.0.1).
+# Reasoning: README.md.
 # Supported: mortality/in_icu/first_24h and the six blood abnormal_lab tasks. Not supported:
 # abnormal_lab/vital/hypotension (vitals have systolic/diastolic only, no MAP). Labs are already in the
 # tasks' units.
