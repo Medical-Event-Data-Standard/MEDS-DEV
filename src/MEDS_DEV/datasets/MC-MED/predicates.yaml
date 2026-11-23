@@ -140,639 +140,588 @@ predicates:
     expr: or(abnormally_low_map_1, abnormally_low_map_2)
 
   # Diagnosis groups by ICD root. Generated from the dataset's suMEDS code catalog (TaskWiki task_templates).
-  # Each ICD prefix accepts the code layout before and after the 2026-11 ETL releases, e.g. DIAGNOSIS//ICD//(10|10CM)//;
-  # the old alternative can be dropped once the dataset's pin is on the new release.
+  # ICD codes use the `ICD//<edition>//<code>` layout of the 2026-11 ETL releases (see requirements.txt).
   heart_failure:
     code:
-      {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//I50|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//428)",
-      }
+      { regex: "^(ED_DIAGNOSIS//ICD//10CM//I50|ED_DIAGNOSIS//ICD//9CM//428)" }
   essential_hypertension:
     code:
-      {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//I10|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//401)",
-      }
+      { regex: "^(ED_DIAGNOSIS//ICD//10CM//I10|ED_DIAGNOSIS//ICD//9CM//401)" }
   acute_myocardial_infarction:
     code:
-      {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//I21|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//410)",
-      }
+      { regex: "^(ED_DIAGNOSIS//ICD//10CM//I21|ED_DIAGNOSIS//ICD//9CM//410)" }
   atrial_fibrillation:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//I48|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//427[.]3)",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//I48|ED_DIAGNOSIS//ICD//9CM//427[.]3)",
       }
   ischemic_stroke:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//I63|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(433[.]01|433[.]11|433[.]21|433[.]81|433[.]91|434))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//I63|ED_DIAGNOSIS//ICD//9CM//(433[.]01|433[.]11|433[.]21|433[.]81|433[.]91|434))",
       }
   acute_kidney_failure:
     code:
-      {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//N17|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//584)",
-      }
+      { regex: "^(ED_DIAGNOSIS//ICD//10CM//N17|ED_DIAGNOSIS//ICD//9CM//584)" }
   septicemia:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//(A40|A41)|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(038|995[.]91))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//(A40|A41)|ED_DIAGNOSIS//ICD//9CM//(038|995[.]91))",
       }
   pulmonary_embolism:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//I26|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(415[.]0|415[.]12|415[.]13|415[.]19))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//I26|ED_DIAGNOSIS//ICD//9CM//(415[.]0|415[.]12|415[.]13|415[.]19))",
       }
   end_stage_renal_disease:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//N18[.]6|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//585[.]6)",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//N18[.]6|ED_DIAGNOSIS//ICD//9CM//585[.]6)",
       }
   coronary_artery_disease:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//I25|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(412|414|429[.]2))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//I25|ED_DIAGNOSIS//ICD//9CM//(412|414|429[.]2))",
       }
   type_2_diabetes:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//E11|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(250|362[.]0))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//E11|ED_DIAGNOSIS//ICD//9CM//(250|362[.]0))",
       }
   pancreatic_cancer:
     code:
-      {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//C25|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//157)",
-      }
+      { regex: "^(ED_DIAGNOSIS//ICD//10CM//C25|ED_DIAGNOSIS//ICD//9CM//157)" }
   acute_lymphocytic_leukemia:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//C91[.]0|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//204[.]0)",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//C91[.]0|ED_DIAGNOSIS//ICD//9CM//204[.]0)",
       }
   acute_myeloid_leukemia:
-    code: { regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//C92[.]0)" }
+    code: { regex: "^(ED_DIAGNOSIS//ICD//10CM//C92[.]0)" }
   acute_myocardial_infarction_i21:
     code:
-      {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//I21|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//410)",
-      }
+      { regex: "^(ED_DIAGNOSIS//ICD//10CM//I21|ED_DIAGNOSIS//ICD//9CM//410)" }
   acute_pancreatitis:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//K85|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//577[.]0)",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//K85|ED_DIAGNOSIS//ICD//9CM//577[.]0)",
       }
   addison_disease:
-    code: { regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//E27[.]1)" }
+    code: { regex: "^(ED_DIAGNOSIS//ICD//10CM//E27[.]1)" }
   all_leukemia:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//(C91|C92|C93|C94|C95)|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(204|205|207[.]8|208))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//(C91|C92|C93|C94|C95)|ED_DIAGNOSIS//ICD//9CM//(204|205|207[.]8|208))",
       }
   alzheimer_disease:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//G30|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//331[.]0)",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//G30|ED_DIAGNOSIS//ICD//9CM//331[.]0)",
       }
   amyotrophic_lateral_sclerosis:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//G12[.]21|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//335[.]20)",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//G12[.]21|ED_DIAGNOSIS//ICD//9CM//335[.]20)",
       }
   aortic_aneurysm:
     code:
-      {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//I71|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//441)",
-      }
+      { regex: "^(ED_DIAGNOSIS//ICD//10CM//I71|ED_DIAGNOSIS//ICD//9CM//441)" }
   aortic_stenosis:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//(I35[.]0|Q23[.]0)|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(746[.]3|747[.]22))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//(I35[.]0|Q23[.]0)|ED_DIAGNOSIS//ICD//9CM//(746[.]3|747[.]22))",
       }
   aplastic_anemia:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//(D61[.]0|D61[.]9)|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(284[.]0|284[.]9))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//(D61[.]0|D61[.]9)|ED_DIAGNOSIS//ICD//9CM//(284[.]0|284[.]9))",
       }
   asthma:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//J45|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(493[.]8|493[.]9))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//J45|ED_DIAGNOSIS//ICD//9CM//(493[.]8|493[.]9))",
       }
   benign_prostatic_hyperplasia:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//N40|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(600[.]0|600[.]9))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//N40|ED_DIAGNOSIS//ICD//9CM//(600[.]0|600[.]9))",
       }
   bipolar_disorder:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//F31|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(296[.]4|296[.]5|296[.]6|296[.]7|296[.]80|296[.]89))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//F31|ED_DIAGNOSIS//ICD//9CM//(296[.]4|296[.]5|296[.]6|296[.]7|296[.]80|296[.]89))",
       }
   bladder_cancer:
     code:
-      {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//C67|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//188)",
-      }
+      { regex: "^(ED_DIAGNOSIS//ICD//10CM//C67|ED_DIAGNOSIS//ICD//9CM//188)" }
   blindness:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//H54|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(369|V41[.]0))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//H54|ED_DIAGNOSIS//ICD//9CM//(369|V41[.]0))",
       }
   bone_fracture:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//(M80|M84)|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(733[.]1|905[.]3|V54[.]2))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//(M80|M84)|ED_DIAGNOSIS//ICD//9CM//(733[.]1|905[.]3|V54[.]2))",
       }
   breast_cancer:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//C50|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(174|175))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//C50|ED_DIAGNOSIS//ICD//9CM//(174|175))",
       }
   chronic_hepatitis_or_fatty_liver:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//(B18|K70[.]0|K70[.]1|K73|K75|K76[.]0)|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(070[.]22|070[.]32|070[.]44|070[.]54|571[.]0|571[.]1|571[.]4|571[.]8|572[.]0|572[.]1))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//(B18|K70[.]0|K70[.]1|K73|K75|K76[.]0)|ED_DIAGNOSIS//ICD//9CM//(070[.]22|070[.]32|070[.]44|070[.]54|571[.]0|571[.]1|571[.]4|571[.]8|572[.]0|572[.]1))",
       }
   chronic_kidney_disease:
     code:
-      {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//N18|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//585)",
-      }
+      { regex: "^(ED_DIAGNOSIS//ICD//10CM//N18|ED_DIAGNOSIS//ICD//9CM//585)" }
   chronic_kidney_disease_stage_2:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//N18[.]2|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//585[.]2)",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//N18[.]2|ED_DIAGNOSIS//ICD//9CM//585[.]2)",
       }
   chronic_kidney_disease_stage_3:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//N18[.]3|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//585[.]3)",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//N18[.]3|ED_DIAGNOSIS//ICD//9CM//585[.]3)",
       }
   chronic_kidney_disease_stage_3_or_higher:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//(N18[.]3|N18[.]4|N18[.]5|N18[.]6)|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(585[.]3|585[.]4|585[.]5|585[.]6))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//(N18[.]3|N18[.]4|N18[.]5|N18[.]6)|ED_DIAGNOSIS//ICD//9CM//(585[.]3|585[.]4|585[.]5|585[.]6))",
       }
   chronic_kidney_disease_stage_4_or_higher:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//(N18[.]4|N18[.]5|N18[.]6)|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(585[.]4|585[.]5|585[.]6))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//(N18[.]4|N18[.]5|N18[.]6)|ED_DIAGNOSIS//ICD//9CM//(585[.]4|585[.]5|585[.]6))",
       }
   chronic_lymphocytic_leukemia:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//C91[.]1|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//204[.]1)",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//C91[.]1|ED_DIAGNOSIS//ICD//9CM//204[.]1)",
       }
   chronic_migraine:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//G43[.]7|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//346[.]7)",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//G43[.]7|ED_DIAGNOSIS//ICD//9CM//346[.]7)",
       }
   chronic_myeloid_leukemia:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//C92[.]1|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//205[.]1)",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//C92[.]1|ED_DIAGNOSIS//ICD//9CM//205[.]1)",
       }
   chronic_obstructive_pulmonary_disease:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//J44|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(491[.]2|493[.]2|496))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//J44|ED_DIAGNOSIS//ICD//9CM//(491[.]2|493[.]2|496))",
       }
   chronic_otitis_media:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//(H65|H66)|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(381[.]0|381[.]4|382[.]00|382[.]01|382[.]9))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//(H65|H66)|ED_DIAGNOSIS//ICD//9CM//(381[.]0|381[.]4|382[.]00|382[.]01|382[.]9))",
       }
   chronic_respiratory_failure:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//J96[.]1|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//518[.]83)",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//J96[.]1|ED_DIAGNOSIS//ICD//9CM//518[.]83)",
       }
   cirrhosis:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//(K70[.]3|K71[.]7|K74)|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(571[.]2|571[.]5|571[.]6|571[.]9))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//(K70[.]3|K71[.]7|K74)|ED_DIAGNOSIS//ICD//9CM//(571[.]2|571[.]5|571[.]6|571[.]9))",
       }
   colorectal_cancer:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//(C18|C19|C20)|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(153|154[.]0|154[.]1))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//(C18|C19|C20)|ED_DIAGNOSIS//ICD//9CM//(153|154[.]0|154[.]1))",
       }
   covid_19:
-    code: { regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//U07[.]1)" }
+    code: { regex: "^(ED_DIAGNOSIS//ICD//10CM//U07[.]1)" }
   crohn_disease:
     code:
-      {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//K50|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//555)",
-      }
+      { regex: "^(ED_DIAGNOSIS//ICD//10CM//K50|ED_DIAGNOSIS//ICD//9CM//555)" }
   cushing_syndrome:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//E24|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//255[.]0)",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//E24|ED_DIAGNOSIS//ICD//9CM//255[.]0)",
       }
   dementia:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//(F01|F03|G30|G31[.]83)|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(290|294[.]2|331[.]0|331[.]82))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//(F01|F03|G30|G31[.]83)|ED_DIAGNOSIS//ICD//9CM//(290|294[.]2|331[.]0|331[.]82))",
       }
   depression:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//(F32|F33)|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(296[.]2|296[.]3|311))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//(F32|F33)|ED_DIAGNOSIS//ICD//9CM//(296[.]2|296[.]3|311))",
       }
   diabetes_mellitus:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//(E08|E09|E10|E11|E13)|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(250|362[.]0))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//(E08|E09|E10|E11|E13)|ED_DIAGNOSIS//ICD//9CM//(250|362[.]0))",
       }
   diabetic_foot_ulcer:
     code:
-      {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//(E10[.]621|E11[.]621|E13[.]621))",
-      }
+      { regex: "^(ED_DIAGNOSIS//ICD//10CM//(E10[.]621|E11[.]621|E13[.]621))" }
   diabetic_nephropathy:
-    code: { regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//(E10[.]21|E11[.]21))" }
+    code: { regex: "^(ED_DIAGNOSIS//ICD//10CM//(E10[.]21|E11[.]21))" }
   diabetic_neuropathy:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//(E10[.]4|E11[.]4|E13[.]4)|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//250[.]6)",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//(E10[.]4|E11[.]4|E13[.]4)|ED_DIAGNOSIS//ICD//9CM//250[.]6)",
       }
   diabetic_retinopathy:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//(E08[.]35|E10[.]32|E11[.]31|E11[.]35)|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(250[.]50|362[.]0))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//(E08[.]35|E10[.]32|E11[.]31|E11[.]35)|ED_DIAGNOSIS//ICD//9CM//(250[.]50|362[.]0))",
       }
   dyslipidemia:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//E78|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(272[.]1|272[.]2|272[.]4|272[.]8))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//E78|ED_DIAGNOSIS//ICD//9CM//(272[.]1|272[.]2|272[.]4|272[.]8))",
       }
   endometrial_cancer:
-    code: { regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//C54[.]1)" }
+    code: { regex: "^(ED_DIAGNOSIS//ICD//10CM//C54[.]1)" }
   endometriosis:
     code:
-      {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//N80|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//617)",
-      }
+      { regex: "^(ED_DIAGNOSIS//ICD//10CM//N80|ED_DIAGNOSIS//ICD//9CM//617)" }
   epilepsy:
     code:
-      {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//G40|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//345)",
-      }
+      { regex: "^(ED_DIAGNOSIS//ICD//10CM//G40|ED_DIAGNOSIS//ICD//9CM//345)" }
   esophageal_cancer:
     code:
-      {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//C15|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//150)",
-      }
+      { regex: "^(ED_DIAGNOSIS//ICD//10CM//C15|ED_DIAGNOSIS//ICD//9CM//150)" }
   esophageal_varices:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//I85|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(456[.]0|456[.]1|456[.]2))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//I85|ED_DIAGNOSIS//ICD//9CM//(456[.]0|456[.]1|456[.]2))",
       }
   exacerbation:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//(J44[.]0|J44[.]1)|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(491[.]21|493[.]22))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//(J44[.]0|J44[.]1)|ED_DIAGNOSIS//ICD//9CM//(491[.]21|493[.]22))",
       }
   generalized_anxiety_disorder:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//F41[.]1|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//300[.]02)",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//F41[.]1|ED_DIAGNOSIS//ICD//9CM//300[.]02)",
       }
   gerd:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//K21|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(530[.]11|530[.]81))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//K21|ED_DIAGNOSIS//ICD//9CM//(530[.]11|530[.]81))",
       }
   glaucoma:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//H40|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(365[.]0|365[.]10|365[.]11|365[.]2|365[.]41|365[.]6|365[.]8|365[.]9))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//H40|ED_DIAGNOSIS//ICD//9CM//(365[.]0|365[.]10|365[.]11|365[.]2|365[.]41|365[.]6|365[.]8|365[.]9))",
       }
   glioblastoma:
     code:
-      {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//C71|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//191)",
-      }
+      { regex: "^(ED_DIAGNOSIS//ICD//10CM//C71|ED_DIAGNOSIS//ICD//9CM//191)" }
   gout:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//M10|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(274[.]00|274[.]01|274[.]9))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//M10|ED_DIAGNOSIS//ICD//9CM//(274[.]00|274[.]01|274[.]9))",
       }
   hepatitis_b:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//B18[.]1|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(070[.]2|070[.]3))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//B18[.]1|ED_DIAGNOSIS//ICD//9CM//(070[.]2|070[.]3))",
       }
   hepatitis_c:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//(B17[.]1|B18[.]2|B19[.]2)|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(070[.]44|070[.]51|070[.]54|070[.]7))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//(B17[.]1|B18[.]2|B19[.]2)|ED_DIAGNOSIS//ICD//9CM//(070[.]44|070[.]51|070[.]54|070[.]7))",
       }
   hidradenitis_suppurativa:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//L73[.]2|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//705[.]83)",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//L73[.]2|ED_DIAGNOSIS//ICD//9CM//705[.]83)",
       }
   hip_fracture:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//S72|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(820|821|905[.]3|V54[.]15))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//S72|ED_DIAGNOSIS//ICD//9CM//(820|821|905[.]3|V54[.]15))",
       }
   hyperthyroidism:
     code:
-      {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//E05|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//242)",
-      }
+      { regex: "^(ED_DIAGNOSIS//ICD//10CM//E05|ED_DIAGNOSIS//ICD//9CM//242)" }
   hypothyroidism:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//E03|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(244[.]8|244[.]9|246[.]8))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//E03|ED_DIAGNOSIS//ICD//9CM//(244[.]8|244[.]9|246[.]8))",
       }
   immune_thrombocytopenia:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//D69[.]3|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//287[.]31)",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//D69[.]3|ED_DIAGNOSIS//ICD//9CM//287[.]31)",
       }
   inflammatory_bowel_disease:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//(K50|K51|K52[.]3)|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(555|556))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//(K50|K51|K52[.]3)|ED_DIAGNOSIS//ICD//9CM//(555|556))",
       }
   interstitial_lung_disease:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//J84|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(515|516))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//J84|ED_DIAGNOSIS//ICD//9CM//(515|516))",
       }
   intracranial_hemorrhage:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//(I60|I61|I62)|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(430|431|432))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//(I60|I61|I62)|ED_DIAGNOSIS//ICD//9CM//(430|431|432))",
       }
   iron_deficiency_anemia:
     code:
-      {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//D50|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//280)",
-      }
+      { regex: "^(ED_DIAGNOSIS//ICD//10CM//D50|ED_DIAGNOSIS//ICD//9CM//280)" }
   kidney_cancer:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//C64|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//189[.]0)",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//C64|ED_DIAGNOSIS//ICD//9CM//189[.]0)",
       }
   liver_cancer:
     code:
-      {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//C22|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//155)",
-      }
+      { regex: "^(ED_DIAGNOSIS//ICD//10CM//C22|ED_DIAGNOSIS//ICD//9CM//155)" }
   long_covid:
-    code: { regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//U09[.]9)" }
+    code: { regex: "^(ED_DIAGNOSIS//ICD//10CM//U09[.]9)" }
   lung_cancer:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//C34|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(162[.]2|162[.]3|162[.]4|162[.]5|162[.]8|162[.]9))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//C34|ED_DIAGNOSIS//ICD//9CM//(162[.]2|162[.]3|162[.]4|162[.]5|162[.]8|162[.]9))",
       }
   macular_degeneration:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//H35[.]3|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//362[.]5)",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//H35[.]3|ED_DIAGNOSIS//ICD//9CM//362[.]5)",
       }
   melanoma:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//C43|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(172[.]3|172[.]4|172[.]9))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//C43|ED_DIAGNOSIS//ICD//9CM//(172[.]3|172[.]4|172[.]9))",
       }
   migraine:
     code:
-      {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//G43|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//346)",
-      }
+      { regex: "^(ED_DIAGNOSIS//ICD//10CM//G43|ED_DIAGNOSIS//ICD//9CM//346)" }
   mild_cognitive_impairment:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//G31[.]84|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//331[.]83)",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//G31[.]84|ED_DIAGNOSIS//ICD//9CM//331[.]83)",
       }
   multiple_myeloma:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//C90[.]0|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//203[.]0)",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//C90[.]0|ED_DIAGNOSIS//ICD//9CM//203[.]0)",
       }
   multiple_sclerosis:
     code:
-      {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//G35|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//340)",
-      }
+      { regex: "^(ED_DIAGNOSIS//ICD//10CM//G35|ED_DIAGNOSIS//ICD//9CM//340)" }
   myasthenia_gravis:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//G70[.]0|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//358[.]0)",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//G70[.]0|ED_DIAGNOSIS//ICD//9CM//358[.]0)",
       }
   myelodysplastic_syndrome:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//D46|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(238[.]73|238[.]74|238[.]75))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//D46|ED_DIAGNOSIS//ICD//9CM//(238[.]73|238[.]74|238[.]75))",
       }
   nash:
-    code: { regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//K75[.]81)" }
+    code: { regex: "^(ED_DIAGNOSIS//ICD//10CM//K75[.]81)" }
   nephrotic_syndrome:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//N04|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(581[.]3|581[.]9))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//N04|ED_DIAGNOSIS//ICD//9CM//(581[.]3|581[.]9))",
       }
   non_alcoholic_fatty_liver_disease:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//K76[.]0|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//571[.]8)",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//K76[.]0|ED_DIAGNOSIS//ICD//9CM//571[.]8)",
       }
   non_hodgkin_lymphoma:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//(C82|C83|C84|C85)|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(200|202[.]0|202[.]1|202[.]2|202[.]7|202[.]8))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//(C82|C83|C84|C85)|ED_DIAGNOSIS//ICD//9CM//(200|202[.]0|202[.]1|202[.]2|202[.]7|202[.]8))",
       }
   non_melanoma_skin_cancer:
     code:
-      {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//C44|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//173)",
-      }
+      { regex: "^(ED_DIAGNOSIS//ICD//10CM//C44|ED_DIAGNOSIS//ICD//9CM//173)" }
   non_proliferative_diabetic_retinopathy:
-    code: { regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//E10[.]32)" }
+    code: { regex: "^(ED_DIAGNOSIS//ICD//10CM//E10[.]32)" }
   obesity:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//(E66[.]0|E66[.]2|E66[.]9)|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(278[.]00|278[.]01|278[.]03))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//(E66[.]0|E66[.]2|E66[.]9)|ED_DIAGNOSIS//ICD//9CM//(278[.]00|278[.]01|278[.]03))",
       }
   oropharyngeal_cancer:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//C10|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(146[.]6|146[.]9))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//C10|ED_DIAGNOSIS//ICD//9CM//(146[.]6|146[.]9))",
       }
   osteoarthritis:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//(M15|M16|M17|M19)|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//715)",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//(M15|M16|M17|M19)|ED_DIAGNOSIS//ICD//9CM//715)",
       }
   osteoporosis:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//(M80|M81)|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//733[.]0)",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//(M80|M81)|ED_DIAGNOSIS//ICD//9CM//733[.]0)",
       }
   osteoporosis_m81:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//M81|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//733[.]0)",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//M81|ED_DIAGNOSIS//ICD//9CM//733[.]0)",
       }
   ovarian_cancer:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//C56|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//183[.]0)",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//C56|ED_DIAGNOSIS//ICD//9CM//183[.]0)",
       }
   palliative_care_encounter:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//Z51[.]5|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//V66[.]7)",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//Z51[.]5|ED_DIAGNOSIS//ICD//9CM//V66[.]7)",
       }
   parkinson_disease:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//(G20|G21)|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//332)",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//(G20|G21)|ED_DIAGNOSIS//ICD//9CM//332)",
       }
   paroxysmal_atrial_fibrillation:
-    code: { regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//I48[.]0)" }
+    code: { regex: "^(ED_DIAGNOSIS//ICD//10CM//I48[.]0)" }
   peripheral_artery_disease:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//(I70[.]2|I73[.]9)|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(440[.]2|443[.]9))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//(I70[.]2|I73[.]9)|ED_DIAGNOSIS//ICD//9CM//(440[.]2|443[.]9))",
       }
   peripheral_neuropathy:
-    code: { regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//G62[.]9)" }
+    code: { regex: "^(ED_DIAGNOSIS//ICD//10CM//G62[.]9)" }
   persistent_atrial_fibrillation:
-    code: { regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//I48[.]1)" }
+    code: { regex: "^(ED_DIAGNOSIS//ICD//10CM//I48[.]1)" }
   pneumonia:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//J18|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(481|486|514))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//J18|ED_DIAGNOSIS//ICD//9CM//(481|486|514))",
       }
   polycystic_ovary_syndrome:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//E28[.]2|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//256[.]4)",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//E28[.]2|ED_DIAGNOSIS//ICD//9CM//256[.]4)",
       }
   prediabetes:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//R73[.]03|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//790[.]29)",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//R73[.]03|ED_DIAGNOSIS//ICD//9CM//790[.]29)",
       }
   primary_hyperparathyroidism:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//E21[.]0|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//252[.]01)",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//E21[.]0|ED_DIAGNOSIS//ICD//9CM//252[.]01)",
       }
   proliferative_diabetic_retinopathy:
-    code: { regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//(E08[.]35|E11[.]35))" }
+    code: { regex: "^(ED_DIAGNOSIS//ICD//10CM//(E08[.]35|E11[.]35))" }
   prostate_cancer:
     code:
-      {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//C61|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//185)",
-      }
+      { regex: "^(ED_DIAGNOSIS//ICD//10CM//C61|ED_DIAGNOSIS//ICD//9CM//185)" }
   psoriasis:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//L40|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(696[.]0|696[.]1))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//L40|ED_DIAGNOSIS//ICD//9CM//(696[.]0|696[.]1))",
       }
   psoriatic_arthritis:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//L40[.]5|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//696[.]0)",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//L40[.]5|ED_DIAGNOSIS//ICD//9CM//696[.]0)",
       }
   pulmonary_fibrosis:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//J84[.]1|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(515|516[.]31|516[.]34))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//J84[.]1|ED_DIAGNOSIS//ICD//9CM//(515|516[.]31|516[.]34))",
       }
   pulmonary_hypertension:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//I27[.]2|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//416[.]8)",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//I27[.]2|ED_DIAGNOSIS//ICD//9CM//416[.]8)",
       }
   pyelonephritis:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//(N10|N11)|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//590[.]1)",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//(N10|N11)|ED_DIAGNOSIS//ICD//9CM//590[.]1)",
       }
   retinal_detachment:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//(H33[.]0|H33[.]2)|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(361[.]00|361[.]01|361[.]05|361[.]9))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//(H33[.]0|H33[.]2)|ED_DIAGNOSIS//ICD//9CM//(361[.]00|361[.]01|361[.]05|361[.]9))",
       }
   rheumatoid_arthritis:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//(M05|M06)|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(714[.]0|714[.]9))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//(M05|M06)|ED_DIAGNOSIS//ICD//9CM//(714[.]0|714[.]9))",
       }
   sarcoidosis:
     code:
-      {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//D86|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//135)",
-      }
+      { regex: "^(ED_DIAGNOSIS//ICD//10CM//D86|ED_DIAGNOSIS//ICD//9CM//135)" }
   schizophrenia:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//F20|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(295[.]1|295[.]2|295[.]3|295[.]4|295[.]8|295[.]9))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//F20|ED_DIAGNOSIS//ICD//9CM//(295[.]1|295[.]2|295[.]3|295[.]4|295[.]8|295[.]9))",
       }
   secondary_malignant_neoplasm:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//(C77|C78|C79)|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(196|197|198))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//(C77|C78|C79)|ED_DIAGNOSIS//ICD//9CM//(196|197|198))",
       }
   sensorineural_hearing_loss:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//(H90[.]3|H90[.]4|H90[.]5|H90[.]7)|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(389[.]1|389[.]2))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//(H90[.]3|H90[.]4|H90[.]5|H90[.]7)|ED_DIAGNOSIS//ICD//9CM//(389[.]1|389[.]2))",
       }
   sleep_apnea:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//G47[.]3|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(327[.]2|780[.]57))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//G47[.]3|ED_DIAGNOSIS//ICD//9CM//(327[.]2|780[.]57))",
       }
   steatotic_liver_disease:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//(K75[.]81|K76[.]0|K76[.]9)|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(571[.]8|571[.]9|573[.]9))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//(K75[.]81|K76[.]0|K76[.]9)|ED_DIAGNOSIS//ICD//9CM//(571[.]8|571[.]9|573[.]9))",
       }
   stroke:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//(I60|I61|I62|I63)|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(430|431|432|433[.]01|433[.]11|433[.]21|433[.]81|433[.]91|434[.]01|434[.]11|434[.]91))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//(I60|I61|I62|I63)|ED_DIAGNOSIS//ICD//9CM//(430|431|432|433[.]01|433[.]11|433[.]21|433[.]81|433[.]91|434[.]01|434[.]11|434[.]91))",
       }
   systemic_lupus_erythematosus_m32:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//M32|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//710[.]0)",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//M32|ED_DIAGNOSIS//ICD//9CM//710[.]0)",
       }
   systemic_sclerosis:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//M34|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//710[.]1)",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//M34|ED_DIAGNOSIS//ICD//9CM//710[.]1)",
       }
   thyroid_cancer:
     code:
-      {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//C73|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//193)",
-      }
+      { regex: "^(ED_DIAGNOSIS//ICD//10CM//C73|ED_DIAGNOSIS//ICD//9CM//193)" }
   ulcerative_colitis:
     code:
-      {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//K51|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//556)",
-      }
+      { regex: "^(ED_DIAGNOSIS//ICD//10CM//K51|ED_DIAGNOSIS//ICD//9CM//556)" }
   urinary_retention:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//R33|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(788[.]20|788[.]29))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//R33|ED_DIAGNOSIS//ICD//9CM//(788[.]20|788[.]29))",
       }
   venous_thromboembolism_i26_i81_i82:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//(I26|I81|I82)|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//(415[.]0|415[.]12|415[.]13|415[.]19|452|453))",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//(I26|I81|I82)|ED_DIAGNOSIS//ICD//9CM//(415[.]0|415[.]12|415[.]13|415[.]19|452|453))",
       }
   vitamin_b12_deficiency_anemia:
     code:
       {
-        regex: "^(ED_DIAGNOSIS//(ICD10CM|ICD//10CM)//D51|ED_DIAGNOSIS//(ICD9CM|ICD//9CM)//281[.]1)",
+        regex: "^(ED_DIAGNOSIS//ICD//10CM//D51|ED_DIAGNOSIS//ICD//9CM//281[.]1)",
       }
