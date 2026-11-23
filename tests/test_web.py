@@ -17,6 +17,7 @@ from yaml_to_disk import yaml_disk
 from MEDS_DEV import DATASETS, MODELS, TASKS
 from MEDS_DEV.web.aggregate_results import aggregate_results
 from MEDS_DEV.web.count_badges import count_entities
+from MEDS_DEV.web.task_figures import find_tasks
 
 ISSUE_BODY = """Hi! Here's my result.
 
@@ -132,6 +133,32 @@ def test_count_badges_match_registries() -> None:
     registries, so the README badges count what MEDS-DEV registers."""
     repo_dir = Path(__file__).resolve().parents[1]
     assert count_entities(repo_dir) == {"datasets": len(DATASETS), "tasks": len(TASKS), "models": len(MODELS)}
+
+
+def test_every_task_renders_with_taskviz(tmp_path) -> None:
+    """Every registered task can be drawn by Taskviz, so its figure is published on the website.
+
+    A task that fails here would be missing from ``_web/task_figures/``; see ``MEDS_DEV.web.task_figures``.
+    """
+    repo_dir = Path(__file__).resolve().parents[1]
+    assert set(find_tasks(repo_dir)) == set(TASKS)
+
+    out = tmp_path / "task_figures"
+    result = subprocess.run(
+        ["meds-dev-render-task-figures", "--repo_dir", str(repo_dir), "--output_dir", str(out)],
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, result.stderr
+
+    index = json.loads((out / "index.json").read_text())
+    assert json.loads(result.stdout) == sorted(TASKS)
+    assert set(index) == set(TASKS)
+    for name, files in index.items():
+        assert set(files) == {"figure", "figure_light", "figure_dark", "windows", "predicates"}
+        for rel in files.values():
+            assert (out / rel).is_file(), f"{name}: missing {rel}"
+        assert (out / files["figure"]).read_text().startswith("<svg")
 
 
 def test_aggregate_results_cli() -> None:

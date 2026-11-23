@@ -43,7 +43,14 @@ dev = [
   "meds_testing_helpers",
   "yaml-to-disk",
   "pretty-print-directory",
+  {include-group = "web"},
 ]
+# Renders task figures for the website (MEDS_DEV.web.task_figures, regenerate_entities.yaml).
+web = ["taskviz"]
+
+[tool.uv.sources]
+# Not on PyPI; pinned to a commit. Used only to render task figures for the website (MEDS_DEV.web.task_figures).
+taskviz = { git = "https://github.com/rvandewater/Taskviz", rev = "ce99074a7814c30f15d84e9cb6097951b60b7ce2" }
 
 [tool.setuptools.package-data]
 # Ship every registry file (dataset/task/model YAMLs, READMEs, requirements, citations) with the code.
@@ -80,6 +87,7 @@ meds-dev-collate-entities = "MEDS_DEV.web.collate_entities:main"
 meds-dev-write-count-badges = "MEDS_DEV.web.count_badges:main"
 meds-dev-aggregate-results = "MEDS_DEV.web.aggregate_results:main"
 meds-dev-process-submission = "MEDS_DEV.web.process_submission:main"
+meds-dev-render-task-figures = "MEDS_DEV.web.task_figures:main"
 
 [project.urls]
 Homepage = "https://github.com/Medical-Event-Data-Standard/MEDS-DEV"

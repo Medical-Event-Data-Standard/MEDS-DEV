@@ -1,4 +1,4 @@
-name: Regenerate _web Entity Manifests
+name: Regenerate _web Entity Manifests and Task Figures
 
 on:
   push:
@@ -9,6 +9,9 @@ on:
       - "src/MEDS_DEV/models/**"
       - "src/MEDS_DEV/web/collate_entities.py"
       - "src/MEDS_DEV/web/count_badges.py"
+      - "src/MEDS_DEV/web/task_figures.py"
+      - "pyproject.toml"
+      - "uv.lock"
       - ".github/workflows/regenerate_entities.yaml"
   workflow_dispatch:
 
@@ -64,6 +67,20 @@ jobs:
             --output_dir web-branch/badges \
             --do_overwrite
 
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+
+      - name: Render task figures
+        # Taskviz (pinned in pyproject.toml's `web` dependency group) draws each task's timeline and tables
+        # from its YAML alone. The directory is rebuilt from scratch so a removed or renamed task's figures
+        # do not linger.
+        working-directory: main-branch
+        run: |
+          rm -rf ../web-branch/task_figures
+          uv run --locked --no-dev --group web --python 3.11 meds-dev-render-task-figures \
+            --repo_dir . \
+            --output_dir ../web-branch/task_figures
+
       - name: Commit and push to _web
         working-directory: web-branch
         run: |
@@ -71,12 +88,13 @@ jobs:
           git config user.email "github-actions@github.com"
           git add entities/datasets.json entities/tasks.json entities/models.json
           git add badges/datasets.json badges/tasks.json badges/models.json
+          git add -A task_figures
           if git diff --cached --quiet; then
-            echo "No changes to entity manifests or count badges; skipping commit."
+            echo "No changes to entity manifests, count badges, or task figures; skipping commit."
           else
-            git commit -m "Regenerate entity manifests and count badges from main@${GITHUB_SHA::7}"
-            # Other workflows also push to _web (results/ vs. entities/ and badges/), so a push can be
-            # rejected as non-fast-forward. They touch disjoint files, so rebasing onto the
+            git commit -m "Regenerate entity manifests, count badges, and task figures from main@${GITHUB_SHA::7}"
+            # Other workflows also push to _web (results/ vs. entities/, badges/ and task_figures/), so a
+            # push can be rejected as non-fast-forward. They touch disjoint files, so rebasing onto the
             # latest _web is always conflict-free; retry a few times before giving up.
             for attempt in 1 2 3 4 5; do
               if git push origin _web; then
