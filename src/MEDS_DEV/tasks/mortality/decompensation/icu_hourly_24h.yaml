@@ -1,0 +1,47 @@
+metadata:
+  description:
+    "Decompensation: death within the next 24 hours, predicted every hour of the ICU stay, starting at ICU admission
+    and stopping at ICU discharge. One row per hour, so a stay contributes many rows. Needs ACES 0.8 or later (`trigger` with
+    `every` and `until`). Source literature: Harutyunyan et al. (2019). Multitask learning and benchmarking with clinical
+    time series data. Sheikhalishahi et al. (2020). Benchmarking machine learning models on multi-centre eICU critical care
+    dataset."
+  links:
+    - https://github.com/YerevaNN/mimic3-benchmarks/blob/master/mimic3benchmark/scripts/create_decompensation.py#L11
+    - https://github.com/mostafaalishahi/eICU_Benchmark/blob/82dcd1e511c616a18a2f97f71dec84939c5a6abf/data_extraction/utils.py#L463-L494
+  contacts:
+    - name: Robin van de Water
+      github_username: rvandewater
+  supported_datasets:
+    - AUMCdb
+    - CDSL
+    - HIRID
+    - INSPIRE
+    - MIMIC-IV
+    - NWICU
+    - PICdb
+    - SICdb
+    - Zigong
+    - eICU
+predicates:
+  icu_admission: ???
+  icu_discharge: ???
+  death:
+    code:
+      regex: MEDS_DEATH.*
+trigger:
+  predicate: icu_admission
+  every: 1h
+  until: icu_discharge
+windows:
+  input:
+    start: null
+    end: trigger
+    start_inclusive: true
+    end_inclusive: true
+    index_timestamp: end
+  target:
+    start: trigger
+    end: start + 24h
+    start_inclusive: false
+    end_inclusive: true
+    label: death

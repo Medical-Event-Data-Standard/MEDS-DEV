@@ -46,12 +46,15 @@ ALOTT has no demo, so the integration tests do not exercise these pairs.
 
 ## MEDS Transformation
 
-[`ALOTT-MEDS`](https://github.com/rvandewater/ALOTT_MEDS) 0.0.1, pinned to its PyPI release in
-`requirements.txt`, is a configuration-only [MEDS-Extract](https://github.com/mmcdermott/MEDS_extract) 0.7
+[`ALOTT-MEDS`](https://github.com/rvandewater/ALOTT_MEDS) 0.2.0, pinned to its PyPI release in
+`requirements.txt`, is a configuration-only [MEDS-Extract](https://github.com/mmcdermott/MEDS_extract)
 pipeline, registered as `spec=ALOTT` for `meds-extract-run`. It transforms the EMR tables of the PhysioNet
-release into MEDS; the telemetry is out of scope. There is no public demo, so only `build_full` is provided.
-Version 0.0.1 includes [ALOTT_MEDS#2](https://github.com/rvandewater/ALOTT_MEDS/pull/2) (MEDS-Extract
-0.7.1, aligned with the published 1.0.0 schema).[2] Notable properties of the conversion:
+release into MEDS and, as a last step, enriches `metadata/codes.parquet` with suMEDS; the telemetry is out
+of scope. There is no public demo, so only `build_full` is provided.[2] Since 0.0.1 the ETL renamed
+medication and order codes (`MEDICATION//START//<drug>//<dose unit>`, order ends `END` instead of `STOP`)
+and diagnoses (`ICD//<edition>//<code>`), as listed under "Breaking changes" in its README. The predicates
+below use none of these codes, and every predicate code has events in a full 0.2.0 build. Notable
+properties of the conversion:
 
 - **Dates are shifted** by a random offset of up to 180 days in either direction per patient; the time of
     day is kept.
@@ -63,6 +66,13 @@ Version 0.0.1 includes [ALOTT_MEDS#2](https://github.com/rvandewater/ALOTT_MEDS/
     under one of two component names, `BKR <ANALYTE>` or the plain name, and total CO2 as `CARBON DIOXIDE`
     or `CARBON DIOXIDE (CO2)`. The predicates list both names wherever a code occurs in at least 20
     subjects.
+
+## Known issues (audit, Nov 2026)
+
+- ICU stays are split into segments at bed moves, so one stay produces "ICU readmissions" minutes apart: 38% of ICU
+    discharges were followed by an ICU admission within 30 days, 35% of those within 12 hours. Merging contiguous ICU
+    segments in the conversion would fix this; `readmission/icu/30d` now ignores the first 12 hours. Even then the rate
+    (24.6%) is 2-5 times the published range, so the ICU segments probably also include step-down units.
 
 ## Sources
 

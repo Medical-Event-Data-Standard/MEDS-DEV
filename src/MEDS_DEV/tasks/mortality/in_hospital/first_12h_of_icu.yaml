@@ -1,0 +1,55 @@
+metadata:
+  description:
+    "In-hospital mortality, predicted 12 hours after ICU admission from all data up to then. The label is death
+    before the next hospital discharge. Patients who die or leave hospital within the first 12 hours of the ICU stay are excluded.
+    One of four data windows (12, 24, 48, 72 hours) of the same task. Source literature: Harutyunyan et al. (2019). Multitask
+    learning and benchmarking with clinical time series data. Johnson et al. (2017). Reproducibility in critical care: a mortality
+    prediction case study."
+  links:
+    - https://github.com/YerevaNN/mimic3-benchmarks/blob/master/README.md#L119
+    - https://github.com/alistairewj/reproducibility-mimic/blob/1f233f1b0f3d876cf4c5cc322efcd8587bd26002/queries/dm_cohort.sql#L137-L139
+  contacts:
+    - name: Robin van de Water
+      github_username: rvandewater
+  supported_datasets:
+    - AUMCdb
+    - CDSL
+    - HIRID
+    - INSPIRE
+    - MC-MED
+    - MIMIC-IV
+    - NWICU
+    - PICdb
+    - SICdb
+    - Zigong
+    - eICU
+predicates:
+  icu_admission: ???
+  hospital_discharge: ???
+  death:
+    code:
+      regex: MEDS_DEATH.*
+  discharge_or_death:
+    expr: or(hospital_discharge, death)
+trigger: icu_admission
+windows:
+  input:
+    start: null
+    end: trigger + 12h
+    start_inclusive: true
+    end_inclusive: true
+    index_timestamp: end
+  in_stay:
+    start: trigger
+    end: start + 12h
+    start_inclusive: false
+    end_inclusive: true
+    has:
+      hospital_discharge: (None, 0)
+      death: (None, 0)
+  target:
+    start: in_stay.end
+    end: start -> discharge_or_death
+    start_inclusive: false
+    end_inclusive: true
+    label: death

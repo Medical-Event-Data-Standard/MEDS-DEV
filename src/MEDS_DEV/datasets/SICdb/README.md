@@ -41,10 +41,13 @@ SICdb has no demo, so the integration tests do not exercise these pairs.
 
 ## MEDS Transformation
 
-[`SICdb-MEDS`](https://github.com/rvandewater/SICdb_MEDS) is a pure-config
+[`SICdb-MEDS`](https://github.com/rvandewater/SICdb_MEDS) 0.3.0 is a pure-config
 [MEDS-Extract](https://github.com/mmcdermott/MEDS_extract) pipeline, registered as `spec=SICdb` for
-`meds-extract-run`. SICdb has no public demo, so only `build_full` is provided.[3] Notable properties of the
-conversion:
+`meds-extract-run`. Since 0.1.0 the ETL renamed diagnoses (`ICD//<edition>//<code>`), interval codes
+(`<FAMILY>//START//…` and `<FAMILY>//END//…`) and the stay column (`CaseID` is now `icustay_id`), as listed
+under "Breaking changes" in its README. The predicates below use none of these, and every predicate code
+has events in a full 0.3.0 build. SICdb has no public demo, so only `build_full` is provided.[3] Notable
+properties of the conversion:
 
 - **Dates are not real.** SICdb gives offsets in seconds, not dates. Every patient's first admission is
     placed on 2017-07-02 and everything else keeps its offset from it, so only time differences within one
@@ -61,6 +64,16 @@ conversion:
     no serum bicarbonate, so `bicarbonate` uses blood-gas bicarbonate.
 - **Vital signs** are `VITAL//<DataID>` and are hourly aggregates, so `abnormally_low_map` flags an hour
     whose mean pressure is below 65 mmHg rather than a single reading.
+
+## Known issues (audit, Nov 2026)
+
+- Case attributes 3113/3114 (KDIGO AKI outcome) and `SURVIVAL_OBSERVATION_WINDOW` describe the outcome; they were top
+    features of the abnormal-lab tasks until excluded from the inputs.
+- Case attributes 3109/3112 (SARS-CoV-2 pneumonia / post-COVID) exist only for later admissions and act as an era
+    marker.
+- SICdb records ICU care only. On hospital-stay tasks, patients who leave the ICU alive have no later data and are
+    trivial negatives ("ICU discharge alive" became the top feature); using the ICU stay as the unit removed this.
+- "Transfer to the ICU" tasks are not meaningful (every admission is an ICU admission).
 
 ## Sources
 

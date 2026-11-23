@@ -1,0 +1,65 @@
+metadata:
+  description:
+    "Ischemic stroke within 3 years of a patient's first atrial-fibrillation diagnosis, predicted at that diagnosis.
+    Patients with a stroke before the diagnosis or in the 30 days after it are excluded. A record that ends before the target
+    window is over is labelled negative. Source literature: Zhang et al. (2026). A multimodal and temporal foundation model
+    for virtual patient representations at healthcare system scale.
+    Patients who die before the end of the blackout are excluded."
+  links:
+    - https://arxiv.org/pdf/2604.18570v2#page=67
+  contacts:
+    - name: Robin van de Water
+      github_username: rvandewater
+  supported_datasets:
+    - ALOTT
+    - EHRShot
+    - INSPECT
+    - INSPIRE
+    - MC-MED
+    - MIMIC-IV
+    - NWICU
+predicates:
+  atrial_fibrillation: ???
+  ischemic_stroke: ???
+  death:
+    code:
+      regex: MEDS_DEATH.*
+trigger: atrial_fibrillation
+windows:
+  first:
+    start: null
+    end: trigger
+    start_inclusive: true
+    end_inclusive: false
+    has:
+      atrial_fibrillation: (None, 0)
+  input:
+    start: null
+    end: trigger
+    start_inclusive: true
+    end_inclusive: true
+    index_timestamp: end
+    has:
+      ischemic_stroke: (None, 0)
+      # Audit 2026-11: patients who die in the index admission or the blackout were kept; diagnoses are stamped at
+      # discharge, so they were predicted at their death and were guaranteed negatives. Measured on this task: M011 on
+      # mimic-iv, v2: Death exclusion removes 3,567 patients (11%) who died in the index admission / blackout;
+      # positives unchanged (439). AUROC 0.704 -> 0.574 [0.49-0.65]: v1's signal was almost entirely guaranteed
+      # negatives (HOSPITAL_DISCHARGE//DIED was its #2 feature). Without them there is little signal: stroke after AF
+      # depends on CHA2DS2-VASc factors and anticoagulation, poorly captured at the index admission. Strongest example
+      # of the competing-risk issue in #375.
+      death: (None, 0)
+  blackout:
+    start: trigger
+    end: start + 30d
+    start_inclusive: false
+    end_inclusive: true
+    has:
+      ischemic_stroke: (None, 0)
+      death: (None, 0)
+  target:
+    start: blackout.end
+    end: start + 1065d
+    start_inclusive: false
+    end_inclusive: true
+    label: ischemic_stroke

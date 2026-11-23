@@ -1,0 +1,51 @@
+metadata:
+  description:
+    "All-cause hospital readmission after a hospital stay with a heart-failure diagnosis, predicted at discharge.
+    The target window runs from day 1 to day 30 after discharge; discharges followed by an admission within the first day
+    are excluded. The diagnosis must be recorded between the admission and the discharge. A record that ends before the target
+    window is over is labelled negative. Source literature: Pang et al. (2025). CEHR-XGPT: A Scalable Multi-Task Foundation
+    Model for Electronic Health Records. Pang et al. (2021). CEHR-BERT: Incorporating temporal information from structured
+    EHR data to improve prediction tasks."
+  links:
+    - https://github.com/knatarajan-lab/cehrbert_data/blob/b30df5f279e367bb0b338e18e73cfff9800f74e9/src/cehrbert_data/prediction_cohorts/hf_readmission.py#L12-L43
+    - https://github.com/cumc-dbmi/cehr-bert/blob/main/README.md#L229
+  contacts:
+    - name: Robin van de Water
+      github_username: rvandewater
+  supported_datasets:
+    - ALOTT
+    - INSPIRE
+    - MC-MED
+    - MIMIC-IV
+    - NWICU
+predicates:
+  hospital_admission: ???
+  hospital_discharge: ???
+  heart_failure: ???
+  death:
+    code:
+      regex: MEDS_DEATH.*
+trigger: hospital_discharge
+windows:
+  stay:
+    start: end <- hospital_admission
+    end: trigger
+    start_inclusive: true
+    end_inclusive: true
+    index_timestamp: end
+    has:
+      heart_failure: (1, None)
+      death: (None, 0)
+  gap:
+    start: trigger
+    end: start + 1d
+    start_inclusive: false
+    end_inclusive: true
+    has:
+      hospital_admission: (None, 0)
+  target:
+    start: gap.end
+    end: start + 29d
+    start_inclusive: false
+    end_inclusive: true
+    label: hospital_admission

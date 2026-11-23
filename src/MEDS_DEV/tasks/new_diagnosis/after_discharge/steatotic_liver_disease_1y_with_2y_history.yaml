@@ -1,0 +1,48 @@
+metadata:
+  description:
+    "Steatotic liver disease (ICD-10 K75.81, K76.0, K76.9) within 1 year of a hospital discharge, for patients
+    whose record starts at least 2 years before the discharge. Earlier diagnoses do not exclude a patient. A record that ends
+    before the target window is over is labelled negative. Source literature: Jeanselme et al. (2025). FoMoH: A clinically
+    meaningful foundation model evaluation for structured electronic health records.
+    Discharges by death are excluded."
+  links:
+    - https://arxiv.org/html/2505.16941v4#A2.SS6
+  contacts:
+    - name: Robin van de Water
+      github_username: rvandewater
+  supported_datasets:
+    - MC-MED
+    - MIMIC-IV
+predicates:
+  hospital_discharge: ???
+  steatotic_liver_disease: ???
+  death:
+    code:
+      regex: MEDS_DEATH.*
+trigger: hospital_discharge
+windows:
+  history:
+    start: null
+    end: trigger - 730d
+    start_inclusive: true
+    end_inclusive: true
+    has:
+      _ANY_EVENT: (1, None)
+  input:
+    start: null
+    end: trigger
+    start_inclusive: true
+    end_inclusive: true
+    index_timestamp: end
+    has:
+      # Audit 2026-11: discharges by death were kept and predicted at the death (guaranteed negatives). Measured: M113
+      # on mimic-iv, v2: Death exclusion removes 3,553 discharges by death; AUROC 0.854 -> 0.855 [0.83-0.88]. ALT, AST
+      # and an earlier fatty-liver code (K76.0) lead: the task counts earlier diagnoses by design (FoMoH), so for a
+      # chronic condition it measures whether it gets coded again.
+      death: (None, 0)
+  target:
+    start: trigger
+    end: start + 365d
+    start_inclusive: false
+    end_inclusive: true
+    label: steatotic_liver_disease

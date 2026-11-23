@@ -1,0 +1,47 @@
+metadata:
+  description:
+    "First diagnosis of immune thrombocytopenia (ICD-10 D69.3) within 365 days of a hospital discharge, predicted
+    at discharge. Patients with the outcome before the discharge or in the 30 days after it are excluded. The source draws
+    one discharge per patient at random after the first five visits; here every discharge is a row. A record that ends before
+    the target window is over is labelled negative. Source literature: Zhang et al. (2026). A multimodal and temporal foundation
+    model for virtual patient representations at healthcare system scale."
+  links:
+    - https://arxiv.org/pdf/2604.18570v2#page=56
+  contacts:
+    - name: Robin van de Water
+      github_username: rvandewater
+  supported_datasets:
+    - ALOTT
+    - MC-MED
+    - NWICU
+    - SICdb
+predicates:
+  hospital_discharge: ???
+  immune_thrombocytopenia: ???
+  death:
+    code:
+      regex: MEDS_DEATH.*
+trigger: hospital_discharge
+windows:
+  input:
+    start: null
+    end: trigger
+    start_inclusive: true
+    end_inclusive: true
+    index_timestamp: end
+    has:
+      immune_thrombocytopenia: (None, 0)
+      death: (None, 0)
+  gap:
+    start: trigger
+    end: start + 30d
+    start_inclusive: false
+    end_inclusive: true
+    has:
+      immune_thrombocytopenia: (None, 0)
+  target:
+    start: gap.end
+    end: start + 335d
+    start_inclusive: false
+    end_inclusive: true
+    label: immune_thrombocytopenia

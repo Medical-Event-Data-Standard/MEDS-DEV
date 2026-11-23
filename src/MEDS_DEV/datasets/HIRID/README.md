@@ -44,22 +44,23 @@ HiRID has no demo, so the integration tests do not exercise these pairs.
 
 ## MEDS Transformation
 
-[`HIRID-MEDS`](https://github.com/rvandewater/HIRID_MEDS) is a pure-config
+[`HIRID-MEDS`](https://github.com/rvandewater/HIRID_MEDS) 0.3.0 is a pure-config
 [MEDS-Extract](https://github.com/mmcdermott/MEDS_extract) pipeline, registered as `spec=HIRID` for
 `meds-extract-run`.[3] HiRID has no public demo, so only `build_full` is provided. The build sets
 `POLARS_ENGINE_AFFINITY=streaming`, which keeps it under 10 GB of memory; without it, subject sharding runs out
 of memory on a 24 GB machine. Extracts made with HIRID-MEDS 0.0.1–0.0.4 duplicate, mislabel and drop some observation events, so they
 should be rebuilt. Notable properties of the conversion:
 
-- **ICU stays only.** Each subject is one ICU admission. `HOSPITAL_ADMISSION` is the ICU admission time and
-    `HOSPITAL_DISCHARGE` is the time of the subject's last observation, since HiRID records no discharge time.
-    The ETL keeps these names from its earlier releases. HiRID records no hospital admission or discharge, so
-    the hospital-level tasks use the ICU stay, as they do for SICdb.
+- **ICU stays only.** Each subject is one ICU admission. `ICU_ADMISSION` is the ICU admission time and
+    `ICU_DISCHARGE` is the time of the subject's last observation, since HiRID records no discharge time.
+    HIRID-MEDS up to 0.2.0 named them `HOSPITAL_ADMISSION` and `HOSPITAL_DISCHARGE`, so extracts made with
+    those versions do not match these predicates and should be rebuilt. HiRID records no hospital admission or
+    discharge, so the hospital-level tasks use the ICU stay, as they do for SICdb.
 - **Dates are shifted** into the future, keeping the order and spacing of events within a subject.
 - **Birth and death** are `MEDS_BIRTH` and `MEDS_DEATH`, so the tasks' default predicates apply. The birth is
     estimated from the age at admission, which HiRID records in 5-year bins from 20 to 90, so it can be off by
     up to about 5 years. `MEDS_DEATH` is placed at the last observation when the discharge status is `dead`,
-    which makes it a death in the ICU. It coincides with `HOSPITAL_DISCHARGE`.
+    which makes it a death in the ICU. It coincides with `ICU_DISCHARGE`.
 - **Observations** are `OBSERVATION//<variable name>//<unit>`, using HiRID's variable reference. Lab values
     are in SI units, so two thresholds are converted: creatinine to 114.92 µmol/L (1.3 mg/dL) and hemoglobin to
     130 g/L (13 g/dL). HiRID has no serum bicarbonate, so `bicarbonate` uses arterial blood-gas bicarbonate. The
@@ -67,6 +68,17 @@ should be rebuilt. Notable properties of the conversion:
 - **Mean arterial pressure** combines the invasive and non-invasive readings. The invasive signal is recorded
     as often as every two minutes, so `abnormally_low_map` flags a single reading below 65 mmHg. Few stays have
     no such reading in their first 24 hours, so the hypotension cohort is small.
+
+## Known issues (audit, Nov 2026)
+
+- HiRID records deaths in the ICU only. On ICU-anchored mortality tasks, a patient discharged from the ICU before the
+    prediction time is a guaranteed negative, and the ICU discharge event (placed at the stay's last observation) was the
+    top feature. Requiring the patient to still be in the ICU at the prediction time (no `ICU_DISCHARGE` between ICU
+    admission and the end of the input window) halved the cohort (33,195 -> 16,767 stays), left the positives unchanged
+    and lowered the 28-day AUROC from 0.959 to 0.913. This cannot be set in the shared task files, since on other
+    datasets a patient leaving the ICU can still die in hospital.
+- For the same reason, 28-day, 90-day and 365-day mortality give the same label on HiRID (death in the ICU).
+- Variable 30000140 is not mapped to a name, and some adult tests carry a cord-blood LOINC code.
 
 ## Sources
 

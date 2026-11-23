@@ -1,0 +1,59 @@
+metadata:
+  description:
+    "Exacerbation (ICD-10 J44.0, J44.1) within 1095 days of a patient's first diagnosis of chronic obstructive
+    pulmonary disease (ICD-10 J44), predicted at that diagnosis. Patients with the outcome before the diagnosis or in the
+    30 days after it are excluded. A record that ends before the target window is over is labelled negative. Source literature:
+    Zhang et al. (2026). A multimodal and temporal foundation model for virtual patient representations at healthcare system
+    scale.
+    Patients who die before the end of the blackout are excluded."
+  links:
+    - https://arxiv.org/pdf/2604.18570v2#page=67
+  contacts:
+    - name: Robin van de Water
+      github_username: rvandewater
+  supported_datasets:
+    - MC-MED
+    - MIMIC-IV
+    - NWICU
+predicates:
+  chronic_obstructive_pulmonary_disease: ???
+  exacerbation: ???
+  death:
+    code:
+      regex: MEDS_DEATH.*
+trigger: chronic_obstructive_pulmonary_disease
+windows:
+  first:
+    start: null
+    end: trigger
+    start_inclusive: true
+    end_inclusive: false
+    has:
+      chronic_obstructive_pulmonary_disease: (None, 0)
+  input:
+    start: null
+    end: trigger
+    start_inclusive: true
+    end_inclusive: true
+    index_timestamp: end
+    has:
+      exacerbation: (None, 0)
+      # Audit 2026-11: patients who die in the index admission or the blackout were kept; diagnoses are stamped at
+      # discharge, so they were predicted at their death and were guaranteed negatives. Measured on this task: M031 on
+      # mimic-iv, v2: Death exclusion removes 1,418 patients (8.9%); AUROC 0.692 -> 0.693 [0.64-0.74]; inhaler therapy
+      # (tiotropium, albuterol, ipratropium: COPD severity), bicarbonate, outpatient blood pressure.
+      death: (None, 0)
+  blackout:
+    start: trigger
+    end: start + 30d
+    start_inclusive: false
+    end_inclusive: true
+    has:
+      exacerbation: (None, 0)
+      death: (None, 0)
+  target:
+    start: blackout.end
+    end: start + 1065d
+    start_inclusive: false
+    end_inclusive: true
+    label: exacerbation

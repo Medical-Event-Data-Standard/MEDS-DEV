@@ -34,13 +34,13 @@ predicates:
     expr: or(abnormally_high_creatinine_1, abnormally_high_creatinine_2)
 
   sodium_1:
-    code: LAB//220645//mEq/L
+    code: ICU_CHART//220645//mEq/L
   sodium_2:
     code: LAB//RESULT//50983//mEq/L
   sodium_3:
     code: LAB//RESULT//52623//mEq/L
   abnormally_low_sodium_1:
-    code: LAB//220645//mEq/L
+    code: ICU_CHART//220645//mEq/L
     value_min: null
     value_max: 135 # mEq/L
     value_max_inclusive: False
@@ -60,11 +60,11 @@ predicates:
     expr: or(abnormally_low_sodium_1, abnormally_low_sodium_2, abnormally_low_sodium_3)
 
   bicarbonate_1:
-    code: LAB//227443//mEq/L
+    code: ICU_CHART//227443//mEq/L
   bicarbonate_2:
     code: LAB//RESULT//50882//mEq/L
   abnormally_low_bicarbonate_1:
-    code: LAB//227443//mEq/L
+    code: ICU_CHART//227443//mEq/L
     value_min: null
     value_max: 22 # mEq/L
     value_max_inclusive: False
@@ -79,16 +79,19 @@ predicates:
     expr: or(abnormally_low_bicarbonate_1, abnormally_low_bicarbonate_2)
 
   hemoglobin_1:
-    code: LAB//220228//g/dl
+    code: ICU_CHART//220228//g/dl
+  # Audit 2026-11: hemoglobin_2 was only the blood-gas code 50811 (about 46 k patients); the full blood count 51222
+  # (about 299 k) was missing, so the anaemia label fired almost only for ICU patients (prevalence 6.5%, ICU-charted
+  # weight as top feature). With 51222: prevalence 41.2%, in line with eICU, INSPIRE, NWICU and HiRID.
   hemoglobin_2:
-    code: LAB//RESULT//50811//g/dL
+    code: { any: [LAB//RESULT//50811//g/dL, LAB//RESULT//51222//g/dL] }
   abnormally_low_hemoglobin_1:
-    code: LAB//220228//g/dl
+    code: ICU_CHART//220228//g/dl
     value_min: null
     value_max: 13 # g/dL
     value_max_inclusive: False
   abnormally_low_hemoglobin_2:
-    code: LAB//RESULT//50811//g/dL
+    code: { any: [LAB//RESULT//50811//g/dL, LAB//RESULT//51222//g/dL] }
     value_min: null
     value_max: 13 # g/dL
     value_max_inclusive: False
@@ -98,16 +101,18 @@ predicates:
     expr: or(abnormally_low_hemoglobin_1, abnormally_low_hemoglobin_2)
 
   wbc_1:
-    code: LAB//220546//K/uL
+    code: ICU_CHART//220546//K/uL
+  # Audit 2026-11: wbc_2 was 51300 (about 5 k patients) instead of the blood-count leukocytes 51301 (about 299 k):
+  # prevalence 4.8% -> 15.4% with 51301.
   wbc_2:
-    code: LAB//RESULT//51300//K/uL
+    code: { any: [LAB//RESULT//51300//K/uL, LAB//RESULT//51301//K/uL] }
   abnormally_high_wbc_1:
-    code: LAB//220546//K/uL
+    code: ICU_CHART//220546//K/uL
     value_min: 11 # K/uL
     value_min_inclusive: False
     value_max: null
   abnormally_high_wbc_2:
-    code: LAB//RESULT//51300//K/uL
+    code: { any: [LAB//RESULT//51300//K/uL, LAB//RESULT//51301//K/uL] }
     value_min: 11 # K/uL
     value_min_inclusive: False
     value_max: null
@@ -117,11 +122,11 @@ predicates:
     expr: or(abnormally_high_wbc_1, abnormally_high_wbc_2)
 
   platelets_1:
-    code: LAB//227457//K/uL
+    code: ICU_CHART//227457//K/uL
   platelets_2:
     code: LAB//RESULT//51265//K/uL
   abnormally_low_platelets_1:
-    code: LAB//227457//K/uL
+    code: ICU_CHART//227457//K/uL
     value_min: null
     value_max: 150 # K/uL
     value_max_inclusive: False
@@ -136,23 +141,23 @@ predicates:
     expr: or(abnormally_low_platelets_1, abnormally_low_platelets_2)
 
   map_1:
-    code: LAB//220052//mmHg
+    code: ICU_CHART//220052//mmHg
   map_2:
-    code: LAB//220181//mmHg
+    code: ICU_CHART//220181//mmHg
   map_3:
-    code: LAB//225312//mmHg
+    code: ICU_CHART//225312//mmHg
   abnormally_low_map_1:
-    code: LAB//220052//mmHg
+    code: ICU_CHART//220052//mmHg
     value_min: null
     value_max: 65 # mmHg
     value_max_inclusive: False
   abnormally_low_map_2:
-    code: LAB//220181//mmHg
+    code: ICU_CHART//220181//mmHg
     value_min: null
     value_max: 65 # mmHg
     value_max_inclusive: False
   abnormally_low_map_3:
-    code: LAB//225312//mmHg
+    code: ICU_CHART//225312//mmHg
     value_min: null
     value_max: 65 # mmHg
     value_max_inclusive: False
@@ -160,3 +165,569 @@ predicates:
     expr: or(map_1, map_2, map_3)
   abnormally_low_map:
     expr: or(abnormally_low_map_1, abnormally_low_map_2, abnormally_low_map_3)
+
+  # Diagnosis groups by ICD root. Generated from the dataset's suMEDS code catalog (TaskWiki task_templates).
+  # Each ICD prefix accepts the code layout before and after the 2026-11 ETL releases, e.g. DIAGNOSIS//ICD//(10|10CM)//;
+  # the old alternative can be dropped once the dataset's pin is on the new release.
+  heart_failure:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//I50|DIAGNOSIS//ICD//(9|9CM)//428)",
+      }
+  essential_hypertension:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//I10|DIAGNOSIS//ICD//(9|9CM)//401)",
+      }
+  acute_myocardial_infarction:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//(I21|I22)|DIAGNOSIS//ICD//(9|9CM)//410)",
+      }
+  atrial_fibrillation:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//I48|DIAGNOSIS//ICD//(9|9CM)//4273)",
+      }
+  ischemic_stroke:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//I63|DIAGNOSIS//ICD//(9|9CM)//(43301|43311|43321|43331|43381|43391|434))",
+      }
+  acute_kidney_failure:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//N17|DIAGNOSIS//ICD//(9|9CM)//(5836|584))",
+      }
+  septicemia:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//(A40|A41)|DIAGNOSIS//ICD//(9|9CM)//(038|99591))",
+      }
+  pulmonary_embolism:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//I26|DIAGNOSIS//ICD//(9|9CM)//(4150|41512|41513|41519))",
+      }
+  end_stage_renal_disease:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//N186|DIAGNOSIS//ICD//(9|9CM)//5856)",
+      }
+  coronary_artery_disease:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//I25|DIAGNOSIS//ICD//(9|9CM)//(412|414|4292))",
+      }
+  type_2_diabetes:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//E11|DIAGNOSIS//ICD//(9|9CM)//(250|3620))",
+      }
+  pancreatic_cancer:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//C25|DIAGNOSIS//ICD//(9|9CM)//157)",
+      }
+  # Audit 2026-11: MIMIC-IV coded in ICD-9 before October 2015; ICD-9 205.0x added. The AML mortality cohort grew from
+  # 308 to 507 patients (deaths 136 -> 227, now reportable: AUROC 0.739), and the new-AML task now excludes 197
+  # patients with an earlier ICD-9 AML code.
+  acute_myeloid_leukemia:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//C920|DIAGNOSIS//ICD//(9|9CM)//2050)",
+      }
+  acute_myocardial_infarction_i21:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//I21|DIAGNOSIS//ICD//(9|9CM)//410)",
+      }
+  acute_pancreatitis:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//K85|DIAGNOSIS//ICD//(9|9CM)//5770)",
+      }
+  all_leukemia:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//(C91|C92|C93|C94|C95)|DIAGNOSIS//ICD//(9|9CM)//(2024|204|205|206|2070|2072|2078|208))",
+      }
+  alzheimer_disease:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//G30|DIAGNOSIS//ICD//(9|9CM)//3310)",
+      }
+  amyotrophic_lateral_sclerosis:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//G1221|DIAGNOSIS//ICD//(9|9CM)//(33520|33521))",
+      }
+  ankylosing_spondylitis:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//M45|DIAGNOSIS//ICD//(9|9CM)//7200)",
+      }
+  aortic_aneurysm:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//I71|DIAGNOSIS//ICD//(9|9CM)//441)",
+      }
+  aortic_stenosis:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//(I060|I062|I350|I352|Q230)|DIAGNOSIS//ICD//(9|9CM)//(3950|3952|7463|74722))",
+      }
+  asthma:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//J45|DIAGNOSIS//ICD//(9|9CM)//(4930|4931|4938|4939))",
+      }
+  barrett_esophagus:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//K227|DIAGNOSIS//ICD//(9|9CM)//53085)",
+      }
+  benign_prostatic_hyperplasia:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//N40|DIAGNOSIS//ICD//(9|9CM)//(6000|6001|6002|6009))",
+      }
+  bipolar_disorder:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//F31|DIAGNOSIS//ICD//(9|9CM)//(2964|2965|2966|2967|29680|29689))",
+      }
+  blindness:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//H54|DIAGNOSIS//ICD//(9|9CM)//369)",
+      }
+  # Audit 2026-11: most osteoporotic fractures (spine, hip, wrist, humerus, ribs, pelvis) are coded as injuries (S22,
+  # S32, S42, S52, S72; ICD-9 805-820), which M80/M84 miss. On MIMIC-IV: positives 201 -> 462, 1,614 patients with an
+  # earlier fracture now excluded, AUROC 0.591 -> 0.686.
+  bone_fracture:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//(M80|M84|S22|S32|S42|S52|S72)|DIAGNOSIS//ICD//(9|9CM)//(805|807|808|810|811|812|813|820|7331|73393|73394|73396|73397|73398|9053|9055|V542))",
+      }
+  breast_cancer:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//C50|DIAGNOSIS//ICD//(9|9CM)//(174|175))",
+      }
+  chronic_hepatitis_or_fatty_liver:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//(B18|K700|K701|K702|K713|K715|K716|K73|K75|K760)|DIAGNOSIS//ICD//(9|9CM)//(07022|07032|07033|07044|07054|07059|5710|5711|5714|5718|5720|5721|5733))",
+      }
+  chronic_kidney_disease:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//N18|DIAGNOSIS//ICD//(9|9CM)//585)",
+      }
+  chronic_kidney_disease_stage_3:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//N183|DIAGNOSIS//ICD//(9|9CM)//5853)",
+      }
+  chronic_kidney_disease_stage_3_or_higher:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//(N183|N184|N185|N186)|DIAGNOSIS//ICD//(9|9CM)//(5853|5854|5855|5856))",
+      }
+  chronic_kidney_disease_stage_4_or_higher:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//(N184|N185|N186)|DIAGNOSIS//ICD//(9|9CM)//(5854|5855|5856))",
+      }
+  chronic_lymphocytic_leukemia:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//C911|DIAGNOSIS//ICD//(9|9CM)//2041)",
+      }
+  chronic_obstructive_pulmonary_disease:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//J44|DIAGNOSIS//ICD//(9|9CM)//(4912|4932|496))",
+      }
+  chronic_respiratory_failure:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//J961|DIAGNOSIS//ICD//(9|9CM)//51883)",
+      }
+  cirrhosis:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//(K703|K717|K74)|DIAGNOSIS//ICD//(9|9CM)//(5712|5715|5716|5719))",
+      }
+  colorectal_cancer:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//(C18|C19|C20)|DIAGNOSIS//ICD//(9|9CM)//(153|1540|1541))",
+      }
+  crohn_disease:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//K50|DIAGNOSIS//ICD//(9|9CM)//555)",
+      }
+  dementia:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//(F01|F03|G30|G310|G3183)|DIAGNOSIS//ICD//(9|9CM)//(290|2942|3310|3311|33182))",
+      }
+  depression:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//(F32|F33)|DIAGNOSIS//ICD//(9|9CM)//(2962|2963|29682|2980|311|6254))",
+      }
+  diabetes_mellitus:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//(E08|E09|E10|E11|E13)|DIAGNOSIS//ICD//(9|9CM)//(250|3620))",
+      }
+  # Audit 2026-11: an existing foot ulcer coded in the skin chapter (L97.4/L97.5, ICD-9 707.14/707.15) was not
+  # excluded, and before 2015 no ulcer could be labelled. On MIMIC-IV: positives 375 -> 995, 1,008 patients with an
+  # existing ulcer excluded, AUROC 0.893 -> 0.815.
+  diabetic_foot_ulcer:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//(E10621|E11621|E13621|L974|L975)|DIAGNOSIS//ICD//(9|9CM)//(70714|70715))",
+      }
+  # Audit 2026-11: the group missed E1x.22 (diabetic CKD, the commonest diabetic kidney code) and E1x.29, and on the
+  # ICD-9 side kept only 250.42. On MIMIC-IV: positives 868 -> 2,635 and 4,857 patients with known diabetic CKD
+  # excluded; AUROC 0.809 -> 0.830.
+  diabetic_nephropathy:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//(E1021|E1121|E1321|E1022|E1122|E1322|E1029|E1129|E1329)|DIAGNOSIS//ICD//(9|9CM)//2504[0-3])",
+      }
+  diabetic_neuropathy:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//(E104|E114|E134)|DIAGNOSIS//ICD//(9|9CM)//2506)",
+      }
+  diabetic_retinopathy:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//(E0831|E0835|E0931|E0932|E1031|E1032|E1033|E1034|E1035|E1131|E1132|E1133|E1134|E1135|E1331)|DIAGNOSIS//ICD//(9|9CM)//(25050|3620))",
+      }
+  dyslipidemia:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//E78|DIAGNOSIS//ICD//(9|9CM)//(2720|2721|2722|2723|2724|2725|2728|2729))",
+      }
+  epilepsy:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//G40|DIAGNOSIS//ICD//(9|9CM)//345)",
+      }
+  esophageal_cancer:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//C15|DIAGNOSIS//ICD//(9|9CM)//150)",
+      }
+  esophageal_varices:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//I85|DIAGNOSIS//ICD//(9|9CM)//(4560|4561|4562))",
+      }
+  exacerbation:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//(J440|J441)|DIAGNOSIS//ICD//(9|9CM)//(49121|49122|49321|49322))",
+      }
+  gerd:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//K21|DIAGNOSIS//ICD//(9|9CM)//(53011|53081))",
+      }
+  glaucoma:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//H40|DIAGNOSIS//ICD//(9|9CM)//(3650|36510|36511|36512|36513|3652|3653|36542|3655|3656|3658|3659))",
+      }
+  gout:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//M10|DIAGNOSIS//ICD//(9|9CM)//(27400|27401|2748|2749))",
+      }
+  hepatitis_b:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//(B16|B180|B181)|DIAGNOSIS//ICD//(9|9CM)//(0702|0703))",
+      }
+  hepatitis_c:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//(B171|B182|B192)|DIAGNOSIS//ICD//(9|9CM)//(07041|07044|07051|07054|0707))",
+      }
+  hip_fracture:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//S72|DIAGNOSIS//ICD//(9|9CM)//(820|821|9053|V5415))",
+      }
+  hyperthyroidism:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//E05|DIAGNOSIS//ICD//(9|9CM)//242)",
+      }
+  hypothyroidism:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//(E02|E03)|DIAGNOSIS//ICD//(9|9CM)//(2442|2443|2448|2449|2468))",
+      }
+  inflammatory_bowel_disease:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//(K50|K51|K523)|DIAGNOSIS//ICD//(9|9CM)//(555|556))",
+      }
+  interstitial_lung_disease:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//J84|DIAGNOSIS//ICD//(9|9CM)//(515|516))",
+      }
+  intracranial_hemorrhage:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//(I60|I61|I62)|DIAGNOSIS//ICD//(9|9CM)//(430|431|432))",
+      }
+  iron_deficiency_anemia:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//D50|DIAGNOSIS//ICD//(9|9CM)//280)",
+      }
+  liver_cancer:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//C22|DIAGNOSIS//ICD//(9|9CM)//155)",
+      }
+  lung_cancer:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//C34|DIAGNOSIS//ICD//(9|9CM)//(1622|1623|1624|1625|1628|1629))",
+      }
+  macular_degeneration:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//H353|DIAGNOSIS//ICD//(9|9CM)//3625)",
+      }
+  migraine:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//G43|DIAGNOSIS//ICD//(9|9CM)//346)",
+      }
+  mild_cognitive_impairment:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//G3184|DIAGNOSIS//ICD//(9|9CM)//33183)",
+      }
+  multiple_myeloma:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//C900|DIAGNOSIS//ICD//(9|9CM)//2030)",
+      }
+  multiple_sclerosis:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//G35|DIAGNOSIS//ICD//(9|9CM)//340)",
+      }
+  myelodysplastic_syndrome:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//D46|DIAGNOSIS//ICD//(9|9CM)//(23872|23873|23874|23875))",
+      }
+  nash:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//K7581)" }
+  non_alcoholic_fatty_liver_disease:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//K760|DIAGNOSIS//ICD//(9|9CM)//5718)",
+      }
+  non_hodgkin_lymphoma:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//(C82|C83|C84|C85)|DIAGNOSIS//ICD//(9|9CM)//(200|2020|2021|2022|2027|2028))",
+      }
+  obesity:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//(E660|E661|E662|E668|E669)|DIAGNOSIS//ICD//(9|9CM)//(27800|27801|27803))",
+      }
+  osteoarthritis:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//(M15|M16|M17|M18|M19)|DIAGNOSIS//ICD//(9|9CM)//715)",
+      }
+  osteoporosis:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//(M80|M81)|DIAGNOSIS//ICD//(9|9CM)//7330)",
+      }
+  osteoporosis_m81:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//M81|DIAGNOSIS//ICD//(9|9CM)//7330)",
+      }
+  palliative_care_encounter:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//Z515|DIAGNOSIS//ICD//(9|9CM)//V667)",
+      }
+  paroxysmal_atrial_fibrillation:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//I480)" }
+  # Audit 2026-11: peripheral artery disease in diabetics is often coded in the diabetes chapter (E08-E13 .51/.52,
+  # ICD-9 250.7x), which the group missed: known PAD was not excluded and E11.51 was a top-5 feature. Widened on
+  # MIMIC-IV with the death exclusion: positives 1,283 -> 1,469, AUROC 0.828 -> 0.757.
+  peripheral_artery_disease:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//(I702|I703|I704|I705|I706|I707|I739|E(08|09|10|11|13)5[12])|DIAGNOSIS//ICD//(9|9CM)//(4402|4403|4439|2507))",
+      }
+  # Audit 2026-11: ICD-9 356.9 added (MIMIC-IV coded in ICD-9 before October 2015): 1,104 patients with an existing
+  # neuropathy are now excluded and positives rose 6,214 -> 8,503; AUROC 0.884 -> 0.799 (CIs do not overlap: the
+  # ICD-10-only version was inflated). Remaining gap, not changed here: diabetic polyneuropathy (E11.42, ICD-9 357.2)
+  # is outside G62.9.
+  peripheral_neuropathy:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//G629|DIAGNOSIS//ICD//(9|9CM)//3569)",
+      }
+  persistent_atrial_fibrillation:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//I481)" }
+  pneumonia:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//J18|DIAGNOSIS//ICD//(9|9CM)//(481|485|486|514))",
+      }
+  prediabetes:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//R7303|DIAGNOSIS//ICD//(9|9CM)//79029)",
+      }
+  psoriasis:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//L40|DIAGNOSIS//ICD//(9|9CM)//(6960|6961))",
+      }
+  pulmonary_fibrosis:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//J841|DIAGNOSIS//ICD//(9|9CM)//(515|51631|51632|51633|51634|51636|51637))",
+      }
+  pulmonary_hypertension:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//I272|DIAGNOSIS//ICD//(9|9CM)//4168)",
+      }
+  pyelonephritis:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//(N10|N11)|DIAGNOSIS//ICD//(9|9CM)//(5900|5901))",
+      }
+  sarcoidosis:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//D86|DIAGNOSIS//ICD//(9|9CM)//135)",
+      }
+  schizophrenia:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//F20|DIAGNOSIS//ICD//(9|9CM)//(2950|2951|2952|2953|2954|2955|2956|2958|2959))",
+      }
+  secondary_malignant_neoplasm:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//(C77|C78|C79)|DIAGNOSIS//ICD//(9|9CM)//(196|197|198))",
+      }
+  sleep_apnea:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//G473|DIAGNOSIS//ICD//(9|9CM)//(3272|78051|78053|78057))",
+      }
+  steatotic_liver_disease:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//(K7581|K760|K769)|DIAGNOSIS//ICD//(9|9CM)//(5718|5719|5739))",
+      }
+  stroke:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//(I60|I61|I62|I63)|DIAGNOSIS//ICD//(9|9CM)//(430|431|432|43301|43311|43321|43331|43381|43391|43401|43411|43491))",
+      }
+  thyroid_cancer:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//C73|DIAGNOSIS//ICD//(9|9CM)//193)",
+      }
+  ulcerative_colitis:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//K51|DIAGNOSIS//ICD//(9|9CM)//556)",
+      }
+  urinary_retention:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//R33|DIAGNOSIS//ICD//(9|9CM)//(78820|78829))",
+      }
+  venous_thromboembolism_i26_i81_i82:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//(I26|I81|I82)|DIAGNOSIS//ICD//(9|9CM)//(4150|41512|41513|41519|452|453))",
+      }
+  vitamin_b12_deficiency_anemia:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//D51|DIAGNOSIS//ICD//(9|9CM)//(2810|2811))",
+      }
+
+  # Added by the Nov 2026 audit of #375 tasks (see the task files for the evidence).
+  # Audit 2026-11: personal history of this cancer (excluded from the 'new cancer' task, see the task file).
+  breast_cancer_history:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//Z853|DIAGNOSIS//ICD//(9|9CM)//V103)",
+      }
+  # Audit 2026-11: personal history of this cancer (excluded from the 'new cancer' task, see the task file).
+  colorectal_cancer_history:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//Z850[34]|DIAGNOSIS//ICD//(9|9CM)//V100[56])",
+      }
+  # Audit 2026-11: personal history of this cancer (excluded from the 'new cancer' task, see the task file).
+  liver_cancer_history:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//Z8505|DIAGNOSIS//ICD//(9|9CM)//V1007)",
+      }
+  # Audit 2026-11: personal history of this cancer (excluded from the 'new cancer' task, see the task file).
+  lung_cancer_history:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//Z8511|DIAGNOSIS//ICD//(9|9CM)//V1011)",
+      }
+  # Audit 2026-11: personal history of this cancer (excluded from the 'new cancer' task, see the task file).
+  pancreatic_cancer_history:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//Z8507)" }
+  # Audit 2026-11: personal history of this cancer (excluded from the 'new cancer' task, see the task file).
+  thyroid_cancer_history:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//Z85850|DIAGNOSIS//ICD//(9|9CM)//V1087)",
+      }
+  # Audit 2026-11: serum creatinine at CKD level (>= 1.5 mg/dL), excluded before 'new CKD' labels (see the CKD task
+  # files).
+  ckd_level_creatinine:
+    code: { regex: "^LAB//RESULT//(50912|52546)//mg/dL$" }
+    value_min: 1.5 # mg/dL
+    value_min_inclusive: True
+  # Audit 2026-11: HbA1c in the diabetic range (>= 6.5%), excluded before 'new type 2 diabetes' labels.
+  diabetic_range_hba1c:
+    code: LAB//RESULT//50852//%
+    value_min: 6.5 # %
+    value_min_inclusive: True
+  # Audit 2026-11: an earlier pulmonary embolism (diagnosis), excluded from the hospital-associated PE task.
+  pulmonary_embolism_history:
+    code:
+      {
+        regex: "^(DIAGNOSIS//ICD//(10|10CM)//I26|DIAGNOSIS//ICD//(9|9CM)//(4150|41512|41513|41519))",
+      }

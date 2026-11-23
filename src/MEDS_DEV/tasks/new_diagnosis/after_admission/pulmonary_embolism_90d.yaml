@@ -1,0 +1,47 @@
+metadata:
+  description:
+    "Pulmonary embolism diagnosed within 90 days of a hospital admission, predicted at admission. This is the pulmonary-embolism
+    part of hospital-associated venous thromboembolism; deep vein thrombosis is not included. Admissions at which the patient
+    is already dead are excluded. A record that ends before the target window is over is labelled negative. Source literature:
+    Pandor et al. (2021). Risk assessment models for venous thromboembolism in hospitalised adult patients: a systematic review.
+    Patients with an earlier pulmonary embolism are excluded."
+  links:
+    - https://pmc.ncbi.nlm.nih.gov/articles/PMC8323381/#T1
+  contacts:
+    - name: Robin van de Water
+      github_username: rvandewater
+  supported_datasets:
+    - ALOTT
+    - INSPECT
+    - INSPIRE
+    - MC-MED
+    - MIMIC-IV
+    - NWICU
+predicates:
+  hospital_admission: ???
+  pulmonary_embolism: ???
+  death:
+    code:
+      regex: MEDS_DEATH.*
+  pulmonary_embolism_history: ???
+trigger: hospital_admission
+windows:
+  input:
+    start: null
+    end: trigger
+    start_inclusive: true
+    end_inclusive: true
+    index_timestamp: end
+    has:
+      death: (None, 0)
+      # Audit 2026-11: the task had no 'no earlier PE' exclusion, so recurrences counted as hospital-associated PE.
+      # Excluding an earlier PE removed 13% of the positives on MIMIC-IV (8,700 -> 7,575; AUROC 0.827 -> 0.821) and
+      # 67% on MC-MED, where the history is recorded as past medical history (PMH//) codes (518 -> 169). Rerun with
+      # this change: 32% on INSPIRE, 11% on NWICU (AUROC 0.750 -> 0.744).
+      pulmonary_embolism_history: (None, 0)
+  target:
+    start: trigger
+    end: start + 90d
+    start_inclusive: false
+    end_inclusive: true
+    label: pulmonary_embolism

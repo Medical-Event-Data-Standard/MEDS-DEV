@@ -1,4 +1,5 @@
-# Predicates for Zigong (Zigong-MEDS 0.3.0, MESSY spec). Reasoning: README.md.
+# Predicates for Zigong (Zigong-MEDS 0.5.0, MESSY spec; these codes are unchanged since 0.3.0).
+# Reasoning: README.md.
 # Can support: mortality/in_icu/first_24h (direct-ICU admissions only) and the six abnormal_lab blood tasks.
 # Not supported: abnormal_lab/vital/hypotension -- no MAP (the raw MAP column holds only unit strings).
 # Labs are SI units; thresholds are converted from the tasks' US units.

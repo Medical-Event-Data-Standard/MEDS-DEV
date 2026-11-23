@@ -251,3 +251,344 @@ predicates:
     value_min: 80
   abnormally_high_bp:
     expr: or(abnormally_high_systolic_bp, abnormally_high_diastolic_bp)
+
+  # Diagnosis groups as SNOMED concepts, from ICD-10 roots through OHDSI Athena (TaskWiki task_templates).
+  acute_pancreatitis:
+    code:
+      any:
+        - "SNOMED/197456007"
+        - "SNOMED/235943006"
+  all_leukemia:
+    code:
+      any:
+        - "SNOMED/188725004"
+        - "SNOMED/91854005"
+        - "SNOMED/91855006"
+        - "SNOMED/91856007"
+        - "SNOMED/91857003"
+        - "SNOMED/91860005"
+        - "SNOMED/91861009"
+        - "SNOMED/92814006"
+        - "SNOMED/92818009"
+        - "SNOMED/93143009"
+  asthma:
+    code:
+      any:
+        - "SNOMED/1751000119100"
+        - "SNOMED/195967001"
+        - "SNOMED/424643009"
+        - "SNOMED/425969006"
+        - "SNOMED/427679007"
+        - "SNOMED/707440005"
+        - "SNOMED/707444001"
+        - "SNOMED/707511009"
+        - "SNOMED/707512002"
+  atrial_fibrillation:
+    code:
+      any:
+        - "SNOMED/15964901000119107"
+        - "SNOMED/282825002"
+        - "SNOMED/36083008"
+        - "SNOMED/426749004"
+        - "SNOMED/440028005"
+        - "SNOMED/440059007"
+        - "SNOMED/49436004"
+        - "SNOMED/5370000"
+        - "SNOMED/60423000"
+        - "SNOMED/706923002"
+        - "SNOMED/720448006"
+  barrett_esophagus:
+    code:
+      any:
+        - "SNOMED/302914006"
+  benign_prostatic_hyperplasia:
+    code:
+      any:
+        - "SNOMED/236646007"
+        - "SNOMED/254902007"
+        - "SNOMED/266569009"
+        - "SNOMED/40411000119106"
+  bladder_cancer:
+    code:
+      any:
+        - "SNOMED/93689003"
+  celiac_disease_k900:
+    code:
+      any:
+        - "SNOMED/396331005"
+  chronic_kidney_disease_stage_2:
+    code:
+      any:
+        - "SNOMED/431856006"
+  chronic_kidney_disease_stage_3:
+    code:
+      any:
+        - "SNOMED/433144002"
+        - "SNOMED/700378005"
+        - "SNOMED/700379002"
+  chronic_kidney_disease_stage_3_or_higher:
+    code:
+      any:
+        - "SNOMED/129161000119100"
+        - "SNOMED/431857002"
+        - "SNOMED/433144002"
+        - "SNOMED/433146000"
+        - "SNOMED/46177005"
+        - "SNOMED/700378005"
+        - "SNOMED/700379002"
+  chronic_kidney_disease_stage_4_or_higher:
+    code:
+      any:
+        - "SNOMED/129161000119100"
+        - "SNOMED/431857002"
+        - "SNOMED/433146000"
+        - "SNOMED/46177005"
+  chronic_myeloid_leukemia:
+    code:
+      any:
+        - "SNOMED/92818009"
+  cirrhosis:
+    code:
+      any:
+        - "SNOMED/19943007"
+        - "SNOMED/266468003"
+        - "SNOMED/420054005"
+        - "SNOMED/62484002"
+  colorectal_cancer:
+    code:
+      any:
+        - "SNOMED/93683002"
+        - "SNOMED/93761005"
+        - "SNOMED/93980002"
+        - "SNOMED/93984006"
+        - "SNOMED/94006002"
+  coronary_artery_disease:
+    code:
+      any:
+        - "SNOMED/117051000119103"
+        - "SNOMED/15960061000119102"
+        - "SNOMED/15960141000119102"
+        - "SNOMED/1755008"
+        - "SNOMED/194849004"
+        - "SNOMED/28574005"
+        - "SNOMED/413838009"
+        - "SNOMED/429673002"
+        - "SNOMED/442224005"
+        - "SNOMED/443502000"
+        - "SNOMED/451041000124103"
+        - "SNOMED/53741008"
+        - "SNOMED/792842004"
+  crohn_disease:
+    code:
+      any:
+        - "SNOMED/34000006"
+        - "SNOMED/56689002"
+        - "SNOMED/7620006"
+  dyslipidemia:
+    code:
+      any:
+        - "SNOMED/267431006"
+        - "SNOMED/267432004"
+        - "SNOMED/267433009"
+        - "SNOMED/267434003"
+        - "SNOMED/267436001"
+        - "SNOMED/55822004"
+  endometrial_cancer:
+    code:
+      any:
+        - "SNOMED/93781006"
+  esophageal_cancer:
+    code:
+      any:
+        - "SNOMED/371984007"
+  esophageal_varices:
+    code:
+      any:
+        - "SNOMED/14223005"
+        - "SNOMED/195474004"
+        - "SNOMED/28670008"
+  exacerbation:
+    code:
+      any:
+        - "SNOMED/1751000119100"
+        - "SNOMED/195951007"
+        - "SNOMED/196001008"
+  generalized_anxiety_disorder:
+    code:
+      any:
+        - "SNOMED/21897009"
+  gerd:
+    code:
+      any:
+        - "SNOMED/235595009"
+        - "SNOMED/266433003"
+        - "SNOMED/266435005"
+  gestational_diabetes:
+    code:
+      any:
+        - "SNOMED/10753491000119101"
+        - "SNOMED/11687002"
+  glaucoma:
+    code:
+      any:
+        - "SNOMED/1207009"
+        - "SNOMED/23986001"
+        - "SNOMED/33647009"
+        - "SNOMED/4210003"
+        - "SNOMED/77075001"
+  hepatitis_b:
+    code:
+      any:
+        - "SNOMED/186639003"
+  hepatitis_c:
+    code:
+      any:
+        - "SNOMED/128302006"
+        - "SNOMED/50711007"
+  hyperthyroidism:
+    code:
+      any:
+        - "SNOMED/190241003"
+        - "SNOMED/267374005"
+        - "SNOMED/89719007"
+        - "SNOMED/90739004"
+  iron_deficiency_anemia:
+    code:
+      any:
+        - "SNOMED/724556004"
+        - "SNOMED/87522002"
+  ischemic_stroke:
+    code:
+      any:
+        - "SNOMED/195189003"
+        - "SNOMED/195190007"
+        - "SNOMED/432504007"
+        - "SNOMED/705128004"
+  kidney_cancer:
+    code:
+      any:
+        - "SNOMED/93849006"
+        - "SNOMED/93985007"
+  liver_cancer:
+    code:
+      any:
+        - "SNOMED/109841003"
+        - "SNOMED/109842005"
+        - "SNOMED/447109003"
+        - "SNOMED/93870000"
+        - "SNOMED/95214007"
+  macular_degeneration:
+    code:
+      any:
+        - "SNOMED/14046000"
+        - "SNOMED/264633009"
+        - "SNOMED/267718000"
+        - "SNOMED/367649002"
+        - "SNOMED/414875008"
+        - "SNOMED/422338006"
+  mild_cognitive_impairment:
+    code:
+      any:
+        - "SNOMED/110352000"
+        - "SNOMED/386805003"
+  multiple_sclerosis:
+    code:
+      any:
+        - "SNOMED/24700007"
+  myelodysplastic_syndrome:
+    code:
+      any:
+        - "SNOMED/109995007"
+  nash:
+    code:
+      any:
+        - "SNOMED/442685003"
+  ovarian_cancer:
+    code:
+      any:
+        - "SNOMED/93934004"
+  parkinson_disease:
+    code:
+      any:
+        - "SNOMED/49049000"
+  paroxysmal_atrial_fibrillation:
+    code:
+      any:
+        - "SNOMED/282825002"
+  persistent_atrial_fibrillation:
+    code:
+      any:
+        - "SNOMED/440059007"
+        - "SNOMED/706923002"
+  polycystic_ovary_syndrome:
+    code:
+      any:
+        - "SNOMED/237055002"
+  prediabetes:
+    code:
+      any:
+        - "SNOMED/714628002"
+  primary_hyperparathyroidism:
+    code:
+      any:
+        - "SNOMED/36348003"
+  prostate_cancer:
+    code:
+      any:
+        - "SNOMED/93974005"
+  psoriasis:
+    code:
+      any:
+        - "SNOMED/9014002"
+  pulmonary_fibrosis:
+    code:
+      any:
+        - "SNOMED/266368002"
+        - "SNOMED/51615001"
+        - "SNOMED/700250006"
+  sarcoidosis:
+    code:
+      any:
+        - "SNOMED/31541009"
+  stroke:
+    code:
+      any:
+        - "SNOMED/195176009"
+        - "SNOMED/195189003"
+        - "SNOMED/195190007"
+        - "SNOMED/21454007"
+        - "SNOMED/262955000"
+        - "SNOMED/270907008"
+        - "SNOMED/291571000119106"
+        - "SNOMED/432504007"
+        - "SNOMED/705128004"
+  systemic_lupus_erythematosus_m32:
+    code:
+      any:
+        - "SNOMED/239887007"
+        - "SNOMED/55464009"
+        - "SNOMED/68815009"
+  systemic_sclerosis:
+    code:
+      any:
+        - "SNOMED/89155008"
+  thyroid_cancer:
+    code:
+      any:
+        - "SNOMED/94098005"
+  type_2_diabetes:
+    code:
+      any:
+        - "SNOMED/44054006"
+  urinary_retention:
+    code:
+      any:
+        - "SNOMED/267064002"
+
+  # Added by the Nov 2026 audit of #375 tasks (see the task files for the evidence).
+  # Audit 2026-11: serum creatinine at CKD level (>= 1.5 mg/dL), excluded before 'new CKD' labels (see the CKD task
+  # files).
+  ckd_level_creatinine:
+    code: LOINC/2160-0
+    value_min: 1.5 # mg/dL (LOINC code as in INSPECT; not verified on EHRShot)
+    value_min_inclusive: True

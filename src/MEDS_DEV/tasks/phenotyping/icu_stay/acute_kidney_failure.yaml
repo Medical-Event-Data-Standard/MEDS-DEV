@@ -1,0 +1,45 @@
+metadata:
+  description:
+    "Whether acute kidney failure was diagnosed during the ICU stay that just ended. The label lies before the
+    prediction time (the ICU discharge), so the diagnosis codes of the stay must be removed from the model's inputs. Source literature: Sheikhalishahi et al.
+    (2020). Benchmarking machine learning models on multi-centre eICU critical care dataset.
+    The label reads the diagnosis codes of the whole admission containing the ICU stay, since some datasets
+    stamp diagnoses at hospital discharge."
+  links:
+    - https://github.com/mostafaalishahi/eICU_Benchmark/blob/82dcd1e511c616a18a2f97f71dec84939c5a6abf/data_extraction/data_extraction_phenotyping.py#L11-L64
+  contacts:
+    - name: Robin van de Water
+      github_username: rvandewater
+  supported_datasets:
+    - ALOTT
+    - INSPIRE
+    - MIMIC-IV
+    - NWICU
+    - eICU
+predicates:
+  icu_admission: ???
+  icu_discharge: ???
+  acute_kidney_failure: ???
+  hospital_discharge: ???
+trigger: icu_discharge
+windows:
+  episode:
+    start: end <- icu_admission
+    end: trigger
+    start_inclusive: true
+    end_inclusive: true
+    index_timestamp: end
+  admission:
+    # Audit 2026-11: MIMIC-IV and NWICU stamp diagnoses at hospital discharge, so a window that ends at ICU discharge
+    # only contained the AKI code when the ICU stay ended at hospital discharge (mostly deaths in the ICU): prevalence
+    # 6.3% on MIMIC-IV, with discharge and death as top features. Reading the codes from ICU admission to the hospital
+    # discharge that ends the admission gives 30.4% (published ICU AKI rates are 20-30%), AUROC 0.943 on creatinine
+    # and BUN; NWICU 3.6% -> 11.0%. eICU stamps diagnoses during the stay, which this window also covers. Rerun in
+    # this form: MIMIC-IV prevalence 32.0% (AUROC 0.948), NWICU 11.0% (0.913), eICU 9.7% (0.943; positives 17,311 ->
+    # 19,407, since codes recorded after the ICU stay now count), ALOTT now reportable (0.808 with the diagnosis codes removed from the inputs). AKI first coded after
+    # the ICU stay counts as positive.
+    start: episode.start
+    end: start -> hospital_discharge
+    start_inclusive: true
+    end_inclusive: true
+    label: acute_kidney_failure

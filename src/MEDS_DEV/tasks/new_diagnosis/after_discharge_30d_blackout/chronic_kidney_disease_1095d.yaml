@@ -1,0 +1,64 @@
+metadata:
+  description:
+    "First diagnosis of chronic kidney disease (ICD-10 N18) within 1095 days of a hospital discharge, predicted
+    at discharge. Patients with the outcome before the discharge or in the 30 days after it are excluded. The source draws
+    one discharge per patient at random after the first five visits; here every discharge is a row. A record that ends before
+    the target window is over is labelled negative. Source literature: Zhang et al. (2026). A multimodal and temporal foundation
+    model for virtual patient representations at healthcare system scale.
+    Patients with a creatinine of 1.5 mg/dL or more in the 30 days before the prediction time are excluded
+    (kidney disease already present)."
+  links:
+    - https://arxiv.org/pdf/2604.18570v2#page=56
+  contacts:
+    - name: Robin van de Water
+      github_username: rvandewater
+  supported_datasets:
+    - ALOTT
+    - INSPIRE
+    - MC-MED
+    - MIMIC-IV
+    - NWICU
+predicates:
+  hospital_discharge: ???
+  chronic_kidney_disease: ???
+  death:
+    code:
+      regex: MEDS_DEATH.*
+  ckd_level_creatinine: ???
+trigger: hospital_discharge
+windows:
+  input:
+    start: null
+    end: trigger
+    start_inclusive: true
+    end_inclusive: true
+    index_timestamp: end
+    has:
+      chronic_kidney_disease: (None, 0)
+      death: (None, 0)
+  baseline:
+    # Audit 2026-11: a creatinine >= 1.5 mg/dL (eGFR roughly < 60 for most adults) in the 30 days up to the prediction
+    # time means kidney disease is already present but not yet coded, so the label marks when CKD gets coded.
+    # Excluding it removed 33-51% of the positives on MIMIC-IV: hypertension -> CKD stage 3 42% (2,646 -> 1,528), type
+    # 2 diabetes -> nephropathy 20%, new CKD 33% (16,456 -> 11,028). Rerun on the other datasets with this change: new
+    # CKD lost 51% of its positives on INSPIRE (AUROC 0.951 -> 0.900), 72% on NWICU (0.870 -> 0.751), 79% on ALOTT and
+    # 88% on MC-MED; hypertension -> CKD stage 3 on NWICU 132 -> 34.
+    start: end - 30d
+    end: trigger
+    start_inclusive: true
+    end_inclusive: true
+    has:
+      ckd_level_creatinine: (None, 0)
+  gap:
+    start: trigger
+    end: start + 30d
+    start_inclusive: false
+    end_inclusive: true
+    has:
+      chronic_kidney_disease: (None, 0)
+  target:
+    start: gap.end
+    end: start + 1065d
+    start_inclusive: false
+    end_inclusive: true
+    label: chronic_kidney_disease

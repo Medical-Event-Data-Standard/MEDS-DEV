@@ -1,0 +1,62 @@
+metadata:
+  description:
+    "First diagnosis of prostate cancer (ICD-10 C61) within 1825 days of a hospital discharge, predicted at discharge.
+    Patients with the outcome before the discharge or in the 30 days after it are excluded. The source draws one discharge
+    per patient at random after the first five visits; here every discharge is a row. A record that ends before the target
+    window is over is labelled negative. Source literature: Zhang et al. (2026). A multimodal and temporal foundation model
+    for virtual patient representations at healthcare system scale.
+    Only male patients are included.
+    Patients with a recorded personal history of this cancer are excluded."
+  links:
+    - https://arxiv.org/pdf/2604.18570v2#page=56
+  contacts:
+    - name: Robin van de Water
+      github_username: rvandewater
+  supported_datasets:
+    - ALOTT
+    - INSPIRE
+    - MC-MED
+    - NWICU
+predicates:
+  hospital_discharge: ???
+  prostate_cancer: ???
+  death:
+    code:
+      regex: MEDS_DEATH.*
+  prostate_cancer_history: ???
+# Audit 2026-11: the outcome is sex-specific but the cohort included both sexes, so sex was the top feature: on benign
+# prostatic hyperplasia, restricting to men lowered AUROC by 0.12-0.19 (MIMIC-IV 0.906 -> 0.791, NWICU 0.885 -> 0.699,
+# INSPIRE 0.918 -> 0.778). ACES applies every patient_demographics entry, so sex cannot be a dataset predicate (a
+# dataset defining both would empty every cohort): this literal pattern covers the sex codes of ALOTT, INSPIRE, MC-
+# MED, MIMIC-IV, NWICU and SICdb, all checked to be untimed (static) codes.
+patient_demographics:
+  male:
+    code: { regex: "^(GENDER|SEX)//(M|MALE|Male|male)$" }
+trigger: hospital_discharge
+windows:
+  input:
+    start: null
+    end: trigger
+    start_inclusive: true
+    end_inclusive: true
+    index_timestamp: end
+    has:
+      prostate_cancer: (None, 0)
+      death: (None, 0)
+      # Audit 2026-11: a cancer recorded as personal history (Z85.x / V10.x) was not excluded, so a known cancer coded
+      # again counted as new. On breast cancer (MIMIC-IV, women) 49% of the 'new' positives were history codes (1,496
+      # -> 767) and AUROC fell from 0.860 to 0.561; on colorectal cancer 16% (1,258 -> 1,057).
+      prostate_cancer_history: (None, 0)
+  gap:
+    start: trigger
+    end: start + 30d
+    start_inclusive: false
+    end_inclusive: true
+    has:
+      prostate_cancer: (None, 0)
+  target:
+    start: gap.end
+    end: start + 1795d
+    start_inclusive: false
+    end_inclusive: true
+    label: prostate_cancer

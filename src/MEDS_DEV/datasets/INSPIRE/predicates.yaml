@@ -97,3 +97,209 @@ predicates:
     value_max_inclusive: False
   abnormally_low_map:
     expr: or(abnormally_low_map_1, abnormally_low_map_2, abnormally_low_map_3)
+
+  # Diagnosis groups by ICD root. Generated from the dataset's suMEDS code catalog (TaskWiki task_templates).
+  # Each ICD prefix accepts the code layout before and after the 2026-11 ETL releases, e.g. DIAGNOSIS//ICD//(10|10CM)//;
+  # the old alternative can be dropped once the dataset's pin is on the new release.
+  heart_failure:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//I50)" }
+  essential_hypertension:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//I10)" }
+  acute_myocardial_infarction:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//I21)" }
+  atrial_fibrillation:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//I48)" }
+  ischemic_stroke:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//I63)" }
+  acute_kidney_failure:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//N17)" }
+  septicemia:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//(A40|A41))" }
+  pulmonary_embolism:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//I26)" }
+  coronary_artery_disease:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//I25)" }
+  # Audit 2026-11: INSPIRE uses WHO ICD-10, where unspecified diabetes (E14) is the common code in Korean records; it
+  # was missing. Adding it to type_2_diabetes excluded 4,164 patients with existing diabetes and raised positives 846
+  # -> 1,466 (+73%); AUROC 0.852 -> 0.847.
+  type_2_diabetes:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//(E11|E14))" }
+  pancreatic_cancer:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//C25)" }
+  acute_myocardial_infarction_i21:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//I21)" }
+  acute_pancreatitis:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//K85)" }
+  all_leukemia:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//(C91|C92|C93|C94|C95))" }
+  alzheimer_disease:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//G30)" }
+  ankylosing_spondylitis:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//M45)" }
+  aortic_aneurysm:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//I71)" }
+  asthma:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//J45)" }
+  benign_prostatic_hyperplasia:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//N40)" }
+  bladder_cancer:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//C67)" }
+  blindness:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//H54)" }
+  # Audit 2026-11: Same fix as on MIMIC-IV (measured there; not rerun on this dataset): injury-chapter fracture sites
+  # S22/S32/S42/S52/S72 added (3-character codes).
+  bone_fracture:
+    code:
+      { regex: "^(DIAGNOSIS//ICD//(10|10CM)//(M80|M84|S22|S32|S42|S52|S72))" }
+  breast_cancer:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//C50)" }
+  chronic_hepatitis_or_fatty_liver:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//(B18|K73))" }
+  chronic_kidney_disease:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//N18)" }
+  chronic_obstructive_pulmonary_disease:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//J44)" }
+  chronic_otitis_media:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//(H65|H66))" }
+  colorectal_cancer:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//(C18|C19|C20))" }
+  dementia:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//G30)" }
+  # Audit 2026-11: E14 added for the same reason as type_2_diabetes (not rerun for this predicate).
+  diabetes_mellitus:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//(E10|E11|E13|E14))" }
+  endometriosis:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//N80)" }
+  esophageal_cancer:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//C15)" }
+  esophageal_varices:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//I85)" }
+  gerd:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//K21)" }
+  glaucoma:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//H40)" }
+  glioblastoma:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//C71)" }
+  gout:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//M10)" }
+  hepatitis_b:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//B16)" }
+  hip_fracture:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//S72)" }
+  hyperthyroidism:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//E05)" }
+  hypothyroidism:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//(E02|E03))" }
+  inflammatory_bowel_disease:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//K51)" }
+  intracranial_hemorrhage:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//(I60|I61|I62))" }
+  iron_deficiency_anemia:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//D50)" }
+  kidney_cancer:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//(C64|C65))" }
+  liver_cancer:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//C22)" }
+  lung_cancer:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//C34)" }
+  melanoma:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//C43)" }
+  migraine:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//G43)" }
+  myelodysplastic_syndrome:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//D46)" }
+  non_hodgkin_lymphoma:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//(C82|C83|C84|C85))" }
+  non_melanoma_skin_cancer:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//C44)" }
+  oropharyngeal_cancer:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//C10)" }
+  osteoarthritis:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//(M15|M16|M17|M18|M19))" }
+  osteoporosis:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//(M80|M81))" }
+  osteoporosis_m81:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//M81)" }
+  ovarian_cancer:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//C56)" }
+  parkinson_disease:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//(G20|G21))" }
+  pneumonia:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//J18)" }
+  prostate_cancer:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//C61)" }
+  psoriasis:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//L40)" }
+  pyelonephritis:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//(N10|N11))" }
+  rheumatoid_arthritis:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//M05)" }
+  secondary_malignant_neoplasm:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//(C77|C78|C79))" }
+  stroke:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//(I60|I61|I62|I63))" }
+  thyroid_cancer:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//C73)" }
+  ulcerative_colitis:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//K51)" }
+  urinary_retention:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//R33)" }
+  venous_thromboembolism_i26_i81_i82:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//(I26|I81))" }
+  vitamin_b12_deficiency_anemia:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//D51)" }
+
+  # Added by the Nov 2026 audit of #375 tasks (see the task files for the evidence).
+  # Audit 2026-11: no site-specific history code: INSPIRE keeps 3-character ICD-10 codes, so Z85 cannot be split by
+  # site. Matches nothing, so the task is unchanged here.
+  breast_cancer_history:
+    code: { regex: "^NO_SUCH_CODE$" }
+  # Audit 2026-11: no site-specific history code: INSPIRE keeps 3-character ICD-10 codes, so Z85 cannot be split by
+  # site. Matches nothing, so the task is unchanged here.
+  colorectal_cancer_history:
+    code: { regex: "^NO_SUCH_CODE$" }
+  # Audit 2026-11: no site-specific history code: INSPIRE keeps 3-character ICD-10 codes, so Z85 cannot be split by
+  # site. Matches nothing, so the task is unchanged here.
+  kidney_cancer_history:
+    code: { regex: "^NO_SUCH_CODE$" }
+  # Audit 2026-11: no site-specific history code: INSPIRE keeps 3-character ICD-10 codes, so Z85 cannot be split by
+  # site. Matches nothing, so the task is unchanged here.
+  liver_cancer_history:
+    code: { regex: "^NO_SUCH_CODE$" }
+  # Audit 2026-11: no site-specific history code: INSPIRE keeps 3-character ICD-10 codes, so Z85 cannot be split by
+  # site. Matches nothing, so the task is unchanged here.
+  lung_cancer_history:
+    code: { regex: "^NO_SUCH_CODE$" }
+  # Audit 2026-11: no site-specific history code: INSPIRE keeps 3-character ICD-10 codes, so Z85 cannot be split by
+  # site. Matches nothing, so the task is unchanged here.
+  melanoma_history:
+    code: { regex: "^NO_SUCH_CODE$" }
+  # Audit 2026-11: no site-specific history code: INSPIRE keeps 3-character ICD-10 codes, so Z85 cannot be split by
+  # site. Matches nothing, so the task is unchanged here.
+  non_melanoma_skin_cancer_history:
+    code: { regex: "^NO_SUCH_CODE$" }
+  # Audit 2026-11: no site-specific history code: INSPIRE keeps 3-character ICD-10 codes, so Z85 cannot be split by
+  # site. Matches nothing, so the task is unchanged here.
+  ovarian_cancer_history:
+    code: { regex: "^NO_SUCH_CODE$" }
+  # Audit 2026-11: no site-specific history code: INSPIRE keeps 3-character ICD-10 codes, so Z85 cannot be split by
+  # site. Matches nothing, so the task is unchanged here.
+  pancreatic_cancer_history:
+    code: { regex: "^NO_SUCH_CODE$" }
+  # Audit 2026-11: no site-specific history code: INSPIRE keeps 3-character ICD-10 codes, so Z85 cannot be split by
+  # site. Matches nothing, so the task is unchanged here.
+  prostate_cancer_history:
+    code: { regex: "^NO_SUCH_CODE$" }
+  # Audit 2026-11: no site-specific history code: INSPIRE keeps 3-character ICD-10 codes, so Z85 cannot be split by
+  # site. Matches nothing, so the task is unchanged here.
+  thyroid_cancer_history:
+    code: { regex: "^NO_SUCH_CODE$" }
+  # Audit 2026-11: serum creatinine at CKD level (>= 1.5 mg/dL), excluded before 'new CKD' labels (see the CKD task
+  # files).
+  ckd_level_creatinine:
+    code: LAB//creatinine//mg/dL
+    value_min: 1.5 # mg/dL
+    value_min_inclusive: True
+  # Audit 2026-11: an earlier pulmonary embolism (diagnosis), excluded from the hospital-associated PE task.
+  pulmonary_embolism_history:
+    code: { regex: "^(DIAGNOSIS//ICD//(10|10CM)//I26)" }

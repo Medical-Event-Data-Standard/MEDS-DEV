@@ -1,0 +1,59 @@
+metadata:
+  description:
+    "Secondary malignant neoplasm (ICD-10 C77, C78, C79) within 730 days of a patient's first diagnosis of melanoma
+    (ICD-10 C43), predicted at that diagnosis. Patients with the outcome before the diagnosis or in the 30 days after it are
+    excluded. A record that ends before the target window is over is labelled negative. Source literature: Zhang et al. (2026).
+    A multimodal and temporal foundation model for virtual patient representations at healthcare system scale.
+    Patients who die before the end of the blackout are excluded."
+  links:
+    - https://arxiv.org/pdf/2604.18570v2#page=67
+  contacts:
+    - name: Robin van de Water
+      github_username: rvandewater
+  supported_datasets:
+    - ALOTT
+    - INSPECT
+    - INSPIRE
+predicates:
+  melanoma: ???
+  secondary_malignant_neoplasm: ???
+  death:
+    code:
+      regex: MEDS_DEATH.*
+trigger: melanoma
+windows:
+  first:
+    start: null
+    end: trigger
+    start_inclusive: true
+    end_inclusive: false
+    has:
+      melanoma: (None, 0)
+  input:
+    start: null
+    end: trigger
+    start_inclusive: true
+    end_inclusive: true
+    index_timestamp: end
+    has:
+      secondary_malignant_neoplasm: (None, 0)
+      # Audit 2026-11: patients who die in the index admission or the 30-day blackout used to stay in the cohort;
+      # diagnoses are stamped at discharge, so they were predicted at their death and were guaranteed negatives
+      # (HOSPITAL_DISCHARGE//DIED was a top SHAP feature). Excluding them removed 4-15% of the cohorts on MIMIC-IV; on
+      # atrial fibrillation -> stroke the AUROC fell from 0.704 to 0.574, so the original signal was mostly these
+      # guaranteed negatives. Applied to this task's runs before they ran.
+      death: (None, 0)
+  blackout:
+    start: trigger
+    end: start + 30d
+    start_inclusive: false
+    end_inclusive: true
+    has:
+      secondary_malignant_neoplasm: (None, 0)
+      death: (None, 0)
+  target:
+    start: blackout.end
+    end: start + 700d
+    start_inclusive: false
+    end_inclusive: true
+    label: secondary_malignant_neoplasm

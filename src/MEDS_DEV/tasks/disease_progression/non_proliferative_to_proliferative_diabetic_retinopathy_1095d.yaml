@@ -1,0 +1,59 @@
+metadata:
+  description:
+    "Proliferative diabetic retinopathy (ICD-10 E08.35, E09.35, E10.35, E11.35, E13.35) within 1095 days of a patient's
+    first diagnosis of non proliferative diabetic retinopathy (ICD-10 E08.32, E08.33, E08.34, E09.32, E09.33, E09.34, E10.32,
+    E10.33, E10.34, E11.32, E11.33, E11.34, E13.32, E13.33, E13.34), predicted at that diagnosis. Patients with the outcome
+    before the diagnosis or in the 30 days after it are excluded. A record that ends before the target window is over is labelled
+    negative. Source literature: Zhang et al. (2026). A multimodal and temporal foundation model for virtual patient representations
+    at healthcare system scale.
+    Patients who die before the end of the blackout are excluded."
+  links:
+    - https://arxiv.org/pdf/2604.18570v2#page=67
+  contacts:
+    - name: Robin van de Water
+      github_username: rvandewater
+  supported_datasets:
+    - INSPECT
+predicates:
+  non_proliferative_diabetic_retinopathy: ???
+  proliferative_diabetic_retinopathy: ???
+  death:
+    code:
+      regex: MEDS_DEATH.*
+trigger: non_proliferative_diabetic_retinopathy
+windows:
+  first:
+    start: null
+    end: trigger
+    start_inclusive: true
+    end_inclusive: false
+    has:
+      non_proliferative_diabetic_retinopathy: (None, 0)
+  input:
+    start: null
+    end: trigger
+    start_inclusive: true
+    end_inclusive: true
+    index_timestamp: end
+    has:
+      proliferative_diabetic_retinopathy: (None, 0)
+      # Audit 2026-11: patients who die in the index admission or the 30-day blackout used to stay in the cohort;
+      # diagnoses are stamped at discharge, so they were predicted at their death and were guaranteed negatives
+      # (HOSPITAL_DISCHARGE//DIED was a top SHAP feature). Excluding them removed 4-15% of the cohorts on MIMIC-IV; on
+      # atrial fibrillation -> stroke the AUROC fell from 0.704 to 0.574, so the original signal was mostly these
+      # guaranteed negatives. Applied to this task's runs before they ran.
+      death: (None, 0)
+  blackout:
+    start: trigger
+    end: start + 30d
+    start_inclusive: false
+    end_inclusive: true
+    has:
+      proliferative_diabetic_retinopathy: (None, 0)
+      death: (None, 0)
+  target:
+    start: blackout.end
+    end: start + 1065d
+    start_inclusive: false
+    end_inclusive: true
+    label: proliferative_diabetic_retinopathy
