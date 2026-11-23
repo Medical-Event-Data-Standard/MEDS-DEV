@@ -4,3 +4,4 @@ meds-evaluation==0.0.2
 pyyaml
 hydra-core
 polars
+pyarrow<26 # pyarrow 26 needs NumPy>=2, but cehrbert 1.5.1 pins meds_reader==0.1.9, which pins NumPy<2
