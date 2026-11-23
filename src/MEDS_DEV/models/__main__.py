@@ -99,7 +99,7 @@ def main(cfg: DictConfig):
     overwrite = resolve_overwrite(cfg.get("overwrite", None), cfg.get("do_overwrite", False))
 
     Path(cfg.output_dir).mkdir(parents=True, exist_ok=True)
-    with temp_env(cfg, model["requirements"]) as (_temp_dir, env):
+    with temp_env(cfg, model["requirements"], python=model.get("python")) as (_temp_dir, env):
         run_planned_steps(
             planned,
             run_in_env,

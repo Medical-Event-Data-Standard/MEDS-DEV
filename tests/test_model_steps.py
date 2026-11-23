@@ -230,11 +230,10 @@ def test_steps_follow_the_profile_order_whatever_the_file_order():
 
 def test_registered_models_plan_for_two_tasks(tmp_path: Path):
     """Every registered model plans: shared steps once, task steps per task, predictions under `predict/`."""
+    tasks = list(TASKS)[:2]  # registered tasks, so that zero-shot models get their criteria files
     for name, model in MODELS.items():
         graph = model["step_graph"]
-        cfg = make_cfg(
-            tmp_path, tasks=["t1", "t2"], labels_root="/labels", predicates_path="/predicates.yaml"
-        )
+        cfg = make_cfg(tmp_path, tasks=tasks, labels_root="/labels", predicates_path="/predicates.yaml")
         planned = plan_from_cfg(cfg, graph, model["model_dir"])
 
         n_shared = sum(step.scope == Scope.DATASET for step in graph.steps)
@@ -337,6 +336,22 @@ def test_meds_dev_model_main_runs_models(tmp_path: Path, monkeypatch):
     meds_dev_model_main(OmegaConf.merge(cfg, {"overwrite": "task"}))
 
     assert executions(log_fp) == ["preprocess", "pretrain", "fit", "predict", "fit", "predict"]
+
+
+def test_model_yaml_python_version(tmp_path: Path):
+    """The optional `python` key is the version of the model's environment; it must be a string."""
+    model_yaml = tmp_path / "model.yaml"
+    body = (
+        "metadata: {description: d, contacts: [{name: n}]}\nprofile: predict_only\nsteps: {predict_only: p}\n"
+    )
+
+    model_yaml.write_text(body)
+    assert load_model_yaml(model_yaml, "m")["python"] is None
+    model_yaml.write_text(body + 'python: "3.12"\n')
+    assert load_model_yaml(model_yaml, "m")["python"] == "3.12"
+    model_yaml.write_text(body + "python: 3.12\n")
+    with pytest.raises(ValueError, match="`python` must be a version string"):
+        load_model_yaml(model_yaml, "m")
 
 
 def test_invalid_model_yaml_names_the_model(tmp_path: Path):

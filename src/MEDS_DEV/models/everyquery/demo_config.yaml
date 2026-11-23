@@ -1,0 +1,33 @@
+# Settings of a demo run (`demo=True`): a small model trained briefly, so that the model can be run on a
+# demo dataset in minutes. They are not a scientific configuration. A full run uses EveryQuery's defaults.
+
+# Demo datasets have few subjects: keep codes seen in 2 subjects (default: 1000) and subjects with 1 event
+# (default: 10).
+min_subjects_per_code: 2
+min_events_per_subject: 1
+
+sampler:
+  num_training_examples: 6000
+  num_bounds: 5
+  duration_min: 0.5
+  duration_max: 10
+  start_duration_min: 0.5
+  start_duration_max: 3
+  eventbound_fraction: 0.5
+  eventstart_fraction: 0.2
+  prediction_time_start_fraction: 0.4
+  min_prediction_times_per_subject: 1
+  max_workers: 1
+
+# EveryQuery's small CPU configuration.
+train_config: _demo_train_conditional_multitask_ar
+train_overrides:
+  - trainer.max_epochs=5
+  - trainer.accelerator=auto
+  # Validate the whole tuning split once per epoch, instead of 2 batches after every training batch.
+  - trainer.limit_val_batches=1.0
+  - trainer.val_check_interval=1.0
+  - trainer.check_val_every_n_epoch=1
+  - datamodule.batch_size=32
+  - datamodule.config.max_seq_len=128
+  - lightning_module.optimizer.lr=0.002

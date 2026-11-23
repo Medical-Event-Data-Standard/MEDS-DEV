@@ -209,6 +209,8 @@ models is filtered by compatibility.
     `task_criteria_path` argument, else the registered file of the task); the predict step can use
     `{split}`
 4. The predict step must write parquet files compatible with `meds-evaluation` to its `{step_dir}`
+    (or a subdirectory of it). An optional `python` key (e.g., `python: "3.12"`) sets the Python
+    version of the model's environment, when its requirements do not support MEDS-DEV's interpreter
 5. The recommended way to create a new model is the
     [MEDS algorithm template](https://github.com/McDermottHealthAI/MEDS_algorithm_template), which
     registers each profile as `<name>__<profile>` via `meds-algorithm-add-to-meds-dev`
