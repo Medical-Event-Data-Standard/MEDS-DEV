@@ -30,7 +30,7 @@ It uses the `zero_shot_materialized` profile:
     before it.
 2. `pretrain` (once per dataset, shared by every task): next-event pretraining on the train split, then the paper's
     extended-context stage (8,192 then 16,384 tokens). No task or label is used.
-3. `infer_trajectories` (per task): samples futures (60 of up to 4,000 tokens by default) from each held-out
+3. `infer_trajectories` (per task): samples futures (100 of up to 4,000 tokens by default) from each held-out
     prediction time. It reads the task's keys, not its labels.
 4. `predict_zero_shot_materialized` (per task): evaluates the task's ACES criteria on history plus each future. The
     probability is the share of positive futures among those that resolve the task; a key with none gets 0.5 and is
@@ -56,7 +56,7 @@ So any task whose codes occur in the training split can be answered.
 
 - The package requires **Python 3.12** (`python: "3.12"` in `model.yaml`).
 - A full run uses the size preset and the package defaults. Pretraining and sampling need a GPU at that scale; sampling
-    costs about 60 × 4,000 generated tokens per prediction time.
+    costs up to 100 × 4,000 generated tokens per prediction time (the package default, `n_samples`).
 - A demo run (`demo=True`) uses `demo_config.yaml`: a two-layer model trained for 5 epochs on CPU, with 8 futures of
     up to 256 tokens. Its predictions only show that the pipeline runs.
 
