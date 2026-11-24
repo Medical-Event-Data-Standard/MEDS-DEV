@@ -17,4 +17,4 @@ max_new_tokens: 256
 max_attempts: 2
 horizon_days: 30.0
 # Demo datasets are small: bucket the values of codes seen at least 20 times (default: 500).
-lab_min_bucket_observations: 20
+min_bucket_observations: 20
