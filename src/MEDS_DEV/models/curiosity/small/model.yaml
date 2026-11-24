@@ -19,8 +19,8 @@ steps:
   # Each step publishes its artifact as a new subdirectory of its {step_dir}. A demo run uses demo_config.yaml (a
   # tiny model trained briefly); a full run uses config.yaml (the small size preset, paper settings otherwise).
 
-  # Fits the vocabulary and value buckets on the train split and writes every split's events. Uses the package's
-  # category file for the dataset when it has one (MIMIC-IV); otherwise every code is kept as a whole-code token.
+  # Fits the vocabulary and value buckets on the train split and writes every split's events. Dataset-agnostic: every
+  # code is a whole-code token, with a value bucket when it has numeric values.
   preprocess_data: |-
     CONFIG=$([ "{demo}" = "True" ] && echo "{model_dir}/demo_config.yaml" || echo "{model_dir}/config.yaml")
     curiosity-meds preprocess_data --profile zero_shot_materialized         "external_meds_dir={dataset_dir}" "output_data_dir={step_dir}/data" "config_file=$CONFIG"

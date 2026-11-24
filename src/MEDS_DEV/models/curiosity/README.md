@@ -38,12 +38,19 @@ It uses the `zero_shot_materialized` profile:
 
 ## Vocabulary
 
-Events of the papers' types get the papers' tokens: ICD diagnoses split into sub-tokens, lab results with a value
-bucket and collection markers, binned vitals, medications, procedures, encounters, death followed by an end-of-record
-token, and a demographic header. Which codes are of which type is dataset knowledge; the package has a mapping for
-MIMIC-IV. Every other code, and every code of a dataset without a mapping (e.g. eICU), is kept as a whole-code token
-with a value bucket (the package's `other` category, an adaptation: the papers drop codes outside their types). So any
-task whose codes occur in the training split can be answered.
+The tokenization is dataset-agnostic, so any MEDS dataset runs without configuration. This is an adaptation: the
+papers tokenize fixed event types (ICD diagnoses split into sub-tokens, labs, clinical vital bins, ATC medications)
+and drop other codes.
+
+- Every code is one whole-code token, with no code-hierarchy split. Codes rarer than a frequency threshold become an
+    unknown token, as in the papers.
+- A code with enough numeric values in the training split is followed by one of 30 value buckets (the papers' lab
+    buckets), a code with text values by a result token, and a row with route, dose or frequency columns by attribute
+    tokens.
+- The latest value of each numeric code in each 6-hour window is kept (the papers do this for vitals).
+- `MEDS_BIRTH` gives the age at the start of the timeline; `MEDS_DEATH` ends the record.
+
+So any task whose codes occur in the training split can be answered.
 
 ## Requirements and settings
 
@@ -57,6 +64,7 @@ task whose codes occur in the training split can be answered.
 
 - Futures are generated for the `held_out` split only (the `infer_trajectories` step does not receive `{split}`), so
     only `held_out` can be predicted.
-- A task whose codes never occur in the training split cannot be generated, and is rejected before any work.
+- A task whose codes never occur in the training split, or are rarer than the threshold, cannot be generated,
+    and is rejected before any work.
 - Generated values are sampled within a value bucket, so a threshold that falls inside a bucket is evaluated on
     sampled values.
