@@ -1,0 +1,20 @@
+# Settings of a demo run (`demo=True`): a two-layer, two-head model trained briefly on CPU, with few, short futures,
+# so that the model runs on a demo dataset in minutes. They are not a scientific configuration (the size preset is
+# not used); a full run uses config.yaml.
+num_layers: 2
+capacity: 0.1666667 # 2 attention heads of 64 dimensions
+learning_rate: 0.003
+batch_size: 8
+sequences_per_step: 8
+context_length: 512
+extended_context_length: 1024
+extension_steps: 2
+extension_epochs: 0.0
+max_epochs: 5
+early_stopping_patience: 2
+n_samples: 8
+max_new_tokens: 256
+max_attempts: 2
+horizon_days: 30.0
+# Demo datasets are small: bucket the values of codes seen at least 20 times (default: 500).
+lab_min_bucket_observations: 20
