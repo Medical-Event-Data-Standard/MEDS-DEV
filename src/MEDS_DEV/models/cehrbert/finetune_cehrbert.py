@@ -82,8 +82,10 @@ def main(cfg: DictConfig) -> None:
     with open(finetune_yaml_file, "w") as file:
         file.write(OmegaConf.to_yaml(finetune_yaml))
 
+    # run_finetune_runner.py is `python -m cehrbert.runners.hf_cehrbert_finetune_runner` with a workaround for
+    # a cehrbert 1.5 regression (see that file).
     run_subprocess(
-        cmd=f"python -u -m cehrbert.runners.hf_cehrbert_finetune_runner {finetune_yaml_file}",
+        cmd=f"python -u {Path(__file__).parent / 'run_finetune_runner.py'} {finetune_yaml_file}",
         temp_work_dir=str(output_dir),
         out_dir=finetuned_output_dir,
     )
