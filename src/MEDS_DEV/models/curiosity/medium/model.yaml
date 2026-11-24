@@ -1,0 +1,44 @@
+metadata:
+  description: >-
+    Curiosity-0826, medium: a Qwen2 decoder with the Curiosity-M shape of the 0226 paper: 12 layers, width 768, 12 heads (119M parameters at its 7,105-token vocabulary), pretrained without any task or label to
+    generate patients' future event sequences. Used zero-shot: futures are sampled from each patient's history at
+    the prediction time, the task's ACES criteria are evaluated on history plus each future, and the probability is
+    the fraction of futures that answer the task positively. Every approximation is recorded next to the
+    predictions, in `relaxations.yaml`.
+  links:
+    - https://arxiv.org/abs/2611.15710
+    - https://arxiv.org/abs/2508.12104
+    - https://pypi.org/project/meds-algorithm-curiosity/
+  contacts:
+    - name: "Florent Pollet"
+      github_username: "florian6973"
+# The model's package requires Python 3.12.
+python: "3.12"
+profile: zero_shot_materialized
+steps:
+  # Each step publishes its artifact as a new subdirectory of its {step_dir}. A demo run uses demo_config.yaml (a
+  # tiny model trained briefly); a full run uses config.yaml (the medium size preset, paper settings otherwise).
+
+  # Fits the vocabulary and value buckets on the train split and writes every split's events. Dataset-agnostic: every
+  # code is a whole-code token, with a value bucket when it has numeric values.
+  preprocess_data: |-
+    CONFIG=$([ "{demo}" = "True" ] && echo "{model_dir}/demo_config.yaml" || echo "{model_dir}/config.yaml")
+    curiosity-meds preprocess_data --profile zero_shot_materialized         "external_meds_dir={dataset_dir}" "output_data_dir={step_dir}/data" "config_file=$CONFIG"
+
+  # Self-supervised next-event pretraining on the train split (the tuning split for early stopping), then the
+  # extended-context stage.
+  pretrain: |-
+    CONFIG=$([ "{demo}" = "True" ] && echo "{model_dir}/demo_config.yaml" || echo "{model_dir}/config.yaml")
+    curiosity-meds pretrain --profile zero_shot_materialized         "input_data_dir={preprocess_data_dir}/data" "output_pretrained_algorithm_dir={step_dir}/pretrained"         "config_file=$CONFIG"
+
+  # Samples futures from each held-out prediction time's history (the task's keys only; no label is read). This step
+  # cannot see {split}: futures are generated for held_out, the split MEDS-DEV predicts by default.
+  infer_trajectories: |-
+    CONFIG=$([ "{demo}" = "True" ] && echo "{model_dir}/demo_config.yaml" || echo "{model_dir}/config.yaml")
+    curiosity-meds infer_trajectories --profile zero_shot_materialized         "input_data_dir={preprocess_data_dir}/data" "input_pretrained_algorithm_dir={pretrain_dir}/pretrained"         "external_index_dir={labels_dir}" "splits=[held_out]" "output_trajectories_dir={step_dir}/trajectories"         "config_file=$CONFIG"
+
+  # Evaluates the task's ACES criteria on history plus each future. The labels are only attached to the
+  # predictions, for evaluation, after the probabilities are final.
+  predict_zero_shot_materialized: |-
+    CONFIG=$([ "{demo}" = "True" ] && echo "{model_dir}/demo_config.yaml" || echo "{model_dir}/config.yaml")
+    curiosity-meds predict_zero_shot_materialized --profile zero_shot_materialized         "input_data_dir={preprocess_data_dir}/data" "external_meds_dir={dataset_dir}"         "input_trajectories_dir={infer_trajectories_dir}/trajectories"         "external_index_dir={labels_dir}" "splits=[{split}]"         "external_task_criteria_file={task_criteria_path}" "external_predicates_file={predicates_path}"         "external_evaluation_labels_dir={labels_dir}" "output_predictions_dir={step_dir}/predictions"         "config_file=$CONFIG"

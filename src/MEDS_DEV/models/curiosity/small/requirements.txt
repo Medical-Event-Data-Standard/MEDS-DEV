@@ -1,0 +1,1 @@
+meds-algorithm-curiosity==0.1.2

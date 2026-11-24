@@ -1,0 +1,6 @@
+# Curiosity, medium
+
+Curiosity-0826 with the Curiosity-M shape of the 0226 paper: 12 layers, width 768, 12 heads (119M parameters at its 7,105-token vocabulary), run through
+[`meds-algorithm-curiosity`](https://pypi.org/project/meds-algorithm-curiosity/) (`size: medium` in
+[`config.yaml`](config.yaml)). See the [family README](../README.md) for how a task is answered, the settings and
+the known limitations.

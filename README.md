@@ -495,8 +495,8 @@ they already finished), and nothing else has to be declared. `{task_criteria_pat
 `task_criteria_path` argument or, by default, the registered criteria file of the task. See
 [Using a model](#using-a-model) for where steps are stored and how they are run, and the help string of
 `meds-dev-model` for more information. The existing models are examples: `random_predictor`
-(`predict_only`), `meds_tab/tiny` and `genhpf` (`supervised`), `cehrbert` (`finetune`), and `everyquery`
-(`zero_shot_direct`).
+(`predict_only`), `meds_tab/tiny` and `genhpf` (`supervised`), `cehrbert` (`finetune`), `everyquery`
+(`zero_shot_direct`), and `curiosity/small` (`zero_shot_materialized`).
 
 #### Migrating a `model.yaml` with a `commands` block
 
