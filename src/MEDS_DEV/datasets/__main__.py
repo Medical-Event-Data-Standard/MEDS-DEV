@@ -117,3 +117,7 @@ def main(cfg: DictConfig):
             cwd=build_temp_dir,
         )
         logger.info(f"Build {cfg.dataset} command {build_cmd} completed successfully.")
+
+
+if __name__ == "__main__":  # pragma: no cover
+    main()

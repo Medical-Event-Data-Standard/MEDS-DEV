@@ -1,5 +1,6 @@
 import json
 import logging
+import sys
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -56,3 +57,12 @@ def validate_result(cfg: DictConfig):
         Result.from_json(result_fp)
     except Exception as e:
         raise ValueError("Result should be packaged and decodable") from e
+
+
+if __name__ == "__main__":  # pragma: no cover
+    # This module hosts two entry points, so `python -m MEDS_DEV.results` takes the command name first, e.g.
+    # `python -m MEDS_DEV.results validate result_fp=...`; the remaining arguments go to that command.
+    commands = {"pack": pack_result, "validate": validate_result}
+    if len(sys.argv) < 2 or sys.argv[1] not in commands:
+        sys.exit(f"usage: python -m MEDS_DEV.results {{{','.join(commands)}}} [OVERRIDES...]")
+    commands[sys.argv.pop(1)]()
