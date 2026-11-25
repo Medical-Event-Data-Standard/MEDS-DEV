@@ -1,0 +1,112 @@
+predicates:
+  # Codes are those of K-MIMIC-MEDS 0.1.0. Every subject in the SYN-ICU release has exactly one hospital
+  # admission and one ICU stay.
+  #
+  # Note: the synthetic release places 11-19% of chart, lab, medication, fluid and procedure events after
+  # the hospital discharge time, and every deceased subject has events after death. K-MIMIC-MEDS keeps them
+  # as recorded; see the dataset README.
+  hospital_admission:
+    code: { regex: "^HOSPITAL_ADMISSION//.*" }
+  hospital_discharge:
+    code: { regex: "^HOSPITAL_DISCHARGE//.*" }
+
+  ED_registration:
+    code: ED_REGISTRATION
+  ED_discharge:
+    code: ED_OUT
+
+  icu_admission:
+    code: { regex: "^ICU_ADMISSION//.*" }
+  icu_discharge:
+    code: { regex: "^ICU_DISCHARGE//.*" }
+
+  # Lab results are `LAB//RESULT//<itemid>//<unit>`, timed at `storetime`. The item ids were identified
+  # from the release's lab dictionary (`syn_d_labitems`) and checked against the unit and value distribution
+  # of each item. Every unit equals the task's threshold unit (mmol/L = mEq/L, x10^3/uL = K/uL).
+
+  # Serum creatinine (Korean EDI D2280004), mg/dL.
+  creatinine:
+    code: LAB//RESULT//001L3041//mg/dL
+  abnormally_high_creatinine:
+    code: LAB//RESULT//001L3041//mg/dL
+    value_min: 1.3 # mg/dL
+    value_min_inclusive: False
+    value_max: null
+
+  # Serum sodium (EDI D2800024), mmol/L.
+  sodium:
+    code: LAB//RESULT//001L3043//mmol/L
+  abnormally_low_sodium:
+    code: LAB//RESULT//001L3043//mmol/L
+    value_min: null
+    value_max: 135 # mEq/L
+    value_max_inclusive: False
+
+  # Serum total CO2 (EDI D2830004) and blood-gas HCO3 (001L30824), both mmol/L. SICdb and MIMIC-IV likewise
+  # combine a serum and a second bicarbonate source.
+  bicarbonate_1:
+    code: LAB//RESULT//001L3047//mmol/L
+  bicarbonate_2:
+    code: LAB//RESULT//001L30824//mmol/L
+  abnormally_low_bicarbonate_1:
+    code: LAB//RESULT//001L3047//mmol/L
+    value_min: null
+    value_max: 22 # mEq/L
+    value_max_inclusive: False
+  abnormally_low_bicarbonate_2:
+    code: LAB//RESULT//001L30824//mmol/L
+    value_min: null
+    value_max: 22 # mEq/L
+    value_max_inclusive: False
+  bicarbonate:
+    expr: or(bicarbonate_1, bicarbonate_2)
+  abnormally_low_bicarbonate:
+    expr: or(abnormally_low_bicarbonate_1, abnormally_low_bicarbonate_2)
+
+  # Hemoglobin in EDTA blood (EDI D0002054), g/dL. The other g/dL CBC item is the MCHC and is excluded.
+  hemoglobin:
+    code: LAB//RESULT//001L2003//g/dL
+  abnormally_low_hemoglobin:
+    code: LAB//RESULT//001L2003//g/dL
+    value_min: null
+    value_max: 13 # g/dL
+    value_max_inclusive: False
+
+  # White blood cell count (EDI D0002014), 10^3/uL = K/uL.
+  wbc:
+    code: LAB//RESULT//001L2001//×10³/㎕
+  abnormally_high_wbc:
+    code: LAB//RESULT//001L2001//×10³/㎕
+    value_min: 11 # K/uL
+    value_min_inclusive: False
+    value_max: null
+
+  # Platelet count (EDI D0002074), 10^3/uL = K/uL.
+  platelets:
+    code: LAB//RESULT//001L2009//×10³/㎕
+  abnormally_low_platelets:
+    code: LAB//RESULT//001L2009//×10³/㎕
+    value_min: null
+    value_max: 150 # K/uL
+    value_max_inclusive: False
+
+  # Mean arterial pressure from the two bedside monitor channels that chart it, `ICU_CHART//<itemid>//mmHg`.
+  # The mean airway pressure (cmH2O) is excluded.
+  map_1:
+    code: ICU_CHART//001C_1014_27095//mmHg
+  map_2:
+    code: ICU_CHART//001C_1017_27095//mmHg
+  abnormally_low_map_1:
+    code: ICU_CHART//001C_1014_27095//mmHg
+    value_min: null
+    value_max: 65 # mmHg
+    value_max_inclusive: False
+  abnormally_low_map_2:
+    code: ICU_CHART//001C_1017_27095//mmHg
+    value_min: null
+    value_max: 65 # mmHg
+    value_max_inclusive: False
+  map:
+    expr: or(map_1, map_2)
+  abnormally_low_map:
+    expr: or(abnormally_low_map_1, abnormally_low_map_2)
