@@ -1,0 +1,23 @@
+metadata:
+  description: >-
+    The count baseline of FEMR: FEMR's age and count featurizers (one column per code, and per code and text
+    value pair, counted over each subject's history up to the prediction time), followed by an XGBoost
+    classifier with default hyperparameters. It follows FEMR's "Count Featurization And Modeling" tutorial.
+  links:
+    - https://github.com/som-shahlab/femr
+  contacts:
+    - name: "Florent Pollet"
+      github_username: "florian6973"
+profile: supervised
+steps:
+  # FEMR reads the dataset as a meds_reader database: independent of the task, so shared by every task.
+  preprocess_data: >-
+    meds_reader_convert {dataset_dir} {step_dir}/meds_reader --num_threads $(nproc)
+
+  # Fits FEMR's featurizers and the classifier on the labels of the train split.
+  train_supervised: >-
+    python {model_dir}/femr_count.py train {preprocess_data_dir}/meds_reader {labels_dir} {step_dir} $(nproc)
+
+  predict_supervised: >-
+    python {model_dir}/femr_count.py predict {preprocess_data_dir}/meds_reader {labels_dir}
+    {train_supervised_dir} {split} {step_dir}/predictions.parquet $(nproc)

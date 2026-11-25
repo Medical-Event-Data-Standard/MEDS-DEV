@@ -1,0 +1,6 @@
+# The reviewed revision of FEMR; it is not in a PyPI release.
+femr @ git+https://github.com/som-shahlab/femr@a67aad87c44c4ec9581c65d079287b27ceb391fc
+# femr requires numpy<2, and pyarrow>=26 needs numpy>=2.
+pyarrow>=15,<26
+polars>=1
+xgboost==3.2.0
