@@ -28,19 +28,21 @@ MEDS-Tab generates features by computing the cross product of three elements:
 
 ## Models
 
-Both models pin `meds-tab==0.5.1` and train `medsboost`, MEDS-Tab's gradient-boosted trees for wide, sparse
-tabularized data.
+All models pin `meds-tab==0.5.1`. `meds_tab/tiny` and `meds_tab/large` train `medsboost`, MEDS-Tab's
+gradient-boosted trees for wide, sparse tabularized data; `meds_tab/lr` fits a logistic regression on the
+features of `meds_tab/large`.
 
-| Model                      | Codes                             | Windows                    | Aggregations                                                                          | Training                           |
-| -------------------------- | --------------------------------- | -------------------------- | ------------------------------------------------------------------------------------- | ---------------------------------- |
-| [`meds_tab/tiny`](tiny/)   | the 100 most frequent             | 7d, 30d                    | `code/count`, `value/sum`                                                             | 20-trial hyperparameter sweep      |
-| [`meds_tab/large`](large/) | every code seen at least 10 times | 2h, 12h, 1d, 7d, 30d, full | `static/present`, `code/count`, `code/recency`, `value/sum`, `value/min`, `value/max` | one model, default hyperparameters |
+| Model                      | Codes                             | Windows                    | Aggregations                                                                          | Training                                                        |
+| -------------------------- | --------------------------------- | -------------------------- | ------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| [`meds_tab/tiny`](tiny/)   | the 100 most frequent             | 7d, 30d                    | `code/count`, `value/sum`                                                             | `medsboost`, 20-trial hyperparameter sweep                      |
+| [`meds_tab/large`](large/) | every code seen at least 10 times | 2h, 12h, 1d, 7d, 30d, full | `static/present`, `code/count`, `code/recency`, `value/sum`, `value/min`, `value/max` | one `medsboost` model, default hyperparameters                  |
+| [`meds_tab/lr`](lr/)       | as `meds_tab/large`               | as `meds_tab/large`        | as `meds_tab/large`                                                                   | one logistic regression (`C=1`, `lbfgs`, up to 1000 iterations) |
 
-Both use the `supervised` profile, with three steps:
+All use the `supervised` profile, with three steps:
 
 1. `preprocess_data` (run once per dataset and shared by every task): the code frequencies over the training
     split;
-2. `train_supervised` (per task): the features at the task's prediction times, then the `medsboost` model;
+2. `train_supervised` (per task): the features at the task's prediction times, then the model;
 3. `predict_supervised` (per task): the model's predictions for the requested split.
 
 ## Citation
